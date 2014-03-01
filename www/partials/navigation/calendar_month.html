@@ -1,0 +1,121 @@
+<div>
+    <table class="table c4p-table-calendar-month" style="width:100%;table-layout: fixed;">
+        <thead>
+        <tr resize-opts="{name:'calendar_month_header'}">
+            <th class="empty" style="width:20px;"></th>
+            <th class="c4p-link5" ng-click="gotoPreviousYear()">
+                <a class="c4p-link1">
+                    <span class="glyphicon glyphicon-double-angle-left icon-large"></span><br>
+                    <h6 ng-hide="getResizeOneColumn()">{{calendarPreviousYear}}</h6>
+                </a>
+            </th>
+            <th class="c4p-link5" ng-click="gotoPreviousMonth()">
+                <a class="c4p-link1">
+                    <span class="glyphicon glyphicon-angle-left icon-large"></span><br>
+                    <h6 ng-hide="getResizeOneColumn()">{{calendarPreviousMonthName}}</h6>
+                </a>
+            </th>
+            <th class="disabled" colspan=3 style="text-align:center;vertical-align:middle;">
+                <h2 ng-hide="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</h2>
+                <span ng-show="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</span>
+            </th>
+            <th class="c4p-link5" ng-click="gotoNextMonth()">
+                <a class="c4p-link1">
+                    <span class="glyphicon glyphicon-angle-right icon-large"></span><br>
+                    <h6 ng-hide="getResizeOneColumn()">{{calendarNextMonthName}}</h6>
+                </a>
+            </th>
+            <th class="c4p-link5" ng-click="gotoNextYear()">
+                <a class="c4p-link1">
+                    <span class="glyphicon glyphicon-double-angle-right icon-large"></span><br>
+                    <h6 ng-hide="getResizeOneColumn()">{{calendarNextYear}}</h6>
+                </a>
+            </th>
+        </tr>
+
+        <tr ng-init="week = calendarMonthWeeks[0]"
+            style="height:20px;line-height:20px;"
+            resize-opts="{name:'calendar_month_week_header'}">
+            <th style="height:20px;line-height:20px;" class="disabled">
+                <small>{{translate('htmlCalendarMonthTextWeekAbrev')}}</small>
+            </th>
+            <th class="disabled"
+                style="height:20px;line-height:20px;"
+                ng-repeat="day in week.days" style="width:{{(width - 20) / week.days.length}}px;">
+                <small>{{day.shortName}}</small>
+            </th>
+        </tr>
+        </thead>
+
+        <tbody resize-opts="{name:'calendar_month_body', watchRefresh:'navAside'}"
+               resize-vars="{bodyHeight:&quot;getResizeHeight() -getResizePathValue('calendar_header', '', 'offsetHeight') -getResizePathValue('calendar_month_header', '', 'offsetHeight')&quot;}">
+        <tr ng-repeat="week in calendarMonthWeeks">
+            <td class="disabled" style="text-align: center;vertical-align: middle;">
+                <small>{{week.id}}</small>
+            </td>
+
+            <td ng-repeat="day in week.days"
+            	class="c4p-link5 c4p-table-cell"
+                ng-click="onDayClick(day.date)"
+                style="height:{{(bodyHeight / calendarMonthWeeks.length)}}px"
+                ng-class="{	'c4p-cell-initial': translateDateDayToString(day.date) == translateDateDayToString(calendarNow),
+								'c4p-cell-selected': translateDateDayToString(day.date) == translateDateDayToString(sel),
+								'c4p-cell-weekend': day.isWeekend,
+								'c4p-cell-disabled': day.date.getMonth() != calendarMonth}">
+
+                <!-- each days -->
+                <div style="width:100%;height:100%">
+
+                        <!-- event colors -->
+                        <div class="pull-left" style="position:relative; height:100%;width:8%;">
+                            <div ng-repeat="position in day.group.eventsPosition"
+                                 class="label c4p-label-calendar-notallday-inverse"
+                                 style="position:absolute; width:90%; padding:0; border:1px solid gray; top:{{position.posPercent}}%; height:{{position.lengthPercent}}%;"
+                                 ng-class="position.event.id">
+                                &nbsp;
+                            </div>
+                        </div>
+                        <!-- events names list -->
+                        <div class="pull-right" style="position:relative; height:100%;width:90%;">
+                            <div style="height:{{(bodyHeight / calendarMonthWeeks.length) - 20}}px;overflow:hidden;text-overflow:ellipsis;display:block;">
+                                <!-- allDay events -->
+                                <span ng-repeat="position in day.group.eventsAllDayPosition"
+                                      style="width:{{position.lengthPercent}}%; margin-left:{{position.posPercent}}%; padding:0; margin-top:1px; min-height:2px;"
+                                      class="label c4p-label-calendar-all-day a4p-dot">
+                                      <!--
+                                      <span class="hidden-xs hidden-sm"
+                                            ng-show="isMultiDayEventWithTimeToShow(event,day.date,true)">({{getEventTime(position.event.date_start)}})</span>
+                                      -->
+                                      <span class="hidden-xs hidden-sm">{{position.event.name}}</span>
+                                </span>
+                                <!-- Standart events -->
+                                <span ng-repeat="event in day.group.events"
+                                      style="width:100%; padding:0 0 0 5px"
+                                      class="label c4p-label-calendar-day a4p-dot hidden-xs hidden-sm">{{event.name}}</span>
+                            </div>
+                            <!-- More ...
+                            <small 	class="pull-right label c4p-label-calendar-dark">
+                                L:{{(day.group.eventsAllDay.length + day.group.events.length)}}
+                            - 	{{((((getResizeHeight() - 200)/ calendarMonthWeeks.length) - 20) / 20)}}
+                            </small>-->
+                            <small class="pull-left label c4p-label-calendar-light hidden-xs hidden-sm" style="padding:0"
+                                   ng-show="(20*(day.group.eventsAllDay.length + day.group.events.length)) > (((bodyHeight -24)/ calendarMonthWeeks.length) - 20)">{{translate('htmlCalendarMonthTextMore')}}</small>
+
+                            <!-- Day number -->
+                            <small class="pull-right label c4p-label-calendar" style="padding:0 3px;">{{day.date.getDate()}}</small>
+
+                        </div>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!--
+<div class="row" style="margin:0;"
+     ng-style="{width:(getMainWidth() + getAsideWidth())+'px'}"
+     resize-opts="{watchRefresh:['srvNav.item', 'srvNav.history']}">
+    <footer ng-include="'partials/navigation/footer_detail.html'"></footer>
+</div>
+-->

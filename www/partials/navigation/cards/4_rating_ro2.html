@@ -1,0 +1,10 @@
+<span style="position:relative;side:left;" ng-switch on="item.type">
+	<span ng-switch-when="check">
+		<c4p-check ng-model="item.value" readonly=true></c4p-check>
+		<span style="padding:0 0 0 10px;">{{item.name}}</span>
+	</span>
+	<span ng-switch-when="star">
+		<span style="padding:0 10px 0 0;">{{item.name}}</span>
+		<c4p-angular-ratings ng-model="item.value" readonly=true></c4p-angular-ratings>
+	</span>
+</span>

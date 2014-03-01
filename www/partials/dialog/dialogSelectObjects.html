@@ -1,0 +1,114 @@
+<!-- Update synchronously this file and dialogFacetSelected.html -->
+<div resize-opts="{}">
+    <!-- Header -->
+    <div class="row">
+        <div class="c4p-dialog-search-header c4p-color-a-dark-i" >
+            <div class="btn c4p-padding-w-packed c4p-color-action-transparent c4p-stroke"
+                 ng-show='createButton'
+                 ng-click='createObject()'>
+                <span class="c4p-icon-std glyphicon glyphicon-plus"></span>
+            </div>
+            <div class="btn c4p-padding-w-packed">
+                <span>{{srvLocale.translations.htmlTitleSelection[type]}}</span>
+            </div>
+            <!-- ATTENTION: Next line use for vertical align -->
+            <!-- Sync all icon-Xx value in this file to keep alignment -->
+            <div class="btn c4p-padding-w-packed">
+                <div class="c4p-icon-std glyphicon">&nbsp;</div>
+            </div>
+            <div class="pull-right" ng-hide="false">
+                <div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke"
+                     ng-click="validateDialog()" style="display: inline-block">
+                    <span class="c4p-icon-std glyphicon glyphicon-ok"></span>
+                </div>
+                &nbsp;
+                <div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke"
+                     ng-click="closeDialog()" style="display: inline-block">
+                    <span class="c4p-icon-std glyphicon glyphicon-remove"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Search -->
+    <div class="c4p-dialog-search-container c4p-color-a-dark-iii">
+        <div class="row">
+            <div class="col-xxs-12">
+                <span>{{srvLocale.translations.htmlTitleSelection[type]}}</span>
+            </div>
+        </div>
+        <div class="row" ng-show="suggestedOptions.length">
+            <div class="col-xxs-12 btn-group dropdown">
+                <button class="btn dropdown-toggle" data-toggle="dropdown" style="text-align: left;">
+                    <span class="c4p-n_1">{{srvLocale.translations.htmlTypeName[type]}} </span><span class="glyphicon glyphicon-caret-down"></span>
+                </button>
+                <ul class="dropdown-menu" style="width:100%">
+                    <li ng-repeat="suggestedOption in suggestedOptions">
+                        <a ng-click='toggleSuggestion($index)'>
+                            <span class="glyphicon glyphicon-ok" ng-show="suggestedOption.selected"></span>
+                            <span style="vertical-align:top">{{srvLocale.translations.htmlSuggestionName[suggestedOption.name]}} </span>
+                            <span class="badge glyphicon glyphicon-{{suggestedOption.icon}}"
+                                  style="vertical-align:bottom"
+                                  ng-show="suggestedOption.icon"></span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="controls controls-row col-xxs-12" style="position: relative;">
+                <input style="width:90%;"
+                       placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}"
+                       ng-model="showFilter" />
+                <span style="position: absolute; right: 10px;"
+                      ng-show="forceSearch" ng-click="search()"><span class="glyphicon glyphicon-search"></span></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xxs-12" ng-show="(suggestedOptions | filter:{selected:true}).length">
+                {{srvLocale.translations.htmlDialogSelectObjectsSugestionFilterIn}}
+                <span ng-repeat="suggestedOption in suggestedOptions | filter:{selected:true}" >
+                    <a class="active">
+                    {{srvLocale.translations.htmlSuggestionName[suggestedOption.name]}}
+                    </a>
+                    <span ng-hide="$last">,</span>
+                </span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xxs-12" ng-show="(suggestedOptions | filter:{selected:true}).length == 0">
+                {{srvLocale.translations.htmlDialogSelectObjectsSugestionFilterIn}}
+                <a>{{srvLocale.translations.htmlSuggestionName['all']}}</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Selection List -->
+<div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a"
+     resize-css-height="getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight')"
+     sense-opts="{axeY:'scroll', watchRefresh:'visibleElements.length'}"
+     sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}">
+    <div class="col-xxs-12">
+        <ul class='nav nav-stacked'>
+            <li	ng-repeat="element in (visibleElements = ( elements | listFilter:showFilter:false:'selected' | orderBy:'showName':false ))">
+                <div ng-click='toggleItem(element.id)' class="clearfix c4p-link5 c4p-select-objects-item">
+
+                    <span class="glyphicon glyphicon-ok icon-large pull-left"
+                          ng-class="{'c4p-invisible':!selectedIndex[element.id].selected}"></span>
+
+                    <!-- item data -->
+                    <div class="pull-left"
+                         ng-controller="ctrlNamedObject"
+                         ng-init="init(element.object)"
+                         ng-class="{scrollTop:element.scrollTo}">
+                        <span>{{itemName}}</span>
+                    </div>
+
+                    <!-- filter infos -->
+                    <span 	ng-repeat="suggestedOption in suggestedOptions"
+                            class="badge glyphicon glyphicon-{{suggestedOption.icon}}"
+                            ng-show="selectedIndex[element.id][suggestedOption.name]"></span>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>

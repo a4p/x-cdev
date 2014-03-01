@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.apps4pro.c4p" version="13S502" 
+    xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>MeetingPad</name>
+    <description>
+        Sales MobPad.
+    </description>
+    
+    <author href="https://apps4pro.com" email="contact@apps4pro.com">
+        Apps4pro Team
+    </author>
+    
+    <content src="index.html" />
+    <access origin="*" />
+</widget>
