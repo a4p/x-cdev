@@ -1,0 +1,39 @@
+
+<!-- grab zone  -->
+<div class="btn c4p-padding-w-packed c4p-color-gradient0 click-intercepted"
+     style="position:absolute; top:50%; right: 0;height:2em; margin-top:-1em;box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.5);z-index: 5;"
+     ng-click="setNavAside(false)"
+     ng-show="isOnePageFormat() && (srvNav.current == null) ">
+    <span class="c4p-icon-std glyphicon glyphicon-ellipsis-vertical"></span>
+</div>
+
+
+<!-- drop zone -->
+<div class="half-circle-left c4p-color-gradient0 click-intercepted"
+     style="position:absolute; top:50%; right: 0; margin-top:-4em;box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.5);z-index: 8;"
+     ng-show="isOnePageFormat() && (srvNav.current!=null) "
+     ng-class="{'c4p-dropzone-active': dndActive, 'c4p-dropzone-active-hover': dropOver}"
+     ng-controller="ctrlLinkActions"
+     ng-click="setNavAside(false)"
+     sense-opts="{name:'navigation_detail_small_drop_zone'}"
+     sense-dnd-start="dndStart($event)"
+     sense-dnd-end="dndEnd($event)"
+     sense-dnd-cancel="dndCancel($event)"
+     sense-drop-start="dropStart($event)"
+     sense-drop-end="dropEnd($event)"
+     sense-drop-cancel="dropCancel($event)"
+     sense-drop-over-enter="dropOverEnter($event)"
+     sense-drop-over-leave="dropOverLeave($event)">
+
+    <div class="c4p-icn-side-drop">
+        <span class="c4p-icon-std glyphicon glyphicon-{{srvNav.current.itemIcon}} "></span>
+    </div>
+    <div class="c4p-txt-side-drop"
+         ng-hide="dndActive">
+        <div class="rotate-txt">
+            <div class="c4p-no-dot-container">
+                <span class="c4p-no-dot:srvNav.current.itemName;">{{srvNav.current.itemName}}</span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,264 @@
+<header ng-include="'partials/navigation/config_header.html'"></header>
+<div class="row c4p-config-panel c4p-color-gradient1">
+    <!-- row class required to put footer in another line below or else sizes are not good for Resize calculations -->
+    <div sense-opts="{name:'config_main', axeY:'scroll'}"
+         sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}"
+         class="col-xxs-10 col-xxs-offset-1"
+         resize-opts="{name:'config_main'}"
+         resize-css-height="getResizeHeight() -getResizePathValue('config_header', '', 'offsetHeight') -getResizePathValue('navigation_footer_detail', '', 'offsetHeight')">
+        <div class="row">
+
+            <!-- Title -->
+            <div class="col-xxs-12 hidden-xs hidden-sm">
+                <div class="row navbar">
+                    <div class="col-xxs-10">
+                        <h2 class="c4p-n-title" ng-show="!isDemo">{{translate('htmlConfigPageTitle')}}
+                            {{email}}</h2>
+
+                        <h2 class="c4p-n-title" ng-show="isDemo">{{translate('htmlConfigPageTitle')}}
+                            {{translate('htmlConfigTextDemo')}}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xxs-12 hidden-md hidden-lg">
+                <div class="row navbar">
+                    <div class="col-xxs-11 col-xxs-offset-1">
+                        <h4 class="c4p-n-title" ng-show="!isDemo">{{translate('htmlConfigPageTitle')}}
+                            {{email}}</h4>
+                        <h4 class="c4p-n-title" ng-show="isDemo">{{translate('htmlConfigPageTitle')}}
+                            {{translate('htmlConfigTextDemo')}}</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xxs-12">
+                <!-- Login -->
+                <div class="row" style="padding-bottom:20px;">
+                    <button class="col-xxs-6 col-xs-6  col-sm-4   btn btn-primary "
+                            ng-click="gotoLogin()"
+                            ng-show="!isDemo">
+                        {{translate('htmlButtonChangeUser')}}
+                    </button>
+                    <button class="col-xxs-6 col-xs-6  col-sm-4   btn btn-primary"
+                            ng-click="gotoLogin()"
+                            ng-show="isDemo">
+                        {{translate('htmlButtonLogin')}}
+                    </button>
+                    <div class="col-xxs-6 col-xs-6  col-sm-4   btn btn-link c4p-link5">
+                        <a ng-click="gotoRegister()">{{translate('htmlButtonRegister')}}</a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xxs-12">
+                        <form >
+
+                            <!--  Lang -->
+                            <div class="row">
+                                <label class="c4p-form-label col-xxs-6 col-xs-6  col-sm-4 control-label"
+                                       lang='en' name="Language">
+                                    {{translate('htmlConfigTextLang')}}
+                                </label>
+
+                                <div class="col-xxs-6 col-xs-6  col-sm-4   controls dropdown pull-left">
+                                    <a class="dropdown-toggle btn btn-link c4p-link5" data-toggle="dropdown"><span>{{srvLocale.lang.title}} </span><span class="glyphicon glyphicon-caret-down"></span></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li ng-repeat="link in srvLocale.langs">
+                                            <a class="" ng-click="srvLocale.setLang(link)"><span>{{link.title}}</span></a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!--  Name composition -->
+                            <div class="row"
+                                 ng-repeat="objectType in getObjectTypes()"
+                                 c4p-show="getDisplayNameList(objectType).length > 1">
+                                <label class="c4p-form-label col-xxs-6 col-xs-6  col-sm-4   control-label">
+                                    {{translate('htmlConfigTextNameComposition')}} {{srvLocale.translations.htmlTitle[objectType]}}
+                                </label>
+
+                                <div class="col-xxs-6 col-xs-6  col-sm-4   controls dropdown pull-left">
+                                    <a class="dropdown-toggle btn btn-link c4p-link5" data-toggle="dropdown">
+                                        <span ng-repeat="key in getCurrentNameComposition(objectType)">{{translate(getHtmlFieldTitle(objectType, key))}} </span>
+                                        <span class="glyphicon glyphicon-caret-down"></span>
+                                    </a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li ng-repeat="names in getDisplayNameList(objectType)"
+                                                ng-click="setNameComposition(objectType, $index)">
+                                            <a><span ng-repeat="key in names">{{translate(getHtmlFieldTitle(objectType, key))}} </span></a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+
+                            <!-- PIN Code -->
+                            <div class="row">
+                                <label class="c4p-form-label col-xxs-6 col-xs-6  col-sm-4   control-label">{{translate('htmlConfigTextAuth')}}</label>
+
+                                <div class="col-xxs-6 col-xs-6  col-sm-4   controls dropdown pull-left">
+                                    <a class="dropdown-toggle btn btn-link c4p-link5" data-toggle="dropdown">
+                                        <span class="pull-left">
+                                            <span ng-show="secureMode">{{translate('htmlConfigTextYes')}} </span>
+                                            <span ng-hide="secureMode">{{translate('htmlConfigTextNo')}} </span>
+                                        </span>
+                                        <span class="glyphicon glyphicon-caret-down"></span>
+                                    </a>
+
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li>
+                                            <a class="" ng-click="setSecureMode(false)">
+                                                <span>{{translate('htmlConfigTextNo')}}</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="" ng-click="setSecureMode(true)">
+                                                <span>{{translate('htmlConfigTextYes')}}</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <a ng-click="modifyPinCode()" ng-show="srvSecurity.isSecured() && srvSecurity.isVerified()">{{translate('htmlConfigTextModifyPINCode')}}</a>
+                                </div>
+                            </div>
+
+                            <!-- CRM used -->
+                            <div class="row" ng-click="dialogActiveCrm()">
+                                <label class="c4p-form-label col-xxs-6 col-xs-6  col-sm-4   control-label">{{translate('htmlConfigTextCrmUse')}}</label>
+                                <div class="col-xxs-6 col-xs-6  col-sm-4   controls">
+                                    <!-- TODO: clear() srvData and reload fullMap upon each change of activeCrm -->
+                                    <a class="btn btn-link c4p-link5">
+                                        <span ng-repeat="crm in srvConfig.activeCrms"> {{srvLocale.translations.htmlConfigCrmList[crm]}}</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Bug report -->
+                            <div class="row">
+                                <label class="c4p-form-label col-xxs-6 col-xs-6  col-sm-4   control-label">{{translate('htmlConfigTextErrorReport')}}</label>
+
+                                <div class="col-xxs-6 col-xs-6  col-sm-4   controls">
+                                    <a class="btn btn-link c4p-link5" ng-click="sendErrorReport()">Send</a>
+                                </div>
+                            </div>
+
+                            <!-- User Feedback / Bug report -->
+                            <div class="row">
+                                <label class="c4p-form-label col-xxs-6 col-xs-6  col-sm-4    control-label">{{translate('htmlConfigTextFeedback')}}</label>
+
+                                <div class="col-xxs-6 col-xs-6  col-sm-4   controls">
+                                    <a class="btn btn-link c4p-link5" ng-click="sendFeedback()">Send</a>
+                                </div>
+                            </div>
+
+                            <!-- Beta Mode : not editable in PROD but can be activated in c4p_conf file -->
+
+                            <div class="row" ng-hide="srvConfig.env == 'P'">
+                                <label class="c4p-form-label col-xxs-6 col-xs-6  col-sm-4   control-label">{{translate('htmlConfigTextBeta')}}</label>
+                                <div class="col-xxs-6 col-xs-6  col-sm-4   controls pull-left">
+                                    <a class="btn btn-link c4p-link5">
+                                        <span class='glyphicon glyphicon-check icon-large' ng-show='srvConfig.c4pConfig.exposeBetaFunctionalities' ng-click='setBetaMode(false)'></span>
+                                        <span class='glyphicon glyphicon-unchecked icon-large' ng-hide='srvConfig.c4pConfig.exposeBetaFunctionalities' ng-click='setBetaMode(true)'></span>
+                                    </a>
+                                </div>
+                            </div>
+
+
+                            <!-- Theme  -->
+                            <div class="row" ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">
+
+                                <label class="c4p-form-label col-xxs-6 col-xs-6  col-sm-4   control-label">{{translate('htmlConfigTextTheme')}}</label>
+
+                                <div class="col-xxs-6 col-xs-6  col-sm-4   controls">
+                                    <div class="btn">
+                                        <select ng-model="themeCss"
+                                                ng-change="setThemeCss(themeCss)"
+                                                ng-options="theme.key as srvLocale.translations.htmlTextTheme[theme.key] for theme in themes">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Html Font Size  -->
+                            <div class="row">
+
+                                <label class="c4p-form-label col-xxs-6 col-xs-6  col-sm-4   control-label">{{translate('htmlConfigTextSize')}}</label>
+
+                                <div class="col-xxs-6 col-xs-6  col-sm-4   controls">
+                                    <div class="btn">
+                                        <select ng-model="sizeCss"
+                                                ng-change="setSizeCss(sizeCss)"
+                                                ng-options="sizeValue for sizeValue in getPossibleSizeCss()">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Beta IHM flags -->
+                            <div ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities"
+                                 ng-repeat="(prmKey,prmValue) in srvConfig.c4pConfig track by prmKey">
+                                <div class="row form-group" ng-hide="prmKey == 'exposeBetaFunctionalities'">
+                                    <label class="c4p-form-label col-xxs-6 col-xs-6  col-sm-4   control-label">{{srvLocale.translations.htmlConfigCheckList[prmKey]}}</label>
+                                    <div class="col-xxs-6 col-xs-6  col-sm-4   controls pull-left">
+                                        <a class="btn btn-link c4p-link5"><c4p-check ng-model="srvConfig.c4pConfig[prmKey]" on-change="checkBetaCfgPrm(prmKey)" readonly="false"></c4p-check></a>
+                                    </div>
+                                    <!--
+                                    <div class="col-xxs-6 col-xs-6  col-sm-4   controls dropdown pull-left">
+                                        <a class="dropdown-toggle btn btn-link c4p-link5" data-toggle="dropdown">
+                                            <span class="pull-left">
+                                                <span ng-show="srvConfig.c4pConfig[prmKey]">{{srvLocale.translations.htmlConfigTextYes}} </span>
+                                                <span ng-hide="srvConfig.c4pConfig[prmKey]">{{srvLocale.translations.htmlConfigTextNo}} </span>
+                                            </span>
+                                            <span class="glyphicon glyphicon-caret-down"></span>
+                                        </a>
+
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li>
+                                                <a class="" ng-click="setBetaCfgPrm(prmKey, false)">
+                                                    <span>{{srvLocale.translations.htmlConfigTextNo}}</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="" ng-click="setBetaCfgPrm(prmKey, true)">
+                                                    <span>{{srvLocale.translations.htmlConfigTextYes}}</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    -->
+                                </div>
+                            </div>
+
+                            <!-- Empty row to reserve some space for dropdown dialogs visibility -->
+                            <div class="row">
+                                <label class="c4p-form-label col-xxs-6 col-xs-6  col-sm-4   control-label">&nbsp;</label>
+                                <div class="col-xxs-6 col-xs-6  col-sm-4   controls">&nbsp;</div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!--  App Version -->
+                    <div class="col-xxs-12">
+                        <small>
+                            {{translate('htmlConfigTextAppVersion')}}
+                            v<span id="a4pDeviceDetectorWidth" app-version></span>
+                            <span id="a4pDeviceDetectorHeight"> {{srvConfig.c4pBuildDate}} {{srvConfig.env}}</span>
+                            <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span>
+                        </small>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!--
+<div class="row" style="margin:0;"
+     ng-style="{width:getResizeWidth()+'px'}"
+     resize-opts="{watchRefresh:['srvNav.item', 'srvNav.history']}">
+    <footer ng-include="'partials/navigation/footer_detail.html'"></footer>
+</div>
+

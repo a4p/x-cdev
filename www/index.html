@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <!--
     Licensed to the Apache Software Foundation (ASF) under one
@@ -43,3 +44,218 @@
         </script>
     </body>
 </html>
+=======
+<!doctype html>
+<html>
+<head>
+
+    <title>c4p</title>
+
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1">
+    <!--  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.3, user-scalable=no, minimum-scale=1.3, maximum-scale=1.3">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.3, maximum-scale=1.3">
+
+    <meta name="viewport" content="width=device-width, height=device-height,  initial-scale=1, maximum-scale=1, user-scalable=no">
+-->
+	<meta name="viewport" content="width=device-width, height=device-height,  initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="description" content="">
+    <meta name="author" content="Apps4Pro">
+
+
+    <link href="l4p/css/c4p-theme-apps4pro.css" rel="stylesheet" type="text/css" id="c4p-css" >
+    <link href="l4p/css/jquery.noty.css" rel="stylesheet" type="text/css">
+    <link href="l4p/css/noty_theme_default.css" rel="stylesheet" type="text/css">
+
+
+
+	<script language="javascript">
+	var blockMove = function (e) {
+	   		if (e.preventDefault) e.preventDefault() ;
+     }
+    </script>
+
+    <style type="text/css">
+        * {
+            -webkit-touch-callout: none; /* prevent callout to copy image, etc when tap to hold */
+            -webkit-user-drag: none; /* IMPORTANT : prevent Chrome to drag by itself */
+            -webkit-text-size-adjust: none; /* prevent webkit from resizing text to fit */
+            /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        }
+        *:not(input):not(textarea) {
+            -webkit-user-select: none; /* prevent copy paste, to allow, change 'none' to 'text' */
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.browser.js"></script>
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+    <!-- weinre 
+    <script src="http://192.168.0.33:8082/target/target-script-min.js"></script>-->
+
+
+</head>
+<body ng-app="c4p" ontouchmove="blockMove(event)" onscroll="blockMove(event)" resize-opts="{name:'index_body'}">
+	<div ng-controller="responsiveCtrl">
+		<div ng-controller="navigationCtrl" ng-init="initNavigationCtrl()"
+             resize-opts="{name:'navigation'}" resize-before-window="beforeWindowSizeChanged()" ng-class="{'c4p-blur':isBlurOn}">
+            <!-- ng-click just for calling $apply in case of resolve() lock -->
+            <div id="a4pBody" ng-switch="getPageFromIndex()">
+	      		<div class="container" ng-switch-when="navigation" ng-include="'partials/navigation/_main.html'"></div>
+	      		<div class="container" ng-switch-when="guider" ng-include="'partials/guider/_main.html'" ></div>
+	      		<div class="container" ng-switch-when="meeting" ng-include="'partials/meeting/_main.html'" ></div>
+	      		<div class="container" ng-switch-when="timeline" ng-include="'partials/timeline/_main.html'" ></div>
+	        	<div ng-switch-default><a ng-click="console.log('click')">...</a></div>
+	  		</div>
+            <div id="a4pWaiter" class="c4p-waiting"  style="display: none;">
+                    <img src="img/loader.gif" style="padding-top: 30%; padding-left: 50%"  />
+            </div>
+		</div>
+	</div>
+
+	<!-- Load jQuery BEFORE Angular otherwise Angular loads its own JQuery lite version -->
+	<script type="text/javascript" src="l4p/libs/js/jquery/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.log.js"></script>
+    <script type="text/javascript" src="js/a4p/appcache.js"></script>
+	<script type="text/javascript" src="l4p/libs/js/angular/angular-a4p-patched.1.1.4.js"></script>
+	<script type="text/javascript" src="l4p/libs/js/angular/angular-resource.min.1.1.4.js"></script>
+    <script type="text/javascript" src="l4p/libs/js/angular/ui-bootstrap-tpls-0.5.0-c4p.js"></script>
+
+    <!-- Google Map -->
+    <!--
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=true&language=en"></script>
+	-->
+	<script type="text/javascript" src="js/directive/angular-google-maps.js"></script>
+
+	<!-- JS libs -->
+	<!-- <script type="text/javascript" src="l4p/libs/js/iscroll-a4p-patched.js"></script>
+	<script type="text/javascript" src="l4p/libs/js/ga.js"></script> -->
+    <script type="text/javascript" src="l4p/libs/js/bootstrap/bootstrap.min.js"></script>
+    <script type="text/javascript" src="l4p/libs/js/md5.js"></script>
+
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.all.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.array.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.perf.js"></script>
+	<script type="text/javascript" src="l4p/src/js/a4p/a4p.file.js"></script>
+	<script type="text/javascript" src="l4p/src/js/a4p/a4p.analytics.js"></script>
+	<script type="text/javascript" src="l4p/src/js/a4p/a4p.storage.js"></script>
+	<script type="text/javascript" src="l4p/src/js/a4p/a4p.stringFormat.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.hex.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.utf8.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.base64.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.sha1.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.aes.js"></script>
+	<script type="text/javascript" src="l4p/src/js/a4p/a4p.json.js"></script>
+	<script type="text/javascript" src="l4p/src/js/a4p/a4p.xml.js"></script>
+	<script type="text/javascript" src="l4p/src/js/a4p/a4p.taskReceiver.js"></script>
+	<script type="text/javascript" src="l4p/src/js/a4p/a4p.taskSender.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.moveDrawer.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.moveInterpolator.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.bezierDrawer.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.bezierInterpolator.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.gestureDrawer.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.gestureInterpolator.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.pointSampler.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.resize.js"></script>
+    <script type="text/javascript" src="l4p/src/js/a4p/a4p.sense.js"></script>
+    <script type="text/javascript" src="l4p/src/js/c4p/c4p.model.js"></script>
+
+
+	<!-- Jquery libs -->
+	<script type="text/javascript" src="l4p/libs/js/jquery-plugins/jquery.noty.js"></script>
+	<script type="text/javascript" src="l4p/libs/js/jquery-plugins/spin.js"></script>
+	<script type="text/javascript" src="l4p/libs/js/jquery-plugins/TimelineJS-master/compiled/js/storyjs-embed.js"></script>
+
+	<!-- App -->
+    <script type="text/javascript" src="models/c4p_locale.js"></script>
+    <script type="text/javascript" src="models/c4p_demo.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlAddDialogObject.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlAddAccount.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlAddContact.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlAddRatings.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlDialogConfirm.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlDialogDemoMode.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlDialogICal.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlDupMeeting.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlEditDialogEmail.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlEditDialogErrorReport.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlEditDialogFeed.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlEditDialogFeedback.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlEditDialogNote.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlEditDialogObject.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlFacetSelectedDialog.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlGoToMeetingDialog.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlGuiderDialog.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlInitDialogPinCode.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlModifyDialogPinCode.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlOpenDialogLocked.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlSelectCrmsDialog.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlSelectDialog.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlSelectObjectsDialog.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlShowImage.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlTimeline.js"></script>
+    <script type="text/javascript" src="js/controller/dialog/ctrlDupMeeting.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlAction.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlAside.js"></script>
+   	<script type="text/javascript" src="js/controller/ctrlCalendar.js"></script>
+   	<script type="text/javascript" src="js/controller/ctrlConfig.js"></script>
+   	<script type="text/javascript" src="js/controller/ctrlDetail.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlDetailedObject.js"></script>
+   	<script type="text/javascript" src="js/controller/ctrlDetailLink.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlDragObject.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlTrashObject.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlEditObject.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlInlinedObject.js"></script>
+	<script type="text/javascript" src="js/controller/ctrlMeeting.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlMeetingElementDrag.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlMeetingElementDrop.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlMeetingObjLinkDrop.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlMeetingRemoveDrop.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlNavigation.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlNavObject.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlNamedObject.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlResponsive.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlResumedObject.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlSingleTap.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlLinkActions.js"></script>
+	<script type="text/javascript" src="js/controller/ctrlViewer.js"></script>
+    <script type="text/javascript" src="js/directive/accordion.js"></script>
+    <script type="text/javascript" src="js/directive/all.js"></script>
+    <script type="text/javascript" src="js/directive/carousel.js"></script>
+    <script type="text/javascript" src="js/directive/fields.js"></script>
+    <script type="text/javascript" src="js/directive/inputs.js"></script>
+    <script type="text/javascript" src="js/directive/navigation.js"></script>
+    <script type="text/javascript" src="js/directive/timeline.js"></script>
+   	<script type="text/javascript" src="js/directive/viewer.js"></script>
+    <script type="text/javascript" src="js/service/srvConfig.js"></script>
+    <script type="text/javascript" src="js/service/srvData.js"></script>
+    <script type="text/javascript" src="js/service/srvDataTransfer.js"></script>
+    <script type="text/javascript" src="js/service/srvFacet.js"></script>
+    <script type="text/javascript" src="js/service/srvFileTransfer.js"></script>
+    <script type="text/javascript" src="js/service/srvGuider.js"></script>
+    <script type="text/javascript" src="js/service/srvLink.js"></script>
+    <script type="text/javascript" src="js/service/srvLoad.js"></script>
+    <script type="text/javascript" src="js/service/srvLocale.js"></script>
+    <script type="text/javascript" src="js/service/srvLog.js"></script>
+    <script type="text/javascript" src="js/service/srvModel.js"></script>
+    <script type="text/javascript" src="js/service/srvNav.js"></script>
+    <script type="text/javascript" src="js/service/srvOpenUrl.js"></script>
+    <script type="text/javascript" src="js/service/srvRunning.js"></script>
+	<script type="text/javascript" src="js/service/srvSecurity.js"></script>
+	<script type="text/javascript" src="js/service/srvSynchro.js"></script>
+    <script type="text/javascript" src="js/service/srvTime.js"></script>
+	<script type="text/javascript" src="js/app.js"></script>
+	<script type="text/javascript" src="js/filters.js"></script>
+
+</body>
+</html>
+>>>>>>> FETCH_HEAD
