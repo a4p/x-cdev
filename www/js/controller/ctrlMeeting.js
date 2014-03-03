@@ -141,7 +141,12 @@ function ctrlMeeting($scope, $dialog, srvData, srvConfig, srvNav, srvLocale, srv
      */
 
     $scope.initMeetingElements = function () {
-        srvAnalytics.add('Meeting', 'Read', '', 'Meeting', 'view');
+
+        //GA: user really interact with meeting, he shows meeting to N attendees
+        srvAnalytics.add('Once', 'Meeting Show');
+        var attendee = srvData.getTypedDirectLinks($scope.srvNav.item, 'child', 'Attendee');
+        if (attendee) srvAnalytics.add('Uses', 'Meeting Show - N',attendee.length);
+
         $scope.plans = srvData.getTypedDirectLinks($scope.srvNav.item, 'child', 'Plan');
         $scope.plans = $scope.plans.sort(function(planA, planB) {
             // sort numerically by ascending order of position attribute

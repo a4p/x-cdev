@@ -57,7 +57,6 @@ var SrvConfig = (function() {
         this.initBetaOptions();
 
         this.env = 'P';
-        //srvAnalytics.setEnv(this.env);
         this.initDone = false;
     }
 
@@ -91,6 +90,11 @@ var SrvConfig = (function() {
             //$('html').css('font-size', this.sizeCss);
         }
         this.themeCss = this.srvLocalStorage.get('ThemeCss', 'c4p-cosmo');
+
+        //TODO app version (Free, Premium, SF ...)
+        var appVersion = this.activeCrms.length > 1 ? 'Premium' : 'Free';  
+        //GA : set Version ID
+        this.srvAnalytics.setVid(this.c4pBuildDate+' '+this.env+' '+appVersion);
 
         this.initDone = true;
         a4p.InternalLog.log('srvConfig', "initialized");
@@ -136,6 +140,12 @@ var SrvConfig = (function() {
                 a4p.InternalLog.log('srvConfig', 'trustAllHosts='+response.data.trustAllHosts);
                 self.setTrustAllHosts(response.data.trustAllHosts);
             }
+
+            //TODO app version (Free, Premium, SF ...)
+            var appVersion = self.activeCrms.length > 1 ? 'Premium' : 'Free';  
+            //GA : set Version ID
+            self.srvAnalytics.setVid(self.c4pBuildDate+' '+self.env+' '+appVersion);
+
             callback();
         };
         var onFailure = function (response) {

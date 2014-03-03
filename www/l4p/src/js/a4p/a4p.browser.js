@@ -45,6 +45,8 @@ a4p.BrowserCapabilities = (function (navigator, window, document) {
     capacities.hasTransform = (capacities.vendor != '');
     capacities.hasTransitionEnd = prefixStyle('transition') in dummyStyle;
 
+    capacities.online = navigator.onLine;
+
     capacities.RESIZE_EVENT = 'onorientationchange' in window ? 'orientationchange' : 'resize';
     capacities.TRNEND_EVENT = (function () {
         if (capacities.vendor == '') return false;

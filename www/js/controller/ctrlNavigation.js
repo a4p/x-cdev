@@ -211,6 +211,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                 initLocalStorage($scope, deferred);
             });
             //a4p.InternalLog.log("begin url:"+$location.absUrl());
+            if (typeof StatusBar != null && StatusBar) StatusBar.styleBlackTranslucent(); // iOS status bar
         };
         //a4pCordovaReadyAddCallback(startApplication);// Can call synchronously (if no Cordova as in Chrome, or if Cordova is already ready)
         cordovaReady(startApplication)();// We HOPE that Cordova is ready !!!!
@@ -299,19 +300,11 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
             $scope.initializationFinished = true;
 
 
-            //GA : empty queue and push messages to GA
+            //GA : empty queue and launch first event
         	srvAnalytics.run();
-
-	        // GA : check if a push has already been sent to GA for app usage
-	        if(srvLocalStorage.get('a4p.Analytics' + version, false) == false) {
-	        	// Store variable to not send push multiple times
-	        	srvLocalStorage.set('a4p.Analytics' + version, true);
-
-	        	//Send push
-	         	srvAnalytics.add('App', 'Uses', version, null, 'event');
-	         }
-
-
+            var login = srvSecurity.getA4pLogin();
+            srvAnalytics.setUid(login);
+            srvAnalytics.add('Once', 'App launched');
 
             // Start network requests from srvData
             srvData.start();
@@ -359,7 +352,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         srvSecurity.init();
 
         $scope.isDemo = srvLocalStorage.get('DemoMode', false);
-        srvAnalytics.setEnabled(($scope.isDemo != true));
+        //?? srvAnalytics.setEnabled(($scope.isDemo != true));
         //MLE $scope.elementsOrderByAlphabet = srvLocalStorage.get('elementsOrderByAlphabet', {'contacts' : false, 'accounts' : false, 'opportunities' : false, 'documents' : false});
         $scope.firstConfigDone = srvLocalStorage.get('FirstConfigDone', false);
         $scope.rememberPassword = srvLocalStorage.get('RememberPassword', true);
@@ -406,7 +399,6 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
             // reset user identity
             srvSecurity.setDemo();
         }
-        srvAnalytics.setEnabled((isDemo != true));
 
         //Force download & refresh : do not use $scope.refreshClient();
         return $scope.downloadClient();
@@ -503,6 +495,11 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     };
 
     $scope.gotoWelcome = function () {
+        
+        //GA : reset User ID
+        var login = srvSecurity.getA4pLogin();
+        srvAnalytics.setUid(login);
+            
         $scope.gotoSlide($scope.pageNavigation, $scope.slideNavigationCalendar);
     };
 
@@ -1833,9 +1830,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                 srvData.addObjectToSave(document.a4p_type, document.id.dbid);
                 //$scope.selectItemAndCloseAside(document);
 
-                // GA : push object created (lead, contact, account, opportunity, note, report, calendar event)
-                // Measures the volume of created objects + functionality usage per user
-                srvAnalytics.add(document.a4p_type, 'Create', version, document.a4p_type, 'event');
+                //GA: user really interact with creation
+                srvAnalytics.add('Once', 'Create '+document.a4p_type);
 
                 deferred.resolve(document);
             });
@@ -2276,9 +2272,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         srvData.linkToItem(document.a4p_type, 'parent', [document], parent);
         srvData.addObjectToSave(document.a4p_type, document.id.dbid);
 
-        // GA : push object created (lead, contact, account, opportunity, note, report, calendar event)
-        // Measures the volume of created objects + functionality usage per user
-        srvAnalytics.add(document.a4p_type, 'Create', version, document.a4p_type, 'event');
+        //GA: user really interact with creation
+        srvAnalytics.add('Once', 'Create '+document.a4p_type);
 
         return document;
     };
@@ -2297,9 +2292,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         srvData.linkToItem(document.a4p_type, 'parent', [document], parent);
         srvData.addObjectToSave(document.a4p_type, document.id.dbid);
 
-        // GA : push object created (lead, contact, account, opportunity, note, report, calendar event)
-        // Measures the volume of created objects + functionality usage per user
-        srvAnalytics.add(document.a4p_type, 'Create', version, document.a4p_type, 'event');
+        //GA: user really interact with creation
+        srvAnalytics.add('Once', 'Create '+document.a4p_type);
 
         return document;
     };
@@ -2374,9 +2368,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
             function (result) {
                 if (a4p.isDefined(result)) {
 
-                	// GA : push mail created
-                	// Measures the volume of created emails + mail functionality usage per user
-    	         	srvAnalytics.add('Mail', 'Send', version, 'Mail', 'event');
+                    //GA: user really interact with creation
+                    srvAnalytics.add('Once', 'Create Mail');
 
                     a4p.safeApply($scope, function() {
                         var document = $scope.addEmailToParent(item, true, result, parent);

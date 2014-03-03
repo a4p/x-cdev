@@ -14,23 +14,18 @@ var a4p;
 if (!a4p) a4p = {};
 
 function successHandler(data) {
-	console.log("analytics success"+data);
-  	a4p.InternalLog.log('srvAnalytics', "initialization success : "+data);
+  	a4p.InternalLog.log('Analytics', "initialization success : "+data);
 }
 function errorHandler(data) {
-	console.error("analytics error"+data);
-  	a4p.InternalLog.log('srvAnalytics', "initialization pb : "+data);
+  	a4p.InternalLog.log('Analytics', "initialization pb : "+data);
 }
 
 
 a4p.Analytics = (function() {
 
-
-    //var Analytics = {};
-
-    // Public API
-
     var mAnalyticsLS = 'a4p.Analytics';
+    var mAnalyticsFunctionnalitiesLS = 'a4p.Analytics.functionalities';
+
 
 	function Analytics(localStorage, googleAnalytics_UA_ID) {
 
@@ -39,12 +34,16 @@ a4p.Analytics = (function() {
 			this.localStorage = localStorage;
 
         this.mAnalyticsArray = [];
+        this.mAnalyticsFunctionnalitiesArray = [];
         if (this.localStorage) {
-        	this.mAnalyticsArray = this.localStorage.get(mAnalyticsLS, this.mAnalyticsArray);
+            this.mAnalyticsArray = this.localStorage.get(mAnalyticsLS, this.mAnalyticsArray);
+            this.mAnalyticsFunctionnalitiesArray = this.localStorage.get(mAnalyticsFunctionnalitiesLS, this.mAnalyticsFunctionnalitiesArray);
         }
         //this.uuid = '';
         //this.isDemo = false;
         //this.env = 'P';
+        this.vid = 'vid_undefined';
+        this.uid = 'uid_undefined';
         this.initDone = false;
         this.bEnabled = true;
         this.googleAnalytics_UA_ID = googleAnalytics_UA_ID; // GA UA-XXXXXXXX-X
@@ -53,17 +52,18 @@ a4p.Analytics = (function() {
         this.gaPlugin = null;	//	GAPlugin queue
 	}
 
-    if (!Analytics.prototype.init) Analytics.prototype.init = function() {
+    // Public API
+    Analytics.prototype.init = function() {
         if (this.initDone) return;
 
         // GA Official queue
         if(typeof _gaq !== 'undefined') {
-        	a4p.InternalLog.log('srvAnalytics', 'googleAnalytics official launched.');
+        	a4p.InternalLog.log('Analytics', 'googleAnalytics official launched.');
         	this.gaQueue = _gaq || [];
         	this.gaQueue.push(['_setAccount', this.googleAnalytics_UA_ID]);
 			this.gaQueue.push(['_trackPageview']);
         }
-        else {a4p.InternalLog.log('srvAnalytics', 'googleAnalytics not defined.');}
+        else {a4p.InternalLog.log('Analytics', 'googleAnalytics not defined.');}
 
         // Plugin ? used ?
         /*if(typeof analytics !== 'undefined') {
@@ -75,7 +75,7 @@ a4p.Analytics = (function() {
         // GAPlugin
         if (typeof window.plugins !== 'undefined') {
             if(typeof window.plugins.gaPlugin !== 'undefined') {
-            	a4p.InternalLog.log('srvAnalytics', "GAPlugin launched.");
+            	a4p.InternalLog.log('Analytics', "GAPlugin launched.");
     			this.gaPlugin = window.plugins.gaPlugin;
             	this.gaPlugin.init(successHandler, errorHandler, this.googleAnalytics_UA_ID, 10);
             }
@@ -86,62 +86,83 @@ a4p.Analytics = (function() {
 
     /*Analytics.prototype.setDemo = function(isDemo) {
         this.isDemo = isDemo;
-    };
-
-    Analytics.prototype.setEnv = function(env) {
-        this.env = env;
     };*/
+
+    Analytics.prototype.setVid = function(vid) {
+        this.vid = vid;
+        a4p.InternalLog.log('Analytics', 'set vid ' + this.vid);
+    };
+    Analytics.prototype.setUid = function(uid) {
+        this.uid = uid;
+        a4p.InternalLog.log('Analytics', 'set uid ' + this.uid);
+    };
     Analytics.prototype.setEnabled = function(enable) {
         this.bEnabled = (enable == true);
+        a4p.InternalLog.log('Analytics', 'set enabled ' + this.bEnabled);
     };
 
-    Analytics.prototype.add = function(category, action, lbl, functionality, type) {
+    
+    // 1)  category - This is the type of event you are sending :
+    //          this.vid(14XXX - VERSION) + category(Once, Uses, Interest)
+    // 2)  eventAction - This is the type of event you are sending :
+    //          category(Once, Uses, Interest) + action(Login, Contact Creation, Meeting Show ...)
+    // 3)  eventLabel - A label that describes the event :
+    //          this.uid(user email)
+    // 4)  eventValue - An application defined integer value :
+    //          value(1 .. N)
+    //
+    // 
+    // 1)  category - This is the type of event you are sending :
+    //          this.vid(14XXX - VERSION) + category(Once, Uses, Interest)
+   
+    Analytics.prototype.add = function(category, action, value) {
 
-    		if (!this.bEnabled) return;
-			// Add element to push only in PROD env
-			//if (this.env == 'P') {
-    		//var mode = this.isDemo ? 'Demo' : 'Free';
+		if (!this.bEnabled || !category || !action) return;
 
-			//Store action and label into arr
-			var params = {
-                //mode: mode,
-                category: category,
-				action : action,
-				label : lbl,
-                type : type
-			};
+        //Check <action> functionnalities if Once.
+        var shouldBeTrackedAsEvent = true;
+        if (category == 'Once') {
+            for (var i = 0; i < this.mAnalyticsFunctionnalitiesArray.length && shouldBeTrackedAsEvent; i++) {
+                if (this.mAnalyticsFunctionnalitiesArray[i] === action) {
+                    shouldBeTrackedAsEvent = false;
+                }
+            }
+            if (shouldBeTrackedAsEvent) this.mAnalyticsFunctionnalitiesArray.push(action);
+        }
+        a4p.InternalLog.log('Analytics', 'shouldBeTrackedAsEvent ?' + shouldBeTrackedAsEvent);
 
-			// Push arr into message queue to be stored in local storage
-			this.mAnalyticsArray.push(params);
-	        a4p.InternalLog.log('Analytics', 'add ' + params.category + ', ' + params.action + ', ' + params.label);
+		//Store event & view
+        var paramEvent = {
+            vid : this.vid,
+            uid : this.uid,
+            type : 'event',
+            category: category,
+            action : action,
+            value : value || 1
+        };
+        var paramView = {
+            vid : this.vid,
+            uid : this.uid,
+            type : 'view',
+            category: category,
+            action : action,
+            value : value || 1
+        };
 
-	        // If functionality is not null, check in local storage that it has not already been pushed to GA
-	        // If not pushed, then add it to message queue and store event in local storage
-	        if (functionality) {
-	        	if (this.localStorage) {
+        // Push arr into message queue to be stored in local storage
+        a4p.InternalLog.log('Analytics', 'add ' + paramEvent.toString());
+        if (shouldBeTrackedAsEvent) this.mAnalyticsArray.push(paramEvent);
+        this.mAnalyticsArray.push(paramView);
+        if (this.localStorage) this.localStorage.set(mAnalyticsLS, this.mAnalyticsArray);
+        if (this.localStorage) this.localStorage.set(mAnalyticsFunctionnalitiesLS, this.mAnalyticsFunctionnalitiesArray);
 
-		        	if (this.localStorage.get(mAnalyticsLS + functionality + 'Funtionality', false) == false) {
-	    	        	// Store variable to not send push multiple times
-		        		this.localStorage.set(mAnalyticsLS + functionality + 'Funtionality', true);
-
-	    	        	// Send push
-		        		this.add('uses ' + functionality + ' funtionality', action, lbl, null);
-	    	        }
-	        	}
-	        }
-
-			if (this.localStorage) {
-	            this.localStorage.set(mAnalyticsLS, this.mAnalyticsArray);
-	        }
-			//}
+        // online, we launch events
+        if (checkConnection()) this.run();
 	};
 
 	Analytics.prototype.run = function() {
 
-
     		if (!this.bEnabled) return;
-			// Add element to push only in PROD env
-			//if (this.env == 'P') {
 	        a4p.InternalLog.log('Analytics', 'run - pushing ' + this.mAnalyticsArray.length + ' elements');
 	        //if (this.uuid == '') {
 	        //    this.uuid = (window.device) ? window.device.uuid : window.location.hostname;
@@ -152,15 +173,25 @@ a4p.Analytics = (function() {
 				for(var i=0; i<this.mAnalyticsArray.length; i++) {
 					var param = this.mAnalyticsArray[i];
                     if(param.type == 'view') {
-                    	if (this.gaQueue) this.gaQueue.push(['_trackPageview', param.category]);
-                        if (this.gaPanalytics) this.gaPanalytics.trackView(param.category);
-						if (this.gaPlugin) this.gaPlugin.trackPage( successHandler, errorHandler, param.category);
+                        // this.vid(14XXX - VERSION) + category(Once, Uses, Interest) + action(Login, Contact Creation, Meeting Show ...)
+                        var url = '' + this.vid + ' - ' + param.category + ' - ' + param.action;
+                        a4p.InternalLog.log('Analytics', 'track view ' + url);
+                    	if (this.gaQueue) this.gaQueue.push(['_trackPageview', url]);
+                        if (this.gaPanalytics) this.gaPanalytics.trackView(url);
+						if (this.gaPlugin) this.gaPlugin.trackPage( successHandler, errorHandler, url);
                     } else  // if(param.type == 'event') 
                     {
-                        if (this.gaQueue) this.gaQueue.push(['_trackEvent', param.category, param.action, param.label]);
+                        // cat : this.vid(14XXX - VERSION) + category(Once, Uses, Interest)
+                        // act : category(Once, Uses, Interest) + action(Login, Contact Creation, Meeting Show ...)
+                        var cat = this.vid +' - '+ param.category;
+                        var act = param.category +' - '+ param.action;
+                        var lab = param.uid;
+                        var val = param.value;
+                        a4p.InternalLog.log('Analytics', 'track event ' + cat + ', ' + act + ', ' + lab + ', ' + val);
+                        if (this.gaQueue) this.gaQueue.push(['_trackEvent', cat, act, lab, val]);
                         //this.gaPanalytics.trackEvent(param.category, param.action, param.mode);
-                        if (this.gaPanalytics) this.gaPanalytics.trackEvent(param.category, param.action, param.label);
-                        if (this.gaPlugin) this.gaPlugin.trackEvent(successHandler, errorHandler, param.category, param.action, param.label);
+                        if (this.gaPanalytics) this.gaPanalytics.trackEvent(cat, act, lab, val);
+                        if (this.gaPlugin) this.gaPlugin.trackEvent(successHandler, errorHandler, cat, act, lab, val);
                     }
 				}
 			}

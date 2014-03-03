@@ -239,7 +239,8 @@ function ctrlDetailedObject($scope, srvLocale, srvData, srvNav, srvLink, srvConf
         }
 
         if(a4p.isTrueOrNonEmpty(item.a4p_type)) {
-            srvAnalytics.add(item.a4p_type, 'Read', '', item.a4p_type, 'view');
+            //GA: user really interact with navigation, he views object
+            srvAnalytics.add('Once', 'View '+item.a4p_type);
         }
    	};
 

@@ -27,10 +27,8 @@ function ctrlGoToMeetingDialog($scope, item, version, srvData, srvNav, srvLink, 
         var meeting = srvData.createObject('Event', {name:srvLocale.translations.htmlTextDefaultEventName});
         srvData.addAndSaveObject(meeting);
 
-        // GA : push meeting object created
-        // Measures the volume of created meeting + meeting functionality usage per user
-        srvAnalytics.add('Meeting', 'Create', version, 'Meeting', 'event');
-
+        //GA: user really interact with creation
+        srvAnalytics.add('Once', 'Create Meeting');
 
         if (a4p.isDefinedAndNotNull(linkItem)){
             var linkType = linkItem.a4p_type;

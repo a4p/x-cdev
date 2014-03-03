@@ -100,8 +100,6 @@ function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConf
             $scope.calendarNow = new Date(srvTime.year, srvTime.month - 1, srvTime.day, 0,  0,  0, 0);
             onCalendarNowChange();
         });
-
-        srvAnalytics.add('Calendar', 'Read', '', 'Calendar', 'view');
     };
 
     function createGroup(date) {
@@ -404,6 +402,9 @@ function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConf
 		$scope.calendarNextYear = $scope.sel.getFullYear() + 1;
 
         $scope.calendarSelectedDay = getGroupForSelectedDay();
+
+        //GA: user really interact with calendar, he changes the Selected day
+        srvAnalytics.add('Once', 'Calendar');
     }
 
     function onEventChange() {
@@ -674,9 +675,8 @@ function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConf
         a4p.InternalLog.log('ctrlCalendar - openDialogEditEvent', 'Created event.id.dbid:' + event.id.dbid);
         $scope.onEventClick(event);
 
-    	// GA : push calendar event object created
-    	// Measures the volume of created calendar events + calendar event functionality usage per user
-    	srvAnalytics.add('CalendarEvent', 'Create', version, 'CalendarEvent', 'event');
+        //GA: user really interact with calendar, he adds one event
+        srvAnalytics.add('Once', 'Calendar - add Event');
     };
 
     $scope.removeEvent = function(event){

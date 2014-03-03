@@ -194,9 +194,8 @@ function ctrlAside($scope, srvFacet, srvLocale, srvData, srvAnalytics, srvNav, v
                                 $scope.srvData.addObjectToSave(result.a4p_type, result.id.dbid);
                                 $scope.selectItemAndCloseAside(result);
 
-                                // GA : push object created (lead, contact, account, opportunity, note, report, calendar event)
-                                // Measures the volume of created objects + functionality usage per user
-                                srvAnalytics.add(result.a4p_type, 'Create', version, result.a4p_type, 'event');
+                                //GA: user really interact with aside, he adds one object
+                                srvAnalytics.add('Once', 'Aside - add ' + result.a4p_type);
                             });
                         }
                     }

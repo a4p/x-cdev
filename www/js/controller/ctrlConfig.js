@@ -176,6 +176,8 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
     	if($scope.email == "demo@apps4pro.com" && $scope.password == "demo") {
             a4p.InternalLog.log('ctrlConfig', 'Entering demo mode');
             $scope.setDemo(true);
+            //GA: user really interact with aside, he logs in
+            srvAnalytics.add('Once', 'Login - demo');
     		return;
     	}
 
@@ -190,9 +192,8 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
             return;
         }
 
-        // GA : push object created (lead, contact, account, opportunity, note, report, calendar event)
-        // Measures the volume of created objects + functionality usage per user
-        srvAnalytics.add('Login', 'Success', version, 'Login', 'event');
+        //GA: user really interact with aside, he logs in
+        srvAnalytics.add('Once', 'Login');
 
         $scope.gotoSlide($scope.pageGuider, $scope.slideGuiderValidation);
         $scope.setDemo(false);
@@ -246,9 +247,8 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
                             'Account created',
                             requestTitle + ' : ' + responseLog);
 
-                    	// GA : push user subscription
-                    	// Measures the volume of converted users
-                        $scope.srvAnalytics.add('Subscribe', 'Success', $scope.email, null, 'event');
+                        //GA: user really interact with login, he register
+                        srvAnalytics.add('Once', 'Register');
 
 
                         $scope.setMessageGuider('htmlFormGuiderTextSuccessCreateAccount');

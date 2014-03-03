@@ -543,15 +543,36 @@ function checkCache() {
 
 function checkConnection() {
 
+    var bCon = false;
+    a4p.InternalLog.log('checkConnection','launched');
+    /*
+        if (!navigator.onLine) used or not ?
+    var networkState = navigator.connection.type;
+
+    var states = {};
+    states[Connection.UNKNOWN]  = 'Unknown connection';
+    states[Connection.ETHERNET] = 'Ethernet connection';
+    states[Connection.WIFI]     = 'WiFi connection';
+    states[Connection.CELL_2G]  = 'Cell 2G connection';
+    states[Connection.CELL_3G]  = 'Cell 3G connection';
+    states[Connection.CELL_4G]  = 'Cell 4G connection';
+    states[Connection.CELL]     = 'Cell generic connection';
+    states[Connection.NONE]     = 'No network connection';
+
+    alert('Connection type: ' + states[networkState]);
+   
+
 	if (navigator.network && navigator.network.connection && !navigator.network.connection.type) return false;
 
 	if (!navigator.network || !navigator.network.connection){
 		if (navigator.onLine) {
+            a4p.InternalLog.log('checkConnection','without cordova but online');
 			return true;
 		}
-		else{
-			return false;
-		}
+        else {
+            a4p.InternalLog.log('checkConnection','without cordova but online');
+            return false;
+        }
 	}
 
     var networkState = navigator.network.connection.type;
@@ -566,7 +587,34 @@ function checkConnection() {
     states[Connection.NONE]     = 'No network connection';
 
     a4p.InternalLog.log('checkConnection','Connection type: ' + states[networkState]);
-    var bCon = (networkState != Connection.NONE);
+    bCon = (networkState != Connection.NONE);
+    return bCon;
+     */
+
+     if (!navigator.connection || !navigator.connection.type){
+        if (a4p.BrowserCapabilities && a4p.BrowserCapabilities.online) {
+            bCon = true;
+        }
+        else if (!a4p.BrowserCapabilities) {
+            bCon = navigator.onLine;
+        }
+        a4p.InternalLog.log('checkConnection','without Cordova but online ? '+bCon);
+    }
+    else {
+
+        var networkState = navigator.connection.type;
+        var states = {};
+        states[Connection.UNKNOWN]  = 'Unknown connection';
+        states[Connection.ETHERNET] = 'Ethernet connection';
+        states[Connection.WIFI]     = 'WiFi connection';
+        states[Connection.CELL_2G]  = 'Cell 2G connection';
+        states[Connection.CELL_3G]  = 'Cell 3G connection';
+        states[Connection.CELL_4G]  = 'Cell 4G connection';
+        states[Connection.CELL]     = 'Cell generic connection';
+        states[Connection.NONE]     = 'No network connection';
+        a4p.InternalLog.log('checkConnection','Cordova Connection type: ' + states[networkState]);
+        bCon = (networkState != Connection.NONE);
+    }
     return bCon;
 }
 
