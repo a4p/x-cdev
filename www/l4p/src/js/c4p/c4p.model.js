@@ -562,10 +562,10 @@ c4p.Model = (function () {
                 }
             ],
             displayNameList: [
-                ['salutation', 'first_name', 'last_name'],
-                ['salutation', 'last_name', 'first_name'],
+                ['last_name', 'first_name'],
                 ['first_name', 'last_name'],
-                ['last_name', 'first_name']
+                ['salutation', 'first_name', 'last_name'],
+                ['salutation', 'last_name', 'first_name']
             ],
             displayDescription: ['description', 'email'],
             displayResumedObjectGroups: [
@@ -2753,10 +2753,10 @@ c4p.Model = (function () {
                 }
             ],
             displayNameList: [
-                ['salutation', 'first_name', 'last_name'],
-                ['salutation', 'last_name', 'first_name'],
+                ['last_name', 'first_name'],
                 ['first_name', 'last_name'],
-                ['last_name', 'first_name']
+                ['salutation', 'first_name', 'last_name'],
+                ['salutation', 'last_name', 'first_name']
             ],
             displayDescription: ['description'],
             displayResumedObjectGroups: [

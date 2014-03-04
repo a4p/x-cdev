@@ -93,8 +93,9 @@ a4p.Analytics = (function() {
         a4p.InternalLog.log('Analytics', 'set vid ' + this.vid);
     };
     Analytics.prototype.setUid = function(uid) {
+        a4p.InternalLog.log('Analytics', 'set uid ' + uid);
+        if (!uid || uid == '') return;
         this.uid = uid;
-        a4p.InternalLog.log('Analytics', 'set uid ' + this.uid);
     };
     Analytics.prototype.setEnabled = function(enable) {
         this.bEnabled = (enable == true);

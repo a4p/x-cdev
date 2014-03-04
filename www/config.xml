@@ -4,8 +4,8 @@
     xmlns:cdv   = "http://cordova.apache.org/ns/1.0"
     xmlns:android   = "http://schemas.android.com/apk/res/android"
     id          = "com.apps4pro.c4pdev"
-    version     = "14033" >
-    <!-- versionCode is optional and Android only -->
+    version     = "14034"  
+    versionCode = "C4P_BUILD_DATE">
     
     <name>C_d</name>
     <description>
@@ -23,6 +23,7 @@
 
     <preference name="phonegap-version" value="3.3.0" />
     <preference name="loglevel" value="DEBUG" />
+    <!--
     <preference name="DisallowOverscroll" value="true" />
     <preference name="HideKeyboardFormAccessoryBar" value="true" />
     <preference name="KeyboardDisplayRequiresUserAction" value="false" />
@@ -31,6 +32,39 @@
     <preference name="TopActivityIndicator" value="gray" />
     <preference name="EnableViewportScale" value="false" />
     <preference name="Fullscreen" value="true" />
+-->
+
+
+        <preference name="ios-statusbarstyle" value="black-translucent" />
+        <preference name="android-windowSoftInputMode" value="stateVisible|adjustResize" />
+
+        <preference name="fullscreen" value="false" />
+        <preference name="webviewbounce" value="true" />
+        <preference name="prerendered-icon" value="false" />
+        <preference name="stay-in-webview" value="false" />
+        
+        <preference name="detect-data-types" value="true" />
+        <preference name="exit-on-suspend" value="false" />
+        <preference name="show-splash-screen-spinner" value="true" />
+        <preference name="auto-hide-splash-screen" value="true" />
+        <preference name="EnableViewportScale" value="false" />
+        <preference name="MediaPlaybackRequiresUserAction" value="false" />
+        <preference name="AllowInlineMediaPlayback" value="false" />
+        <preference name="BackupWebStorage" value="cloud" />
+        <preference name="TopActivityIndicator" value="gray" />
+        <preference name="KeyboardDisplayRequiresUserAction" value="true" />
+        <preference name="HideKeyboardFormAccessoryBar" value="false" />
+        <preference name="SuppressesIncrementalRendering" value="false" />
+        <preference name="android-minSdkVersion" value="7" />
+        <preference name="android-installLocation" value="internalOnly" />
+        <preference name="SplashScreenDelay" value="5000" />
+        <preference name="ErrorUrl" value=""/>
+        <preference name="BackgroundColor" value=""/>
+        <preference name="KeepRunning" value="true"/>
+        <preference name="DisallowOverscroll" value="false"/>
+        <preference name="LoadingDialog" value=","/> 
+        <preference name="LoadUrlTimeoutValue" value="50000" />
+        <preference name="disable-cursor" value="false" />
 
     <!-- C4P_BUILD_PLUGINS -->
 <gap:plugin name="com.phonegap.plugin.statusbar" />

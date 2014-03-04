@@ -211,7 +211,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                 initLocalStorage($scope, deferred);
             });
             //a4p.InternalLog.log("begin url:"+$location.absUrl());
-            if (typeof StatusBar != null && StatusBar) StatusBar.styleBlackTranslucent(); // iOS status bar
+            if (typeof StatusBar != 'undefined' && StatusBar) StatusBar.styleBlackTranslucent(); // iOS status bar
         };
         //a4pCordovaReadyAddCallback(startApplication);// Can call synchronously (if no Cordova as in Chrome, or if Cordova is already ready)
         cordovaReady(startApplication)();// We HOPE that Cordova is ready !!!!
@@ -1261,12 +1261,13 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         fontSizePxHtml = fontSizePxHtml.substr(0, fontSizePxHtml.length-2);
 
         if (srvConfig.getSizeCss() == '') {
-            srvConfig.setSizeCss(fontSizePxHtml+'px');
+            //srvConfig.setSizeCss(fontSizePxHtml+'px');
+            srvConfig.setSizeCss('75%');
         }
 
         $scope.toolbarWidth = Math.ceil(2.9*fontSizePx);
 
-        $scope.onePageFormat = srvConfig.c4pConfig.phoneFormatIfSmall ? a4p.Resize.resizeOneColumn : a4p.Resize.resizePortrait;
+        $scope.onePageFormat = a4p.Resize.resizeOneColumn; //prefer One column Mode; srvConfig.c4pConfig.phoneFormatIfSmall ? a4p.Resize.resizeOneColumn : a4p.Resize.resizePortrait;
         $scope.pageHeight = a4p.Resize.resizeHeight;
         $scope.pageWidth = a4p.Resize.resizeWidth;
 

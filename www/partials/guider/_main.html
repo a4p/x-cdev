@@ -1,9 +1,10 @@
 <div class="login-body">
     <header ng-include="'partials/guider/header.html'" class="opacity-black-65"></header>
     <div id="a4pPage" class="opacity-black-65">
-        <div
-             resize-css-height="getResizePathValue('index_body', '', 'offsetHeight') -getResizePathValue('guider_header', '', 'offsetHeight') -getResizePathValue('guider_footer', '', 'offsetHeight')"
+        <div style="height:60%"
+             
              ><!-- 
+             resize-css-height="getResizePathValue('index_body', '', 'offsetHeight') -getResizePathValue('guider_header', '', 'offsetHeight') -getResizePathValue('guider_footer', '', 'offsetHeight')"
              resize-opts="{name:'guider_index_a4pPage_scroll_container'}"
                 sense-opts="{name:'guider_index', axeY:'scroll', watchRefresh:'slide'}"
              sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}"
@@ -11,5 +12,5 @@
             <div ng-include="'partials/guider/'+ getSlideFromGuider() +'.html'" style="height:100%;"/>
         </div>
     </div>
-    <footer ng-include="'partials/guider/footer.html'" class="opacity-black-65"></footer>
+    <footer ng-include="'partials/guider/footer.html'" class="navbar navbar-default navbar-fixed-bottom"></footer>
 </div>

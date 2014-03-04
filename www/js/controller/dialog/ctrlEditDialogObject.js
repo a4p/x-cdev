@@ -51,7 +51,7 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
 
     $scope.hasOpenImportContactDialog = (($scope.object.a4p_type == 'Contact') && navigator && navigator.contacts);
     $scope.hasOpenImportAccountDialog = (($scope.object.a4p_type == 'Account') && navigator && navigator.contacts);
-    $scope.hasOpenImportEventDialog = (($scope.object.a4p_type == 'Event') && a4p.isDefined(calendarPlugin));
+    $scope.hasOpenImportEventDialog = (($scope.object.a4p_type == 'Event') && typeof calendarPlugin != 'undefined');
 
     // Change event
     $scope.objectLastChange = new Date();
@@ -873,7 +873,7 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
 
     $scope.openImportEventDialog = function() {
         var possibleEvents = [];
-        if (a4p.isDefined(calendarPlugin)) {
+        if (typeof calendarPlugin != 'undefined') {
             var onEventsSuccess = function(events) {
                 a4p.InternalLog.log('ctrlEditDialogObject', 'analyze events from IOS : ' + a4pDumpData(events, 3));
                 /*

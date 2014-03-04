@@ -192,7 +192,7 @@ function ctrlMeeting($scope, $dialog, srvData, srvConfig, srvNav, srvLocale, srv
     };
 
     $scope.windowSizeChanged = function () {
-        $scope.onePageFormat = srvConfig.c4pConfig.phoneFormatIfSmall ? a4p.Resize.resizeOneColumn : a4p.Resize.resizePortrait;
+        $scope.onePageFormat = a4p.Resize.resizeOneColumn; //prefer One column Mode; srvConfig.c4pConfig.phoneFormatIfSmall ? a4p.Resize.resizeOneColumn : a4p.Resize.resizePortrait;
         $scope.pageHeight = a4p.Resize.resizeHeight;
         $scope.pageWidth = a4p.Resize.resizeWidth;
         $scope.hasScroller = $scope.onePageFormat;

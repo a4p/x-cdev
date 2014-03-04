@@ -1,16 +1,13 @@
 <div resize-opts="{name:'aside_root_header'}">
     <!-- header Sales MobPad -->
     <div class="c4p-header-root">
-
         <ul class="list-group c4p-list-aside" style="display: inline-block;">
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside"
-                ng-click="setRootMenu()">
-                <span class="glyphicon glyphicon-align-left"></span>
+            <li class="list-group-item list-group-item-sm c4p-list-item-aside">
+                <a  class="glyphicon glyphicon-align-left  c4p-color-action-aside-transparent"
+                    ng-click="setRootMenu()"></a>
             </li>
         </ul>
-
         <h4>{{translate('htmlGuiderPageTitle')}}</h4>
-
         <!-- ATTENTION: Next line use for vertical align -->
         <!-- Sync all icon-Xx value in this file to keep alignment -->
         <!-- spacer -->
@@ -19,7 +16,6 @@
                 <div class="c4p-icon-std glyphicon">&nbsp;</div>
             </div>
         </div>
-
     </div>
 </div>
 <div resize-opts="{name:'aside_root'}"
@@ -141,15 +137,15 @@
     <div class="row">
 
         <!-- Config-->
-        <div class="col-xxs-4" style="text-align: left;">
-            <ul class="list-group c4p-list-aside" style="display: inline-block;">
-                <li class="list-group-item list-group-item-sm c4p-list-item-aside"
-                    ng-click="gotoSlideWithSearchReset(pageNavigation, slideNavigationConfig);">
-                    <span class="glyphicon glyphicon-cog c4p-icon-std c4p-v-align-middle"></span>
+        <div class="col-xxs-4">
+            <ul class="list-group c4p-list-aside">
+                <li class="list-group-item list-group-item-sm c4p-list-item-aside">
+                    <a  class="glyphicon glyphicon-cog c4p-icon-std c4p-v-align-middle c4p-color-action-aside-transparent"
+                        ng-click="gotoSlideWithSearchReset(pageNavigation, slideNavigationConfig);"></a>
                 </li>
             </ul>
         </div>
-        <!-- lock -->
+        <!-- lock 
         <div class="col-xxs-4" style="text-align: left;">
             <div class="btn c4p-padding-w-packed"  ng-click="setModeLock(true)" ng-show="!modeLock">
                 <span  class="c4p-icon-std glyphicon glyphicon-unlock"></span>
@@ -157,22 +153,30 @@
             <div class="btn c4p-padding-w-packed" ng-click="setModeLock(false)" ng-show="modeLock">
                 <span  class="c4p-icon-std glyphicon glyphicon-lock"></span>
             </div>
-        </div>
+        </div>-->
 
         <!-- Refresh - Downloads / Uploads -->
-        <div class="col-xxs-4" style="text-align: left;">
-            <div class="btn c4p-padding-w-packed">
-                <span ng-switch="(srvData.objectsToDownload.length > 0) || (srvData.objectsToSave.length > 0)">
-                    <span ng-switch-when="true"><span class="glyphicon glyphicon-spinner icon-spin"></span><span>{{srvData.objectsToDownload.length + srvData.objectsToSave.length}}</span></span>
-                    <span ng-switch-default ng-switch="a4pSpinnerState" ng-click="refreshClient();">
-                        <span class="glyphicon glyphicon-refresh c4p-icon-std" ng-switch-when="done"></span>
-                        <span class="glyphicon glyphicon-refresh c4p-icon-std icon-spin" ng-switch-when="run"></span>
-                        <span class="glyphicon glyphicon-refresh c4p-icon-std alert-error" ng-switch-when="doneWithPb"></span>
-                        <span class="glyphicon glyphicon-refresh c4p-icon-std close" ng-switch-when="offline"></span>
+        <div class="col-xxs-4">
+            <div class="btn c4p-padding-w-packed c4p-color-action-aside-transparent" ng-click="refreshClient();">
+                <span ng-switch="a4pSpinnerState" >
+                    <span class="glyphicon glyphicon-refresh c4p-icon-std icon-spin" ng-switch-when="run"></span>
+                    <span class="glyphicon glyphicon-refresh c4p-icon-std alert-error" ng-switch-when="doneWithPb"></span>
+                    <span class="glyphicon glyphicon-refresh c4p-icon-std close" ng-switch-when="offline"></span>
+                    <span class="glyphicon glyphicon-refresh c4p-icon-std" ng-switch-default></span>
+                    <span ng-show="(srvData.objectsToDownload.length + srvData.objectsToSave.length)">
+                        {{srvData.objectsToDownload.length + srvData.objectsToSave.length}}
                     </span>
                 </span>
             </div>
         </div>
+
+        <div class="col-xxs-4">
+            <div class="btn pull-right c4p-padding-w-packed c4p-color-action-aside-transparent" ng-click="openDialogSendFeedback('Menu Feedback')">
+                <div class="c4p-icon-std glyphicon glyphicon-question"></div>
+            </div>
+        </div>
+
+
         <!--
         <div class="btn c4p-v-spacer"
              ng-hide="isOnePageFormat()">

@@ -50,7 +50,7 @@
 <div class="row c4p-dialog-bg"
      resize-css-height="getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight')">
     <!-- Body -->
-    <div class="col-xxs-10 c4p-dialog-edit-container c4p-color-a-gradient{{objectGroups.length}}"
+    <div class="col-xs-12 col-sm-8 c4p-dialog-edit-container c4p-color-a-gradient{{objectGroups.length}}"
          sense-opts="{axeY:'scroll', watchRefresh:'objectLastChange', init: 'setSenseScroller($sense)'}"
          sense-scroll-opts="{scrollbarClass:'c4p-scrollbar', pageSelector: 'marker'}"
          sense-after-scroll-end="onSenseScrollEnd($event)"
@@ -73,14 +73,14 @@
             </marker>
             <div class="row">
                 <!-- Vertical Filler to let scroll inuts while virtual keyboard is masking almost all te screen -->
-                <div class="col-xxs-12" resize-css-min-height="getResizeHeight()"></div>
+                <div class="col-xs-12" resize-css-min-height="getResizeHeight()"></div>
             </div>
         </form>
     </div>
     <!-- ---------- -->
     <!-- Side panel -->
     <!-- ---------- -->
-    <div class="col-xxs-2 c4p-color-a-gradient{{objectGroups.length}}"
+    <div class="hidden-xs col-sm-4 c4p-color-a-gradient{{objectGroups.length}}"
          sense-opts="{axeY:'scroll', watchRefresh:'objectLastChange'}"
          sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}"
          style="height: 100%">

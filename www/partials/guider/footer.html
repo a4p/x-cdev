@@ -1,9 +1,15 @@
 <div class="row" resize-opts="{name:'guider_footer'}" ng-click="doubleSetDemo(true)">
-	<a class="col-xxs-12">
-		<small>
-		    v<span id="a4pDeviceDetectorWidth" app-version></span>
-		    <span id="a4pDeviceDetectorHeight"> {{srvConfig.c4pBuildDate}} {{srvConfig.env}}</span>
-		    <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span>
-		</small>
-	</a>
+	<div class="col-xxs-8">
+		<div class="btn"> 
+			<small style="color: grey;font-size: 50%;">
+			    <span app-version></span><span> {{srvConfig.c4pBuildDate}} {{srvConfig.env}}</span>
+			    <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span>
+			</small>
+		</div>
+	</div>
+	<div class="col-xxs-4">
+		<div class="btn c4p-color-action-aside-transparent pull-right" ng-click="openDialogSendFeedback('Login Feedback')">
+			<span class="c4p-icon-std glyphicon glyphicon-question"></span>
+		</div>
+	</div>
 </div>

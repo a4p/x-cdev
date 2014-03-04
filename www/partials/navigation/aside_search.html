@@ -15,7 +15,7 @@
             <div class="btn c4p-padding-w-packed ">
                 <span ng-hide="srvFacet.isFacetAnObjectType(filterFacet.value)"> {{srvLocale.translations.htmlFacetName[filterFacet.key]}}</span>
                 <span class="c4p-search-header-txt-aside"> {{filterFacet.title}} </span>
-                <span class="c4p-aside-count c4p-gray">{{filterFacet.items.length}}</span>
+                <span class="c4p-aside-count c4p-gray">{{srvData.getObjectCount(filterFacet.value)}}</span> <!-- {{filterFacet.items.length}} -->
             </div>
 
             <!-- vertical spacer -->
@@ -25,28 +25,17 @@
             </div>
 
             <div class="pull-right" ng-hide="$first && !srvConfig.c4pConfig.exposeAllFacets">
-                <span class="c4p-color-action-transparent c4p-stroke c4p-padding-w-packed"
+                <span class="c4p-color-action-aside-transparent c4p-stroke c4p-padding-w-packed"
                       ng-click="srvFacet.removeFacet($index)"><span class="c4p-icon-std glyphicon glyphicon-remove"></span>
                 </span>
             </div>
 
             <div class="pull-right" ng-switch="filterFacet.value">
-                <span ng-switch-when="Document" class="c4p-color-action-transparent c4p-stroke c4p-padding-w-packed"
+                <span ng-switch-when="Document" class="btn c4p-padding-w-packed c4p-color-action-aside-transparent"
                       ng-show="objectCreatable(filterFacet.value)"
                       ng-click="addItemDialog(filterFacet.value)"><span class="c4p-icon-std glyphicon glyphicon-camera"></span>
                 </span>
-
-                <span ng-switch-when="Note" class="c4p-color-action-transparent c4p-stroke c4p-padding-w-packed"
-                      ng-show="objectCreatable(filterFacet.value)"
-                      ng-click="addItemDialog(filterFacet.value)"><span class="c4p-icon-std glyphicon glyphicon-plus"></span>
-                </span>
-
-                <span ng-switch-when="Report" class="c4p-color-action-transparent c4p-stroke c4p-padding-w-packed"
-                      ng-show="objectCreatable(filterFacet.value)"
-                      ng-click="addItemDialog(filterFacet.value)"><span class="c4p-icon-std glyphicon glyphicon-plus"></span>
-                </span>
-
-                <span ng-switch-default class="c4p-color-action-transparent c4p-stroke c4p-padding-w-packed"
+                <span ng-switch-default class="btn c4p-padding-w-packed c4p-color-action-aside-transparent"
                     ng-show="objectCreatable(filterFacet.value)"
                     ng-click="addItemDialog(filterFacet.value)"><span class="c4p-icon-std glyphicon glyphicon-plus"></span>
                 </span>
@@ -92,17 +81,23 @@
         ng-click="toggleSearch()">
         <!-- Search input + Shortcut Buttons -->
         <li c4p-show="activeSearch" class="list-group-item list-group-item-sm c4p-list-item-aside">
-            <div>
-                <input type="text" class="form-control input-sm" autofocus
-                       placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}"
-                       ng-model="inputs.itemSearchQuery"
-                       ng-change="srvFacet.setFilterQuery(inputs.itemSearchQuery);" />
-                <!--<span class="input-group-addon" >
-                    <span class="btn c4p-color-a-transparent btn-sm c4p-null-m-p">
-                        <span class="glyphicon glyphicon-search"></span></span>
-                </span>-->
+            <div class="row">
+                <div class="col-xxs-10">
+                    <input type="text" class="form-control input-sm" autofocus
+                           placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}"
+                           ng-model="inputs.itemSearchQuery"
+                           ng-change="srvFacet.setFilterQuery(inputs.itemSearchQuery);" />
+                    <!--<span class="input-group-addon" >
+                        <span class="btn c4p-color-a-transparent btn-sm c4p-null-m-p">
+                            <span class="glyphicon glyphicon-search"></span></span>
+                    </span>-->
+                </div>
+                <!-- Search button -->
+                <div class="col-xxs-2">
+                    <span class="pull-right" ng-click="$event.stopPropagation(); toggleSearch()"><span class="c4p-color-z-transparent c4p-padding-w-packed"><span class="glyphicon glyphicon-search "></span></span></span>
+                </div>
             </div>
-        </li>
+        </li><!-- Disable filter for now //TODO MLE
         <li ng-show="activeSearch && !srvConfig.c4pConfig.exposeAllFacets" class="list-group-item list-group-item-sm c4p-list-item-aside" ng-class="{'active':(srvFacet.filterFacets.length <= 1) && (srvFacet.getLastFacetKey() != 'favorites') && (srvFacet.getLastFacetKey() != 'top20') && (srvFacet.getLastFacetKey() != 'mine')}">
             <span ng-click="$event.stopPropagation(); tabClear();" class="c4p-color-z-transparent c4p-null-m-p">
                 <span class="glyphicon glyphicon-resize-full"></span>
@@ -125,19 +120,31 @@
                 <span class="glyphicon glyphicon-{{srvFacet.definedOrganizers['mine'].icon}}"></span>
                 <span> {{srvLocale.translations.htmlFacetName['mine']}}</span>
             </span>
-        </li>
+        </li> -->
         <!-- Search result -->
         <li ng-hide="activeSearch" class="list-group-item list-group-item-sm c4p-list-item-aside">
-            <!-- Sort button -->
-            <span ng-show="srvFacet.ascendingOrder" ng-click="$event.stopPropagation(); srvFacet.toggleOrder()"><span class="c4p-color-z-transparent c4p-null-m-p"><span class="glyphicon glyphicon-sort-by-alphabet"></span></span></span>
-            <span ng-hide="srvFacet.ascendingOrder" ng-click="$event.stopPropagation(); srvFacet.toggleOrder()"><span class="c4p-color-z-transparent c4p-null-m-p"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></span></span>
+            <div class="row">
+                <!-- Sort button -->
+                <div class="col-xxs-2">
+                    <span ng-show="srvFacet.ascendingOrder" ng-click="$event.stopPropagation(); srvFacet.toggleOrder()"><span class="c4p-color-z-transparent c4p-padding-w-packed"><span class="glyphicon glyphicon-sort-by-alphabet"></span></span></span>
+                    <span ng-hide="srvFacet.ascendingOrder" ng-click="$event.stopPropagation(); srvFacet.toggleOrder()"><span class="c4p-color-z-transparent c4p-padding-w-packed"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></span></span>
+                </div>
 
-            <!-- Search query -->
-            <span ng-show="inputs.itemSearchQuery.length > 0">
-                {{inputs.itemSearchQuery}}
-            </span>
-            <!-- Search button -->
-            <span class="pull-right" ng-click="$event.stopPropagation(); toggleSearch()"><span class="c4p-color-z-transparent c4p-null-m-p"><span class="glyphicon glyphicon-search"></span></span></span>
+                <!-- Search query 
+                <span ng-show="inputs.itemSearchQuery.length > 0">
+                    {{inputs.itemSearchQuery}}
+                </span>-->
+                <div class="col-xxs-8">
+                    <div ng-show="inputs.itemSearchQuery.length > 0" class="c4p-padding-w-packed label label-default">
+                        {{inputs.itemSearchQuery}}
+                        <a type="button" class="" ng-click="removeGlobalSearch()">&times;</a>
+                    </div>
+                </div>
+                <!-- Search button -->
+                <div class="col-xxs-2">
+                    <span class="pull-right" ng-click="$event.stopPropagation(); toggleSearch()"><span class="c4p-color-z-transparent c4p-padding-w-packed"><span class="glyphicon glyphicon-search"></span></span></span>
+                </div>
+            </div>
         </li>
     </ul>
 </div>

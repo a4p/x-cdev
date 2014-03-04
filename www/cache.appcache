@@ -1,11 +1,13 @@
 CACHE
 MANIFEST
-#2014-03-03 16:07:21
+#2014-03-04 21:18:16
 
 img/dragPointer64.png
 img/dropPointer64.png
 img/glyphicons-halflings-white.png
 img/glyphicons-halflings.png
+img/guider/c4p-guider-01.gif
+img/guider/c4p-guider-02.gif
 img/loader.gif
 index.html
 js/a4p/appcache.js

@@ -54,7 +54,7 @@ function ctrlEditObject($scope, srvData, srvLocale, srvConfig, $dialog) {
         $scope.object = angular.copy(object);
         $scope.hasOpenImportContactDialog = (($scope.object.a4p_type == 'Contact') && navigator && navigator.contacts);
         $scope.hasOpenImportAccountDialog = (($scope.object.a4p_type == 'Account') && navigator && navigator.contacts);
-        $scope.hasOpenImportEventDialog = (($scope.object.a4p_type == 'Event') && a4p.isDefined(calendarPlugin));
+        $scope.hasOpenImportEventDialog = (($scope.object.a4p_type == 'Event') && typeof calendarPlugin != 'undefined');
         // Prohibit removing an object which you do not own (ex: Group Event)
         $scope.realObject = object;
         $scope.removeEnabled = a4p.isDefined(object.id) && a4p.isDefined(srvData.getObject(object.id.dbid)) && srvData.isObjectOwnedByUser(object) && (object.id.dbid != srvData.userId.dbid);
@@ -697,7 +697,7 @@ function ctrlEditObject($scope, srvData, srvLocale, srvConfig, $dialog) {
 
     $scope.openImportEventDialog = function() {
         var possibleEvents = [];
-        if (a4p.isDefined(calendarPlugin)) {
+        if (typeof calendarPlugin != 'undefined') {
             var onEventsSuccess = function(events) {
                 a4p.InternalLog.log('ctrlEditObject', 'analyze events from IOS : ' + a4pDumpData(events, 3));
                 /*
