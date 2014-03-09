@@ -6,7 +6,7 @@
 <div ng-style="{width:getAsideWidth()+'px'}"
      resize-opts="{name:'aside_search_header', watchRefresh:['srvFacet.filterFacets.length', 'srvFacet.lastFacetKey', 'srvConfig.c4pConfig.exposeAllFacets']}"
      class="c4p-color-z-dark-i">
-    <ul class="list-group">
+    <ul class="list-group c4p-list-aside">
         <!-- Active Facets -->
         <li class="list-group-item c4p-search-header-aside"
             ng-repeat="filterFacet in srvFacet.filterFacets"
@@ -77,10 +77,10 @@
 
 <div ng-style="{width:getAsideWidth()+'px'}"
      resize-opts="{name:'aside_search_search', watchRefresh:['srvFacet.filterFacets.length', 'activeSearch']}">
-    <ul class="list-group c4p-search-aside c4p-color-z-dark-ii"
+    <ul class="list-group c4p-list-aside c4p-color-z-dark-ii"
         ng-click="toggleSearch()">
         <!-- Search input + Shortcut Buttons -->
-        <li c4p-show="activeSearch" class="list-group-item list-group-item-sm c4p-list-item-aside">
+        <li c4p-show="activeSearch" class="list-group-item c4p-list-item-aside c4p-search-header-aside">
             <div class="row">
                 <div class="col-xxs-10">
                     <input type="text" class="form-control input-sm" autofocus
@@ -98,31 +98,31 @@
                 </div>
             </div>
         </li><!-- Disable filter for now //TODO MLE
-        <li ng-show="activeSearch && !srvConfig.c4pConfig.exposeAllFacets" class="list-group-item list-group-item-sm c4p-list-item-aside" ng-class="{'active':(srvFacet.filterFacets.length <= 1) && (srvFacet.getLastFacetKey() != 'favorites') && (srvFacet.getLastFacetKey() != 'top20') && (srvFacet.getLastFacetKey() != 'mine')}">
+        <li ng-show="activeSearch && !srvConfig.c4pConfig.exposeAllFacets" class="list-group-item  c4p-list-item-aside" ng-class="{'active':(srvFacet.filterFacets.length <= 1) && (srvFacet.getLastFacetKey() != 'favorites') && (srvFacet.getLastFacetKey() != 'top20') && (srvFacet.getLastFacetKey() != 'mine')}">
             <span ng-click="$event.stopPropagation(); tabClear();" class="c4p-color-z-transparent c4p-null-m-p">
                 <span class="glyphicon glyphicon-resize-full"></span>
                 <span> {{srvLocale.translations.htmlFacetName['all']}}</span>
             </span>
         </li>
-        <li ng-show="activeSearch && !srvConfig.c4pConfig.exposeAllFacets" class="list-group-item list-group-item-sm c4p-list-item-aside" ng-class="{'active':(srvFacet.getLastFacetKey() == 'favorites')}">
+        <li ng-show="activeSearch && !srvConfig.c4pConfig.exposeAllFacets" class="list-group-item  c4p-list-item-aside" ng-class="{'active':(srvFacet.getLastFacetKey() == 'favorites')}">
             <span ng-click="$event.stopPropagation(); tabFavorites()" class="c4p-color-z-transparent c4p-null-m-p" >
                 <span class="glyphicon glyphicon-{{srvFacet.definedOrganizers['favorites'].icon}}"></span>
                 <span> {{srvLocale.translations.htmlFacetName['favorites']}}</span></span>
         </li>
-        <li ng-show="activeSearch && !srvConfig.c4pConfig.exposeAllFacets" class="list-group-item list-group-item-sm c4p-list-item-aside" ng-class="{'active':(srvFacet.getLastFacetKey() == 'top20')}">
+        <li ng-show="activeSearch && !srvConfig.c4pConfig.exposeAllFacets" class="list-group-item  c4p-list-item-aside" ng-class="{'active':(srvFacet.getLastFacetKey() == 'top20')}">
             <span ng-click="$event.stopPropagation(); tabTop()" class="c4p-color-z-transparent c4p-null-m-p">
                 <span class="glyphicon glyphicon-{{srvFacet.definedOrganizers['top20'].icon}}"></span>
                 <span> {{srvLocale.translations.htmlFacetName['top20']}}</span>
             </span>
         </li>
-        <li ng-show="activeSearch && !srvConfig.c4pConfig.exposeAllFacets" class="list-group-item list-group-item-sm c4p-list-item-aside" ng-class="{'active':(srvFacet.getLastFacetKey() == 'mine')}">
+        <li ng-show="activeSearch && !srvConfig.c4pConfig.exposeAllFacets" class="list-group-item  c4p-list-item-aside" ng-class="{'active':(srvFacet.getLastFacetKey() == 'mine')}">
             <span ng-click="$event.stopPropagation(); tabMine()" class="c4p-color-z-transparent c4p-null-m-p">
                 <span class="glyphicon glyphicon-{{srvFacet.definedOrganizers['mine'].icon}}"></span>
                 <span> {{srvLocale.translations.htmlFacetName['mine']}}</span>
             </span>
         </li> -->
         <!-- Search result -->
-        <li ng-hide="activeSearch" class="list-group-item list-group-item-sm c4p-list-item-aside">
+        <li ng-hide="activeSearch" class="list-group-item c4p-list-item-aside">
             <div class="row">
                 <!-- Sort button -->
                 <div class="col-xxs-2">
@@ -161,7 +161,7 @@
         <ul class="list-group c4p-list-aside c4p-search-group-separator c4p-color-z"
             ng-repeat="groupKey in srvFacet.items.keyes">
             <!-- Group {{groupKey.title}} - {{srvFacet.items.lists[groupKey.value].length}} -->
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside"
+            <li class="list-group-item  c4p-list-item-aside"
                 ng-show="srvConfig.c4pConfig.exposeAllFacets"
                 ng-click="srvFacet.addFacet(srvFacet.lastFacetKey, groupKey.title, groupKey.value)">
                 <a class="btn btn-sm">
@@ -173,7 +173,7 @@
                 </a>
                 <span class="badge">{{srvFacet.items.lists[groupKey.value].length}} </span>
             </li>
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside"
+            <li class="list-group-item  c4p-list-item-aside"
 
 
                 ng-hide="srvConfig.c4pConfig.exposeAllFacets"
@@ -199,12 +199,19 @@
                 sense-long-drag-move="dragMove($event)"
                 sense-long-drag-end="dragEnd($event)"
                 sense-long-drag-cancel="dragCancel($event)">
-                <span ng-include="'partials/navigation/cards/list_item.html'"></span><span ng-show="singleTapFocusId == item.id.dbid" class="pull-right glyphicon glyphicon-chevron-right"></span>
+                <div class="row">
+                    <div class="col-xxs-11 a4p-dot">
+                        <span ng-include="'partials/navigation/cards/list_item.html'"></span>
+                    </div>
+                    <div class="col-xxs-1">
+                        <span ng-show="singleTapFocusId == item.id.dbid" class="glyphicon glyphicon-chevron-right"></span>
+                    </div>
+                </div>
             </li>
         </ul>
         <!-- Others - {{srvFacet.items.others.length}} -->
         <ul class="list-group c4p-list-aside c4p-color-z" ng-show="srvFacet.items.others.length > 0">
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside"
+            <li class="list-group-item  c4p-list-item-aside"
                 style="border-width: 1px;"
                 ng-repeat="facetItem in srvFacet.items.others"
                 ng-init="init(facetItem.object)"
@@ -227,7 +234,14 @@
                 sense-long-drag-move="dragMove($event)"
                 sense-long-drag-end="dragEnd($event)"
                 sense-long-drag-cancel="dragCancel($event)">
-                <span ng-include="'partials/navigation/cards/list_item.html'"></span><span ng-show="singleTapFocusId == item.id.dbid" class="pull-right glyphicon glyphicon-chevron-right"></span>
+                <div class="row">
+                    <div class="col-xxs-11 a4p-dot">
+                        <span ng-include="'partials/navigation/cards/list_item.html'"></span>
+                    </div>
+                    <div class="col-xxs-1">
+                        <span ng-show="singleTapFocusId == item.id.dbid" class="glyphicon glyphicon-chevron-right"></span>
+                    </div>
+                </div>
             </li>
         </ul>
     </nav>

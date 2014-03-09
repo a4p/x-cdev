@@ -49,14 +49,15 @@
         </div>
     </div>
 
-    <div class="meeting-link-obj"
+    <div ng-controller="ctrlSingleTap"
+         class="meeting-link-obj"
          sense-opts="{name:'detailed_links_wrapper', axeY:'scroll', watchRefresh:['srvNav.itemRelatedGroupList', 'srvNav.item', 'linksTimestamp'], init: 'setLinksScroller($sense)'}"
          sense-scroll-opts="{scrollbarClass:'c4p-scrollbar', pageSelector: 'div.c4p-related-card'}"
          sense-after-scroll-end="onLinksScrollEnd($event)"
          resize-opts="{name:'meeting_links_wrapper'}"
          resize-css-height="getResizeHeight() -getResizePathValue('meeting_header', '', 'offsetHeight') -getPathValue('previousElementSibling', 'offsetHeight')">
         <div resize-opts="{name:'detailed_links_scroller', watchRefresh:['srvNav.itemRelatedGroupList', 'srvNav.item']}">
-            <div class="c4p-related-card" ng-repeat="group in srvNav.itemRelatedGroupList" 
+            <div class="c4p-related-card" ng-repeat="group in srvNav.itemRelatedGroupList"
                 ng-show="group.type != 'Plan'">
                 <ul class="c4p-related-card-list">
                     <li class="c4p-related-card-header"
@@ -71,9 +72,13 @@
                         ng-show="group.show"
                         ng-class="{active: (link.item == documentObject)}">
                         <div class="row  {{{true: 'c4p-related-card-item-1st', false: 'c4p-related-card-item-others'}[$first]}}">
-                            <div class="col-xxs-12 c4p-related-card-holder">
+                            <div class="col-xxs-11 c4p-related-card-holder">
                                 <span ng-include="'partials/meeting/meeting_draggable_summarized_item.html'"
                                       ng-init="item = link.item"></span>
+                            </div>
+                            <div class="col-xxs-1 c4p-related-card-holder">
+                                <span ng-show="singleTapFocusId == link.item.id.dbid"
+                                      class="pull-right glyphicon glyphicon-chevron-right"></span>
                             </div>
 
                             <!-- Actions for links between current object and linked object

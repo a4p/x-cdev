@@ -309,3 +309,47 @@ directiveModule.directive('c4pConfigFeedback', function () {
     }
 });*/
 
+//
+//  Must provide an animation for click; use css class = c4p-color-action-transparent or c4p-color-action-aside-transparent
+//
+var actionOnClick = function (scope, element, attrs) {
+        var focus = function(){
+            //element.focus();
+            element.addClass('c4p-shadow-white');
+        };
+        var blur = function(){
+            //element.blur();
+            element.removeClass('c4p-shadow-white');
+        };
+        if (a4p.BrowserCapabilities.hasTouch) {
+            element.bind('touchstart', function(e) {
+                focus();
+            });
+            element.bind('touchend', function(e) {
+                setTimeout(blur, 1500);
+            });
+        }
+        else {
+            element.bind('click', function(e) {
+                focus();
+                setTimeout(blur, 1500);
+            });
+        }
+ };
+
+ directiveModule.directive('c4pColorActionAsideTransparent', function() {
+    return {
+        restrict: 'C',
+        replace: false,
+        link: actionOnClick
+    }
+ });
+ directiveModule.directive('c4pColorActionTransparent', function() {
+    return {
+        restrict: 'C',
+        replace: false,
+        link: actionOnClick
+    }
+ });
+
+

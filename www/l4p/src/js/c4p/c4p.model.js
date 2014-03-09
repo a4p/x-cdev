@@ -3943,7 +3943,7 @@ c4p.Model = (function () {
             editObjectFields:{},
             calculateObjectFields:[],
             editObjectGroups:[],
-            displayNameList: [],
+            displayNameList: [[]],
             displayDescription: [],
             displayResumedObjectGroups:[],
             displaySummarizedObjectGroups:[
@@ -4027,7 +4027,7 @@ c4p.Model = (function () {
             editObjectFields:{},
             calculateObjectFields:[],
             editObjectGroups:[],
-            displayNameList: [],
+            displayNameList:[[]],
             displayDescription: [],
             displayResumedObjectGroups:[],
             displaySummarizedObjectGroups:[
@@ -4111,7 +4111,7 @@ c4p.Model = (function () {
             editObjectFields: {},
             calculateObjectFields: [],
             editObjectGroups: [],
-            displayNameList: [],
+            displayNameList: [[]],
             displayDescription: [],
             displayResumedObjectGroups: [],
             displaySummarizedObjectGroups: [

@@ -15,7 +15,7 @@
 		                </div>
 					</div>
 				</div>
-                
+
                 <div class="row">
                     <div class="col-xxs-12 c4p-modal-confirm-cont"
                          sense-opts="{axeY:'scroll'}"
@@ -27,16 +27,16 @@
 			                			<span class="help-inline" ng-show="!pinForm.code.$dirty || !pinForm.code.$invalid">{{srvLocale.translations.htmlDialogPINModeInit}}</span>
 										<span ng-show="pinForm.code.$dirty && pinForm.code.$invalid">
 		                               		<span class="help-inline c4p-field-error-message" ng-show="pinForm.code.$error.required">{{srvLocale.translations.htmlDialogPINModeRequired}}</span>
-										</span> 
-										
+										</span>
+
 										<input id="code" name="code" class="form-control" type="password" ng-model="pinCode" required/>
 			                		</div>
 			                	</form>
 			                </div>
 	                	 </div>
-	                	 
+
                          <!-- Vertical Filler to let scroll inputs while virtual keyboard is masking almost all te screen -->
-                         <div resize-css-min-height="getResizeHeight()"></div>
+                         <div ng-style="{minHeight:getResizeHeight()+'px'}"></div>
                 	</div>
 				</div>
             </div>

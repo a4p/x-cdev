@@ -15,7 +15,7 @@
 		                </div>
 					</div>
 				</div>
-                
+
                 <div class="row">
                     <div class="col-xxs-12 c4p-modal-confirm-cont"
                          sense-opts="{axeY:'scroll'}"
@@ -23,23 +23,23 @@
                          <div class="container">
 	                		<div class="c4p-form-group c4p-color-a-gradient1">
 	        					<form class="form-horizontal c4p-color-a-gradient1" name="pinForm" novalidate>
-		        					<div class="form-group row c4p-color-a-gradient1" ng-class="{'has-error':(pinForm.code.$dirty && pinForm.code.$invalid)}">	        					
+		        					<div class="form-group row c4p-color-a-gradient1" ng-class="{'has-error':(pinForm.code.$dirty && pinForm.code.$invalid)}">
 	        							<span class="help-inline" ng-hide="(pinForm.code.$dirty && pinForm.code.$invalid) || oldPinCodeError">{{srvLocale.translations.htmlDialogPINModeLocked}}</span>
 										<span ng-show="pinForm.code.$dirty && pinForm.code.$invalid">
 		                               		<span class="help-inline c4p-field-error-message" ng-show="pinForm.code.$error.required">{{srvLocale.translations.htmlDialogPINModeRequired}}</span>
-										</span> 									
+										</span>
 										<span ng-show="oldPinCodeError">
 											<span class="help-inline c4p-field-error-message">{{srvLocale.translations.htmlDialogPINModeKO}}</span>
 										</span>
-										
+
 										<input id="code" name="code" class="form-control" type="password" ng-model="pinCode" required/>
-									</div>                            
+									</div>
 			                	</form>
 			                </div>
 	                	 </div>
-	                	 
+
                          <!-- Vertical Filler to let scroll inputs while virtual keyboard is masking almost all te screen -->
-                         <div resize-css-min-height="getResizeHeight()"></div>
+                         <div ng-style="{minHeight:getResizeHeight()+'px'}"></div>
                 	</div>
 				</div>
             </div>

@@ -1,6 +1,6 @@
 CACHE
 MANIFEST
-#2014-03-04 21:18:16
+#2014-03-09 22:12:45
 
 img/dragPointer64.png
 img/dropPointer64.png
@@ -130,6 +130,8 @@ l4p/img/glyphicons-halflings-white.png
 l4p/img/glyphicons-halflings.png
 l4p/img/logo_c4p.png
 l4p/img/logo_c4p_ico.png
+l4p/img/logo_meeting.png
+l4p/img/logo_meeting_.png
 l4p/img/logo_new.png
 l4p/src/js/a4p/a4p.aes.js
 l4p/src/js/a4p/a4p.all.js

@@ -703,7 +703,10 @@ a4p.Resize = (function (navigator, window, document) {
         fn(this.scope, {});
         if (!this.tmpNodeDependent) {
             a4p.ErrorLog.log('a4p.Resize', 'USELESS resize-css-' + key + ' option in resizer ' + this.name
-                + ' : try to use style="'+key+':..." to calculate it asap.');
+                + ' : try to use style="' + key + ':..." or ng-style="{' + key
+                + ':getResize...()+\'px\'}" to calculate it asap.');
+            // ng-style="{width:getResizeWidth()+'px', height:getResizeHeight()+'px'}"
+            // ng-style="{minHeight:getResizeHeight()+'px'}"
         }
         this.cssKeys.push({key:key, fn:fn, nodeDependent:this.tmpNodeDependent});
     };

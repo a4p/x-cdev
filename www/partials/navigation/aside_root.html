@@ -2,7 +2,7 @@
     <!-- header Sales MobPad -->
     <div class="c4p-header-root">
         <ul class="list-group c4p-list-aside" style="display: inline-block;">
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside">
+            <li class="list-group-item  c4p-list-item-aside">
                 <a  class="glyphicon glyphicon-align-left  c4p-color-action-aside-transparent"
                     ng-click="setRootMenu()"></a>
             </li>
@@ -32,19 +32,19 @@
 
         <!-- Organisation menus -->
         <ul class="list-group c4p-list-aside">
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside c4p-list-ftr-aside c4p-color-{{getTypeColor('Event')}}"
+            <li class="list-group-item  c4p-list-item-aside c4p-list-ftr-aside c4p-color-{{getTypeColor('Event')}}"
                 ng-class="{active: activeItem == slideNavigationCalendar}"
                 ng-click="srvFacet.clearOrRemoveFacet($first, $index);setCalendar()">
                 <span class="c4p-icon-std glyphicon icon-fixed-width glyphicon-calendar"></span>
                 <span class="c4p-item-root-txt"> {{srvLocale.translations.htmlSlideName['calendar']}}</span>
             </li>
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside c4p-color-{{getTypeColor('Event')}}"
+            <li class="list-group-item  c4p-list-item-aside c4p-color-{{getTypeColor('Event')}}"
                 ng-class="{'active':activeItem == slideNavigationEvents}"
                 ng-click="setSearchMenu('Event')">
                 <span class="c4p-icon-std glyphicon icon-fixed-width glyphicon-{{getTypeIcon('Event')}}"></span>
                 <span class="c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['events']}}</span>
             </li>
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside c4p-color-{{getTypeColor('Task')}}"
+            <li class="list-group-item  c4p-list-item-aside c4p-color-{{getTypeColor('Task')}}"
                 ng-class="{'active':activeItem == slideNavigationTasks}"
                 ng-click="setSearchMenu('Task')">
                 <span class="c4p-icon-std  glyphicon icon-fixed-width glyphicon-{{getTypeIcon('Task')}}"></span>
@@ -53,29 +53,29 @@
         </ul>
         <!-- Informations Commerciales menus -->
         <ul class="list-group c4p-list-aside">
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside c4p-list-hdr-aside">
+            <li class="list-group-item  c4p-list-item-aside c4p-list-hdr-aside">
                 <!--<span   >{{srvLocale.translations.htmlTitleLibrary}}</span> -->
             </li>
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside c4p-color-{{getTypeColor('Account')}}"
+            <li class="list-group-item  c4p-list-item-aside c4p-color-{{getTypeColor('Account')}}"
                 ng-class="{'active':activeItem == slideNavigationLeads}"
                 ng-click="setSearchMenu('Lead')">
                 <span class="c4p-icon-std glyphicon icon-fixed-width glyphicon-{{getTypeIcon('Lead')}}"></span>
                 <span class="c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['leads']}}</span>
             </li>
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside c4p-color-{{getTypeColor('Contact')}}"
+            <li class="list-group-item  c4p-list-item-aside c4p-color-{{getTypeColor('Contact')}}"
                 ng-class="{'active':activeItem == slideNavigationContacts}"
                 ng-click="setSearchMenu('Contact')">
                 <span class="c4p-icon-std glyphicon icon-fixed-width glyphicon-{{getTypeIcon('Contact')}}"></span>
                 <span class="c4p-item-root-txt"> {{srvLocale.translations.htmlSlideName['contacts']}}</span>
 
             </li>
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside c4p-color-{{getTypeColor('Account')}}"
+            <li class="list-group-item  c4p-list-item-aside c4p-color-{{getTypeColor('Account')}}"
                 ng-class="{'active':activeItem == slideNavigationAccounts}"
                 ng-click="setSearchMenu('Account')">
                 <span class="c4p-icon-std   glyphicon icon-fixed-width glyphicon-{{getTypeIcon('Account')}}"></span>
                 <span class="c4p-item-root-txt"> {{srvLocale.translations.htmlSlideName['accounts']}}</span>
             </li>
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside c4p-list-ftr-aside c4p-color-{{getTypeColor('Opportunity')}}"
+            <li class="list-group-item  c4p-list-item-aside c4p-list-ftr-aside c4p-color-{{getTypeColor('Opportunity')}}"
                 ng-class="{'active':activeItem == slideNavigationOpportunities}"
                 ng-click="setSearchMenu('Opportunity')">
                 <span class="c4p-icon-std  glyphicon icon-fixed-width glyphicon-{{getTypeIcon('Opportunity')}}"></span>
@@ -84,29 +84,29 @@
         </ul>
         <!-- Bibliotheque menus -->
         <ul class="list-group c4p-list-aside">
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside c4p-list-hdr-aside">
+            <li class="list-group-item  c4p-list-item-aside c4p-list-hdr-aside">
                 <!--<span   >{{srvLocale.translations.htmlTitleLibrary}}</span> -->
             </li>
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside c4p-color-{{getTypeColor('Facet')}}"
+            <li class="list-group-item  c4p-list-item-aside c4p-color-{{getTypeColor('Facet')}}"
                 ng-class="{'active':activeItem == slideNavigationFavorites}"
                 ng-click="setFavoriteSearchMenu()">
                 <span class="c4p-icon-std glyphicon icon-fixed-width glyphicon-star"></span>
                 <span class="c4p-item-root-txt"> {{srvLocale.translations.htmlFacetName['favorites']}}</span>
 
             </li>
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside c4p-color-{{getTypeColor('Document')}}"
+            <li class="list-group-item  c4p-list-item-aside c4p-color-{{getTypeColor('Document')}}"
                 ng-class="{'active':activeItem == slideNavigationDocuments}"
                 ng-click="setSearchMenu('Document')">
                 <span class="c4p-icon-std   glyphicon icon-fixed-width glyphicon-{{getTypeIcon('Document')}}"></span>
                 <span class="c4p-item-root-txt"> {{srvLocale.translations.htmlSlideName['documents']}}</span>
             </li>
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside c4p-color-{{getTypeColor('Note')}}"
+            <li class="list-group-item  c4p-list-item-aside c4p-color-{{getTypeColor('Note')}}"
                 ng-class="{'active':activeItem == slideNavigationNotes}"
                 ng-click="setSearchMenu('Note')">
                 <span class="c4p-icon-std   glyphicon icon-fixed-width glyphicon-{{getTypeIcon('Note')}}"></span>
                 <span class="c4p-item-root-txt"> {{srvLocale.translations.htmlSlideName['notes']}}</span>
             </li>
-            <li class="list-group-item list-group-item-sm c4p-list-item-aside c4p-list-ftr-aside c4p-color-{{getTypeColor('Report')}}"
+            <li class="list-group-item  c4p-list-item-aside c4p-list-ftr-aside c4p-color-{{getTypeColor('Report')}}"
                 ng-class="{'active':activeItem == slideNavigationReports}"
                 ng-click="setSearchMenu('Report')">
                 <span class="c4p-icon-std  glyphicon icon-fixed-width glyphicon-{{getTypeIcon('Report')}}"></span>
@@ -136,15 +136,25 @@
 
     <div class="row">
 
-        <!-- Config-->
+        <!-- Config -->
         <div class="col-xxs-4">
             <ul class="list-group c4p-list-aside">
-                <li class="list-group-item list-group-item-sm c4p-list-item-aside">
-                    <a  class="glyphicon glyphicon-cog c4p-icon-std c4p-v-align-middle c4p-color-action-aside-transparent"
-                        ng-click="gotoSlideWithSearchReset(pageNavigation, slideNavigationConfig);"></a>
+                <li class="list-group-item  c4p-list-item-aside  btn c4p-color-action-aside-transparent"
+                    ng-click="gotoSlideWithSearchReset(pageNavigation, slideNavigationConfig);">
+                    <span  class="glyphicon glyphicon-cog c4p-icon-std c4p-v-align-middle"></span>
                 </li>
             </ul>
         </div>
+
+        <!--<div class="col-xxs-4">
+            <div    class="c4p-toolbar-header c4p-color-action-transparent"
+                    ng-click="gotoSlideWithSearchReset(pageNavigation, slideNavigationConfig);">
+                <div class="btn c4p-padding-w-packed">
+                    <span class="c4p-icon-std glyphicon glyphicon-cog"></span>
+                </div>
+            </div>
+        </div>-->
+
         <!-- lock 
         <div class="col-xxs-4" style="text-align: left;">
             <div class="btn c4p-padding-w-packed"  ng-click="setModeLock(true)" ng-show="!modeLock">

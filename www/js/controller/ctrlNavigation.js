@@ -495,11 +495,11 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     };
 
     $scope.gotoWelcome = function () {
-        
+
         //GA : reset User ID
         var login = srvSecurity.getA4pLogin();
         srvAnalytics.setUid(login);
-            
+
         $scope.gotoSlide($scope.pageNavigation, $scope.slideNavigationCalendar);
     };
 
@@ -1267,7 +1267,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
 
         $scope.toolbarWidth = Math.ceil(2.9*fontSizePx);
 
-        $scope.onePageFormat = a4p.Resize.resizeOneColumn; //prefer One column Mode; srvConfig.c4pConfig.phoneFormatIfSmall ? a4p.Resize.resizeOneColumn : a4p.Resize.resizePortrait;
+        $scope.onePageFormat = a4p.Resize.resizePortrait; //prefer One column Mode; srvConfig.c4pConfig.phoneFormatIfSmall ? a4p.Resize.resizeOneColumn : a4p.Resize.resizePortrait;
         $scope.pageHeight = a4p.Resize.resizeHeight;
         $scope.pageWidth = a4p.Resize.resizeWidth;
 
@@ -1465,6 +1465,16 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
 
         $scope.startSpinner();
 
+        window.setTimeout(function () {
+            a4p.safeApply($scope, function () {
+                if (item) {
+                    srvNav.goto($scope.pageNavigation, $scope.slideNavigationType[item.a4p_type], item);
+                }
+                $scope.gotoSlide($scope.pageNavigation, $scope.slideNavigationType[item.a4p_type]);
+                if (item) $scope.$broadcast('setItemDetail', item);
+            });
+        }, 200);
+        /*
         $timeout(function () {
             if (item) {
                 srvNav.goto($scope.pageNavigation, $scope.slideNavigationType[item.a4p_type], item);
@@ -1472,10 +1482,18 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
             $scope.gotoSlide($scope.pageNavigation, $scope.slideNavigationType[item.a4p_type]);
             if (item) $scope.$broadcast('setItemDetail', item);
         }, 200 );
+        */
 
+        window.setTimeout(function () {
+            a4p.safeApply($scope, function () {
+                $scope.stopSpinner();
+            });
+        }, 1000);
+        /*
         $timeout(function () {
             $scope.stopSpinner();
         }, 1000);
+        */
 
     };
 

@@ -192,7 +192,7 @@ function ctrlMeeting($scope, $dialog, srvData, srvConfig, srvNav, srvLocale, srv
     };
 
     $scope.windowSizeChanged = function () {
-        $scope.onePageFormat = a4p.Resize.resizeOneColumn; //prefer One column Mode; srvConfig.c4pConfig.phoneFormatIfSmall ? a4p.Resize.resizeOneColumn : a4p.Resize.resizePortrait;
+        $scope.onePageFormat = a4p.Resize.resizePortrait; //prefer One column Mode; srvConfig.c4pConfig.phoneFormatIfSmall ? a4p.Resize.resizeOneColumn : a4p.Resize.resizePortrait;
         $scope.pageHeight = a4p.Resize.resizeHeight;
         $scope.pageWidth = a4p.Resize.resizeWidth;
         $scope.hasScroller = $scope.onePageFormat;
@@ -280,8 +280,20 @@ function ctrlMeeting($scope, $dialog, srvData, srvConfig, srvNav, srvLocale, srv
         }
     };
 
+    $scope.tapOnLinkedObject = function (item, firstSingleTap) {
+        if (firstSingleTap) {
+            a4p.safeApply($scope, function () {
+                // To let Angular update singleTap status (chevron-right)
+            });
+            return;
+        }
+        a4p.safeApply($scope, function () {
+            $scope.setActionItem('others', 'side');
+            $scope.showDocument(item);
+        });
+    };
 
-    /**
+        /**
      *
      * @param type
      * @param part is for onePage format, give the part to update
