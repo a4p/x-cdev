@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, attendees, attachments, event, note, editable, modeEdit, spinner, $dialog, dialog) {
+function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, attendees, attachments, event, note, editable, modeEdit, spinner, openDialogFct, $dialog, dialog) {
 
     /**
      * Helpers
@@ -11,6 +11,7 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
      */
     $scope.srvLocale = srvLocale;
     $scope.srvData = srvData;
+    $scope.openDialogFct = openDialogFct;
 
     $scope.note = note;
     $scope.footerToolboxInEditMode = [];		//used for action in footer
@@ -244,7 +245,7 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
     $scope.confirmRemove = function () {
         var text = $scope.srvLocale.translations.htmlTextConfirmDelete;
         var array = [srvConfig.getItemName($scope.note)];
-        openDialog({
+        $scope.openDialogFct({
                 backdropClick: false,
                 dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
                 backdropClass: 'modal-backdrop c4p-modal-small',
@@ -378,7 +379,7 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
             resolve.suggestedMenus = function () { return menus; };
         }
         dialogOptions.resolve = resolve;
-        openDialog(dialogOptions, function (result) {
+        $scope.openDialogFct(dialogOptions, function (result) {
             if (a4p.isDefined(result)) {
                 a4p.safeApply($scope, function () {
                     // Synchronize $scope.note.contact_ids and $scope.toolboxContacts
@@ -461,7 +462,7 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
             resolve.suggestedMenus = function () { return []; };
         }
         dialogOptions.resolve = resolve;
-        openDialog(dialogOptions, function (result) {
+        $scope.openDialogFct(dialogOptions, function (result) {
             if (a4p.isDefined(result)) {
                 a4p.safeApply($scope, function () {
                     // Synchronize $scope.note.document_ids and $scope.toolboxDocs
@@ -478,7 +479,7 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
     };
 
     $scope.openDialogAddRatings = function () {
-        openDialog(
+        $scope.openDialogFct(
             {
                 dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
                 backdropClass: 'modal-backdrop c4p-modal-left',

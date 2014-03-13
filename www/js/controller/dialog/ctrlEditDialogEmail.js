@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, title, attendees, attachments, email, emailId, editable, modeEdit, $dialog, dialog) {
+function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, title, attendees, attachments, email, emailId, editable, modeEdit, openDialogFct, $dialog, dialog) {
     /**
      * Helpers
      */
@@ -14,6 +14,7 @@ function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, ti
     $scope.editable = editable;
     $scope.emailInput = '';
     $scope.errorMap = {};
+    $scope.openDialogFct = openDialogFct;
 
     /**
      * Functions
@@ -139,7 +140,7 @@ function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, ti
             resolve.suggestedMenus = function () { return menus; };
         }
         dialogOptions.resolve = resolve;
-        openDialog(dialogOptions, function (result) {
+        $scope.openDialogFct(dialogOptions, function (result) {
             if (a4p.isDefined(result)) {
                 a4p.safeApply($scope, function () {
                     // Synchronize $scope.note.contacts and $scope.contacts
@@ -381,7 +382,7 @@ function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, ti
             resolve.suggestedMenus = function () { return []; };
         }
         dialogOptions.resolve = resolve;
-        openDialog(dialogOptions, function (result) {
+        $scope.openDialogFct(dialogOptions, function (result) {
             if (a4p.isDefined(result)) {
                 a4p.safeApply($scope, function () {
                     // Synchronize $scope.note.documents and $scope.documents
@@ -467,7 +468,7 @@ function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, ti
             };
         }
         dialogOptions.resolve = resolve;
-        openDialog(dialogOptions, function (result) {
+        $scope.openDialogFct(dialogOptions, function (result) {
             if (a4p.isDefined(result)) {
                 a4p.safeApply($scope, function () {
                     // Synchronize $scope.note.documents and $scope.documents

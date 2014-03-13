@@ -1925,6 +1925,9 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                     },
                     spinner: function () {
                         return $scope.spinnerContainer;
+                    },
+                    openDialogFct: function () {
+                        return $scope.openDialog;
                     }
                 }
             },
@@ -2025,6 +2028,9 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                     },
                     spinner: function () {
                         return $scope.spinnerContainer;
+                    },
+                    openDialogFct: function () {
+                        return $scope.openDialog;
                     }
                 }
             },
@@ -2396,6 +2402,9 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                     },
                     modeEdit: function () {
                         return true;
+                    },
+                    openDialogFct: function () {
+                        return $scope.openDialog;
                     }
                 }
             },
@@ -2556,6 +2565,9 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                     },
                     modeEdit: function () {
                         return false;
+                    },
+                    openDialogFct: function () {
+                        return $scope.openDialog;
                     }
                 }
             }),
@@ -2621,6 +2633,9 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                     },
                     spinner: function () {
                         return $scope.spinnerContainer;
+                    },
+                    openDialogFct: function () {
+                        return $scope.openDialog;
                     }
                 }
             },

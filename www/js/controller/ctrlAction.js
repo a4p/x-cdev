@@ -348,7 +348,7 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
             resolve.suggestedMenus = function () { return []; };
         }
         dialogOptions.resolve = resolve;
-        openDialog(dialogOptions, function (result) {
+        $scope.openDialogFct(dialogOptions, function (result) {
             if (a4p.isDefined(result)) {
                 a4p.safeApply($scope, function () {
                     for (var d = 0; d < result.length; d++) {
@@ -492,7 +492,7 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
             resolve.suggestedMenus = function () { return menus; };
         }
         dialogOptions.resolve = resolve;
-        openDialog(dialogOptions, function (result) {
+        $scope.openDialogFct(dialogOptions, function (result) {
             if (a4p.isDefined(result)) {
                 a4p.safeApply($scope, function () {
                     for (var c = 0; c < result.length; c++) {
@@ -519,7 +519,7 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
             'documents': idsDocument,
             'emailsInput': []
         };
-        openDialog(
+        $scope.openDialog(
             {
                 dialogClass: 'modal c4p-modal-full c4p-modal-mail c4p-dialog',
                 backdropClass: 'modal-backdrop c4p-modal-full',
@@ -558,6 +558,9 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
                     },
                     modeEdit: function () {
                         return true;
+                    },
+                    openDialogFct: function () {
+                        return $scope.openDialog;
                     }
                 }
             },
@@ -589,7 +592,7 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
             location:event.location
         };
 
-        openDialog(
+        $scope.openDialogFct(
             {
                 dialogClass: 'modal c4p-modal-full c4p-modal-mail c4p-dialog',
                 backdropClass: 'modal-backdrop c4p-modal-full',
@@ -694,7 +697,7 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
         };
         meeting = srvData.createObject('Event', meeting);
 
-        openDialog(
+        $scope.openDialogFct(
             {
                 dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
                 backdropClass: 'modal-backdrop c4p-modal-left',

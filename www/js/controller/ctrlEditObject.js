@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlEditObject($scope, srvData, srvLocale, srvConfig, $dialog) {
+function ctrlEditObject($scope, srvData, srvLocale, srvConfig, openDialogFct, $dialog) {
 
     /**
      * Constants
@@ -8,6 +8,7 @@ function ctrlEditObject($scope, srvData, srvLocale, srvConfig, $dialog) {
     $scope.srvData = srvData;
     $scope.srvLocale = srvLocale;
     $scope.srvConfig = srvConfig;
+    $scope.openDialogFct = openDialogFct;
     $scope.object = null;
     $scope.realObject = null;
     $scope.objectName =  '';
@@ -115,7 +116,7 @@ function ctrlEditObject($scope, srvData, srvLocale, srvConfig, $dialog) {
             }
 	        //MLE Change event
 	        $scope.setLastChange();
-            openDialog({
+            $scope.openDialogFct({
                 backdropClick: true,
                 dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
                 backdropClass: 'modal-backdrop c4p-modal-small',
@@ -501,7 +502,7 @@ function ctrlEditObject($scope, srvData, srvLocale, srvConfig, $dialog) {
                             return menus;
                         };
                         dialogOptions.resolve = resolve;
-                        openDialog(dialogOptions, function (result) {
+                        $scope.openDialogFct(dialogOptions, function (result) {
                             if (a4p.isDefined(result)) {
                                 a4p.safeApply($scope, function () {
                                     $scope.clear();
@@ -614,7 +615,7 @@ function ctrlEditObject($scope, srvData, srvLocale, srvConfig, $dialog) {
                     if (!nbNewAccount) {
                         a4p.InternalLog.log('ctrlEditObject', 'NO Account found in IOS');
                     } else {
-                        openDialog(
+                        $scope.openDialogFct(
                             {
                                 backdropClick: true,
                                 dialogClass: 'modal c4p-modal-left c4p-modal-search',
@@ -702,7 +703,7 @@ function ctrlEditObject($scope, srvData, srvLocale, srvConfig, $dialog) {
                     if (!nbNewEvent) {
                         a4p.InternalLog.log('ctrlEditObject', 'NO Event found in IOS');
                     } else {
-                        openDialog(
+                        $scope.openDialogFct(
                             {
                                 backdropClick: true,
                                 dialogClass: 'modal c4p-modal-left c4p-modal-search',

@@ -1,6 +1,6 @@
 CACHE
 MANIFEST
-#2014-03-13 12:36:53
+#2014-03-13 15:33:15
 
 img/dragPointer64.png
 img/dropPointer64.png
@@ -91,9 +91,7 @@ js/service/srvSynchro.js
 js/service/srvTime.js
 js/service_mock/srvConfig.js
 js/service_mock/srvData.js
-l4p/css/c4p-theme-apps4pro.css
-l4p/css/jquery.noty.css
-l4p/css/noty_theme_default.css
+l4p/css/c4p-theme-apps4pro.min.css
 l4p/img/404_broken.png
 l4p/img/default_logo_CSS.png
 l4p/img/default_logo_avi.png
@@ -130,41 +128,6 @@ l4p/img/logo_c4p_ico.png
 l4p/img/logo_meeting.png
 l4p/img/logo_meeting_.png
 l4p/img/logo_new.png
-l4p/src/js/a4p/a4p.aes.js
-l4p/src/js/a4p/a4p.all.js
-l4p/src/js/a4p/a4p.analytics.js
-l4p/src/js/a4p/a4p.array.js
-l4p/src/js/a4p/a4p.base64.js
-l4p/src/js/a4p/a4p.bezierDrawer.js
-l4p/src/js/a4p/a4p.bezierInterpolator.js
-l4p/src/js/a4p/a4p.bridge.js
-l4p/src/js/a4p/a4p.browser.js
-l4p/src/js/a4p/a4p.feedback.js
-l4p/src/js/a4p/a4p.fifo.js
-l4p/src/js/a4p/a4p.file.js
-l4p/src/js/a4p/a4p.fileDownloader.js
-l4p/src/js/a4p/a4p.fileUploader.js
-l4p/src/js/a4p/a4p.geo.js
-l4p/src/js/a4p/a4p.gestureDrawer.js
-l4p/src/js/a4p/a4p.gestureInterpolator.js
-l4p/src/js/a4p/a4p.hex.js
-l4p/src/js/a4p/a4p.json.js
-l4p/src/js/a4p/a4p.log.js
-l4p/src/js/a4p/a4p.moveDrawer.js
-l4p/src/js/a4p/a4p.moveInterpolator.js
-l4p/src/js/a4p/a4p.perf.js
-l4p/src/js/a4p/a4p.pointSampler.js
-l4p/src/js/a4p/a4p.resize.js
-l4p/src/js/a4p/a4p.sense.js
-l4p/src/js/a4p/a4p.sha1.js
-l4p/src/js/a4p/a4p.storage.js
-l4p/src/js/a4p/a4p.stringFormat.js
-l4p/src/js/a4p/a4p.taskReceiver.js
-l4p/src/js/a4p/a4p.taskSender.js
-l4p/src/js/a4p/a4p.updateCache.js
-l4p/src/js/a4p/a4p.utf8.js
-l4p/src/js/a4p/a4p.xml.js
-l4p/src/js/c4p/c4p.model.js
 offline.html
 partials/dialog/confirm.html
 partials/dialog/dialogAddAccount.html
