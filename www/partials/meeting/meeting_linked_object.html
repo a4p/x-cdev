@@ -1,0 +1,150 @@
+<div class="meeting-menu-container">
+    <div class="meeting-detail-hdr meeting-link-obj">
+        <div class="btn btn-xs" ng-click="" style="font-size: 145%">
+            {{srvLocale.translations.htmlMeetingLinkObject}}
+        </div>
+        <div class="pull-right">
+            <div class="btn dropdown">
+                <span role="button"
+                      class="dropdown-toggle c4p-icon-std glyphicon glyphicon-plus"></span>
+
+                <ul style="overflow-x:hidden;" class="dropdown-menu c4p-dropdown-menu c4p-details-menu-align" role="menu">
+                    <li  class="c4p-color-gradient0"
+                         ng-hide="modeLock"
+                         ng-class="{'disabled': actionMap.createNewNote.disabled}"
+                         ng-click="doAction('createNewNote')">
+                        <span class="c4p-icon-std glyphicon glyphicon-{{actionMap.createNewNote.icon}}"></span>
+                        <span>{{srvLocale.translations.htmlActionName.createNewNote}}</span>
+                    </li>
+                    <li class="c4p-color-gradient0"
+                        ng-hide="modeLock"
+                        ng-class="{'disabled': actionMap.createNewReport.disabled}"
+                        ng-click="doAction('createNewReport')">
+                        <span class="c4p-icon-std glyphicon glyphicon-{{actionMap.createNewReport.icon}}"></span>
+                        <span>{{srvLocale.translations.htmlActionName.createNewReport}}</span>
+                    </li>
+                    <li class="c4p-color-gradient0"
+                        ng-hide="modeLock"
+                        ng-class="{'disabled': actionMap.createNewEmail.disabled}"
+                        ng-click="doAction('createNewEmail')">
+                        <span class="c4p-icon-std glyphicon glyphicon-{{actionMap.createNewEmail.icon}}"></span>
+                        <span>{{srvLocale.translations.htmlActionName.createNewEmail}}</span>
+                    </li>
+                    <li  class="c4p-color-gradient0"
+                         ng-hide="modeLock"
+                         ng-class="{'disabled': actionMap.createNewPicture.disabled}"
+                         ng-click="meetingTakePicture()">
+                        <span class="c4p-icon-std glyphicon glyphicon-{{actionMap.createNewPicture.icon}}"></span>
+                        <span>{{srvLocale.translations.htmlActionName.createNewPicture}}</span>
+                    </li>
+                    <li  class="c4p-color-gradient0"
+                         ng-hide="modeLock"
+                         ng-class="{'disabled': actionMap.createNewPicture.disabled}"
+                         ng-click="doAction('addDocuments')">
+                        <span class="c4p-icon-std glyphicon glyphicon-{{actionMap.addDocuments.icon}}"></span>
+                        <span>{{srvLocale.translations.htmlActionName.addDocuments}}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div ng-controller="ctrlSingleTap"
+         class="meeting-link-obj"
+         sense-opts="{name:'detailed_links_wrapper', axeY:'scroll', watchRefresh:['srvNav.itemRelatedGroupList', 'srvNav.item', 'linksTimestamp'], init: 'setLinksScroller($sense)'}"
+         sense-scroll-opts="{scrollbarClass:'c4p-scrollbar', pageSelector: 'div.c4p-related-card'}"
+         sense-after-scroll-end="onLinksScrollEnd($event)"
+         resize-opts="{name:'meeting_links_wrapper'}"
+         resize-css-height="getResizeHeight() -getResizePathValue('meeting_header', '', 'offsetHeight') -getPathValue('previousElementSibling', 'offsetHeight')">
+        <div resize-opts="{name:'detailed_links_scroller', watchRefresh:['srvNav.itemRelatedGroupList', 'srvNav.item']}">
+            <div class="c4p-related-card" ng-repeat="group in srvNav.itemRelatedGroupList"
+                ng-show="group.type != 'Plan'">
+                <ul class="c4p-related-card-list">
+                    <li class="c4p-related-card-header"
+                        ng-click="toggleShowGroup(group)"
+                            style="border-bottom: 1px solid black; border-top: 1px solid black">
+                        <span>{{group.name}}</span><span class="c4p-aside-count">{{group.size}}</span>
+                        <span class="glyphicon pull-right"
+                                ng-class="{'glyphicon-chevron-down': !group.show, 'glyphicon-chevron-up':group.show}"></span>
+                    </li>
+                    <li class="meeting-list-item"
+                        ng-repeat="link in srvNav.itemRelatedList[group.type]"
+                        ng-show="group.show"
+                        ng-class="{active: (link.item == documentObject)}">
+                        <div class="row  {{{true: 'c4p-related-card-item-1st', false: 'c4p-related-card-item-others'}[$first]}}">
+                            <div class="col-xxs-11 c4p-related-card-holder">
+                                <span ng-include="'partials/meeting/meeting_draggable_summarized_item.html'"
+                                      ng-init="item = link.item"></span>
+                            </div>
+                            <div class="col-xxs-1 c4p-related-card-holder">
+                                <span ng-show="singleTapFocusId == link.item.id.dbid"
+                                      class="pull-right glyphicon glyphicon-chevron-right"></span>
+                            </div>
+
+                            <!-- Actions for links between current object and linked object
+                            <div class="col-xxs-0" style="text-align: center;">
+                                <div ng-show="link.linkNames.length == 1">
+                                    <div id="{{link.item.id.dbid}}-unlink"
+                                         class="btn c4p-color-action-transparent c4p-padding-w-packed"
+                                         ng-click="srvLink.unlinkObjectsFromItem(srvNav.item.a4p_type, link.linkNames[0], [srvNav.item], link.item)">
+                                        <span class="c4p-icon-std-sm glyphicon glyphicon-remove"></span>
+                                    </div>
+                                </div>
+                                <div class="dropdown" ng-show="link.linkNames.length > 1">
+                                    <div id="{{link.item.id.dbid}}-unlink"
+                                         class="dropdown-toggle c4p-color-action-transparent c4p-padding-w-packed"
+                                         data-toggle="dropdown">
+                                        <span class="c4p-icon-std-sm glyphicon glyphicon-remove"></span>
+                                    </div>
+                                    <ul class="dropdown-menu c4p-dropdown-menu pull-right c4p-dropdown"
+                                        aria-labelledby="{{link.item.id.dbid}}-unlink">
+                                        <li>{{srvLocale.translations.htmlLinkRemoveLinkKind}}</li>
+                                        <li ng-repeat="linkName in getPossibleLinkActionList(srvNav.item.a4p_type, link.item.a4p_type)"
+                                            ng-show="srvData.isObjectOwnedByUser(link.item) && srvData.isObjectOwnedByUser(srvNav.item)">
+                                            <div class="btn"
+                                                 ng-click="srvLink.unlinkObjectsFromItem(srvNav.item.a4p_type, linkName, [srvNav.item], link.item)">
+                                                <span style="vertical-align:top">{{srvLocale.translations.htmlShortLinkName[linkName]}}</span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            -->
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="half-circle-left c4p-color-gradient0 click-intercepted"
+         style="position:absolute; top:50%; right: 0; margin-top:-4em;box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.5);z-index: 8;"
+         ng-show="isOnePageFormat()"
+         ng-class="{'c4p-dropzone-active': dndActive, 'c4p-dropzone-active-hover': dropOver}"
+         ng-click=""
+         ng-controller="ctrlMeetingObjLinkDrop"
+         sense-opts="{name:'dropObjectMeeting'}"
+         sense-dnd-start="dndStart($event)"
+         sense-dnd-end="dndEnd($event)"
+         sense-dnd-cancel="dndCancel($event)"
+         sense-drop-over-enter="dropOverEnter($event)"
+         sense-drop-over-leave="dropOverLeave($event)"
+         sense-drop-end="dropEnd($event)"
+         style="background-color: rgba(0,255,0, 0.6); height: 4em; ">
+        <div class="c4p-icn-side-drop"></div>
+        <div class="c4p-txt-side-drop">
+            <div class="rotate-txt">
+                <div class="c4p-no-dot-container">
+                    <span class="c4p-no-dot:selectedMeetingPlan.title;">{{selectedMeetingPlan.title}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+

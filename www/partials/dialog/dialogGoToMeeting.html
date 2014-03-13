@@ -1,0 +1,50 @@
+<div class="modal-body vertical-container">
+    <div class="c4p-dialog vertical-align">
+        <div class="row">
+            <div class="col-xxs-offset-1 col-xxs-10 col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 c4p-modal-goto-meeting-container">
+                <div class="row c4p-dialog-header c4p-color-gradient0">
+                    <div class="col-xxs-11">
+                        <div class="btn c4p-padding-w-packed">
+                            <span>{{srvLocale.translations.htmlGotoMeeting}}</span>
+                        </div>
+                    </div>
+                    <div class="col-xxs-1">
+                        <div class="btn c4p-padding-w-packed c4p-modal-confirm-btns" ng-click="close()">
+                            <span class="c4p-icon-std glyphicon glyphicon-remove"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xxs-12"
+                         sense-opts="{axeY:'scroll'}"
+                         sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}">
+                        <div class="container">
+                            <div class="c4p-form-group vertical-container">
+                                <div class="vertical-align">{{srvLocale.translations.htmlCreateEmptyMeeting}}</div>
+                                <div class="btn c4p-padding-w-packed c4p-stroke pull-right" ng-click="createNewMeeting()"><span class="c4p-icon-std glyphicon glyphicon-arrow-right"></span></div>
+                            </div>
+                            <div class="c4p-form-group vertical-container">
+                                <div class="vertical-align">{{srvLocale.translations.htmlGotoMeetingWith}} {{itemName}}</div>
+                                <div class="btn c4p-padding-w-packed c4p-stroke pull-right" ng-click="createNewMeeting(item)"><span class="c4p-icon-std glyphicon glyphicon-arrow-right"></span></div>
+                            </div>
+                            <div class="c4p-form-group row" c4p-show="relatedEvents.length > 0">
+                                <div class="row">
+                                    <div class="col-xxs-10 control-label">
+                                        {{srvLocale.translations.htmlUseExistingMeeting}}
+                                    </div>
+                                </div>
+                                <div class="col-xxs-10">
+                                    <select class="form-control" ng-model="selectedEvent" ng-options="e.name for e in relatedEvents"></select>
+                                </div>
+                                <div class="col-xxs-2">
+                                    <div class="btn c4p-padding-w-packed c4p-stroke pull-right" ng-click="gotoMeeting()"><span class="c4p-icon-std glyphicon glyphicon-arrow-right"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

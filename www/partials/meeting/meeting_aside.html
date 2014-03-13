@@ -1,0 +1,61 @@
+
+<ul class="c4p-icon-list meeting-plan"
+    resize-opts="{name:'plan_section'}"
+    ng-class="{'inactive': (selectedActionItem != 'plan')}">
+    <li class="c4p-icon-list-item"
+        ng-click="setActionItem('plan', 'side')">
+        <span class="c4p-icon-std glyphicon glyphicon-{{actionItems['plan'].icon}}"></span>
+    </li>
+</ul> 
+<ul class="c4p-icon-list meeting-link-obj"
+    resize-opts="{name:'link_obj_section'}"
+    ng-class="{'inactive': (selectedActionItem == 'plan')}">
+    <li class="c4p-icon-list-item"
+        ng-click="setObjectLinkNav()">
+        <span class="c4p-icon-std glyphicon glyphicon-{{actionItems['others'].icon}}"></span>
+    </li>
+</ul>
+
+<!-- filler -->
+<div ng-style="{width:getToolbarWidth()+'px', height:(getResizeHeight() -getResizePathValue('plan_section', '', 'offsetHeight')- getResizePathValue('link_obj_section', '', 'offsetHeight') - getResizePathValue('meeting_header', '', 'offsetHeight') )+'px'}"
+     style="text-align: center"
+     class="meeting-aside">&nbsp;
+</div>
+
+<div class="btn btn-danger"
+     ng-class="{'active' : dropOver}"
+     ng-show="dndActive"
+     ng-controller="ctrlMeetingRemoveDrop"
+     sense-opts="{name:'dropObjectTrash'}"
+     sense-dnd-start="dndStart($event)"
+     sense-dnd-end="dndEnd($event)"
+     sense-dnd-cancel="dndCancel($event)"
+     sense-drop-over-enter="dropOverEnter($event)"
+     sense-drop-over-leave="dropOverLeave($event)"
+     sense-drop-end="dropEnd($event)"
+     style="position:absolute;z-index:1041;bottom:0;left:0;text-align: center"
+     ng-style="{width:(getToolbarWidth()+ getAsideWidth()) +'px'}">
+    <span class="c4p-icon-std glyphicon glyphicon-trash"></span>
+</div>
+
+
+<!--
+<ul class="c4p-icon-list">
+    <div ng-click="">
+        <span class="c4p-icon-std glyphicon icon-fixed-width glyphicon-cog"
+              style="vertical-align: middle"></span>
+    </div>
+
+
+    <li class="list-group-item  c4p-list-item-aside "
+        ng-click="setActionItem('contact');hideDocuments();">
+        <span class="c4p-icon-std  glyphicon glyphicon-{{actionItems['contact'].icon}}"></span>
+    </li>
+
+    <li class="list-group-item  c4p-list-item-aside "
+        ng-click="setActionItem('document');showDocuments();">
+        <span class="c4p-icon-std  glyphicon glyphicon-{{actionItems['document'].icon}}"></span>
+    </li>
+
+</ul>
+-->

@@ -1,0 +1,97 @@
+<div class="meeting-menu-container">
+    <div class="meeting-detail-hdr meeting-plan">
+        <div class="btn btn-xs"
+             ng-click="updateMeetingObj(null)" style="font-size: 145%" >{{srvLocale.translations.htmlMeetingPlan}}</div>
+        <div class="pull-right">
+            <div class="btn"
+                 ng-click="insertAfterMeetingElement(null)">
+                <span class=" c4p-icon-std glyphicon glyphicon-plus"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="meeting-plan"
+         resize-css-height="getResizeHeight() -getResizePathValue('meeting_header', '', 'offsetHeight') -getPathValue('previousElementSibling', 'offsetHeight')"
+         sense-opts="{axeY:'scroll'}"
+         sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}">
+        <div>
+            <!--  list -->
+
+            <!-- ng-repeat-start and ng-repeat-end are not available in angular1.1.5 :(
+                 So here the ng-repeat is set on the <ul> tag
+                 -->
+            <ul class="nav nav-pills nav-stacked" ng-repeat="mObj in plans" >
+                <li class="meeting-list-item" >
+                    <!-- drop zone -->
+                    <div class=""
+                         ng-class="{'active' : dropOver}"
+                         ng-show="dndActive && (dragMeetingElementIdx > $index)"
+                         ng-controller="ctrlMeetingElementDrop"
+                         sense-opts="{name:'dropObjectTrash', callApply: true }"
+                         sense-dnd-start="dndStart($event)"
+                         sense-dnd-end="dndEnd($event)"
+                         sense-dnd-cancel="dndCancel($event)"
+                         sense-drop-over-enter="dropOverEnter($event)"
+                         sense-drop-over-leave="dropOverLeave($event)"
+                         sense-drop-end="dropEnd($event, $index)"
+                         style="text-align: center">
+                        {{srvLocale.translations.htmlMeetingMoveItem}}
+                    </div>
+                </li>
+                <!--
+                TODO : mObj can be either a Plan object or a Plannee object
+                Only Plan objects possess an order attribute named 'pos'.
+                A Plan object can possess an ordered list of sub Plan objects (order given by 'pos' attribute of sub Plan objects) : none for the moment.
+                A sub Plan object has a Plan as parent while a Plan object has an Event as parent.
+                A Plan object possess an unordered list of Plannee objects : only 1 for the moment.
+                Only Plannee objects possess a pointer on Document/Note/Report object.
+                -->
+                <li class="meeting-list-item"
+                    sense-tap="updateMeetingObj(mObj); setActionItem('plan', 'main')"
+                    ng-class="{active: (mObj == selectedMeetingPlan)}"
+                        style="border-top: 1px solid black">
+                    <div ng-controller="ctrlMeetingElementDrag"
+                         ng-init="initMeetingElemDrag(mObj)"
+                         sense-long-drag-over-enter="dragOverEnter($event)"
+                         sense-long-drag-over-leave="dragOverLeave($event)"
+                         sense-long-drag-start="dragStart($event, $index)"
+                         sense-long-drag-move="dragMove($event)"
+                         sense-long-drag-end="dragEnd($event)"
+                         sense-long-drag-cancel="dragCancel($event)">
+                        <div style="width:20%; overflow:hidden;display: inline-block">
+                            <img class="media-object" ng-src="{{meetingThumb}}"
+                                 style="height:75px;-webkit-background-size: contain;"/>
+                        </div><!-- space collapse
+                      --><div class="media-body c4p-no-dot-container" style="width:80%;display: inline-block; vertical-align: top">
+                            <span class="media-heading">{{mObj.pos+1}}.</span>
+                            <span class="media-heading">{{mObj.title}}</span><br />
+                        </div><!-- space collapse
+                      <div style="width:10%;display: inline-block ; vertical-align: top">
+                            <span class="glyphicon glyphicon-chevron-up" ng-click="moveUpMeetingElement($index)"></span>
+                            <span class="glyphicon glyphicon-chevron-down" ng-click="moveDownMeetingElement($index)"></span>
+                            <span class="glyphicon glyphicon-trash" ng-click="removeMeetingElement($index)"></span>
+                        </div>
+                        -->
+                    </div>
+                </li>
+                <li class="meeting-list-item">
+                    <!-- drop zone -->
+                    <div class=""
+                         ng-class="{'active' : dropOver}"
+                         ng-show="dndActive && (dragMeetingElementIdx < $index)"
+                         ng-controller="ctrlMeetingElementDrop"
+                         sense-opts="{name:'dropObjectTrash', callApply: true }"
+                         sense-dnd-start="dndStart($event)"
+                         sense-dnd-end="dndEnd($event)"
+                         sense-dnd-cancel="dndCancel($event)"
+                         sense-drop-over-enter="dropOverEnter($event)"
+                         sense-drop-over-leave="dropOverLeave($event)"
+                         sense-drop-end="dropEnd($event, $index)"
+                         style=" text-align: center">
+                        {{srvLocale.translations.htmlMeetingMoveItem}}
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

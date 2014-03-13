@@ -1,0 +1,26 @@
+<div ng-switch on="editorType" class="meeting-content">
+
+    <!--
+    TODO : There is no type attribute for a Plan object because it can have many Plannee objects linked to him
+    For the moment, only Document/Note/Report can be linked to a Plan via a Plannee (see c4p.Model)
+    -->
+    <div ng-switch-when="Document">
+        <span ng-include="'partials/meeting/meeting_object_editor_doc.html'"> </span>
+    </div>
+    <div ng-switch-when="Contact">
+        <span ng-include="'partials/meeting/meeting_object_editor_contact.html'"> </span>
+    </div>
+    <div ng-switch-when="Nextmeeting">
+        <span ng-include="'partials/meeting/meeting_object_editor_nextmeeting.html'"> </span>
+    </div>
+    <div ng-switch-when="Description">
+        <span ng-include="'partials/meeting/meeting_object_editor_Description.html'"> </span>
+    </div>
+    <div ng-switch-default>
+            type undefined
+    </div>
+</div>
+
+
+
+

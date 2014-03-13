@@ -1,0 +1,17 @@
+<div class="row" resize-opts="{name:'guider_header'}">
+	<div class="col-xxs-6" ng-show="slide != slideGuiderRegister">
+		<a class="btn btn-link white text-left" ng-click="gotoRegister()">
+			<small>{{srvLocale.translations.htmlButtonRegister}}</small>
+		</a>
+	</div>
+	<div id="language-menu" class="dropdown col-xxs-6 pull-right">
+		<a class="btn btn-link pull-right white" data-toggle="dropdown">
+			<small>{{srvLocale.lang.title}}<b class="caret" style="border-top-color:white;"></b></small>
+		</a>
+		<ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
+			<li ng-repeat="link in srvLocale.langs">
+				<a class="white smaller-70" ng-click="srvLocale.setLang(link)">{{link.title}}</a>
+			</li>
+		</ul>
+	</div>
+</div>
