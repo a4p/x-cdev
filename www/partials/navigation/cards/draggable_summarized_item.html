@@ -1,9 +1,0 @@
-<div class="col-xxs-12 c4p-link5"
-     ng-controller="ctrlDragObject"
-     ng-init="init(item)"
-     sense-opts="{bubble:true, watchRefresh:['srvNav.item', 'srvNav.holdItem']}"
-     sense-tap="selectItem()">
-    <div ng-include="'partials/navigation/cards/summarized_item.html'"
-         ng-class="{'c4p-hover-drag':srvNav.item && srvConfig.c4pConfig.exposeDraggableHover, 'c4p-border-drag':srvNav.item && srvConfig.c4pConfig.exposeDraggableBorder}"
-         style="border-width: 1px;padding:2px;"></div>
-</div>
