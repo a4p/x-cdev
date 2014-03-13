@@ -630,7 +630,7 @@ function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConf
                 {
                     backdropClick: false,
                     dialogClass: 'modal c4p-modal-full c4p-dialog',
-                    backdropClass: 'modal-backdrop c4p-modal-create',
+                    backdropClass: 'modal-backdrop c4p-modal-full',
                     controller: 'ctrlEditDialogObject',
                     templateUrl: 'partials/dialog/edit_object.html',
                     resolve: {
@@ -655,7 +655,10 @@ function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConf
                         },
                         spinner: function () {
                             return $scope.spinnerContainer;
-                        }
+                        },
+                        openDialogFct: function () {
+                            return $scope.openDialog;
+                        }    
                     }
                 },
                 function (result) {

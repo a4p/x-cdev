@@ -178,7 +178,7 @@ function ctrlAside($scope, srvFacet, srvLocale, srvData, srvAnalytics, srvNav, v
             else {
                 // Default object attrs
                 var itemToCreate = $scope.srvData.createObject(type, {});
-                $scope.editObjectDialog(itemToCreate).then(
+                $scope.editObjectDialog(itemToCreate,
                     function (result) {
                         if (a4p.isDefined(result)) {
                             a4p.safeApply($scope, function() {

@@ -85,7 +85,7 @@ function a4pInitCache() {
         clearTimeout(a4p.initCacheTimer);
         a4p.initCacheTimer = null;
     }
-    a4p.InternalLog.log('appcache', "a4pInitCache");
+    //a4p.InternalLog.log('appcache', "a4pInitCache");
     a4p.initCache = true;
     a4pInitCacheErrorCounterClear();
     a4pInitCacheReloadCounterClear();
@@ -107,15 +107,15 @@ function a4pInitCacheAddCallback(callback) {
 
 if (!$('html').attr('manifest')) {
     // in Apple there is NO cache (all js code is put in application)
-    a4p.InternalLog.log('appcache', 'No Cache Manifest listed on the html tag.')
+    //a4p.InternalLog.log('appcache', 'No Cache Manifest listed on the html tag.')
     a4pInitCache();
 } else {
     var appCache = window.applicationCache;
     if (typeof appCache === 'undefined') {
-        a4p.InternalLog.log('appcache', 'Cache undefined');
+        //a4p.InternalLog.log('appcache', 'Cache undefined');
         a4pInitCache();
     } else {
-        a4p.InternalLog.log('appcache', "Cache will be forced to ready state in 30 seconds");
+        //a4p.InternalLog.log('appcache', "Cache will be forced to ready state in 30 seconds");
         a4p.initCacheTimer = setTimeout(a4pInitCache, 30000);// TODO : forcer le cache n'active pas le onLoad() du DOM à priori => BUG ?
 
         appCache.addEventListener('error', function (e) {
@@ -134,11 +134,11 @@ if (!$('html').attr('manifest')) {
                     a4pInitCacheErrorCounterClear();
                     if (window.confirm('Cache is not completely loaded. Server appcache invalid.' +
                         ' You can accept this incomplete cache or reload the page. Accept incomplete cache ?')) {
-                        a4p.InternalLog.log('appcache', 'User accept this incomplete cache. Start application.');
+                        //a4p.InternalLog.log('appcache', 'User accept this incomplete cache. Start application.');
                         // TODO : forcer le cache n'active pas le onLoad() du DOM à priori => BUG ?
                         a4pInitCache();
                     } else {
-                        a4p.InternalLog.log('appcache', 'User reject this incomplete cache. Reload the page.');
+                        //a4p.InternalLog.log('appcache', 'User reject this incomplete cache. Reload the page.');
                         window.location.reload();//a4pReload();
                     }
                 }
@@ -153,7 +153,7 @@ if (!$('html').attr('manifest')) {
                 if (!e.hasOwnProperty(key)) continue;
                 msg += ' ' + key + '=' + e[key];
             }
-            a4p.InternalLog.log('appcache', msg);
+            //a4p.InternalLog.log('appcache', msg);
         }, false);
 
         appCache.addEventListener('progress', function (e) {
@@ -162,34 +162,34 @@ if (!$('html').attr('manifest')) {
                 if (!e.hasOwnProperty(key)) continue;
                 msg += ' ' + key + '=' + e[key];
             }
-            a4p.InternalLog.log('appcache', msg);
-            //a4p.InternalLog.log('appcache', 'Cache progress : lengthComputable=' + progressEvent.lengthComputable + ', loaded=' + progressEvent.loaded + ', total=' + progressEvent.total);
+            //a4p.InternalLog.log('appcache', msg);
+            ////a4p.InternalLog.log('appcache', 'Cache progress : lengthComputable=' + progressEvent.lengthComputable + ', loaded=' + progressEvent.loaded + ', total=' + progressEvent.total);
         }, false);
 
         appCache.addEventListener('noupdate', function (e) {
-            a4p.InternalLog.log('appcache', 'Cache no update. Error counter ' + a4p.appCacheErrorCounter + ' cleared.');
+            //a4p.InternalLog.log('appcache', 'Cache no update. Error counter ' + a4p.appCacheErrorCounter + ' cleared.');
             a4pInitCache();
         }, false);
 
         appCache.addEventListener('cached', function (e) {
-            a4p.InternalLog.log('appcache', 'Cache cached. Error counter ' + a4p.appCacheErrorCounter + ' cleared.');
+            //a4p.InternalLog.log('appcache', 'Cache cached. Error counter ' + a4p.appCacheErrorCounter + ' cleared.');
             a4pInitCache();
         }, false);
 
         appCache.addEventListener('updateready', function (e) {
-            a4p.InternalLog.log('appcache', 'Cache update ready. Error counter ' + a4p.appCacheErrorCounter + ' cleared.');
+            //a4p.InternalLog.log('appcache', 'Cache update ready. Error counter ' + a4p.appCacheErrorCounter + ' cleared.');
             a4pInitCacheErrorCounterClear();
             if (appCache.status == appCache.UPDATEREADY) {
                 if (window.confirm('A new version of this site is available. Load it ?')) {
-                    a4p.InternalLog.log('appcache', 'User accept cache update. Go on to swap cache then reload.');
+                    //a4p.InternalLog.log('appcache', 'User accept cache update. Go on to swap cache then reload.');
                     appCache.swapCache();
                     window.location.reload();//a4pReload();
                 } else {
-                    a4p.InternalLog.log('appcache', 'User reject cache update.');
+                    //a4p.InternalLog.log('appcache', 'User reject cache update.');
                     a4pInitCache();
                 }
             } else {
-                a4p.InternalLog.log('appcache', 'No cache update ready.');
+                //a4p.InternalLog.log('appcache', 'No cache update ready.');
                 a4pInitCache();
             }
         }, false);

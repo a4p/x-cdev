@@ -1,17 +1,15 @@
 CACHE
 MANIFEST
-#2014-03-09 22:12:45
+#2014-03-13 00:04:11
 
 img/dragPointer64.png
 img/dropPointer64.png
-img/glyphicons-halflings-white.png
-img/glyphicons-halflings.png
 img/guider/c4p-guider-01.gif
 img/guider/c4p-guider-02.gif
-img/loader.gif
 index.html
 js/a4p/appcache.js
 js/app.js
+js/app_mock.js
 js/controller/ctrlAction.js
 js/controller/ctrlAside.js
 js/controller/ctrlCalendar.js
@@ -91,10 +89,9 @@ js/service/srvRunning.js
 js/service/srvSecurity.js
 js/service/srvSynchro.js
 js/service/srvTime.js
-l4p/css/c4p-theme-amelia.css
+js/service_mock/srvConfig.js
+js/service_mock/srvData.js
 l4p/css/c4p-theme-apps4pro.css
-l4p/css/c4p-theme-bootstrap.css
-l4p/css/c4p-theme-cosmo.css
 l4p/css/jquery.noty.css
 l4p/css/noty_theme_default.css
 l4p/img/404_broken.png
@@ -142,7 +139,6 @@ l4p/src/js/a4p/a4p.bezierDrawer.js
 l4p/src/js/a4p/a4p.bezierInterpolator.js
 l4p/src/js/a4p/a4p.bridge.js
 l4p/src/js/a4p/a4p.browser.js
-l4p/src/js/a4p/a4p.deviceAdapter.js
 l4p/src/js/a4p/a4p.feedback.js
 l4p/src/js/a4p/a4p.fifo.js
 l4p/src/js/a4p/a4p.file.js
@@ -151,7 +147,6 @@ l4p/src/js/a4p/a4p.fileUploader.js
 l4p/src/js/a4p/a4p.geo.js
 l4p/src/js/a4p/a4p.gestureDrawer.js
 l4p/src/js/a4p/a4p.gestureInterpolator.js
-l4p/src/js/a4p/a4p.guider.js
 l4p/src/js/a4p/a4p.hex.js
 l4p/src/js/a4p/a4p.json.js
 l4p/src/js/a4p/a4p.log.js
@@ -169,7 +164,6 @@ l4p/src/js/a4p/a4p.taskSender.js
 l4p/src/js/a4p/a4p.updateCache.js
 l4p/src/js/a4p/a4p.utf8.js
 l4p/src/js/a4p/a4p.xml.js
-l4p/src/js/c4p/c4p.deviceAdapter.js
 l4p/src/js/c4p/c4p.model.js
 offline.html
 partials/dialog/confirm.html

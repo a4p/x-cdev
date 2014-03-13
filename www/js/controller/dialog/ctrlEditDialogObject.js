@@ -1,21 +1,8 @@
 'use strict';
 
-function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem, removeFct, spinner, dialog, $dialog) {
+function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem, removeFct, spinner, dialog, $dialog, openDialogFct) {
 
-    /**********************************************************
-     *
-     * 				DIALOG HELPERS START
-     *
-     *********************************************************/
-    function promiseDialog(dialogOptions) {
-        return $dialog.dialog(dialogOptions).open();
-    }
 
-    function openDialog(dialogOptions, onSuccess) {
-        a4p.safeApply($scope, function() {
-            $dialog.dialog(dialogOptions).open().then(onSuccess);
-        });
-    }
 
     /**********************************************************
      *
@@ -40,6 +27,9 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
     $scope.objectGroups = [];
     $scope.objectTypeLocale = objectItem.a4p_type;
     $scope.objectValidated = false;
+
+    
+    $scope.openDialogFct = openDialogFct;
 
     // Prohibit removing an object which you do not own (ex: Group Event)
     var object = srvData.getObject(objectItem.id.dbid);
@@ -225,10 +215,10 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
             }
 	        //MLE Change event
 	        $scope.setLastChange();
-            openDialog({
+            $scope.openDialogFct({
                 backdropClick: true,
-                dialogClass: 'modal c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-confirm',
+                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
+                backdropClass: 'modal-backdrop c4p-modal-small',
                 controller: 'ctrlDialogConfirm',
                 templateUrl: 'partials/dialog/message.html',
                 resolve: {
@@ -366,10 +356,10 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
     $scope.confirmRemove = function () {
         var text = $scope.srvLocale.translations.htmlTextConfirmDelete;
         var array = [$scope.objectName];
-        openDialog({
+        $scope.openDialogFct({
                 backdropClick: false,
-                dialogClass: 'modal c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-confirm',
+                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
+                backdropClass: 'modal-backdrop c4p-modal-small',
                 controller: 'ctrlDialogConfirm',
                 templateUrl: 'partials/dialog/confirm.html',
                 resolve: {
@@ -648,8 +638,8 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
                         var addedOrganizers = [];
                         var dialogOptions = {
                             backdropClick: false,
-                            dialogClass: 'modal modal-left c4p-modal-search c4p-dialog',
-                            backdropClass: 'modal-backdrop c4p-modal-search-backdrop'
+                            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
+                            backdropClass: 'modal-backdrop c4p-modal-left'
                         };
                         var resolve = {
                             srvData: function () {
@@ -691,7 +681,7 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
                             return menus;
                         };
                         dialogOptions.resolve = resolve;
-                        openDialog(dialogOptions, function (result) {
+                        $scope.openDialogFct(dialogOptions, function (result) {
                             if (a4p.isDefined(result)) {
                                 a4p.safeApply($scope, function () {
                                     $scope.clear();
@@ -804,11 +794,11 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
                     if (!nbNewAccount) {
                         a4p.InternalLog.log('ctrlEditDialogObject', 'NO Account found in IOS');
                     } else {
-                        openDialog(
+                        $scope.openDialogFct(
                             {
                                 backdropClick: true,
-                                dialogClass: 'modal modal-left c4p-modal-search',
-                                backdropClass: 'modal-backdrop c4p-modal-search',
+                                dialogClass: 'modal c4p-modal-left c4p-modal-search',
+                                backdropClass: 'modal-backdrop c4p-modal-left',
                                 controller: 'ctrlAddAccount',
                                 templateUrl: 'partials/dialog/dialogAddAccount.html',
                                 resolve: {
@@ -895,8 +885,8 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
                         openDialog(
                             {
                                 backdropClick: true,
-                                dialogClass: 'modal modal-left c4p-modal-search',
-                                backdropClass: 'modal-backdrop c4p-modal-search',
+                                dialogClass: 'modal c4p-modal-left c4p-modal-search',
+                                backdropClass: 'modal-backdrop c4p-modal-left',
                                 controller: 'ctrlAddEvent',
                                 templateUrl: 'partials/dialog/dialogAddEvent.html',
                                 resolve: {

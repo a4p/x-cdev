@@ -18,16 +18,6 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
      * Helpers
      */
 
-    function promiseDialog(dialogOptions) {
-        return $dialog.dialog(dialogOptions).open();
-    }
-
-    function openDialog(dialogOptions, onSuccess) {
-        a4p.safeApply($scope, function() {
-            $dialog.dialog(dialogOptions).open().then(onSuccess);
-        });
-    }
-
     function createSameCompanyFilter(companyId) {
         return function (object) {
             return object.account_id.dbid == companyId;
@@ -307,8 +297,8 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
 
         var dialogOptions = {
             backdropClick: false,
-            dialogClass: 'modal modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-search-backdrop'
+            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
+            backdropClass: 'modal-backdrop c4p-modal-left'
         };
         var resolve = {
             srvData: function () {
@@ -415,8 +405,8 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
         }
         var dialogOptions = {
             backdropClick: false,
-            dialogClass: 'modal modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-search-backdrop'
+            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
+            backdropClass: 'modal-backdrop c4p-modal-left'
         };
         var resolve = {
             srvData: function () {
@@ -458,7 +448,7 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
                     return promiseDialog({
                         backdropClick: false,
                         dialogClass: 'modal c4p-modal-full c4p-dialog',
-                        backdropClass: 'modal-backdrop c4p-modal-create',
+                        backdropClass: 'modal-backdrop c4p-modal-full',
                         controller: 'ctrlEditDialogObject',
                         templateUrl: 'partials/dialog/edit_object.html',
                         resolve: {
@@ -482,7 +472,10 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
                             },
                             spinner: function () {
                                 return $scope.spinnerContainer;
-                            }
+                            },
+                            openDialogFct: function () {
+                                return $scope.openDialog;
+                            }    
                         }
                     });
                 };
@@ -528,8 +521,8 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
         };
         openDialog(
             {
-                backdrop: false,
                 dialogClass: 'modal c4p-modal-full c4p-modal-mail c4p-dialog',
+                backdropClass: 'modal-backdrop c4p-modal-full',
                 controller: 'ctrlEditDialogEmail',
                 templateUrl: 'partials/dialog/dialogEmail.html',
                 resolve: {
@@ -598,8 +591,8 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
 
         openDialog(
             {
-                backdrop: false,
                 dialogClass: 'modal c4p-modal-full c4p-modal-mail c4p-dialog',
+                backdropClass: 'modal-backdrop c4p-modal-full',
                 controller: 'ctrlDialogICal',
                 templateUrl: 'partials/dialog/dialogICal.html',
                 resolve: {
@@ -667,7 +660,7 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
             } else {
                 a4p.safeApply($scope, function() {
                     //$scope.setEditMode(true);
-                    $scope.editObjectDialog(object).then(
+                    $scope.editObjectDialog(object,
                         function (result) {
                             if (a4p.isDefined(result)) {
                                 a4p.safeApply($scope, function() {
@@ -703,8 +696,8 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
 
         openDialog(
             {
-                backdrop: false,
-                dialogClass: 'modal modal-left c4p-modal-search c4p-dialog',
+                dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
+                backdropClass: 'modal-backdrop c4p-modal-left',
                 controller: 'ctrlDupMeeting',
                 templateUrl: 'partials/dialog/dialogDupMeeting.html',
                 resolve: {

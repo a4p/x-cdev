@@ -77,27 +77,42 @@
 
 <div ng-style="{width:getAsideWidth()+'px'}"
      resize-opts="{name:'aside_search_search', watchRefresh:['srvFacet.filterFacets.length', 'activeSearch']}">
+
+
+    <div class="row">
+        <form class="form-horizontal">
+            <div class="has-feedback"
+                ng-show="activeSearch">
+                <input  type="text" class="form-control" id="inputSearch" 
+                        placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}"
+                        ng-model="inputs.itemSearchQuery"
+                        ng-change="srvFacet.setFilterQuery(inputs.itemSearchQuery);" />
+                <span class="c4p-icon-std glyphicon glyphicon-search form-control-feedback" ng-click="toggleSearch()"></span>
+            </div>
+        </form>
+    </div>
+<!-- 
     <ul class="list-group c4p-list-aside c4p-color-z-dark-ii"
-        ng-click="toggleSearch()">
-        <!-- Search input + Shortcut Buttons -->
-        <li c4p-show="activeSearch" class="list-group-item c4p-list-item-aside c4p-search-header-aside">
+        ng-click="toggleSearch()"
+        ng-show="activeSearch">
+        //Search input + Shortcut Buttons
+        <li  class="list-group-item c4p-list-item-aside c4p-search-header-aside">
             <div class="row">
                 <div class="col-xxs-10">
                     <input type="text" class="form-control input-sm" autofocus
                            placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}"
                            ng-model="inputs.itemSearchQuery"
                            ng-change="srvFacet.setFilterQuery(inputs.itemSearchQuery);" />
-                    <!--<span class="input-group-addon" >
-                        <span class="btn c4p-color-a-transparent btn-sm c4p-null-m-p">
-                            <span class="glyphicon glyphicon-search"></span></span>
-                    </span>-->
                 </div>
-                <!-- Search button -->
                 <div class="col-xxs-2">
                     <span class="pull-right" ng-click="$event.stopPropagation(); toggleSearch()"><span class="c4p-color-z-transparent c4p-padding-w-packed"><span class="glyphicon glyphicon-search "></span></span></span>
                 </div>
             </div>
-        </li><!-- Disable filter for now //TODO MLE
+        </li>
+-->
+
+
+        <!-- Disable filter for now //TODO MLE
         <li ng-show="activeSearch && !srvConfig.c4pConfig.exposeAllFacets" class="list-group-item  c4p-list-item-aside" ng-class="{'active':(srvFacet.filterFacets.length <= 1) && (srvFacet.getLastFacetKey() != 'favorites') && (srvFacet.getLastFacetKey() != 'top20') && (srvFacet.getLastFacetKey() != 'mine')}">
             <span ng-click="$event.stopPropagation(); tabClear();" class="c4p-color-z-transparent c4p-null-m-p">
                 <span class="glyphicon glyphicon-resize-full"></span>
@@ -121,13 +136,16 @@
                 <span> {{srvLocale.translations.htmlFacetName['mine']}}</span>
             </span>
         </li> -->
+    <ul class="list-group c4p-list-aside c4p-color-z-dark-ii"
+        ng-click="toggleSearch()"
+        ng-hide="activeSearch" >
         <!-- Search result -->
-        <li ng-hide="activeSearch" class="list-group-item c4p-list-item-aside">
+        <li class="list-group-item c4p-list-item-aside">
             <div class="row">
                 <!-- Sort button -->
                 <div class="col-xxs-2">
-                    <span ng-show="srvFacet.ascendingOrder" ng-click="$event.stopPropagation(); srvFacet.toggleOrder()"><span class="c4p-color-z-transparent c4p-padding-w-packed"><span class="glyphicon glyphicon-sort-by-alphabet"></span></span></span>
-                    <span ng-hide="srvFacet.ascendingOrder" ng-click="$event.stopPropagation(); srvFacet.toggleOrder()"><span class="c4p-color-z-transparent c4p-padding-w-packed"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></span></span>
+                    <span ng-show="srvFacet.ascendingOrder" ng-click="$event.stopPropagation(); srvFacet.toggleOrder()"><span class="c4p-color-z-transparent c4p-padding-w-packed"><span class="glyphicon glyphicon-sort-alpha-asc"></span></span></span>
+                    <span ng-hide="srvFacet.ascendingOrder" ng-click="$event.stopPropagation(); srvFacet.toggleOrder()"><span class="c4p-color-z-transparent c4p-padding-w-packed"><span class="glyphicon glyphicon-sort-alpha-desc"></span></span></span>
                 </div>
 
                 <!-- Search query 
@@ -142,7 +160,7 @@
                 </div>
                 <!-- Search button -->
                 <div class="col-xxs-2">
-                    <span class="pull-right" ng-click="$event.stopPropagation(); toggleSearch()"><span class="c4p-color-z-transparent c4p-padding-w-packed"><span class="glyphicon glyphicon-search"></span></span></span>
+                    <span class="pull-right" ng-click="$event.stopPropagation(); toggleSearch()"><span class="c4p-icon-std c4p-color-z-transparent c4p-padding-w-packed"><span class="glyphicon glyphicon-search"></span></span></span>
                 </div>
             </div>
         </li>

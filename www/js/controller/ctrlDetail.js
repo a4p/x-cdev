@@ -19,16 +19,6 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
      * Helpers
      */
 
-    function promiseDialog(dialogOptions) {
-        return $dialog.dialog(dialogOptions).open();
-    }
-
-    function openDialog(dialogOptions, onSuccess) {
-        a4p.safeApply($scope, function() {
-            $dialog.dialog(dialogOptions).open().then(onSuccess);
-        });
-    }
-
     function createSameCompanyFilter(companyId) {
         return function (object) {
             return object.account_id.dbid == companyId;
@@ -326,7 +316,7 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
             if (a4p.isDefined(object)) {
                 var itemToCreate = $scope.srvData.createObject(type, {});
                 a4p.safeApply($scope, function() {
-                    $scope.editObjectDialog(itemToCreate).then(
+                    $scope.editObjectDialog(itemToCreate,
                         function (result) {
                             if (a4p.isDefined(result)) {
                                 a4p.safeApply($scope, function() {
@@ -361,7 +351,7 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
             {
                 backdropClick: false,
                 dialogClass: 'modal c4p-modal-full c4p-dialog',
-                backdropClass: 'modal-backdrop c4p-modal-create',
+                backdropClass: 'modal-backdrop c4p-modal-full',
                 controller: 'ctrlEditDialogObject',
                 templateUrl: 'partials/dialog/edit_object.html',
                 resolve: {
@@ -385,7 +375,10 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
                     },
                     spinner: function () {
                         return $scope.spinnerContainer;
-                    }
+                    },
+                    openDialogFct: function () {
+                        return $scope.openDialog;
+                    }                    
                 }
             },
             function (result) {
@@ -531,8 +524,8 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
 
         var dialogOptions = {
             backdropClick: true,
-            dialogClass: 'modal modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-search-backdrop'
+            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
+            backdropClass: 'modal-backdrop c4p-modal-left'
         };
         var resolve = {
             srvData: function () {
@@ -572,7 +565,7 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
                     return promiseDialog({
                         backdropClick: false,
                         dialogClass: 'modal c4p-modal-full c4p-dialog',
-                        backdropClass: 'modal-backdrop c4p-modal-create',
+                        backdropClass: 'modal-backdrop c4p-modal-full',
                         controller: 'ctrlEditDialogObject',
                         templateUrl: 'partials/dialog/edit_object.html',
                         resolve: {
@@ -596,7 +589,10 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
                             },
                             spinner: function () {
                                 return $scope.spinnerContainer;
-                            }
+                            },
+                            openDialogFct: function () {
+                                return $scope.openDialog;
+                            }    
                         }
                     });
                 };

@@ -5,9 +5,7 @@
     "htmlGuiderTextValidation":"Synchronization is running. Please wait ...",
     "htmlGuiderTextWaiting":"<blockquote><p>Patience, persistence and perspiration make an unbeatable combination for success.</p><small>Napoleon Hill</small></blockquote>",
 
-
-
-
+    "htmlGuiderNeedHelp":"Question ?",
 
 	"htmlErrorRequired":"Field '{0}' is mandatory",
 	"htmlErrorMaxLength":"Field '{0}' must not exceed {1} characters",

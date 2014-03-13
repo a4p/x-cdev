@@ -5,17 +5,7 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
     /**
      * Helpers
      */
-
-    function promiseDialog(dialogOptions) {
-        return $dialog.dialog(dialogOptions).open();
-    }
-
-    function openDialog(dialogOptions, onSuccess) {
-        a4p.safeApply($scope, function() {
-            $dialog.dialog(dialogOptions).open().then(onSuccess);
-        });
-    }
-
+     
     /**
      * Variables
      */
@@ -256,8 +246,8 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
         var array = [srvConfig.getItemName($scope.note)];
         openDialog({
                 backdropClick: false,
-                dialogClass: 'modal c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-confirm',
+                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
+                backdropClass: 'modal-backdrop c4p-modal-small',
                 controller: 'ctrlDialogConfirm',
                 templateUrl: 'partials/dialog/confirm.html',
                 resolve: {
@@ -304,8 +294,8 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
         addedOrganizers.push(srvFacet.createEventAttendeesOrganizer(attendees));
         var dialogOptions = {
             backdropClick: true,
-            dialogClass: 'modal modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-search-backdrop'
+            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
+            backdropClass: 'modal-backdrop c4p-modal-left'
         };
         var resolve = {
             srvData: function () {
@@ -344,7 +334,7 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
                     return promiseDialog({
                         backdropClick: false,
                         dialogClass: 'modal c4p-modal-full c4p-dialog',
-                        backdropClass: 'modal-backdrop c4p-modal-create',
+                        backdropClass: 'modal-backdrop c4p-modal-full',
                         controller: 'ctrlEditDialogObject',
                         templateUrl: 'partials/dialog/edit_object.html',
                         resolve: {
@@ -368,7 +358,10 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
                             },
                             spinner: function () {
                                 return spinner;
-                            }
+                            },
+                            openDialogFct: function () {
+                                return $scope.openDialog;
+                            }    
                         }
                     });
                 };
@@ -420,8 +413,8 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
         addedOrganizers.push(srvFacet.createEventAttachmentsOrganizer(attachments));
         var dialogOptions = {
             backdropClick: true,
-            dialogClass: 'modal modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-search-backdrop'
+            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
+            backdropClass: 'modal-backdrop c4p-modal-left'
         };
         var resolve = {
             srvData: function () {
@@ -487,8 +480,8 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
     $scope.openDialogAddRatings = function () {
         openDialog(
             {
-                dialogClass: 'modal modal-left c4p-modal-search c4p-dialog',
-                backdropClass: 'modal-backdrop c4p-modal-search-backdrop',
+                dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
+                backdropClass: 'modal-backdrop c4p-modal-left',
                 backdropClick: true,
                 controller: 'ctrlAddRatings',
                 templateUrl: 'partials/dialog/dialogAddRatings.html',

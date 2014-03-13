@@ -28,20 +28,6 @@ function ctrlFacetSelectedDialog($scope, $dialog, srvData, srvFacet, srvLocale, 
     $scope.typeColor = c4p.Model.getTypeColor(type);
 
     /**
-     * Helpers
-     */
-
-    function promiseDialog(dialogOptions) {
-        return $dialog.dialog(dialogOptions).open();
-    }
-
-    function openDialog(dialogOptions, onSuccess) {
-        a4p.safeApply($scope, function() {
-            $dialog.dialog(dialogOptions).open().then(onSuccess);
-        });
-    }
-
-    /**
      * Variables
      */
 

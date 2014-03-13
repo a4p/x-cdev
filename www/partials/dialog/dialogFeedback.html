@@ -1,19 +1,21 @@
 <!-- Headers -->
 <div class="row">
-    <div class="c4p-dialog-feedback-header">
+    <div class="c4p-dialog-header">
 
-        <div class="c4p-padding-w-packed c4p-guider-action col-xxs-11">
+        <div class="col-xxs-12">
             <!-- Nav tabs -->
-            <ul class="nav nav-tabs">
-              <li class="active">
+            <ul class="nav nav-pills">
+              <li class=""><div class="btn"></div></li>
+              <!--<li class="active">
                 <a href="#home" data-toggle="tab">
                   <h5>{{srvLocale.translations.htmlGuiderPageTitle}}</h5>
                 </a>
-              </li>
+              </li>-->
               <li><a href="#question" data-toggle="tab">
-                <div class="btn btn-warning">
-                  <span class="c4p-icon-std glyphicon glyphicon-question">
-                  </span>
+                <div class="btn">
+                  <h5>{{srvLocale.translations.htmlGuiderNeedHelp}}</h5>
+                  <!--<span class="c4p-icon-std glyphicon glyphicon-question">
+                  </span>-->
                 </div>
               </a></li><!--
               <li><a href="#warning" data-toggle="tab">
@@ -22,25 +24,18 @@
                   </span>
                 </div>
               </a></li>-->
+              <li class="pull-right">
+                <a ng-click="close()">
+                  <div class="btn"><span class="c4p-icon-std close">&times;</span></div>
+                </a>
+              </li>
             </ul>
-        </div>
-        <div class="col-xxs-1">
-            <div class="btn c4p-padding-w-packed c4p-guider-action" ng-click="close()">
-                <span class="c4p-icon-std glyphicon glyphicon-remove"></span>
-            </div>
         </div>
     </div>
 </div>
-
-<div>
-    <div class="row">
-        <div class="col-xxs-12"
-             resize-css-height="getResizeHeight() -getPathValue('parentNode.parentNode.previousElementSibling', 'offsetHeight')"
-             sense-opts="{name:'dialogEmail', axeY:'scroll', watchRefresh:'mailLastUpdate'}"
-             sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}">
-            <div class="c4p-dialog-container">
-
-
+<div class="row">
+  <div class="c4p-dialog-container">
+    <div class="col-xxs-12">
 
 
               <!-- Tab panes -->
@@ -173,7 +168,6 @@
                 </div>
               </div>
 
-            </div>
-        </div>
     </div>
+  </div>
 </div>

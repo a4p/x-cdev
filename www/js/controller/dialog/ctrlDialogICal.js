@@ -5,15 +5,6 @@ function ctrlDialogICal($scope, srvLocale, srvData, srvConfig, srvFacet, ical, a
      * Helpers
      */
 
-    function promiseDialog(dialogOptions) {
-        return $dialog.dialog(dialogOptions).open();
-    }
-
-    function openDialog(dialogOptions, onSuccess) {
-        a4p.safeApply($scope, function() {
-            $dialog.dialog(dialogOptions).open().then(onSuccess);
-        });
-    }
 
     /**
      * Variables
@@ -68,8 +59,8 @@ function ctrlDialogICal($scope, srvLocale, srvData, srvConfig, srvFacet, ical, a
         addedOrganizers.push(srvFacet.createEventAttendeesOrganizer(attendees));
         var dialogOptions = {
             backdropClick: false,
-            dialogClass: 'modal modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-search-backdrop'
+            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
+            backdropClass: 'modal-backdrop c4p-modal-left'
         };
         var resolve = {
             srvData: function () {

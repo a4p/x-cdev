@@ -511,8 +511,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
             $scope.openDialog(
                 {
                     backdropClick: false,
-                    dialogClass: 'modal c4p-modal-goto-meeting',
-                    backdropClass: 'modal-backdrop c4p-modal-goto-meeting',
+                    dialogClass: 'modal c4p-modal-small c4p-modal-goto-meeting',
+                    backdropClass: 'modal-backdrop c4p-modal-small',
                     controller: 'ctrlGoToMeetingDialog',
                     templateUrl: 'partials/dialog/dialogGoToMeeting.html',
                     resolve: {
@@ -1655,8 +1655,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         $scope.openDialog(
             {
                 backdropClick: false,
-                dialogClass: 'modal c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-confirm',
+                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
+                backdropClass: 'modal-backdrop c4p-modal-small',
                 controller: 'ctrlDialogConfirm',
                 templateUrl: 'partials/dialog/confirm.html',
                 resolve: {
@@ -1683,8 +1683,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         $scope.openDialog(
             {
                 backdropClick: false,
-                dialogClass: 'modal c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-confirm',
+                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
+                backdropClass: 'modal-backdrop c4p-modal-small',
                 controller: 'ctrlInitDialogPinCode',
                 templateUrl: 'partials/dialog/pin_init.html',
                 resolve: {
@@ -1704,8 +1704,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         $scope.openDialog(
             {
                 backdropClick: false,
-                dialogClass: 'modal c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-confirm',
+                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
+                backdropClass: 'modal-backdrop c4p-modal-small',
                 controller: 'ctrlModifyDialogPinCode',
                 templateUrl: 'partials/dialog/pin_modify.html',
                 resolve: {
@@ -1730,8 +1730,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         $scope.openDialog(
             {
                 backdropClick: false,
-                dialogClass: 'modal c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-confirm',
+                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
+                backdropClass: 'modal-backdrop c4p-modal-small',
                 controller: 'ctrlOpenDialogLocked',
                 templateUrl: 'partials/dialog/pin_locked.html',
                 resolve: {
@@ -1758,8 +1758,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         $scope.openDialog(
             {
                 backdropClick: true,
-                dialogClass: 'modal c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-confirm',
+                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
+                backdropClass: 'modal-backdrop c4p-modal-small',
                 controller: 'ctrlDialogConfirm',
                 templateUrl: 'partials/dialog/message.html',
                 resolve: {
@@ -1798,11 +1798,11 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
             });
     };
 
-    $scope.editObjectDialog = function(event) {
-        return $scope.promiseDialog(
+    $scope.editObjectDialog = function(event, fctSuccess) {
+        return $scope.openDialog(
             {
-                backdrop: false,
-                dialogClass: 'modal c4p-dialog c4p-modal-full',
+                dialogClass: 'modal c4p-modal-large c4p-dialog',
+                backdropClass: 'modal-backdrop c4p-modal-large',
                 controller: 'ctrlEditDialogObject',
                 templateUrl: 'partials/dialog/edit_object.html',
                 resolve: {
@@ -1827,7 +1827,22 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                     },
                     spinner: function () {
                         return $scope.spinnerContainer;
-                    }
+                    },
+                    openDialogFct: function () {
+                        return $scope.openDialog;
+                    }    
+                }
+            },
+            function (result) {
+                if (a4p.isDefined(result)) {
+                    a4p.safeApply($scope, function () {
+                        fctSuccess(result);
+                    });
+                }
+                else {
+                   // a4p.safeApply($scope, function() {
+                        //deferred.reject({error:'htmlMsgShareByEmailPb', log:'cancelled by user'});
+                    //});
                 }
             });
     };
@@ -2054,8 +2069,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         $scope.openDialog(
             {
                 backdropClick: false,
-                dialogClass: 'modal modal-full c4p-dialog-feedback',
-                backdropClass: 'modal-backdrop c4p-modal-note',
+                dialogClass: 'modal c4p-modal-large c4p-dialog',
+                backdropClass: 'modal-backdrop c4p-modal-large',
                 controller: 'ctrlEditDialogFeedback',
                 templateUrl: 'partials/dialog/dialogFeedback.html',
                 resolve: {
@@ -2337,7 +2352,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         $scope.openDialog(
             {
                 backdrop: false,
-                dialogClass: 'modal modal-full c4p-modal-mail c4p-dialog',
+                dialogClass: 'modal c4p-modal-full c4p-modal-mail c4p-dialog',
                 controller: 'ctrlEditDialogEmail',
                 templateUrl: 'partials/dialog/dialogEmail.html',
                 resolve: {
@@ -2486,10 +2501,10 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         };
         var title;
         if (item.email.emailType == 'share') {
-            dialogOptions.dialogClass = 'modal modal-full c4p-modal-mail c4p-dialog';
+            dialogOptions.dialogClass = 'modal c4p-modal-full c4p-modal-mail c4p-dialog';
             title = srvLocale.translations.htmlTitleShareByEmail;
         } else {
-            dialogOptions.dialogClass = 'modal modal-full c4p-modal-mail c4p-dialog';
+            dialogOptions.dialogClass = 'modal c4p-modal-full c4p-modal-mail c4p-dialog';
             title = srvLocale.translations.htmlFormEmail;
         }
         $scope.openDialog(

@@ -7,16 +7,6 @@
  */
 function ctrlDragObject($scope, $dialog, srvLocale, srvData, srvNav, srvLink, srvConfig) {
 
-    $scope.promiseDialog = function (dialogOptions) {
-        return $dialog.dialog(dialogOptions).open();
-    };
-
-    $scope.openDialog = function (dialogOptions, onSuccess) {
-        a4p.safeApply($scope, function() {
-            $dialog.dialog(dialogOptions).open().then(onSuccess);
-        });
-    };
-
     $scope.srvNav = srvNav;
 
     $scope.proxy = null;

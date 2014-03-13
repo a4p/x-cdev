@@ -1089,7 +1089,7 @@ c4p.Model = (function () {
         },
         'Account': {
             isAttachment: false,
-            icon: 'building',
+            icon: 'building-o',
             colorType: 'm',
             fields: [
                 'company_name',

@@ -1,14 +1,26 @@
-<!-- Header -->
-<div class="row" resize-opts="{}">
-    <div class="c4p-dialog-header c4p-color-gradient0" >
-        <div class="btn c4p-padding-w-packed c4p-color-action-transparent">
-            <span>{{srvLocale.translations.htmlTypeName[objectTypeLocale]}}</span>
-        </div>
-        <div class="btn c4p-color-action-transparent"
-             ng-show="hasOpenImportContactDialog"
-             ng-click="openImportContactDialog()">
-            <span class="c4p-icon-std glyphicon glyphicon-download"></span>
-        </div>
+<!-- Headers -->
+<div class="row">
+    <div class="c4p-dialog-header c4p-color-gradient0">
+
+        <div class="col-xxs-12">
+            <!-- Nav tabs -->
+            <ul class="nav nav-pills">
+                <li class="hidden-xs">
+                  <a><div class="btn"><span>{{srvLocale.translations.htmlTypeName[objectTypeLocale]}}</span></div></a>
+                </li>
+                <li ng-show="removeEnabled">
+                    <a ng-click="remove()">
+                        <div class="btn"><span class="c4p-icon-std glyphicon glyphicon-trash-o"></span></div>
+                    </a>
+                </li>
+                <li ng-show="hasOpenImportContactDialog">
+                    <a ng-click="openImportContactDialog()">
+                        <div class="btn">
+                          <span class="c4p-icon-std glyphicon glyphicon-download"></span>
+                        </div>
+                    </a>
+                </li>
+
         <!-- temporary deactivation : waiting for more infos to import ?
         <div class="btn c4p-color-action-transparent"
              ng-show="hasOpenImportAccountDialog"
@@ -21,12 +33,41 @@
             <span class="c4p-icon-std glyphicon glyphicon-download"></span>
         </div>
         -->
+
+
+                <li class="pull-right">
+                    <a ng-click="close()">
+                      <div class="btn"><span class="c4p-icon-std close">&times;</span></div>
+                    </a>
+                </li>
+                <li class="pull-right">
+                    <a ng-click="submit()">
+                        <div class="btn" ng-class="{'c4p-color-ok-transparent' : objectValidated, 'c4p-color-cancel-transparent' : !objectValidated}">
+                          <span class="c4p-icon-std glyphicon glyphicon-check"></span>
+                        </div>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Header
+<div class="row" resize-opts="{}">
+    <div class="c4p-dialog-header c4p-color-gradient0" >
+        <div class="btn c4p-padding-w-packed c4p-color-action-transparent">
+            <span>{{srvLocale.translations.htmlTypeName[objectTypeLocale]}}</span>
+        </div>
+        <div class="btn c4p-color-action-transparent"
+             ng-show="hasOpenImportContactDialog"
+             ng-click="openImportContactDialog()">
+            <span class="c4p-icon-std glyphicon glyphicon-download"></span>
+        </div>
         <div class="btn c4p-color-cancel-transparent" ng-show="removeEnabled" ng-click="remove()">
             <span class="c4p-icon-std glyphicon glyphicon-trash"></span>
         </div>
 
-        <!-- ATTENTION: Next line use for vertical align -->
-        <!-- Sync all icon-Xx value in this file to keep alignment -->
         <div class="btn disabled c4p-padding-w-packed">
             <div class="c4p-icon-std glyphicon">&nbsp;</div>
         </div>
@@ -46,9 +87,9 @@
         </div>
     </div>
 </div>
-
+ -->
 <div class="row c4p-dialog-bg"
-     resize-css-height="getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight')">
+     resize-css-height="(getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight'))*0.9">
     <!-- Body -->
     <div class="col-xs-12 col-sm-8 c4p-dialog-edit-container c4p-color-a-gradient{{objectGroups.length}}"
          sense-opts="{axeY:'scroll', watchRefresh:'objectLastChange', init: 'setSenseScroller($sense)'}"

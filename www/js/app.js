@@ -42,7 +42,7 @@ angular.module('c4p.routes', [], function($routeProvider, $locationProvider) {
 
 var serviceModule = angular.module('c4p.services', ['ngResource']);
 
-a4p.InternalLog.log('$exceptionHandler', 'creation');
+//a4p.InternalLog.log('$exceptionHandler', 'creation');
 appModule.factory('$exceptionHandler', ['$log',
     function ($log) {
         function formatError(arg) {
@@ -72,7 +72,7 @@ appModule.factory('$exceptionHandler', ['$log',
 
 // This wrapper will queue up PhoneGap API calls if called before deviceready  and call them after deviceready fires.
 // After deviceready has been called, the API calls will occur normally.
-a4p.InternalLog.log('cordovaReady', 'creation');
+//a4p.InternalLog.log('cordovaReady', 'creation');
 serviceModule.factory('cordovaReady', ['$window', '$rootScope',
     function ($window, $rootScope) {
         return function (userCallback) {
@@ -83,7 +83,7 @@ serviceModule.factory('cordovaReady', ['$window', '$rootScope',
                 queue.push(Array.prototype.slice.call(arguments));
             };
             var readyCallback = function () {
-                a4p.InternalLog.log('cordovaReady', 'Cordova is ready');
+                //a4p.InternalLog.log('cordovaReady', 'Cordova is ready');
                 queue.forEach(function (args) {
                     // call queued function with following arguments a4pDumpData(args, 2)
                     userCallback.apply(this, args);
@@ -92,7 +92,7 @@ serviceModule.factory('cordovaReady', ['$window', '$rootScope',
                 impl = userCallback;
             };
             if ($window.navigator.userAgent.toLowerCase().match(/(iphone|ipod|ipad|android|blackberry|webos|symbian|ios|bada|tizen|windows phone)/) !== null) {
-                a4p.InternalLog.log('cordovaReady', 'Cordova : cordovaReady() will be called upon deviceready event');
+                //a4p.InternalLog.log('cordovaReady', 'Cordova : cordovaReady() will be called upon deviceready event');
                 // if cordova : immediatly called if event 'deviceready' is already fired
                 // FIXME : $window.addEventListener('deviceready', ...) does not work in Android
                 $window.document.addEventListener('deviceready', function () {
@@ -100,19 +100,19 @@ serviceModule.factory('cordovaReady', ['$window', '$rootScope',
                     a4p.safeApply($rootScope, function () {
                         if ('invokeString' in window) {
                             //alert('invokeString '+window.invokeString);
-                            a4p.InternalLog.log('onDeviceReady: ' + window.invokeString);
+                            //a4p.InternalLog.log('onDeviceReady: ' + window.invokeString);
                         } else {
-                            a4p.InternalLog.log('onDeviceReady: no invokeString');
+                            //a4p.InternalLog.log('onDeviceReady: no invokeString');
                         }
                         readyCallback();
                     });
                 }, false);
             } else if ($window.navigator.userAgent.toLowerCase().match(/(firefox|msie|opera|chrome|safari|windows nt 6.2)/) !== null) {
                 // windows nt 6.2 => windows 8
-                a4p.InternalLog.log('cordovaReady', 'No Cordova : cordovaReady() is called immediately');
+                //a4p.InternalLog.log('cordovaReady', 'No Cordova : cordovaReady() is called immediately');
                 readyCallback();
             } else {
-                a4p.InternalLog.log('cordovaReady', 'Cordova or not : cordovaReady() is called in 10 seconds');
+                //a4p.InternalLog.log('cordovaReady', 'Cordova or not : cordovaReady() is called in 10 seconds');
                 setTimeout(function () {
                     a4p.safeApply($rootScope, function () {
                         readyCallback();
@@ -132,7 +132,7 @@ var srvOpenUrlSingleton = null;
 
 //MLE because you could invoke app with string in an app. cf handleOpenURL & invokeString
 function handleOpenURL(url) {
-    a4p.InternalLog.log('handleOpenURL', url);
+    //a4p.InternalLog.log('handleOpenURL', url);
     window.setTimeout(function () {
         if (srvOpenUrlSingleton != null) {
             srvOpenUrlSingleton.openUrl(url);
@@ -164,7 +164,7 @@ serviceModule.factory('srvLoad', function () {
     return new SrvLoad();
 });
 
-a4p.InternalLog.log('srvRunning', 'creation');
+//a4p.InternalLog.log('srvRunning', 'creation');
 serviceModule.factory('srvRunning', ['$window', '$rootScope', '$exceptionHandler', 'cordovaReady',
     function ($window, $rootScope, $exceptionHandler, cordovaReady) {
         var runningSingleton = new SrvRunning($exceptionHandler);
@@ -175,7 +175,7 @@ serviceModule.factory('srvRunning', ['$window', '$rootScope', '$exceptionHandler
 
         // Add these listeners ONLY when cordova is ready
         cordovaReady(function () {
-            a4p.InternalLog.log('srvRunning', 'add listeners on pause, resume, online, offline, resign, active and backbutton');
+            //a4p.InternalLog.log('srvRunning', 'add listeners on pause, resume, online, offline, resign, active and backbutton');
             // DO NOT USE $window.addEventListener("pause", ..., true)
             $window.document.addEventListener("pause", function () {
                 // console.log() is not executed in IOS until the application resume
@@ -197,31 +197,31 @@ serviceModule.factory('srvRunning', ['$window', '$rootScope', '$exceptionHandler
 
             $window.document.addEventListener("online", function () {
                 a4p.safeApply($rootScope, function () {
-                    a4p.InternalLog.log('srvRunning', "Application is online");
+                    //a4p.InternalLog.log('srvRunning', "Application is online");
                     runningSingleton.setOnline(true);
                 });
             }, false);
 
             $window.document.addEventListener("offline", function () {
                 a4p.safeApply($rootScope, function () {
-                    a4p.InternalLog.log('srvRunning', "Application is offline");
+                    //a4p.InternalLog.log('srvRunning', "Application is offline");
                     runningSingleton.setOnline(false);
                 });
             }, false);
 
             $window.document.addEventListener("resign", function () {
                 // Lock on IOS
-                a4p.InternalLog.log('srvRunning', "IOS lock");
+                //a4p.InternalLog.log('srvRunning', "IOS lock");
             }, false);
 
             $window.document.addEventListener("active", function () {
                 // Unlock on IOS
-                a4p.InternalLog.log('srvRunning', "IOS unlock");
+                //a4p.InternalLog.log('srvRunning', "IOS unlock");
             }, false);
 
             $window.document.addEventListener("backbutton", function () {
                 // Exit application upon BACK button
-                a4p.InternalLog.log('srvRunning', "Back button will exit the application");
+                //a4p.InternalLog.log('srvRunning', "Back button will exit the application");
 
                 $window.navigator.notification.confirm(
                     "Are you sure you want to EXIT the program?",
@@ -337,4 +337,4 @@ serviceModule.factory('srvGuider', ['srvLocalStorage', 'srvLocale',
     }
 ]);
 
-a4p.InternalLog.log('serviceModule.factory', 'all factories created');
+//a4p.InternalLog.log('serviceModule.factory', 'all factories created');

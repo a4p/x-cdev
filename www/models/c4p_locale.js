@@ -9,9 +9,7 @@ c4p.Locale = {
     "htmlGuiderTextValidation":"Synchronization is running. Please wait ...",
     "htmlGuiderTextWaiting":"<blockquote><p>Patience, persistence and perspiration make an unbeatable combination for success.</p><small>Napoleon Hill</small></blockquote>",
 
-
-
-
+    "htmlGuiderNeedHelp":"Question ?",
 
 	"htmlErrorRequired":"Field '{0}' is mandatory",
 	"htmlErrorMaxLength":"Field '{0}' must not exceed {1} characters",
@@ -766,9 +764,7 @@ c4p.Locale = {
     "htmlGuiderTextValidation":"Synchronisation en cours. Veuillez patientez ...",
     "htmlGuiderTextWaiting":"<blockquote><p>La patience, la persistance et la transpiration sont les cl\u00E9s du succ\u00E8s.</p><small>Napoleon Hill</small></blockquote>",
 
-
-
-
+    "htmlGuiderNeedHelp":"Question ?",
 
 	"htmlErrorRequired":"Le champ '{0}' est obligatoire",
 	"htmlErrorMaxLength":"Le champ '{0}' ne doit pas d\u00E9passer {1} caract\u00E8res",

@@ -15,16 +15,6 @@
  */
 function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, $dialog, srvAnalytics, version) {
 
-    $scope.promiseDialog = function (dialogOptions) {
-        return $dialog.dialog(dialogOptions).open();
-    };
-
-    $scope.openDialog = function (dialogOptions, onSuccess) {
-        a4p.safeApply($scope, function() {
-            $dialog.dialog(dialogOptions).open().then(onSuccess);
-        });
-    };
-
     /**
      * Variables
      */
@@ -141,8 +131,8 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
         $scope.openDialog(
             {
                 backdropClick: true,
-                dialogClass: 'modal modal-left c4p-modal-search c4p-dialog',
-                backdropClass: 'modal-backdrop c4p-modal-search',
+                dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
+                backdropClass: 'modal-backdrop c4p-modal-left',
                 controller: 'ctrlSelectCrmsDialog',
                 templateUrl: 'partials/dialog/dialogSelectCrms.html',
                 resolve: {
@@ -361,8 +351,8 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
     $scope.sendErrorReport = function () {
         $scope.openDialog(
             {
-                backdrop: false,
-                dialogClass: 'modal modal-full c4p-dialog-feedback',
+                dialogClass: 'modal c4p-modal-full c4p-dialog',
+                backdropClass: 'modal-backdrop c4p-modal-full',
                 controller: 'ctrlEditDialogErrorReport',
                 templateUrl: 'partials/dialog/dialogErrorReport.html',
                 resolve: {
