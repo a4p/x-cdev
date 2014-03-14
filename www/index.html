@@ -26,15 +26,24 @@
     <link href="l4p/css/noty_theme_default.css" rel="stylesheet" type="text/css">-->
 
     <!--<script type="text/javascript" src="l4p/src/js/a4p/a4p.browser.js"></script>-->
-    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
-    <!-- weinre 
+    <!-- <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+     weinre 
     <script src="http://192.168.0.33:8082/target/target-script-min.js"></script>-->
+    <script type="text/javascript">
+        console.log('ua: '+navigator.userAgent);
+        if (!navigator.userAgent.match('hrome')) {
+            var newScript = document.createElement("script");
+            newScript.type = "text/javascript";
+            newScript.setAttribute("src", 'cordova.js');
+            document.documentElement.firstChild.appendChild(newScript);
+            console.log('cordova included ...');
+        } 
 
-    <script language="javascript">
-    var blockMove = function (e) {
-            if (e.preventDefault) e.preventDefault() ;
-     }
+        var blockMove = function (e) {
+                if (e.preventDefault) e.preventDefault() ;
+         }
     </script>
+
 
 </head>
 <body ng-app="c4p" ontouchmove="blockMove(event)" onscroll="blockMove(event)" resize-opts="{name:'index_body'}">

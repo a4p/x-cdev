@@ -5768,6 +5768,348 @@ button.close {
     bottom: 20px;
   }
 }
+.modal.c4p-modal-full {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  overflow-y: auto;
+}
+.modal.c4p-modal-large {
+  position: absolute;
+  top: 5%;
+  bottom: 5%;
+  left: 5%;
+  right: 5%;
+  margin: 0;
+  border: 2px solid;
+  overflow-y: auto;
+}
+.modal.c4p-modal-small {
+  position: absolute;
+  top: 20%;
+  bottom: 20%;
+  left: 20%;
+  right: 20%;
+  margin: 0;
+  border: 2px solid;
+  overflow-y: auto;
+}
+.modal.c4p-modal-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 10%;
+  right: 0;
+  border-left: 2px solid;
+}
+.modal.c4p-modal-right .modal-body {
+  margin-right: 50px;
+}
+.modal.c4p-modal-left {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 10%;
+  left: 0;
+  border-right: 2px solid;
+}
+.modal.c4p-modal-left .modal-header,
+.modal.c4p-modal-left .modal-body,
+.modal.c4p-modal-left .modal-footer {
+  margin-left: 50px;
+}
+/*
+.modal-right .modal-toolbox {
+  right: 0;
+  width: @c4p-toolbox-width;
+  background: @green;
+}
+
+.modal-left .modal-toolbox {
+  left: 0;
+  width: @c4p-toolbox-width;
+  background: @gray;
+}*/
+.modal.c4p-modal-full,
+.modal.c4p-modal-large,
+.modal.c4p-modal-small,
+.modal.c4p-modal-right,
+.modal.c4p-modal-left {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+.modal-backdrop.c4p-modal-full,
+.modal-backdrop.c4p-modal-large,
+.modal-backdrop.c4p-modal-small,
+.modal-backdrop.c4p-modal-right,
+.modal-backdrop.c4p-modal-left {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+.c4p-backdrop-blur {
+  -webkit-filter: blur(8px);
+  -moz-filter: blur(8px);
+  -o-filter: blur(8px);
+  -ms-filter: blur(8px);
+  filter: blur(8px);
+}
+/*
+// C4P Modal Guider
+// --------------------
+.modal.c4p-guider {
+  background-color: rgba(255, 255, 255, 0);
+  left: 0;
+  right: 0;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  .modal-body {
+    //height:100%;
+  }
+  p {
+    text-align: left;
+    //margin-top: 20%;
+    margin-left: auto;
+    margin-right: auto;
+    display: inline-block;
+    padding: 20px;
+    background: rgba(245, 245, 245, 0.81);
+    width: 50%;
+    -webkit-box-shadow: 0px 0px 100px white, 0px 0px 100px white;
+  }
+  .carousel-indicators {
+    top: 10%;
+    right: 50%;
+  }
+  .c4p-guider-close {
+    position: fixed;
+    bottom: 10px;
+    right: -40px;
+    width: 120px;
+    z-index: 9999;
+    .c4p-link1 {
+      -webkit-box-shadow: 0px 0px 50px @orange;
+      background: @orange;
+      border-radius: 10px;
+      padding-bottom: 30px;
+      padding-right: 30px;
+
+      margin-right: 30px;
+      padding-left: 20px;
+      padding-top: 20px;
+      margin-top: 20px;
+      margin-left: 20px;
+    }
+  }
+
+}
+
+
+.modal-backdrop.c4p-guider {
+  opacity: 0.5;
+}
+*/
+.modal.c4p-modal-share,
+.modal.c4p-modal-note,
+.modal.c4p-modal-mail {
+  z-index: 1030;
+}
+.modal.c4p-modal-share .inBackground,
+.modal.c4p-modal-note .inBackground,
+.modal.c4p-modal-mail .inBackground {
+  -webkit-filter: blur(2px) grayscale(0.5) opacity(0.8);
+}
+.modal.c4p-modal-share .tab-content,
+.modal.c4p-modal-note .tab-content,
+.modal.c4p-modal-mail .tab-content {
+  overflow: none;
+}
+.modal.c4p-modal-search {
+  max-width: 30em;
+}
+/**
+//TODO : remove trop violent
+.modal.c4p-modal-confirm,
+.modal.c4p-modal-demo,
+.modal.c4p-modal-pin,
+.modal.c4p-modal-goto-meeting {
+
+  background-color: transparent;
+  //top: 0;
+  //left: 0;
+  //right: 0;
+  //bottom: 0;
+  //overflow: hidden;
+
+  //max-width: 20em;
+  //background-color: @body-bg;
+  //margin: auto;
+  //width: 80%;
+  //height: 80%;
+
+  * {
+    color: @gray-dark;
+  }
+  .modal-body {
+    //height: 100%;
+  }
+}
+*/
+.c4p-modal-confirm-btns {
+  height: 2em;
+}
+.c4p-modal-confirm-btns button {
+  margin-bottom: 1em;
+  border: 1px solid black;
+  margin-right: 0.6em;
+}
+.c4p-modal-confirm-container,
+.c4p-modal-goto-meeting-container {
+  background-color: white;
+  border: 1px solid gray;
+}
+.c4p-modal-confirm-cont {
+  padding: 0.4em 1em 0.4em 1em;
+  height: 9em;
+}
+.c4p-modal-img img {
+  max-width: 100%;
+  max-height: 100%;
+}
+.c4p-modal-img .c4p-modal-close {
+  position: absolute;
+  top: 0.2em;
+  right: 0.2em;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: #000000;
+  background-color: transparent;
+  border-color: transparent;
+  text-shadow: none;
+}
+.c4p-modal-img .c4p-modal-close.btn:hover,
+.c4p-modal-img .c4p-modal-close .btn:hover,
+.c4p-modal-img .c4p-modal-close > a:hover,
+.c4p-modal-img .c4p-modal-close:hover,
+.c4p-modal-img .c4p-modal-close.btn:focus,
+.c4p-modal-img .c4p-modal-close .btn:focus,
+.c4p-modal-img .c4p-modal-close > a:focus,
+.c4p-modal-img .c4p-modal-close:focus {
+  color: #000000;
+  background-color: transparent;
+  border-color: transparent;
+}
+.c4p-modal-img .c4p-modal-close.btn:active,
+.c4p-modal-img .c4p-modal-close .btn:active,
+.c4p-modal-img .c4p-modal-close > a:active,
+.c4p-modal-img .c4p-modal-close:active,
+.c4p-modal-img .c4p-modal-close.btn.active,
+.c4p-modal-img .c4p-modal-close .btn.active,
+.c4p-modal-img .c4p-modal-close > a.active,
+.c4p-modal-img .c4p-modal-close.active {
+  color: #000000;
+  background-color: transparent;
+  border-color: transparent;
+}
+.c4p-modal-img .c4p-modal-close.btn.disabled,
+.c4p-modal-img .c4p-modal-close .btn.disabled,
+.c4p-modal-img .c4p-modal-close > a.disabled,
+.c4p-modal-img .c4p-modal-close.disabled,
+.c4p-modal-img .c4p-modal-close.btn[disabled],
+.c4p-modal-img .c4p-modal-close .btn[disabled],
+.c4p-modal-img .c4p-modal-close > a[disabled],
+.c4p-modal-img .c4p-modal-close[disabled],
+.c4p-modal-img .c4p-modal-close.btn.disabled:hover,
+.c4p-modal-img .c4p-modal-close .btn.disabled:hover,
+.c4p-modal-img .c4p-modal-close > a.disabled:hover,
+.c4p-modal-img .c4p-modal-close.disabled:hover,
+.c4p-modal-img .c4p-modal-close.btn[disabled]:hover,
+.c4p-modal-img .c4p-modal-close .btn[disabled]:hover,
+.c4p-modal-img .c4p-modal-close > a[disabled]:hover,
+.c4p-modal-img .c4p-modal-close[disabled]:hover,
+.c4p-modal-img .c4p-modal-close.btn.disabled:focus,
+.c4p-modal-img .c4p-modal-close .btn.disabled:focus,
+.c4p-modal-img .c4p-modal-close > a.disabled:focus,
+.c4p-modal-img .c4p-modal-close.disabled:focus,
+.c4p-modal-img .c4p-modal-close.btn[disabled]:focus,
+.c4p-modal-img .c4p-modal-close .btn[disabled]:focus,
+.c4p-modal-img .c4p-modal-close > a[disabled]:focus,
+.c4p-modal-img .c4p-modal-close[disabled]:focus,
+.c4p-modal-img .c4p-modal-close.btn.disabled:active,
+.c4p-modal-img .c4p-modal-close .btn.disabled:active,
+.c4p-modal-img .c4p-modal-close > a.disabled:active,
+.c4p-modal-img .c4p-modal-close.disabled:active,
+.c4p-modal-img .c4p-modal-close.btn[disabled]:active,
+.c4p-modal-img .c4p-modal-close .btn[disabled]:active,
+.c4p-modal-img .c4p-modal-close > a[disabled]:active,
+.c4p-modal-img .c4p-modal-close[disabled]:active,
+.c4p-modal-img .c4p-modal-close.btn.disabled.active,
+.c4p-modal-img .c4p-modal-close .btn.disabled.active,
+.c4p-modal-img .c4p-modal-close > a.disabled.active,
+.c4p-modal-img .c4p-modal-close.disabled.active,
+.c4p-modal-img .c4p-modal-close.btn[disabled].active,
+.c4p-modal-img .c4p-modal-close .btn[disabled].active,
+.c4p-modal-img .c4p-modal-close > a[disabled].active,
+.c4p-modal-img .c4p-modal-close[disabled].active {
+  color: #000000;
+  background-color: transparent;
+  border-color: transparent;
+}
+.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk,
+.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk,
+.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk,
+.c4p-modal-img .c4p-modal-close.c4p-color-lnk {
+  color: #cc7700;
+}
+.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk.disabled,
+.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk.disabled,
+.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk.disabled,
+.c4p-modal-img .c4p-modal-close.c4p-color-lnk.disabled,
+.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk[disabled],
+.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk[disabled],
+.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk[disabled],
+.c4p-modal-img .c4p-modal-close.c4p-color-lnk[disabled],
+.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk.disabled:hover,
+.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk.disabled:hover,
+.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk.disabled:hover,
+.c4p-modal-img .c4p-modal-close.c4p-color-lnk.disabled:hover,
+.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk[disabled]:hover,
+.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk[disabled]:hover,
+.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk[disabled]:hover,
+.c4p-modal-img .c4p-modal-close.c4p-color-lnk[disabled]:hover,
+.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk.disabled:focus,
+.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk.disabled:focus,
+.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk.disabled:focus,
+.c4p-modal-img .c4p-modal-close.c4p-color-lnk.disabled:focus,
+.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk[disabled]:focus,
+.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk[disabled]:focus,
+.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk[disabled]:focus,
+.c4p-modal-img .c4p-modal-close.c4p-color-lnk[disabled]:focus,
+.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk.disabled:active,
+.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk.disabled:active,
+.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk.disabled:active,
+.c4p-modal-img .c4p-modal-close.c4p-color-lnk.disabled:active,
+.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk[disabled]:active,
+.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk[disabled]:active,
+.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk[disabled]:active,
+.c4p-modal-img .c4p-modal-close.c4p-color-lnk[disabled]:active,
+.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk.disabled.active,
+.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk.disabled.active,
+.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk.disabled.active,
+.c4p-modal-img .c4p-modal-close.c4p-color-lnk.disabled.active,
+.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk[disabled].active,
+.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk[disabled].active,
+.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk[disabled].active,
+.c4p-modal-img .c4p-modal-close.c4p-color-lnk[disabled].active {
+  color: #cc7700;
+  background-color: transparent;
+  border-color: transparent;
+}
+.c4p-modal-img .c4p-modal-close.c4p-color-lnk {
+  color: #cc7700;
+}
 .clearfix:before,
 .clearfix:after,
 .dl-horizontal dd:before,
@@ -6070,8 +6412,8 @@ button.close {
  * -------------------------- */
 @font-face {
   font-family: 'fa-a4p';
-  src: url('../font/fa-a4p/fa-a4p.eot?v=4.0.3');
-  src: url('../font/fa-a4p/fa-a4p.eot?#iefix&v=4.0.3') format('embedded-opentype'), url('../font/fa-a4p/fa-a4p.ttf?v=4.0.3') format('truetype');
+  src: url('../font/fa/fontawesome-webfont.eot?v=4.0.3');
+  src: url('../font/fa/fontawesome-webfont.eot?#iefix&v=4.0.3') format('embedded-opentype'), url('../font/fa/fontawesome-webfont.woff?v=4.0.3') format('woff'), url('../font/fa/fontawesome-webfont.ttf?v=4.0.3') format('truetype'), url('../font/fa/fontawesome-webfont.svg?v=4.0.3#fontawesomeregular') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -7399,414 +7741,6 @@ button.close {
 }
 .glyphicon-plus-square-o:before {
   content: "\f196";
-}
-/*
-.modal {
-  top: 0;
-  height: 100%;
-  margin: 0;
-  overflow-y: auto;
-
-  //border: 0;
-  //TODO color for each theme ?
-  //background-color: @gray-light;
-  background-color: rgba(red(@gray-light), green(@gray-light), blue(@gray-light), 0.5);
-  //color:@gray-darker ! important;
-  //.nav *  {color: @orange ! important;}
-  //li.active a, li.active span, li.active label {color: @orange ! important;;}
-
-}
-
-.modal-backdrop {
-  z-index:1040;
-  opacity: 0.7;
-}
-
-.modal-header {
-  padding: 0;
-  border: none;
-  //height: 12%;
-  .row-fluid > div {
-    padding: 10px;
-  }
-}
-
-.modal-footer {
-  //background-color: white;//@gray-lighter;
-  padding: 0; //2px;
-  //height: 16%;
-}
-
-.modal-body {
-  //height: 72%; //270px;
-  padding: 0;
-  max-height: none;
-}
-
-.modal:last-of-type {
-  pointer-events: auto;
-  -webkit-filter: none;
-
-}
-
-// C4P
-//--------------------
-
-
-.modal-toolbox {
-  position: absolute;
-  top: 0;
-  text-align: center;
-  height: 100%;
-  border: 0;
-  -webkit-border-radius: 0;
-  padding: 0;
-  margin: 0;
-  box-shadow: none;
-}
-
-*/
-.modal.c4p-modal-full {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: 0;
-  overflow-y: auto;
-}
-.modal.c4p-modal-large {
-  position: absolute;
-  top: 5%;
-  bottom: 5%;
-  left: 5%;
-  right: 5%;
-  margin: 0;
-  border: 2px solid;
-  overflow-y: auto;
-}
-.modal.c4p-modal-small {
-  position: absolute;
-  top: 20%;
-  bottom: 20%;
-  left: 20%;
-  right: 20%;
-  margin: 0;
-  border: 2px solid;
-  overflow-y: auto;
-}
-.modal.c4p-modal-right {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 10%;
-  right: 0;
-  border-left: 2px solid;
-}
-.modal.c4p-modal-right .modal-body {
-  margin-right: 50px;
-}
-.modal.c4p-modal-left {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 10%;
-  left: 0;
-  border-right: 2px solid;
-}
-.modal.c4p-modal-left .modal-header,
-.modal.c4p-modal-left .modal-body,
-.modal.c4p-modal-left .modal-footer {
-  margin-left: 50px;
-}
-/*
-.modal-right .modal-toolbox {
-  right: 0;
-  width: @c4p-toolbox-width;
-  background: @green;
-}
-
-.modal-left .modal-toolbox {
-  left: 0;
-  width: @c4p-toolbox-width;
-  background: @gray;
-}*/
-.modal.c4p-modal-full,
-.modal.c4p-modal-large,
-.modal.c4p-modal-small,
-.modal.c4p-modal-right,
-.modal.c4p-modal-left {
-  background-color: rgba(255, 255, 255, 0.5);
-}
-.modal-backdrop.c4p-modal-full,
-.modal-backdrop.c4p-modal-large,
-.modal-backdrop.c4p-modal-small,
-.modal-backdrop.c4p-modal-right,
-.modal-backdrop.c4p-modal-left {
-  background-color: rgba(255, 255, 255, 0.5);
-}
-.c4p-backdrop-blur {
-  -webkit-filter: blur(8px);
-  -moz-filter: blur(8px);
-  -o-filter: blur(8px);
-  -ms-filter: blur(8px);
-  filter: blur(8px);
-}
-/*
-// C4P Modal Guider
-// --------------------
-.modal.c4p-guider {
-  background-color: rgba(255, 255, 255, 0);
-  left: 0;
-  right: 0;
-  width: 100%;
-  margin: 0;
-  border: 0;
-  .modal-body {
-    //height:100%;
-  }
-  p {
-    text-align: left;
-    //margin-top: 20%;
-    margin-left: auto;
-    margin-right: auto;
-    display: inline-block;
-    padding: 20px;
-    background: rgba(245, 245, 245, 0.81);
-    width: 50%;
-    -webkit-box-shadow: 0px 0px 100px white, 0px 0px 100px white;
-  }
-  .carousel-indicators {
-    top: 10%;
-    right: 50%;
-  }
-  .c4p-guider-close {
-    position: fixed;
-    bottom: 10px;
-    right: -40px;
-    width: 120px;
-    z-index: 9999;
-    .c4p-link1 {
-      -webkit-box-shadow: 0px 0px 50px @orange;
-      background: @orange;
-      border-radius: 10px;
-      padding-bottom: 30px;
-      padding-right: 30px;
-
-      margin-right: 30px;
-      padding-left: 20px;
-      padding-top: 20px;
-      margin-top: 20px;
-      margin-left: 20px;
-    }
-  }
-
-}
-
-
-.modal-backdrop.c4p-guider {
-  opacity: 0.5;
-}
-*/
-.modal.c4p-modal-share,
-.modal.c4p-modal-note,
-.modal.c4p-modal-mail {
-  z-index: 1030;
-}
-.modal.c4p-modal-share .inBackground,
-.modal.c4p-modal-note .inBackground,
-.modal.c4p-modal-mail .inBackground {
-  -webkit-filter: blur(2px) grayscale(0.5) opacity(0.8);
-}
-.modal.c4p-modal-share .tab-content,
-.modal.c4p-modal-note .tab-content,
-.modal.c4p-modal-mail .tab-content {
-  overflow: none;
-}
-.modal.c4p-modal-search {
-  max-width: 30em;
-}
-/**
-//TODO : remove trop violent
-.modal.c4p-modal-confirm,
-.modal.c4p-modal-demo,
-.modal.c4p-modal-pin,
-.modal.c4p-modal-goto-meeting {
-
-  background-color: transparent;
-  //top: 0;
-  //left: 0;
-  //right: 0;
-  //bottom: 0;
-  //overflow: hidden;
-
-  //max-width: 20em;
-  //background-color: @body-bg;
-  //margin: auto;
-  //width: 80%;
-  //height: 80%;
-
-  * {
-    color: @gray-dark;
-  }
-  .modal-body {
-    //height: 100%;
-  }
-}
-*/
-.c4p-modal-confirm-btns {
-  height: 2em;
-}
-.c4p-modal-confirm-btns button {
-  margin-bottom: 1em;
-  border: 1px solid black;
-  margin-right: 0.6em;
-}
-.c4p-modal-confirm-container,
-.c4p-modal-goto-meeting-container {
-  background-color: white;
-  border: 1px solid gray;
-}
-.c4p-modal-confirm-cont {
-  padding: 0.4em 1em 0.4em 1em;
-  height: 9em;
-}
-.c4p-modal-img img {
-  max-width: 100%;
-  max-height: 100%;
-}
-.c4p-modal-img .c4p-modal-close {
-  position: absolute;
-  top: 0.2em;
-  right: 0.2em;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  color: #000000;
-  background-color: transparent;
-  border-color: transparent;
-  text-shadow: none;
-}
-.c4p-modal-img .c4p-modal-close.btn:hover,
-.c4p-modal-img .c4p-modal-close .btn:hover,
-.c4p-modal-img .c4p-modal-close > a:hover,
-.c4p-modal-img .c4p-modal-close:hover,
-.c4p-modal-img .c4p-modal-close.btn:focus,
-.c4p-modal-img .c4p-modal-close .btn:focus,
-.c4p-modal-img .c4p-modal-close > a:focus,
-.c4p-modal-img .c4p-modal-close:focus {
-  color: #000000;
-  background-color: transparent;
-  border-color: transparent;
-}
-.c4p-modal-img .c4p-modal-close.btn:active,
-.c4p-modal-img .c4p-modal-close .btn:active,
-.c4p-modal-img .c4p-modal-close > a:active,
-.c4p-modal-img .c4p-modal-close:active,
-.c4p-modal-img .c4p-modal-close.btn.active,
-.c4p-modal-img .c4p-modal-close .btn.active,
-.c4p-modal-img .c4p-modal-close > a.active,
-.c4p-modal-img .c4p-modal-close.active {
-  color: #000000;
-  background-color: transparent;
-  border-color: transparent;
-}
-.c4p-modal-img .c4p-modal-close.btn.disabled,
-.c4p-modal-img .c4p-modal-close .btn.disabled,
-.c4p-modal-img .c4p-modal-close > a.disabled,
-.c4p-modal-img .c4p-modal-close.disabled,
-.c4p-modal-img .c4p-modal-close.btn[disabled],
-.c4p-modal-img .c4p-modal-close .btn[disabled],
-.c4p-modal-img .c4p-modal-close > a[disabled],
-.c4p-modal-img .c4p-modal-close[disabled],
-.c4p-modal-img .c4p-modal-close.btn.disabled:hover,
-.c4p-modal-img .c4p-modal-close .btn.disabled:hover,
-.c4p-modal-img .c4p-modal-close > a.disabled:hover,
-.c4p-modal-img .c4p-modal-close.disabled:hover,
-.c4p-modal-img .c4p-modal-close.btn[disabled]:hover,
-.c4p-modal-img .c4p-modal-close .btn[disabled]:hover,
-.c4p-modal-img .c4p-modal-close > a[disabled]:hover,
-.c4p-modal-img .c4p-modal-close[disabled]:hover,
-.c4p-modal-img .c4p-modal-close.btn.disabled:focus,
-.c4p-modal-img .c4p-modal-close .btn.disabled:focus,
-.c4p-modal-img .c4p-modal-close > a.disabled:focus,
-.c4p-modal-img .c4p-modal-close.disabled:focus,
-.c4p-modal-img .c4p-modal-close.btn[disabled]:focus,
-.c4p-modal-img .c4p-modal-close .btn[disabled]:focus,
-.c4p-modal-img .c4p-modal-close > a[disabled]:focus,
-.c4p-modal-img .c4p-modal-close[disabled]:focus,
-.c4p-modal-img .c4p-modal-close.btn.disabled:active,
-.c4p-modal-img .c4p-modal-close .btn.disabled:active,
-.c4p-modal-img .c4p-modal-close > a.disabled:active,
-.c4p-modal-img .c4p-modal-close.disabled:active,
-.c4p-modal-img .c4p-modal-close.btn[disabled]:active,
-.c4p-modal-img .c4p-modal-close .btn[disabled]:active,
-.c4p-modal-img .c4p-modal-close > a[disabled]:active,
-.c4p-modal-img .c4p-modal-close[disabled]:active,
-.c4p-modal-img .c4p-modal-close.btn.disabled.active,
-.c4p-modal-img .c4p-modal-close .btn.disabled.active,
-.c4p-modal-img .c4p-modal-close > a.disabled.active,
-.c4p-modal-img .c4p-modal-close.disabled.active,
-.c4p-modal-img .c4p-modal-close.btn[disabled].active,
-.c4p-modal-img .c4p-modal-close .btn[disabled].active,
-.c4p-modal-img .c4p-modal-close > a[disabled].active,
-.c4p-modal-img .c4p-modal-close[disabled].active {
-  color: #000000;
-  background-color: transparent;
-  border-color: transparent;
-}
-.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk,
-.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk,
-.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk,
-.c4p-modal-img .c4p-modal-close.c4p-color-lnk {
-  color: #cc7700;
-}
-.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk.disabled,
-.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk.disabled,
-.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk.disabled,
-.c4p-modal-img .c4p-modal-close.c4p-color-lnk.disabled,
-.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk[disabled],
-.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk[disabled],
-.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk[disabled],
-.c4p-modal-img .c4p-modal-close.c4p-color-lnk[disabled],
-.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk.disabled:hover,
-.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk.disabled:hover,
-.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk.disabled:hover,
-.c4p-modal-img .c4p-modal-close.c4p-color-lnk.disabled:hover,
-.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk[disabled]:hover,
-.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk[disabled]:hover,
-.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk[disabled]:hover,
-.c4p-modal-img .c4p-modal-close.c4p-color-lnk[disabled]:hover,
-.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk.disabled:focus,
-.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk.disabled:focus,
-.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk.disabled:focus,
-.c4p-modal-img .c4p-modal-close.c4p-color-lnk.disabled:focus,
-.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk[disabled]:focus,
-.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk[disabled]:focus,
-.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk[disabled]:focus,
-.c4p-modal-img .c4p-modal-close.c4p-color-lnk[disabled]:focus,
-.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk.disabled:active,
-.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk.disabled:active,
-.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk.disabled:active,
-.c4p-modal-img .c4p-modal-close.c4p-color-lnk.disabled:active,
-.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk[disabled]:active,
-.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk[disabled]:active,
-.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk[disabled]:active,
-.c4p-modal-img .c4p-modal-close.c4p-color-lnk[disabled]:active,
-.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk.disabled.active,
-.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk.disabled.active,
-.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk.disabled.active,
-.c4p-modal-img .c4p-modal-close.c4p-color-lnk.disabled.active,
-.c4p-modal-img .c4p-modal-close.btn.c4p-color-lnk[disabled].active,
-.c4p-modal-img .c4p-modal-close .btn.c4p-color-lnk[disabled].active,
-.c4p-modal-img .c4p-modal-close > a.c4p-color-lnk[disabled].active,
-.c4p-modal-img .c4p-modal-close.c4p-color-lnk[disabled].active {
-  color: #cc7700;
-  background-color: transparent;
-  border-color: transparent;
-}
-.c4p-modal-img .c4p-modal-close.c4p-color-lnk {
-  color: #cc7700;
 }
 /*!
  * C4P specific colors
@@ -23037,26 +22971,15 @@ ul.noty_cont.noty_layout_bottomRight {
 content: "\f005";
 color: #e3cf7a;
 }*/
+*:not(input):not(textarea) {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
 html {
   font-size: 90%;
-}
-.a4p-dot {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.a4p-inline-dot {
-  display: inline-block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.click-through {
-  pointer-events: none;
-}
-.click-intercepted {
-  pointer-events: all;
 }
 body,
 #a4pBody {
@@ -23087,6 +23010,24 @@ body,
   -o-background-size: cover;
   background-size: cover;
   z-index: 5;
+}
+.a4p-dot {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.a4p-inline-dot {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.c4p-click-through {
+  pointer-events: none;
+}
+.c4p-click-intercepted {
+  pointer-events: all;
 }
 .c4p-ltr {
   position: relative;
@@ -23319,6 +23260,7 @@ body,
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+  -o-user-select: none;
   user-select: none;
 }
 .c4p-list-item-aside a {
@@ -23786,6 +23728,7 @@ table h6,
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+  -o-user-select: none;
   user-select: none;
 }
 .meeting-list-item.active {
