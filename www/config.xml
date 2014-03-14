@@ -4,7 +4,7 @@
     xmlns:cdv   = "http://cordova.apache.org/ns/1.0"
     xmlns:android   = "http://schemas.android.com/apk/res/android"
     id          = "com.apps4pro.c4pdev"
-    version     = "14031418"  
+    version     = "14031500"  
     versionCode = "C4P_BUILD_DATE">
     
     <name>C_d</name>
@@ -23,7 +23,7 @@
     <gap:platform name="blackberry" /> -->
 
     <preference name="phonegap-version" value="3.3.0" />
-    <preference name="loglevel" value="DEBUG" />
+    <preference name="loglevel" value="VERBOSE" />
 
 
     <!-- iOS allows registration of custom URL Schemes. <gap:url-scheme> 

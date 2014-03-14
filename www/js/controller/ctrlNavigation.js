@@ -34,7 +34,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
 	 * Default size values. They are recalculated during resize
 	 */
     $scope.baseMagnetWidth = 100; 	// to check if used
-    $scope.baseToolbarWidth =  80;	// left and right menu bars
+    $scope.baseToolbarWidth = 48*2;	// left and right menu bars // 40*2
     $scope.basePageWidth  = 240;	// screen width
     $scope.basePageHeight = 240;	// screen height
 
@@ -1265,7 +1265,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
             srvConfig.setSizeCss('75%');
         }
 
-        $scope.toolbarWidth = Math.ceil(2.9*fontSizePx);
+        $scope.toolbarWidth = Math.ceil(3.3*fontSizePx);//2.9
 
         $scope.onePageFormat = a4p.Resize.resizePortrait; //prefer One column Mode; srvConfig.c4pConfig.phoneFormatIfSmall ? a4p.Resize.resizeOneColumn : a4p.Resize.resizePortrait;
         $scope.pageHeight = a4p.Resize.resizeHeight;
@@ -2074,9 +2074,9 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     $scope.openDialogSendFeedbackReport = function (title) {
         $scope.openDialog(
             {
-                backdropClick: false,
-                dialogClass: 'modal modal-full c4p-dialog-feedback',
-                backdropClass: 'modal-backdrop c4p-modal-note',
+                backdropClick: true,
+                dialogClass: 'modal c4p-modal-large c4p-dialog',
+                backdropClass: 'modal-backdrop c4p-modal-large',
                 controller: 'ctrlEditDialogFeedback',
                 templateUrl: 'partials/dialog/dialogFeedback.html',
                 resolve: {
@@ -2173,7 +2173,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     $scope.openDialogSendFeedback = function (title) {
         $scope.openDialog(
             {
-                backdropClick: false,
+                backdropClick: true,
                 dialogClass: 'modal c4p-modal-large c4p-dialog',
                 backdropClass: 'modal-backdrop c4p-modal-large',
                 controller: 'ctrlEditDialogFeedback',
