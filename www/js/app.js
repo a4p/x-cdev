@@ -3,7 +3,7 @@
 // Declare app level module which depends on filters, and services
 var appModule = angular.module('c4p', ['ui.bootstrap', 'c4p.filters', 'c4p.services', 'c4p.directives']);
 
-appModule.value('version', '13S51');
+appModule.value('version', '14S12'); //cf BUILD_DATE
 
 /*
 appModule.config(['$routeProvider', function ($routeProvider) {
@@ -73,6 +73,7 @@ appModule.factory('$exceptionHandler', ['$log',
 // This wrapper will queue up PhoneGap API calls if called before deviceready  and call them after deviceready fires.
 // After deviceready has been called, the API calls will occur normally.
 //a4p.InternalLog.log('cordovaReady', 'creation');
+console.log('cordovaReady' + ' creation');
 serviceModule.factory('cordovaReady', ['$window', '$rootScope',
     function ($window, $rootScope) {
         return function (userCallback) {
@@ -101,8 +102,10 @@ serviceModule.factory('cordovaReady', ['$window', '$rootScope',
                         if ('invokeString' in window) {
                             //alert('invokeString '+window.invokeString);
                             //a4p.InternalLog.log('onDeviceReady: ' + window.invokeString);
+                            console.log('onDeviceReady: ' + window.invokeString);
                         } else {
                             //a4p.InternalLog.log('onDeviceReady: no invokeString');
+                            console.log('onDeviceReady: no invokeString');
                         }
                         readyCallback();
                     });
@@ -110,9 +113,11 @@ serviceModule.factory('cordovaReady', ['$window', '$rootScope',
             } else if ($window.navigator.userAgent.toLowerCase().match(/(firefox|msie|opera|chrome|safari|windows nt 6.2)/) !== null) {
                 // windows nt 6.2 => windows 8
                 //a4p.InternalLog.log('cordovaReady', 'No Cordova : cordovaReady() is called immediately');
+                console.log('cordovaReady'+' No Cordova : cordovaReady() is called immediately');
                 readyCallback();
             } else {
                 //a4p.InternalLog.log('cordovaReady', 'Cordova or not : cordovaReady() is called in 10 seconds');
+                console.log('cordovaReady'+' Cordova or not : cordovaReady() is called in 10 seconds');
                 setTimeout(function () {
                     a4p.safeApply($rootScope, function () {
                         readyCallback();
@@ -133,6 +138,7 @@ var srvOpenUrlSingleton = null;
 //MLE because you could invoke app with string in an app. cf handleOpenURL & invokeString
 function handleOpenURL(url) {
     //a4p.InternalLog.log('handleOpenURL', url);
+    console.log('handleOpenURL '+url);
     window.setTimeout(function () {
         if (srvOpenUrlSingleton != null) {
             srvOpenUrlSingleton.openUrl(url);
@@ -224,13 +230,13 @@ serviceModule.factory('srvRunning', ['$window', '$rootScope', '$exceptionHandler
                 //a4p.InternalLog.log('srvRunning', "Back button will exit the application");
 
                 $window.navigator.notification.confirm(
-                    "Are you sure you want to EXIT the program?",
+                    "Are you sure you want to EXIT the program ?",
                     function checkButtonSelection(button) {
                         if((button == "1") || (button == 1)) {
                             $window.navigator.app.exitApp();//$window.history.back();
                         }
                     },
-                    'EXIT APP:',
+                    'EXIT :',
                     'OK,Cancel');
             }, false);
         })();
