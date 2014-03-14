@@ -1,0 +1,34 @@
+<div ng-controller="ctrlAction" ng-init="watchSrvNav()">
+    <div ng-controller="ctrlViewer">
+        <div ng-controller="ctrlMeeting"
+             resize-before-window="beforeWindowSizeChanged()"
+             class="meeting-body">
+            <div ng-include="'partials/meeting/header.html'"></div>
+
+
+            <div id="a4pMeetingSide"
+                 class=""
+                 style="display: inline-block; vertical-align: top;"
+                 ng-include="'partials/meeting/meeting_aside.html'"
+                 ng-style="{width:getToolbarWidth()+'px', height:(getResizeHeight() -getResizePathValue('meeting_header', '', 'offsetHeight'))+'px'}">
+            </div><!-- space collapsing
+
+                        floating menu panel
+            --><div class="meeting-container"
+                 ng-show="showMenu"
+                 resize-css-height="getResizeHeight() - getResizePathValue('meeting_header', '', 'offsetHeight')"
+                 ng-style="{width:getAsideWidth()+'px'}"
+                 ng-include="''+sidePanel"
+                 ng-click="hideMenuMeeting">
+            </div><!-- space collapsing
+
+            --><div id="a4pMeetingPage"
+                 ng-include="''+mainPanel"
+                 c4p-show="!isOnePageFormat()"
+                 resize-css-height="getResizeHeight() - getResizePathValue('meeting_header', '', 'offsetHeight')"
+                 ng-style="{width:(getResizeWidth() - getAsideWidth() - getToolbarWidth())+'px'}"
+                 style="display: inline-block; vertical-align: top; background-color: rgba(255,255,255, 0.10 )">
+            </div>
+        </div>
+    </div>
+</div>

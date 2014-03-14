@@ -1,6 +1,6 @@
 CACHE
 MANIFEST
-#2014-03-14 16:08:58
+#2014-03-14 16:37:56
 
 img/dragPointer64.png
 img/dropPointer64.png
@@ -154,16 +154,16 @@ partials/dialog/pin_locked.html
 partials/dialog/pin_modify.html
 partials/dialog/timeline.html
 partials/empty.html
-partials/guider/_main.html
 partials/guider/connection.html
 partials/guider/footer.html
 partials/guider/header.html
+partials/guider/main.html
 partials/guider/register.html
 partials/guider/requestPassword.html
 partials/guider/validation.html
 partials/guider/validationReceiveRes.html
-partials/meeting/_main.html
 partials/meeting/header.html
+partials/meeting/main.html
 partials/meeting/meeting_aside.html
 partials/meeting/meeting_draggable_summarized_item.html
 partials/meeting/meeting_linked_object.html
@@ -177,7 +177,6 @@ partials/meeting/meeting_plan.html
 partials/meeting/meeting_plan_viewer.html
 partials/meeting/meeting_viewer_note.html
 partials/meeting/meeting_viewer_report.html
-partials/navigation/_main.html
 partials/navigation/aside_header.html
 partials/navigation/aside_root.html
 partials/navigation/aside_search.html
@@ -203,6 +202,7 @@ partials/navigation/config.html
 partials/navigation/config_header.html
 partials/navigation/footer_detail.html
 partials/navigation/footer_related.html
+partials/navigation/main.html
 partials/navigation/translucent_panel.html
 partials/navigation/view_n.html
 partials/navigation/view_np1_link_editor.html

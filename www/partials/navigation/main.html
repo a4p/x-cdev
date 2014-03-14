@@ -1,0 +1,123 @@
+<!-- Movable zone -->
+<div ng-controller="ctrlAside">
+
+    <!------------------------------------------------------------------------------------------------------------->
+    <!-- left toolbar -->
+    <!------------------------------------------------------------------------------------------------------------->
+    <div class="c4p-ltr"
+        ng-style="{height:getResizeHeight()+'px', width:(getToolbarWidth())+'px'}">
+        <div id=""
+             ng-style="{height:getResizeHeight()+'px', width:(getAsideWidth()+ getToolbarWidth())+'px'}"
+             resize-opts="{name:'navigation_ctrlAside'}"
+             ng-include="'partials/navigation/aside_root.html'">
+        </div>
+    </div>
+
+    <div class="c4p-ltr click-through"
+         ng-style="{height:getResizeHeight()+'px'}"
+         style="z-index: 3; width: 0px"
+         ng-switch on="rootMenuUp">
+        <div ng-switch-when="false"
+             class="click-intercepted"
+             ng-style="{height:getResizeHeight()+'px', width:getAsideWidth()+'px'}"
+             ng-include="'partials/navigation/aside_search.html'">
+        </div>
+    </div>
+
+    <!------------------------------------------------------------------------------------------------------------->
+    <!--------------------------- middle panel -------------------------------------------------------------------->
+    <!------------------------------------------------------------------------------------------------------------->
+    <div class="c4p-ltr click-through"
+        ng-style="{height:getResizeHeight()+'px', width:getCentralContainerWidth()+'px'}"
+        resize-opts="{name:'navigation_ctrlPanelMove'}"
+        sense-opts="{name:'navigation_ctrlPanelMove', axeX:'scroll', init:'setSensePanel($sense);'}"
+        sense-scroll-opts="{scrollbarClass:'c4p-scrollbar', hScrollbar : false, x:getPanelX()}"
+        sense-after-scroll-end="onPanelAfterScrollEnd($x, $y)"
+        style="z-index: 5;">
+        <div resize-opts="{name:'navigation_panel_scroller'}"
+             ng-style="{height:getResizeHeight()+'px', width:(getAsideWidth() + getDetailWidth() + getRelatedWidth())+'px'}">
+
+                <div id="a4pAside"
+                     class="c4p-panel-animation c4p-ltr click-through"
+                     ng-style="{height:getResizeHeight()+'px', width:getAsideWidth()+'px'}"
+                     resize-opts="{name:'navigation_translucent'}"> <!-- ng-class="{true: 'click-through', false: 'click-intercepted'}[rootMenuUp]"-->
+                    <div ng-include="'partials/navigation/translucent_panel.html'">
+                    </div>
+                </div>
+
+                <div id="a4pPage" class="c4p-ltr"
+                     style="pointer-events: all;">
+                    <div ng-switch on="getSlideFromNavIndex()">
+                        <div ng-switch-when="config">
+                            <div ng-controller="ctrlConfig"
+                                 ng-include="'partials/navigation/config.html'"
+                                 ng-style="{height:getResizeHeight()+'px', width:(getMainWidth() + getAsideWidth())+'px'}">
+                            </div>
+                        </div>
+                        <div ng-switch-when="calendar">
+                            <div ng-controller="ctrlCalendar"
+                                 ng-include="'partials/navigation/calendar.html'"
+                                 ng-style="{height:getResizeHeight()+'px', width:(getMainWidth() + getAsideWidth())+'px'}">
+                            </div>
+                        </div>
+                        <div ng-switch-default>
+                            <div ng-controller="ctrlDetail"
+                                 ng-include="'partials/navigation/view_n.html'"
+                                 ng-style="{height:getResizeHeight()+'px', width:(getDetailWidth() + getRelatedWidth())+'px'}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+    <!------------------------------------------------------------------------------------------------------------->
+    <!-- right toolbar -->
+    <!-- Hidden in portrait mode  ng-hide="isOnePageFormat()"
+    <!------------------------------------------------------------------------------------------------------------->
+    <div class="c4p-ltr c4p-toolbar"
+         ng-hide="isOnePageFormat()"
+         ng-style="{height:getResizeHeight()+'px', width:(getToolbarWidth())+'px'}"
+         resize-opts="{name:'right_toolbar'}"
+         style="box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.2);z-index: 6;">
+
+            <div class="c4p-toolbar-header c4p-color-a-gradient1 c4p-color-action-transparent"
+                 resize-opts="{name:'right_toolbar_header'}"
+                 ng-click="toggleNavRelated()"
+                 ng-show="(getSlideFromNavIndex() != 'calendar')">
+                <div class="btn c4p-padding-w-packed">
+                    <span class="c4p-icon-std glyphicon glyphicon-link"></span>
+                </div>
+            </div>
+
+            <div class="c4p-color-a-gradient2"
+                 sense-opts="{name:'right_toolbar_wrapper', axeY:'scroll', watchRefresh:['srvNav.item', 'srvNav.itemRelatedGroupList']}"
+                 sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}"
+                 resize-opts="{name:'right_toolbar_wrapper'}"
+                 resize-css-height="getResizeHeight() - getResizePathValue('right_toolbar_header', '', 'offsetHeight')">
+                <div resize-opts="{name:'right_toolbar_scroller', watchRefresh:['srvNav.item', 'srvNav.itemRelatedGroupList']}">
+                    <div ng-repeat="group in srvNav.itemRelatedGroupList" 
+                         ng-show="group.type != 'Plan'"
+                         ng-class="{'active': linksPageY == $index}"
+                         ng-click="setNavRelated(true);setShowGroup(group, true);setLinksScrollerPageY($index); ">
+                        <div class="c4p-color-{{group.colorType}}-dark-iii" ng-style="{width:getSliderWidth()+'px'}">
+                            <div class="c4p-related-square-icon"><span class="c4p-icon-std glyphicon glyphicon-{{group.icon}}"></span></div>
+                            <div class="c4p-related-square-text"><span>{{group.size}}</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--
+            <div class="c4p-footer-meeting"
+                 resize-opts="{name:'right_toolbar_footer'}"
+                 resize-css-height="getToolbarWidth()">
+                <div ng-click="gotoMeeting()"
+                     class="btn btn-sm">
+
+                    <span class="icon-2x c4p-v-align-middle glyphicon icon-fixed-width glyphicon-comments"></span>
+                </div>
+            </div>
+            -->
+        </div>
+    </div>
+</div>
