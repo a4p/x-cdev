@@ -39,6 +39,7 @@ var SrvConfig = (function() {
         this.c4pUrlSfUpdate = this.c4pUrlBase + "/c4p_update.php";
         this.c4pUrlSfDelete = this.c4pUrlBase + "/c4p_delete.php";
         this.c4pUrlErrorReport = this.c4pUrlBase + "/c4p_errorReport.php";
+        this.c4pUrlFeedbackReport = this.c4pUrlBase + "/c4p_feedbackReport.php";
         this.c4pUrlFeedback = this.c4pUrlBase + "/c4p_feedback.php";
         this.c4pUrlDownload = this.c4pUrlBase + "/c4p_download.php";
         this.c4pUrlPing = this.c4pUrlBase + "/c4p_ping.php";
@@ -92,7 +93,7 @@ var SrvConfig = (function() {
         this.themeCss = this.srvLocalStorage.get('ThemeCss', 'c4p-cosmo');
 
         //TODO app version (Free, Premium, SF ...)
-        var appVersion = this.activeCrms.length > 1 ? 'Premium' : 'Free';  
+        var appVersion = this.activeCrms.length > 1 ? 'Premium' : 'Free';
         //GA : set Version ID
         this.srvAnalytics.setVid(this.c4pBuildDate+' '+this.env+' '+appVersion);
 
@@ -142,7 +143,7 @@ var SrvConfig = (function() {
             }
 
             //TODO app version (Free, Premium, SF ...)
-            var appVersion = self.activeCrms.length > 1 ? 'Premium' : 'Free';  
+            var appVersion = self.activeCrms.length > 1 ? 'Premium' : 'Free';
             //GA : set Version ID
             self.srvAnalytics.setVid(self.c4pBuildDate+' '+self.env+' '+appVersion);
 
@@ -239,6 +240,7 @@ var SrvConfig = (function() {
         this.c4pUrlSfUpdate = this.c4pUrlBase + "/c4p_update.php";
         this.c4pUrlSfDelete = this.c4pUrlBase + "/c4p_delete.php";
         this.c4pUrlErrorReport = this.c4pUrlBase + "/c4p_errorReport.php";
+        this.c4pUrlFeedbackReport = this.c4pUrlBase + "/c4p_feedbackReport.php";
         this.c4pUrlFeedback = this.c4pUrlBase + "/c4p_feedback.php";
         this.c4pUrlDownload = this.c4pUrlBase + "/c4p_download.php";
         this.c4pUrlPing = this.c4pUrlBase + "/c4p_ping.php";

@@ -2071,7 +2071,106 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     };
 
 
-    $scope.openDialogSendFeedback = function(title) {
+    $scope.openDialogSendFeedbackReport = function (title) {
+        $scope.openDialog(
+            {
+                backdropClick: false,
+                dialogClass: 'modal modal-full c4p-dialog-feedback',
+                backdropClass: 'modal-backdrop c4p-modal-note',
+                controller: 'ctrlEditDialogFeedback',
+                templateUrl: 'partials/dialog/dialogFeedback.html',
+                resolve: {
+                    srvLocale: function () {
+                        return srvLocale;
+                    },
+                    title: function () {
+                        return title;
+                    },
+                    emailRequired: function () {
+                        return (srvSecurity.getA4pLogin() ? false : true);
+                    }
+                }
+            },
+            function (result) {
+                if (a4p.isDefined(result)) {
+                    if (!result.feedback.message) {
+                        alert(srvLocale.translations['htmlMsgFeedbackMessageEmpty']);
+                        return;
+                    }
+                    if (!srvSecurity.getA4pLogin()) {
+                        if ((a4p.isUndefined(result.feedback.email) || (result.feedback.email == ''))
+                            && (a4p.isUndefined(result.feedback.phone) || (result.feedback.phone == ''))) {
+                            alert(srvLocale.translations['htmlMsgFeedbackContactEmpty']);
+                            return;
+                        }
+                        srvSecurity.setA4pLogin(result.feedback.email);
+                    }
+                    var fctOnHttpSuccess = function (response) {
+                        //response.data, response.status, response.headers
+                        var requestTitle = 'User feedback';
+                        if (a4p.isUndefined(response.data)) {
+                            srvLog.logWarning(true,
+                                'Received no data', requestTitle);
+                        } else {
+                            var errorCode = response.data['error'];
+                            var responseOk = response.data['responseOK'];
+                            var responseLog = response.data['responseLog'];
+                            if (a4p.isUndefined(responseLog)) responseLog = response.data['log'];
+
+                            if (a4p.isDefined(errorCode) && (errorCode != '')) {
+                                if (a4p.isUndefined(srvLocale.translations[errorCode])) {
+                                    srvLog.logWarning(true,
+                                        'Received error code ' + errorCode,
+                                        requestTitle + ' : ' + (responseLog || a4pDumpData(responseData, 1)));
+                                } else {
+                                    srvLog.logWarning(true,
+                                        srvLocale.translations[errorCode],
+                                        requestTitle + ' : ' + responseLog);
+                                }
+                            } else if (a4p.isUndefined(responseOk) || !responseOk) {
+                                srvLog.logWarning(true,
+                                    'Received no OK',
+                                    requestTitle + ' : ' + (responseLog || a4pDumpData(response.data, 1)));
+                            } else {
+                                //feedback success
+                                srvLog.logSuccess(true,
+                                    'Your feedback has been sent',
+                                    requestTitle + ' : ' + responseLog);
+                            }
+                        }
+                    };
+
+                    var fctOnHttpError = function (response) {
+                        //response = {data:msg, status:'error'}
+                        srvLog.logWarning(true,
+                            'Your feedback has failed', response.data);
+                    };
+
+                    var params = {
+                        email: srvSecurity.getA4pLogin(),
+                        title: title,
+                        c4pBuildDate: srvConfig.c4pBuildDate,
+                        language: srvLocale.getLanguage(),
+                        appVersion: $scope.version,
+                        feedback: result.feedback.message,
+                        logs: srvLog.getInternalLog(),
+                        errors: srvLog.getErrorLog()
+                    };
+                    /*
+                     srvDataTransfer.sendData(srvConfig.c4pUrlFeedbackReport, params, null, 30000)
+                     .then(fctOnHttpSuccess, fctOnHttpError);
+                     */
+                    var requestCtx = {
+                        type: 'Feedback Report',
+                        title: 'Send user feedback report'
+                    };
+                    srvSynchro.addRequest('config', requestCtx, srvConfig.c4pUrlFeedbackReport, 'POST',
+                        params, {'Content-Type': 'application/x-www-form-urlencoded'});
+                }
+            });
+    };
+
+    $scope.openDialogSendFeedback = function (title) {
         $scope.openDialog(
             {
                 backdropClick: false,
@@ -2121,7 +2220,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                                 if (a4p.isUndefined(srvLocale.translations[errorCode])) {
                                     srvLog.logWarning(srvConfig.c4pConfig.exposeUserFeedback,
                                         'Received error code ' + errorCode,
-                                        requestTitle + ' : ' + (responseLog||a4pDumpData(responseData, 1)));
+                                        requestTitle + ' : ' + (responseLog || a4pDumpData(responseData, 1)));
                                 } else {
                                     srvLog.logWarning(srvConfig.c4pConfig.exposeUserFeedback,
                                         srvLocale.translations[errorCode],
@@ -2130,7 +2229,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                             } else if (a4p.isUndefined(responseOk) || !responseOk) {
                                 srvLog.logWarning(srvConfig.c4pConfig.exposeUserFeedback,
                                     'Received no OK',
-                                    requestTitle + ' : ' + (responseLog||a4pDumpData(response.data, 1)));
+                                    requestTitle + ' : ' + (responseLog || a4pDumpData(response.data, 1)));
                             } else {
                                 //feedback success
                                 srvLog.logSuccess(srvConfig.c4pConfig.exposeUserFeedback,
@@ -2162,8 +2261,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                     }
                     var params = {
                         login: srvSecurity.getA4pLogin(),
-                        title:title,
-                        phone: result.feedback.phone||'',
+                        title: title,
+                        phone: result.feedback.phone || '',
                         deviceName: deviceName,
                         deviceCordova: deviceCordova,
                         devicePlatform: devicePlatform,
@@ -2171,16 +2270,16 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                         deviceVersion: deviceVersion,
                         c4pBuildDate: srvConfig.c4pBuildDate,
                         language: srvLocale.getLanguage(),
-                        appVersion:$scope.version,
-                        feedback:result.feedback.message
+                        appVersion: $scope.version,
+                        feedback: result.feedback.message
                     };
                     /*
-                    srvDataTransfer.sendData(srvConfig.c4pUrlFeedback, params, null, 30000)
-                        .then(fctOnHttpSuccess, fctOnHttpError);
-                    */
+                     srvDataTransfer.sendData(srvConfig.c4pUrlFeedback, params, null, 30000)
+                     .then(fctOnHttpSuccess, fctOnHttpError);
+                     */
                     var requestCtx = {
-                        type:'Feedback',
-                        title:'Send user feedback'
+                        type: 'Feedback',
+                        title: 'Send user feedback'
                     };
                     srvSynchro.addRequest('config', requestCtx, srvConfig.c4pUrlFeedback, 'POST',
                         params, {'Content-Type': 'application/x-www-form-urlencoded'});

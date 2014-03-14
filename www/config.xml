@@ -161,6 +161,7 @@
 -->
 
     <!-- C4P_BUILD_PLUGINS -->
+<gap:plugin name="hu.dpal.phonegap.plugins.spinnerdialog" />
 <gap:plugin name="com.phonegap.plugin.statusbar" />
 <gap:plugin name="com.adobe.plugins.gaplugin" />
 <gap:plugin name="com.plugin.datepicker" />

@@ -321,7 +321,8 @@ c4p.Locale = {
 
 
     "htmlMsgServerPb":"Server problem. Please contact admin.",
-    "htmlMsgUserLoginRequired":"User email is required or incorrect.",
+    "htmlMsgUserLoginRequired": "User email is required or incorrect.",
+    "htmlMsgUserEmailRequired": "User email is required.",
     "htmlMsgNoConnectionWithSF":"No current connection with SalesForce.",
     "htmlMsgRequestFormatInvalid":"Client software might be outdated: invalid request.",
     "htmlMsgNoMultipleRefreshForSameUser":"Another synchronization is already running for the same user.",
@@ -1077,6 +1078,7 @@ c4p.Locale = {
 
     "htmlMsgServerPb":"Probl\u00E8me sur le serveur. Veuillez contacter votre administrateur.",
     "htmlMsgUserLoginRequired":"Courriel requis ou incorrect.",
+    "htmlMsgUserEmailRequired": "Courriel requis.",
     "htmlMsgNoConnectionWithSF":"Pas de connexion active avec SalesForce.",
     "htmlMsgRequestFormatInvalid":"Logiciel client probablement p\u00E9rim\u00E9 : requ\u00EAte invalide.",
     "htmlMsgNoMultipleRefreshForSameUser":"Une autre synchronisation est d\u00E9j\u00E0 en cours pour le m\u00EAme utilisateur.",

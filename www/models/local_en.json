@@ -317,7 +317,8 @@
 
 
     "htmlMsgServerPb":"Server problem. Please contact admin.",
-    "htmlMsgUserLoginRequired":"User email is required or incorrect.",
+    "htmlMsgUserLoginRequired": "User email is required or incorrect.",
+    "htmlMsgUserEmailRequired": "User email is required.",
     "htmlMsgNoConnectionWithSF":"No current connection with SalesForce.",
     "htmlMsgRequestFormatInvalid":"Client software might be outdated: invalid request.",
     "htmlMsgNoMultipleRefreshForSameUser":"Another synchronization is already running for the same user.",

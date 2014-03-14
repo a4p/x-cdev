@@ -562,7 +562,11 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
         if (navigator && navigator.contacts) {
             var onContactsSuccess = function(contacts) {
                 a4p.safeApply($scope, function() {
-                    $scope.stopSpinner();
+                    if (a4p.isDefined(window.plugins.spinnerDialog)) {
+                        window.plugins.spinnerDialog.hide();
+                    } else {
+                        $scope.stopSpinner();
+                    }
                     var nbNewContact = 0;
                     for (var i = 0, nb = contacts.length; i < nb; i++) {
                         var contact = contacts[i];
@@ -735,7 +739,11 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
             };
             var onContactsFailure = function(contactError) {
                 a4p.safeApply($scope, function() {
-                    $scope.stopSpinner();
+                    if (a4p.isDefined(window.plugins.spinnerDialog)) {
+                        window.plugins.spinnerDialog.hide();
+                    } else {
+                        $scope.stopSpinner();
+                    }
                     if (contactError.code == ContactError.UNKNOWN_ERROR) {
                         a4p.ErrorLog.log('ctrlEditDialogObject', 'Device Contacts not imported from IOS : UNKNOWN_ERROR');
                     } else if (contactError.code == ContactError.INVALID_ARGUMENT_ERROR) {
@@ -759,7 +767,11 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
             findOptions.filter = "";
             findOptions.multiple = true;
             navigator.contacts.find(['*'], onContactsSuccess, onContactsFailure, findOptions);
-            $scope.startSpinner();
+            if (a4p.isDefined(window.plugins.spinnerDialog)) {
+                window.plugins.spinnerDialog.show();
+            } else {
+                $scope.startSpinner();
+            }
         } else {
             a4p.InternalLog.log('ctrlEditDialogObject', 'NO Device to import Contacts');
         }
