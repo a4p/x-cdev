@@ -22,9 +22,8 @@
     "htmlRequiredPositiveDuration":"Duration must be positive",
     "htmlInvalidEmail":"The address {0} is invalid",
     "htmlNoEmailAddr":"{0} has no email address",
-
-
-
+    "htmlTextOr":"or",
+    "htmlTextAlreadyRegistered":"already registered ?",
 
 
 	"htmlButtonRegister":"Register",
@@ -339,8 +338,10 @@
     "htmlMsgLoadLocaleReady":"Locale {0} ready.",
     "htmlMsgInitializingFileStorage":"Initializing File Storage with a space of {0} bytes ...",
     "htmlMsgLoadFileStoragePb":"Creation of File Storage failed. The application can not start !",
-    "htmlMsgFeedbackMessageEmpty":"Sorry, an empty feedback is not really useful !",
-    "htmlMsgFeedbackContactEmpty":"Sorry, an email address or a phone number is required to give us a chance to answer your feedback !",
+    "htmlMsgFeedbackMessageEmpty":"Your message text is empty",
+    "htmlMsgFeedbackContactEmpty":"Sorry, we need valid email",
+    "htmlMsgFeedbackEmail":"Thank you for your feedback !",
+    "htmlMsgFeedbackPhone":"If you could be join by phone",
     "htmlMsgRejectImportNotLogged":"Import rejected: you are not logged in.",
     "htmlMsgImportFile":"Import of file {0}",
     "htmlMsgFileImport":"File import",

@@ -1,29 +1,17 @@
 <!-- Headers -->
-<div class="row">
+<div class="row" resize-opts="{}">
     <div class="c4p-dialog-header">
 
         <div class="col-xxs-12">
             <!-- Nav tabs -->
             <ul class="nav nav-pills">
-              <li class=""><div class="btn"></div></li>
-              <!--<li class="active">
-                <a href="#home" data-toggle="tab">
-                  <h5>{{srvLocale.translations.htmlGuiderPageTitle}}</h5>
+              <li>
+                <a href="#question" data-toggle="tab">
+                  <div class="btn">
+                    {{srvLocale.translations.htmlGuiderNeedHelp}}
+                  </div>
                 </a>
-              </li>-->
-              <li><a href="#question" data-toggle="tab">
-                <div class="btn">
-                  <h5>{{srvLocale.translations.htmlGuiderNeedHelp}}</h5>
-                  <!--<span class="c4p-icon-std glyphicon glyphicon-question">
-                  </span>-->
-                </div>
-              </a></li><!--
-              <li><a href="#warning" data-toggle="tab">
-                <div class="btn btn-danger">
-                  <span class="c4p-icon-std glyphicon glyphicon-exclamation">
-                  </span>
-                </div>
-              </a></li>-->
+              </li>
               <li class="pull-right">
                 <a ng-click="close()">
                   <div class="btn"><span class="c4p-icon-std close">&times;</span></div>
@@ -71,100 +59,63 @@
                   </div>
 
                 </div>
-                <div class="tab-pane fade" id="question">
+                <div class="tab-pane fade" id="question" 
+                    resize-css-height="getResizeHeight() *0.7"
+                    sense-opts="{name:'dialogFeedback', axeY:'scroll'}"
+                    sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}" >
 
-                  <div class="row">
-                      <!-- Email if unknown -->
-                      <div class="col-xxs-12" ng-show="feedback.emailRequired">
-                          <c4p-input title-var="srvLocale.translations.htmlFormEmail"
-                                     ng-model="feedback.email"
-                                     placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}"
-                                     type="mail"
-                                     style="width:100%">
-                          </c4p-input>
-                      </div>
-                  </div>
-                  <div class="row">
-                      <!-- Phone if unknown -->
-                      <div class="col-xxs-12" ng-show="feedback.emailRequired">
-                          <c4p-input title-var="srvLocale.translations.htmlFormPhone"
-                                     ng-model="feedback.phone"
-                                     placeholder="{{srvLocale.translations.htmlFormPhonePlaceHolder}}"
-                                     type="tel"
-                                     style="width:100%">
-                          </c4p-input>
-                      </div>
-                  </div>
-                  <div class="row">
-                      <!-- Message -->
-                      <div class="col-xxs-12">
-                          <c4p-input ng-model="feedback.message"
-                                     placeholder="{{srvLocale.translations.htmlFormMessagePlaceHolder}}"
-                                     type="textarea"
-                                     rows=5 cols=40
-                                     style="width:100%">
-                          </c4p-input>
-                      </div>
-                  </div>
-                  <div class="row">
-                      <a class="btn btn-primary col-xxs-4 col-sm-offset-8"
-                         data-dismiss="modal"
-                         ng-class="{disabled : (feedback.emailRequired && !feedback.email) }"
-                         ng-click="submit()">
-                          {{srvLocale.translations.htmlButtonSend}}
-                      </a>
-                  </div>
-                  <!--
-                  <div class="row">
-                       Vertical Filler to let scroll inuts while virtual keyboard is masking almost all te screen
-                      <div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+'px'}"></div>
-                  </div>-->
+                  <div class="container">
+                    <div class="row" >
+                        <!-- Email if unknown -->
+                        <div class="col-xxs-12 col-sm-6 col-sm-offset-3" ng-show="feedback.emailRequired">
+                            <label>{{srvLocale.translations.htmlMsgFeedbackEmail}}</label>
+                            <c4p-input title-var="srvLocale.translations.htmlMsgFeedbackContactEmpty"
+                                       ng-model="feedback.email"
+                                       placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}"
+                                       type="mail"
+                                       style="width:100%"
+                                       warn-var = "feedback.email"
+                                       required>
+                            </c4p-input>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <!-- Phone if unknown -->
+                        <div class="col-xxs-12 col-sm-6 col-sm-offset-3" ng-show="feedback.emailRequired">
+                            <c4p-input title-var="srvLocale.translations.htmlMsgFeedbackPhone"
+                                       ng-model="feedback.phone"
+                                       placeholder="{{srvLocale.translations.htmlFormPhonePlaceHolder}}"
+                                       type="tel"
+                                       style="width:100%">
+                            </c4p-input>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <!-- Message -->
+                        <div class="col-xxs-12 col-sm-6 col-sm-offset-3">
+                            <c4p-input ng-model="feedback.message"
+                                       placeholder="{{srvLocale.translations.htmlFormMessagePlaceHolder}}"
+                                       type="textarea"
+                                       rows=5 cols=40
+                                       style="width:100%">
+                            </c4p-input>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <a class="btn btn-success col-xxs-12 col-sm-3 col-sm-offset-6"
+                           data-dismiss="modal"
+                           ng-class="{disabled : (feedback.emailRequired && !feedback.email) }"
+                           ng-click="submit()">
+                            {{srvLocale.translations.htmlButtonSend}}
+                        </a>
+                    </div>
+                    <!--
+                    <div class="row">
+                         Vertical Filler to let scroll inuts while virtual keyboard is masking almost all te screen
+                        <div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+'px'}"></div>
+                    </div>-->
 
-                </div>
-                <div class="tab-pane fade" id="warning">
-
-                  <div class="row">
-                      <!-- Email if unknown -->
-                      <div class="col-xxs-12" ng-show="feedback.emailRequired">
-                          <c4p-input title-var="srvLocale.translations.htmlFormEmail"
-                                     ng-model="feedback.email"
-                                     placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}"
-                                     type="mail"
-                                     style="width:100%">
-                          </c4p-input>
-                      </div>
                   </div>
-                  <div class="row">
-                      <!-- Phone if unknown -->
-                      <div class="col-xxs-12" ng-show="feedback.emailRequired">
-                          <c4p-input title-var="srvLocale.translations.htmlFormPhone"
-                                     ng-model="feedback.phone"
-                                     placeholder="{{srvLocale.translations.htmlFormPhonePlaceHolder}}"
-                                     type="tel"
-                                     style="width:100%">
-                          </c4p-input>
-                      </div>
-                  </div>
-                  <div class="row">
-                      <!-- Message -->
-                      <div class="col-xxs-12">
-                          <c4p-input ng-model="feedback.message"
-                                     placeholder="{{srvLocale.translations.htmlFormMessagePlaceHolder}}"
-                                     type="textarea"
-                                     rows=5 cols=40
-                                     style="width:100%">
-                          </c4p-input>
-                      </div>
-                  </div>
-                  <div class="row">
-                      <a class="btn btn-primary col-xxs-4 col-sm-offset-8"
-                         data-dismiss="modal"
-                         ng-class="{disabled : (feedback.emailRequired && !feedback.email) }"
-                         ng-click="submit()">
-                          {{srvLocale.translations.htmlButtonSend}}
-                      </a>
-                  </div>
-
                 </div>
               </div>
 

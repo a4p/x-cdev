@@ -2,11 +2,41 @@
 	<div class="vertical-align">
 		<!-- first column - login form -->
 		<div class="row">
-			<h3 class="col-xxs-12 col-xs-offset-3 col-xs-6 text-center white login-header">{{translate('htmlGuiderPageTitle')}}</h3>
+			<h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate('htmlGuiderPageTitle')}}</h3>
 		</div>
+
+
+		<form class="form-horizontal" name="loginForm" novalidate ng-submit="createAccount()">
+			<div class="form-group row" ng-class="{'has-error': loginForm.$invalid}">
+				
+				
+				<div class="col-xxs-12 col-sm-offset-3 col-sm-6">
+						 <c4p-input-simple
+							ng-model="email"
+							placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}"
+							type="mail"
+							required>
+                          </c4p-input-simple>
+				</div>
+			</div>
+
+			<div class="row">
+				<button class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-3"
+						type="submit" ng-disabled="loginForm.$invalid" >
+						{{srvLocale.translations.htmlButtonRegister}}
+				</button>
+				<button class="btn btn-link white col-xxs-12 col-sm-3" 
+					ng-click="gotoLogin()">
+					{{srvLocale.translations.htmlTextAlreadyRegistered}}
+				</button>
+			</div>
+
+		</form>
 		
+		<!--
 		<form class="form-horizontal" name="loginForm" novalidate ng-submit="createAccount()">
 			<div class="form-group row" ng-class="{'has-error':(loginForm.email.$dirty && loginForm.email.$invalid)}">
+				
 				<div class="col-xxs-12 col-xs-offset-3 col-xs-6">
 					<span ng-show="loginForm.email.$dirty && loginForm.email.$invalid">
 						<span class="help-inline c4p-field-error-message" ng-show="loginForm.email.$error.required">{{formError('htmlErrorRequired', ['htmlFormEmail'])}}</span>
@@ -28,5 +58,7 @@
 				</a>
 			</div>
 		</form>
+		-->
+
 	</div>
 </div>

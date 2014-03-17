@@ -5845,6 +5845,11 @@ button.close {
 .modal-backdrop.c4p-modal-small,
 .modal-backdrop.c4p-modal-right,
 .modal-backdrop.c4p-modal-left {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   background-color: rgba(255, 255, 255, 0.5);
 }
 .c4p-backdrop-blur {
@@ -22924,6 +22929,14 @@ ul.noty_cont.noty_layout_bottomRight {
 .c4p-form-label {
   padding: 0.4em 1em;
 }
+#a4pResponsiveTester {
+  position: fixed;
+  top: 30%;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  color: red;
+}
 /*!
  * Ratings
  */
@@ -22981,21 +22994,28 @@ color: #e3cf7a;
 html {
   font-size: 90%;
 }
+/*
 body,
-#a4pBody {
-  padding: 0 !important;
-  margin: 0 !important;
+#a4pBody{
+  padding : 0 !important;
+  margin : 0 !important;
   position: fixed !important;
+  top:0;
+  right:0;
+  left:0;
+  overflow: hidden;
+  width:100%;
+  height:100%;
+  display:block;
+  background-color: @aside-bg;
+}*/
+#a4pBody {
+  position: absolute;
   top: 0;
+  left: 0;
   bottom: 0;
   right: 0;
-  left: 0;
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
-  display: block;
   background-color: #000000;
-  z-index: 0;
 }
 #a4pPage {
   padding-top: 0px;
@@ -23760,9 +23780,12 @@ table h6,
   background-color: #c8c8c8;
   border-radius: 17px;
 }
-.login-body {
+.c4p-login-body {
+  position: absolute;
+  width: 100%;
+  height: 100%;
   background-image: url('../img/login-background.jpg');
-  background-color: #d0d0d0;
+  background-color: #000000;
   background-position: center;
   background-attachment: scroll ;
   background-repeat: no-repeat;
@@ -23770,46 +23793,47 @@ table h6,
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  padding: 0 !important;
-  margin: 0 !important;
-  position: fixed !important;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
-  display: block;
-  z-index: 0;
+  color: #ffffff;
 }
-.white,
-.white:hover {
-  color: white;
+.c4p-login-body header,
+.c4p-login-body footer,
+.c4p-login-body #a4pPage {
+  background-color: transparent;
+  color: #ffffff;
 }
+.c4p-login-body a {
+  color: #ffffff;
+}
+.c4p-login-body .btn-link {
+  font-size: initial;
+  color: #ffffff;
+}
+/*.white, .white:hover {
+	color: white;
+}
+
 .vertical-container {
-  display: table;
-  height: 100%;
-  width: 100%;
+    display: table;
+    height: 100%;
+	width: 100%;
 }
 .vertical-align {
-  display: table-cell;
-  vertical-align: middle;
-  height: 100%;
-  width: 100%;
+    display: table-cell;
+    vertical-align:middle;
+    height: 100%;
+	width: 100%;
 }
-#a4pPage.opacity-black-65,
-.opacity-black-65 {
-  background-color: rgba(0, 0, 0, 0.65);
-}
+
+
 .smaller-70 {
-  font-size: 0.7em;
+	font-size:0.7em;
 }
+
 .login-header {
-  font-family: Arial;
-  margin-top: 0;
-  padding-top: 0;
-}
+	font-family: Arial;
+	margin-top:0;
+	padding-top:0;
+}*/
 
 /* CORE STYLES */
 /* noty bar */

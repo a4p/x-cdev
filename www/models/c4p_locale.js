@@ -26,9 +26,8 @@ c4p.Locale = {
     "htmlRequiredPositiveDuration":"Duration must be positive",
     "htmlInvalidEmail":"The address {0} is invalid",
     "htmlNoEmailAddr":"{0} has no email address",
-
-
-
+    "htmlTextOr":"or",
+    "htmlTextAlreadyRegistered":"already registered ?",
 
 
 	"htmlButtonRegister":"Register",
@@ -343,8 +342,10 @@ c4p.Locale = {
     "htmlMsgLoadLocaleReady":"Locale {0} ready.",
     "htmlMsgInitializingFileStorage":"Initializing File Storage with a space of {0} bytes ...",
     "htmlMsgLoadFileStoragePb":"Creation of File Storage failed. The application can not start !",
-    "htmlMsgFeedbackMessageEmpty":"Sorry, an empty feedback is not really useful !",
-    "htmlMsgFeedbackContactEmpty":"Sorry, an email address or a phone number is required to give us a chance to answer your feedback !",
+    "htmlMsgFeedbackMessageEmpty":"Your message text is empty",
+    "htmlMsgFeedbackContactEmpty":"Sorry, we need valid email",
+    "htmlMsgFeedbackEmail":"Thank you for your feedback !",
+    "htmlMsgFeedbackPhone":"If you could be join by phone",
     "htmlMsgRejectImportNotLogged":"Import rejected: you are not logged in.",
     "htmlMsgImportFile":"Import of file {0}",
     "htmlMsgFileImport":"File import",
@@ -782,9 +783,8 @@ c4p.Locale = {
     "htmlRequiredPositiveDuration":"La dur\u00E9e doit \u00EAtre positive",
     "htmlInvalidEmail":"L'adresse {0} est invalide",
     "htmlNoEmailAddr":"{0} ne poss\u00E8de pas d'adresse email",
-
-
-
+    "htmlTextOr":"ou",
+    "htmlTextAlreadyRegistered":"d\u00E9j\u00E0 enregistr\u00E9 ?",
 
 
 	"htmlButtonRegister":"Inscription",
@@ -1099,8 +1099,10 @@ c4p.Locale = {
     "htmlMsgLoadLocaleReady":"Locale {0} pr\u00EAte.",
     "htmlMsgInitializingFileStorage":"Initialisation du File Storage avec un espace de {0} octets ...",
     "htmlMsgLoadFileStoragePb":"Probl\u00E8me de chargement du File Storage. L'application ne peut pas d\u00E9marrer !",
-    "htmlMsgFeedbackMessageEmpty":"D\u00E9sol\u00E9, un avis utilisateur vide n'est pas vraiment utilisable !",
-    "htmlMsgFeedbackContactEmpty":"D\u00E9sol\u00E9, une addresse \u00E9lectronique ou un num\u00E9ro de t\u00E9l\u00E9phone est n\u00E9cessaire pour nous permettre de r\u00E9pondre \u00E0 votre avis !",
+    "htmlMsgFeedbackMessageEmpty":"Votre message est vide",
+    "htmlMsgFeedbackContactEmpty":"Merci d'indiquer une mail valide",
+    "htmlMsgFeedbackEmail":"Merci pour votre retour !",
+    "htmlMsgFeedbackPhone":"Si vous pouvez \u00EAtre joint par t\u00E9l\u00E9phone",
     "htmlMsgRejectImportNotLogged":"Import rejet\u00E9 : vous n'\u00EAtes pas connect\u00E9.",
     "htmlMsgImportFile":"Import du fichier {0}",
     "htmlMsgFileImport":"Import de fichier",
