@@ -247,8 +247,8 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
         var array = [srvConfig.getItemName($scope.note)];
         $scope.openDialogFct({
                 backdropClick: false,
-                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-small',
+                dialogClass: 'modal c4p-modal-full c4p-modal-confirm',
+                backdropClass: 'modal-backdrop c4p-modal-full',
                 controller: 'ctrlDialogConfirm',
                 templateUrl: 'partials/dialog/confirm.html',
                 resolve: {

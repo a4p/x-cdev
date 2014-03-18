@@ -5,12 +5,35 @@
 		<div class="row c4p-header-std c4p-header-details c4p-color-gradient0" ng-style="{width:getDetailWidth()+'px'}"
 			resize-opts="{name:'navigation_detail_title'}">
 
-			<!-- History -->
+			<div class="col-xxs-12">
+		            <ul class="nav nav-pills">
+		                <li class="">
+		                    <div class="btn btn-sm c4p-color-action-transparent" ng-click="gotoMeeting(srvNav.item)">
+		                        <img class="c4p-img-icon-lg" src="l4p/img/logo_meeting_.png" />
+		                    </div>
+		                </li>
+		                <li class="">
+		                	<div class="btn c4p-color-action-transparent">
+		                    	<span>{{navTitle}}</span>
+		                    </div>
+		                </li>
+		            </ul>
+		    </div>
+
+			<!-- 
+			//Meeting mode button
+			<div class="col-xxs-1" style="text-align: right;">
+				<div class="c4p-padding-w-packed" ng-click="gotoMeeting(srvNav.item)">
+					<img class="c4p-img-icon-lg" src="l4p/img/logo_meeting.png" />
+				</div>
+			</div>
+
+			// History 
 			<div class="col-xxs-1" style="text-align: left;">
 
 			</div>
 			
-			<!-- Item category with actions in dropdown-->
+			// Item category with actions in dropdown
 			<div class="col-xxs-10" style="text-align: center;">
                 <div class="btn dropdown c4p-padding-w-packed c4p-color-action-transparent"
                      ng-controller="ctrlNavObject" ng-show="srvNav.history.length > 0">
@@ -34,7 +57,7 @@
 					<span role="button" class="dropdown-toggle glyphicon glyphicon-caret-down"></span>
 					
 					<ul class="dropdown-menu c4p-dropdown-menu c4p-details-menu-align" role="menu">
-						<!-- ngRepeat: view in calendarViews -->
+						// ngRepeat: view in calendarViews 
 						<li role="presentation" ng-repeat="action in actionList">
 							<span class="btn btn-sm c4p-padding-w-packed c4p-outline-star glyphicon glyphicon-{{action.icon}}"
 								ng-class="{'disabled': action.disabled}" ng-click="doAction(action.id)"></span>
@@ -45,12 +68,9 @@
 				</div>
 			</div>
 
-			<!-- Meeting mode button -->
-			<div class="col-xxs-1" style="text-align: right;">
-				<div class="c4p-padding-w-packed" ng-click="gotoMeeting(srvNav.item)">
-					<img class="c4p-img-icon-lg" src="l4p/img/logo_meeting.png" />
-				</div>
-			</div>
+			
+			-->
+
 		</div>
 
 		<div sense-opts="{name:'detailed_item_wrapper', axeY:'scroll', watchRefresh:['srvNav.item', 'srvNav.itemRelatedList[srvNav.itemRelatedGroup.type]']}"

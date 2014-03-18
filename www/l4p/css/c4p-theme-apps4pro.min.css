@@ -8253,7 +8253,8 @@ button.close {
  */
 ul.noty_cont.noty_layout_bottomRight {
   right: 10px ! important;
-  bottom: 0px ! important;
+  bottom: 40px ! important;
+  opacity: 0.7;
 }
 /**
  *
@@ -23248,17 +23249,18 @@ body,
 /******************************************************************************
  Aside Panel List
 ******************************************************************************/
-.c4p-header-root {
-  margin: 0;
+.c4p-aside-header {
   color: #ffffff;
-  background-color: #000000;
+  /*h4{
+    display: inline;
+    padding-left: @aside-list-root-txt-padding;
+    margin: 0;
+    font-size: 1.7em;
+    vertical-align: middle;
+  }*/
 }
-.c4p-header-root h4 {
-  display: inline;
-  padding-left: 0.5em;
-  margin: 0;
-  font-size: 1.7em;
-  vertical-align: middle;
+.c4p-aside-footer {
+  color: #ffffff;
 }
 .c4p-item-root-txt {
   padding-left: 0.5em;
@@ -23271,7 +23273,6 @@ body,
 }
 .c4p-list-item-aside {
   border-style: none;
-  font-size: 140%;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -23280,6 +23281,9 @@ body,
 }
 .c4p-list-item-aside a {
   text-decoration: none;
+}
+.c4p-list-item-aside .btn:first-child {
+  padding-left: 0.3em;
 }
 .c4p-list-hdr-aside {
   border-style: none;

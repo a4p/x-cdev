@@ -1,3 +1,5 @@
+
+
 <div class="modal-body vertical-container">
     <div class="c4p-dialog vertical-align">
         <div class="row">
@@ -9,10 +11,28 @@
 				        </div>
 		                <div class="pull-right">
 			                <div class="row c4p-modal-confirm-btns">
-				            	<div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke"ng-click="submit()"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>
-				            	<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke"ng-click="close()"><span class="c4p-icon-std glyphicon glyphicon-remove"></span></div>
+				            	<div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke"ng-click="submit()"><span class="c4p-icon-std glyphicon glyphicon-check"></span></div>
+				            	<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke"ng-click="close()"><span class="c4p-icon-std glyphicon glyphicon-times"></span></div>
 			                </div>
 		                </div>
+
+<!--
+
+            <ul class="nav nav-pills">
+                <li class="pull-right">
+                    <a ng-click="close()">
+                      <div class="btn btn-sm"><span class="c4p-icon-std close">&times;</span></div>
+                    </a>
+                </li>
+                <li class="pull-right">
+                    <a ng-click="submit()">
+                        <div class="btn btn-sm" ng-class="{'c4p-color-ok-transparent' : objectValidated, 'c4p-color-cancel-transparent' : !objectValidated}">
+                          <span class="c4p-icon-std glyphicon glyphicon-check"></span>
+                        </div>
+                    </a>
+                </li>
+         	</ul>-->
+
 					</div>
 				</div>
                 

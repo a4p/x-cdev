@@ -56,7 +56,6 @@ var c4pInputCompile = function (element, attrs, transclude, $compile) {
     // link function
     return function (scope, element, attrs, ngModelCtrl) {
 
-
         // Dynamic type of field
         var inputType = 'text';
         if (a4p.isDefined(attrs.type)) {
@@ -264,7 +263,11 @@ var c4pInputCompile = function (element, attrs, transclude, $compile) {
         element.find("input").bind('blur',function() {
             $(window).scrollTop(0);
             $(document.body).scrollTop(0);
-            a4p.InternalLog.log('c4pInputCompile', 'input blur : '+element[0].outerHTML);
+            //a4p.InternalLog.log('c4pInputCompile', 'input blur : '+element[0].outerHTML);
+        });
+        element.find("textarea").bind('blur',function() {
+            $(window).scrollTop(0);
+            $(document.body).scrollTop(0);
         });
 
         // Input

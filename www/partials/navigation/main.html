@@ -12,12 +12,12 @@
     </div>
 
     <div class="c4p-ltr c4p-click-through"
-         ng-style="{height:getResizeHeight()+'px'}"
+         ng-style="{height:(getResizeHeight() )+'px'}"
          style="z-index: 3; width: 0px"
          ng-switch on="rootMenuUp">
         <div ng-switch-when="false"
              class="c4p-click-intercepted"
-             ng-style="{height:getResizeHeight()+'px', width:getAsideWidth()+'px'}"
+             ng-style="{height:(getResizeHeight() )+'px', width:getAsideWidth()+'px'}"
              ng-include="'partials/navigation/aside_search.html'">
         </div>
     </div>

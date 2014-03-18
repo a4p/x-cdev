@@ -21,8 +21,8 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
 
     $scope.srvConfig = srvConfig;
 
-    $scope.email = srvSecurity.getA4pLogin();
-    $scope.password = '';
+    $scope.configEmail = srvSecurity.getA4pLogin();
+    $scope.configPassword = '';
     $scope.warningEmail = false;
     $scope.warningPassword = false;
     $scope.secureMode = srvSecurity.isSecured();
@@ -42,21 +42,21 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
 
     $scope.setEmail = function (email) {
         srvSecurity.setA4pLogin(email);
-        $scope.email = srvSecurity.getA4pLogin();
+        $scope.configEmail = srvSecurity.getA4pLogin();
     };
 
     $scope.setPassword = function (password) {
         srvSecurity.setA4pPassword(password);
-        $scope.password = password;
+        $scope.configPassword = password;
     };
 
     $scope.verifyEmail = function () {
-        $scope.warningEmail = (a4p.isUndefined($scope.email) || ($scope.email == ''));
+        $scope.warningEmail = (a4p.isUndefined($scope.configEmail) || ($scope.configEmail == ''));
         return $scope.warningEmail;
     };
 
     $scope.verifyPassword = function () {
-        $scope.warningPassword = (a4p.isUndefined($scope.password) || ($scope.password == ''));
+        $scope.warningPassword = (a4p.isUndefined($scope.configPassword) || ($scope.configPassword == ''));
         return $scope.warningPassword;
     };
 
@@ -163,7 +163,7 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
    	};
 
     $scope.c4pConnection = function () {
-    	if($scope.email == "demo@apps4pro.com" && $scope.password == "demo") {
+    	if($scope.configEmail == "demo@apps4pro.com" && $scope.configPassword == "demo") {
             a4p.InternalLog.log('ctrlConfig', 'Entering demo mode');
             $scope.setDemo(true);
             //GA: user really interact with aside, he logs in
@@ -174,8 +174,8 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
         a4p.InternalLog.log('ctrlConfig', 'c4pConnection');
 
         // Copy email, password and rememberPassword variables of ctrlConfig into ctrlNavigation and srvSecurity
-        $scope.setEmail($scope.email);
-        $scope.setPassword($scope.password);
+        $scope.setEmail($scope.configEmail);
+        $scope.setPassword($scope.configPassword);
         $scope.setRememberPassword($scope.rememberPassword);
 
         if ($scope.verifyEmail() || $scope.verifyPassword()) {
@@ -191,10 +191,12 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
 
     $scope.createAccount = function () {
         // Copy email and password variables of ctrlConfig into ctrlNavigation and srvSecurity
-        $scope.setEmail($scope.email);
+        $scope.setEmail($scope.configEmail);
         $scope.setPassword('');
+        a4p.InternalLog.log('ctrlConfig', 'createAccount '+$scope.configEmail);
 
         if ($scope.verifyEmail()) return;
+        a4p.InternalLog.log('ctrlConfig', 'createAccount.. '+$scope.configEmail);
 
         var fctOnHttpSuccess = function (response) {
             //response.data, response.status, response.headers
@@ -261,7 +263,7 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
         };
 
         var params = {
-            login: $scope.email,
+            login: $scope.configEmail,
             language: srvLocale.getLanguage()
         };
         srvDataTransfer.sendData(srvConfig.c4pUrlCreateAccount, params, null, 60000)
@@ -272,7 +274,7 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
 
     $scope.requestPassword = function () {
         // Copy email and password variables of ctrlConfig into ctrlNavigation and srvSecurity
-        $scope.setEmail($scope.email);
+        $scope.setEmail($scope.configEmail);
         $scope.setPassword('');
 
         if ($scope.verifyEmail()) return;
@@ -339,7 +341,7 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
         };
 
         var params = {
-            login: $scope.email,
+            login: $scope.configEmail,
             language: srvLocale.getLanguage()
         };
         srvDataTransfer.sendData(srvConfig.c4pUrlForget, params, null, 30000)
@@ -414,6 +416,13 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
 
     $scope.initConfigCtrl = function () {
 
+        //TODO remove when solution will be find for register c4p-input
+        $('input').bind('blur',function() {
+            $(window).scrollTop(0);
+            $(document.body).scrollTop(0);
+            console.log('scrollTop');
+        });
+
         if ($scope.page != 'guider' && $scope.slide != 'config') return;
 
         $scope.setNavTitle($scope.srvLocale.translations.htmlTitleConfig);
@@ -421,9 +430,10 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
 
         $scope.warningEmail = false;
         $scope.warningPassword = false;
-        $scope.email = srvSecurity.getA4pLogin();
-        $scope.password = '';
+        $scope.configEmail = srvSecurity.getA4pLogin();
+        $scope.configPassword = '';
 
+/*
         // Guider Inputs
         $scope.slidesInterval = -5000;
         $scope.slides = [
@@ -448,7 +458,7 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
 //                title: srvLocale.translations.htmlFormGuiderSlide3Title,
 //                text: srvLocale.translations.htmlFormGuiderSlide3Text
 //            }
-        ];
+        ];*/
 
     };
 
@@ -490,8 +500,8 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
     $scope.$on('changeItemCategory', function (event, item) {
         $scope.warningEmail = false;
         $scope.warningPassword = false;
-        $scope.email = srvSecurity.getA4pLogin();
-        $scope.password = '';
+        $scope.configEmail = srvSecurity.getA4pLogin();
+        $scope.configPassword = '';
     });
 
     /**

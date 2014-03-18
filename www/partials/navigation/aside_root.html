@@ -1,36 +1,132 @@
-<div resize-opts="{name:'aside_root_header'}">
-    <!-- header Sales MobPad -->
-    <div class="c4p-header-root">
-        <ul class="list-group c4p-list-aside" style="display: inline-block;">
-            <li class="list-group-item  c4p-list-item-aside">
-                <a  class="glyphicon glyphicon-align-left  c4p-color-action-aside-transparent"
-                    ng-click="setRootMenu()"></a>
-            </li>
-        </ul>
-        <h4>{{translate('htmlGuiderPageTitle')}}</h4>
-        <!-- ATTENTION: Next line use for vertical align -->
-        <!-- Sync all icon-Xx value in this file to keep alignment -->
-        <!-- spacer -->
-        <div class="c4p-hdr-spacer" style="display: inline-block;">
-            <div class="btn c4p-padding-w-packed">
-                <div class="c4p-icon-std glyphicon">&nbsp;</div>
-            </div>
-        </div>
+
+
+<!-- App header -->
+<div class="row c4p-aside-header c4p-header-std" resize-opts="{name:'aside_root_header'}">
+
+    <div class="col-xxs-12">
+            <ul class="c4p-list-aside nav nav-pills">
+                <li class="c4p-list-item-aside">
+                    <div class="btn c4p-color-action-aside-transparent" 
+                        ng-click="setRootMenu()">
+                        <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-bars"></span>
+                        <span class="pull-left c4p-item-root-txt">{{translate('htmlGuiderPageTitle')}}</span>
+                    </div>
+                </li>
+            </ul>
     </div>
+
 </div>
 <div resize-opts="{name:'aside_root'}"
      resize-css-height="getResizeHeight() -getResizePathValue('aside_root_header', '', 'offsetHeight') -getResizePathValue('aside_root_footer', '', 'offsetHeight')"
      sense-opts="{name:'aside_root', axeY:'scroll'}"
      sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}"
      class="c4p-bg-aside">
-    <div>
+    <div class="row">
         <!-- use <ul class="list-group"><li class="list-group-item"> for border -->
         <!-- use <a> for finger cursor -->
         <!-- use <ul class="nav nav-pills nav-stacked"> for vertical stacking -->
         <!-- use <ul class="nav nav-pills"> for horizontal stacking -->
         <!-- BEWARE : <ul class="list-group"> has a 20px of margin-bottom not visible in Resize height -->
 
+
+        <!-- Menu always on Top -->
+        <div class="col-xxs-12">
+            <ul class="c4p-list-aside nav nav-pills nav-stacked">
+                <li class="c4p-list-item-aside c4p-color-{{getTypeColor('Event')}}" 
+                    ng-class="{active: activeItem == slideNavigationCalendar}"
+                    ng-click="srvFacet.clearOrRemoveFacet($first, $index);setCalendar()">
+                    <div class="btn col-xxs-12">
+                        <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-calendar"></span>
+                        <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['calendar']}}</span>
+                    </div>
+                </li>
+                <li class="c4p-list-item-aside c4p-color-{{getTypeColor('Event')}}" 
+                    ng-class="{active: activeItem == slideNavigationFavorites}"
+                    ng-click="setFavoriteSearchMenu()">
+                    <div class="btn col-xxs-12">
+                        <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-star"></span>
+                        <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['favorites']}}</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
         <!-- Organisation menus -->
+        <div class="col-xxs-12" ng-show="navAside && rootMenuUp">&nbsp;</div>
+        <div class="col-xxs-12">
+            <ul class="c4p-list-aside nav nav-pills nav-stacked">
+                <li class="c4p-list-item-aside c4p-color-{{getTypeColor('Event')}}" 
+                    ng-class="{active: activeItem == slideNavigationEvents}"
+                    ng-click="setSearchMenu('Event')"
+                    ng-show="navAside && rootMenuUp || activeItem == slideNavigationEvents">
+                    <div class="btn col-xxs-12">
+                        <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon('Event')}}"></span>
+                        <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['events']}}</span>
+                    </div>
+                </li>
+                <li class="c4p-list-item-aside c4p-color-{{getTypeColor('Task')}}" 
+                    ng-class="{active: activeItem == slideNavigationTasks}"
+                    ng-click="setSearchMenu('Task')"
+                    ng-show="navAside && rootMenuUp || activeItem == slideNavigationTasks">
+                    <div class="btn col-xxs-12">
+                        <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon('Task')}}"></span>
+                        <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['tasks']}}</span>
+                    </div>
+                </li>
+
+
+                <li class="c4p-list-item-aside c4p-color-{{getTypeColor('Contact')}}" 
+                    ng-class="{active: activeItem == slideNavigationContacts}"
+                    ng-click="setSearchMenu('Contact')"
+                    ng-show="navAside && rootMenuUp || activeItem == slideNavigationContacts">
+                    <div class="btn col-xxs-12">
+                        <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon('Contact')}}"></span>
+                        <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['contacts']}}</span>
+                    </div>
+                </li>
+
+                <li class="c4p-list-item-aside c4p-color-{{getTypeColor('Account')}}" 
+                    ng-class="{active: activeItem == slideNavigationAccounts}"
+                    ng-click="setSearchMenu('Account')"
+                    ng-show="navAside && rootMenuUp || activeItem == slideNavigationAccounts">
+                    <div class="btn col-xxs-12">
+                        <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon('Account')}}"></span>
+                        <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['accounts']}}</span>
+                    </div>
+                </li>
+                <li class="c4p-list-item-aside c4p-color-{{getTypeColor('Opportunity')}}" 
+                    ng-class="{active: activeItem == slideNavigationOpportunities}"
+                    ng-click="setSearchMenu('Opportunity')"
+                    ng-show="navAside && rootMenuUp || activeItem == slideNavigationOpportunities">
+                    <div class="btn col-xxs-12">
+                        <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon('Opportunity')}}"></span>
+                        <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['opportunities']}}</span>
+                    </div>
+                </li>
+                <li class="c4p-list-item-aside c4p-color-{{getTypeColor('Document')}}" 
+                    ng-class="{active: activeItem == slideNavigationDocuments}"
+                    ng-click="setSearchMenu('Document')"
+                    ng-show="navAside && rootMenuUp || activeItem == slideNavigationDocuments">
+                    <div class="btn col-xxs-12">
+                        <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon('Document')}}"></span>
+                        <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['documents']}}</span>
+                    </div>
+                </li>
+
+
+                <li class="c4p-list-item-aside" 
+                    ng-click="setRootMenu()"
+                    ng-hide="navAside && rootMenuUp">
+                    <div class="btn c4p-color-action-aside-transparent col-xxs-12">
+                        <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-angle-down"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- //TODO progressivement
+
+        Organisation menus 
         <ul class="list-group c4p-list-aside">
             <li class="list-group-item  c4p-list-item-aside c4p-list-ftr-aside c4p-color-{{getTypeColor('Event')}}"
                 ng-class="{active: activeItem == slideNavigationCalendar}"
@@ -51,10 +147,10 @@
                 <span class="c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['tasks']}}</span>
             </li>
         </ul>
-        <!-- Informations Commerciales menus -->
+
+        Informations Commerciales menus
         <ul class="list-group c4p-list-aside">
             <li class="list-group-item  c4p-list-item-aside c4p-list-hdr-aside">
-                <!--<span   >{{srvLocale.translations.htmlTitleLibrary}}</span> -->
             </li>
             <li class="list-group-item  c4p-list-item-aside c4p-color-{{getTypeColor('Account')}}"
                 ng-class="{'active':activeItem == slideNavigationLeads}"
@@ -82,10 +178,9 @@
                 <span class="c4p-item-root-txt"> {{srvLocale.translations.htmlSlideName['opportunities']}}</span>
             </li>
         </ul>
-        <!-- Bibliotheque menus -->
+        Bibliotheque menus 
         <ul class="list-group c4p-list-aside">
             <li class="list-group-item  c4p-list-item-aside c4p-list-hdr-aside">
-                <!--<span   >{{srvLocale.translations.htmlTitleLibrary}}</span> -->
             </li>
             <li class="list-group-item  c4p-list-item-aside c4p-color-{{getTypeColor('Facet')}}"
                 ng-class="{'active':activeItem == slideNavigationFavorites}"
@@ -114,74 +209,73 @@
             </li>
         </ul>
 
-        <div class="row">
-                <ul class="nav nav-pills nav-stacked">
-                    <li class="c4p-color-{{getTypeColor('Document')}}" 
-                        ng-click="setSearchMenu('Document')">
-                        <div class="btn col-xxs-12">
-                            <span class="pull-left c4p-icon-std glyphicon icon-fixed-width glyphicon-{{getTypeIcon('Document')}}"></span>
-                             <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['documents']}}</span>
-                        </div>
-                    </li>
-                    <li class="c4p-color-{{getTypeColor('Document')}}" 
-                        ng-click="setSearchMenu('Document')">
-                        <div class="btn col-xxs-12">
-                            <span class="pull-left c4p-icon-std glyphicon icon-fixed-width glyphicon-{{getTypeIcon('Document')}}"></span>
-                             <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['documents']}}</span>
-                        </div>
-                    </li>
-                </ul>
+        <div class="col-xxs-12">
+            <ul class="nav nav-pills nav-stacked">
+                <li class="c4p-color-{{getTypeColor('Document')}}" 
+                    ng-click="setSearchMenu('Document')">
+                    <div class="btn col-xxs-12">
+                        <span class="pull-left c4p-icon-std glyphicon icon-fixed-width glyphicon-{{getTypeIcon('Document')}}"></span>
+                         <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['documents']}}</span>
+                    </div>
+                </li>
+                <li class="c4p-color-{{getTypeColor('Document')}}" 
+                    ng-click="setSearchMenu('Document')">
+                    <div class="btn col-xxs-12">
+                        <span class="pull-left c4p-icon-std glyphicon icon-fixed-width glyphicon-{{getTypeIcon('Document')}}"></span>
+                         <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['documents']}}</span>
+                    </div>
+                </li>
+            </ul>
         </div>
-
-
-                
-        
+        -->
 
     </div>
 </div>
-<div class="c4p-footer-aside"
+<div class="c4p-aside-footer"
      resize-opts="{name:'aside_root_footer'}">
 
-    <div class="btn btn-danger"
-         ng-class="{'active' : dropOver}"
-         ng-show="dndActive"
-         ng-controller="ctrlTrashObject"
-         sense-opts="{name:'dropObjectTrash'}"
-         sense-dnd-start="dndStart($event)"
-         sense-dnd-end="dndEnd($event)"
-         sense-dnd-cancel="dndCancel($event)"
-         sense-drop-over-enter="dropOverEnter($event)"
-         sense-drop-over-leave="dropOverLeave($event)"
-         sense-drop-end="dropEnd($event)"
-         style="position:absolute;z-index:1041;bottom:0;left:0;">
-        <span class="c4p-icon-std glyphicon glyphicon-trash"></span>
-    </div>
-
-
-    <div class="row">
-
-        <div class="col-xxs-12">
-                <ul class="nav nav-pills nav-stacked">
-                    <li class="col-xxs-12">
+    <div class="row" ng-controller="ctrlTrashObject">
+        <div class="col-xxs-12" ng-show="dndActive">
+            <div class="c4p-aside-trash" >
+                <div class="btn btn-danger col-xxs-12"
+                    ng-class="{'active' : dropOver}"
+                    sense-opts="{name:'dropObjectTrash'}"
+                    sense-dnd-start="dndStart($event)"
+                    sense-dnd-end="dndEnd($event)"
+                    sense-dnd-cancel="dndCancel($event)"
+                    sense-drop-over-enter="dropOverEnter($event)"
+                    sense-drop-over-leave="dropOverLeave($event)"
+                    sense-drop-end="dropEnd($event)">
+                    <span class="c4p-icon-std glyphicon glyphicon-trash-o"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxs-12" ng-hide="dndActive">
+                <ul class="c4p-list-aside nav nav-pills">
+                    <li class="c4p-list-item-aside">
 
                         <!-- question -->
                         <div class="btn c4p-color-action-aside-transparent" 
                             ng-click="openDialogSendFeedbackReport('Menu Feedback')">
-                            <div class="c4p-icon-std glyphicon glyphicon-question"></div>
+                            <div class="c4p-icon-std glyphicon glyphicon-fw glyphicon-question"></div>
                         </div>
+                    </li>
+                    <li class="c4p-list-item-aside">
                         <!-- Config -->
                         <div class="btn c4p-color-action-aside-transparent" 
                             ng-click="gotoSlideWithSearchReset(pageNavigation, slideNavigationConfig);">
-                            <span  class="glyphicon glyphicon-cog c4p-icon-std"></span>
+                            <span  class="c4p-icon-std glyphicon glyphicon-fw glyphicon-cog"></span>
                         </div>
+                    </li>
+                    <li class="c4p-list-item-aside pull-right">
                         <!-- Refresh - Downloads / Uploads -->
                         <div class="btn c4p-color-action-aside-transparent" 
                             ng-click="refreshClient();">
                             <span ng-switch="a4pSpinnerState" >
-                                <span class="glyphicon glyphicon-refresh c4p-icon-std icon-spin" ng-switch-when="run"></span>
-                                <span class="glyphicon glyphicon-refresh c4p-icon-std alert-error" ng-switch-when="doneWithPb"></span>
-                                <span class="glyphicon glyphicon-refresh c4p-icon-std close" ng-switch-when="offline"></span>
-                                <span class="glyphicon glyphicon-refresh c4p-icon-std" ng-switch-default></span>
+                                <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh icon-spin" ng-switch-when="run"></span>
+                                <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh alert-error" ng-switch-when="doneWithPb"></span>
+                                <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh close" ng-switch-when="offline"></span>
+                                <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh" ng-switch-default></span>
                                 <span ng-show="(srvData.objectsToDownload.length + srvData.objectsToSave.length)">
                                     {{srvData.objectsToDownload.length + srvData.objectsToSave.length}}
                                 </span>

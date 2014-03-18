@@ -169,7 +169,7 @@
 <div style="width:100%;"
      ng-style="{width:getAsideWidth()+'px'}"
      resize-opts="{name:'aside_search_result_wrapper', watchRefresh:['srvFacet.filterFacets.length', 'activeSearch', 'srvFacet.lastFacetKey', 'srvConfig.c4pConfig.exposeAllFacets']}"
-     resize-css-height="getResizePathValue('navigation_ctrlAside', '', 'offsetHeight') -getResizePathValue('aside_search_header', '', 'offsetHeight') -getResizePathValue('aside_search_search', '', 'offsetHeight')"
+     resize-css-height="getResizePathValue('navigation_ctrlAside', '', 'offsetHeight') -getResizePathValue('aside_search_header', '', 'offsetHeight') -getResizePathValue('aside_search_search', '', 'offsetHeight') - getResizePathValue('aside_root_footer','','offsetHeight')"
      sense-opts="{name:'aside_search_result_wrapper', axeY:'scroll', watchRefresh:['srvFacet.filterFacets.length', 'activeSearch', 'srvFacet.lastFacetKey', 'srvConfig.c4pConfig.exposeAllFacets']}"
      sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}"
      class="c4p-menu-bg c4p-color-z">

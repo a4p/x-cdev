@@ -6,16 +6,16 @@
             <!-- Nav tabs -->
             <ul class="nav nav-pills">
                 <li class="hidden-xs">
-                  <a><div class="btn"><span>{{srvLocale.translations.htmlTypeName[objectTypeLocale]}}</span></div></a>
+                  <a><div class="btn btn-sm"><span>{{srvLocale.translations.htmlTypeName[objectTypeLocale]}}</span></div></a>
                 </li>
                 <li ng-show="removeEnabled">
                     <a ng-click="remove()">
-                        <div class="btn"><span class="c4p-icon-std glyphicon glyphicon-trash-o"></span></div>
+                        <div class="btn btn-sm"><span class="c4p-icon-std glyphicon glyphicon-trash-o"></span></div>
                     </a>
                 </li>
                 <li ng-show="hasOpenImportContactDialog">
                     <a ng-click="openImportContactDialog()">
-                        <div class="btn">
+                        <div class="btn btn-sm">
                           <span class="c4p-icon-std glyphicon glyphicon-download"></span>
                         </div>
                     </a>
@@ -37,12 +37,12 @@
 
                 <li class="pull-right">
                     <a ng-click="close()">
-                      <div class="btn"><span class="c4p-icon-std close">&times;</span></div>
+                      <div class="btn btn-sm"><span class="c4p-icon-std close">&times;</span></div>
                     </a>
                 </li>
                 <li class="pull-right">
                     <a ng-click="submit()">
-                        <div class="btn" ng-class="{'c4p-color-ok-transparent' : objectValidated, 'c4p-color-cancel-transparent' : !objectValidated}">
+                        <div class="btn btn-sm" ng-class="{'c4p-color-ok-transparent' : objectValidated, 'c4p-color-cancel-transparent' : !objectValidated}">
                           <span class="c4p-icon-std glyphicon glyphicon-check"></span>
                         </div>
                     </a>
@@ -107,8 +107,7 @@
                                    type-var="field.type"
                                    options-var="field.optionList"
                                    rows=5 cols=20
-                                   ng-change="onFieldChanged(field)"
-                                   focus-var="field.focus"></c4p-input>
+                                   ng-change="onFieldChanged(field)"></c4p-input><!-- focus-var="field.focus" -->
                     </fieldset>
                 </div>
             </marker>

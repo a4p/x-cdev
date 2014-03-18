@@ -34,7 +34,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
 	 * Default size values. They are recalculated during resize
 	 */
     $scope.baseMagnetWidth = 100; 	// to check if used
-    $scope.baseToolbarWidth = 48*2;	// left and right menu bars // 40*2
+    $scope.baseToolbarWidth = 40*2;	// left and right menu bars // 40*2  cf 2.9
     $scope.basePageWidth  = 240;	// screen width
     $scope.basePageHeight = 240;	// screen height
 
@@ -144,6 +144,21 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     //MLE  $scope.elementsOrderByAlphabet = {'contacts' : false, 'accounts' : false, 'opportunities' : false, 'documents' : false};
 
 
+    $scope.contactImportList = [];
+    $scope.setContactImportList = function(list) {
+        $scope.contactImportList = list;
+    };
+    $scope.getContactImportList = function () {
+        return $scope.contactImportList;
+    };
+
+    $scope.accountImportList = [];
+    $scope.setAccountImportList = function (list) {
+        $scope.accountImportList = list;
+    };
+    $scope.getAccountImportList = function () {
+        return $scope.accountImportList;
+    };
 
 
     /**
@@ -1265,7 +1280,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
             srvConfig.setSizeCss('75%');
         }
 
-        $scope.toolbarWidth = Math.ceil(3.3*fontSizePx);//2.9
+        $scope.toolbarWidth = Math.ceil(2.9*fontSizePx);//2.9 cf 40*2
 
         $scope.onePageFormat = a4p.Resize.resizePortrait; //prefer One column Mode; srvConfig.c4pConfig.phoneFormatIfSmall ? a4p.Resize.resizeOneColumn : a4p.Resize.resizePortrait;
         $scope.pageHeight = a4p.Resize.resizeHeight;
@@ -1655,8 +1670,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         $scope.openDialog(
             {
                 backdropClick: false,
-                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-small',
+                dialogClass: 'modal c4p-modal-full c4p-modal-confirm',
+                backdropClass: 'modal-backdrop c4p-modal-full',
                 controller: 'ctrlDialogConfirm',
                 templateUrl: 'partials/dialog/confirm.html',
                 resolve: {
@@ -1801,6 +1816,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     $scope.editObjectDialog = function(event, fctSuccess) {
         return $scope.openDialog(
             {
+                backdropClick: false,
                 dialogClass: 'modal c4p-modal-large c4p-dialog',
                 backdropClass: 'modal-backdrop c4p-modal-large',
                 controller: 'ctrlEditDialogObject',
@@ -1830,7 +1846,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                     },
                     openDialogFct: function () {
                         return $scope.openDialog;
-                    }    
+                    }
                 }
             },
             function (result) {
@@ -1889,7 +1905,6 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         $scope.openDialog(
             {
                 dialogClass: 'modal c4p-modal-full c4p-dialog',
-                backdrop: false,
                 controller: 'ctrlEditDialogNote',
                 templateUrl: 'partials/dialog/dialogNote.html',
                 resolve: {
@@ -1992,7 +2007,6 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         $scope.openDialog(
             {
                 dialogClass: 'modal c4p-modal-full c4p-dialog',
-                backdrop: false,
                 controller: 'ctrlEditDialogNote',
                 templateUrl: 'partials/dialog/dialogNote.html',
                 resolve: {

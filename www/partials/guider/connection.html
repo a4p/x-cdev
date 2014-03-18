@@ -9,22 +9,24 @@
 		<form class="form-horizontal" name="loginForm" ng-submit="c4pConnection()">
 			<div class="form-group row">
 				<div class="col-xxs-12 col-sm-offset-3 col-sm-6">
-						<c4p-input-simple
-							ng-model="email"
+						<input
+							class="form-control"
+							ng-model="configEmail"
 							placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}"
 							type="mail"
 							required>
-                        </c4p-input-simple>
+                        </input>
 				</div>
 			</div>
 			<div class="form-group row">
 				<div class="col-xxs-12 col-sm-offset-3 col-sm-6">
-						<c4p-input-simple
-							ng-model="password"
+						<input
+							class="form-control"
+							ng-model="configPassword"
 							placeholder="{{srvLocale.translations.htmlFormPasswordPlaceHolder}}"
 							type="password"
 							required>
-                         </c4p-input-simple>
+                         </input>
                 </div>
             </div>
 

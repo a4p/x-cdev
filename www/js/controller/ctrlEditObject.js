@@ -156,8 +156,8 @@ function ctrlEditObject($scope, srvData, srvLocale, srvConfig, openDialogFct, $d
         openDialog(
             {
                 backdropClick: false,
-                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-small',
+                dialogClass: 'modal c4p-modal-full c4p-modal-confirm',
+                backdropClass: 'modal-backdrop c4p-modal-full',
                 controller: 'ctrlDialogConfirm',
                 templateUrl: 'partials/dialog/confirm.html',
                 resolve: {
@@ -381,9 +381,111 @@ function ctrlEditObject($scope, srvData, srvLocale, srvConfig, openDialogFct, $d
     $scope.openImportContactDialog = function() {
         var possibleContacts = [];
         if (navigator && navigator.contacts) {
+            var possibleContactsSelectionDialog = function () {
+                var menus = [];
+                var addedOrganizers = [];
+                var dialogOptions = {
+                    backdropClick: false,
+                    dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
+                    backdropClass: 'modal-backdrop c4p-modal-left'
+                };
+                var resolve = {
+                    srvData: function () {
+                        return srvData;
+                    },
+                    srvConfig: function () {
+                        return srvConfig;
+                    },
+                    srvLocale: function () {
+                        return srvLocale;
+                    },
+                    type: function () {
+                        return 'Contact';
+                    },
+                    objects: function () {
+                        //return possibleContacts.slice(0);// copy full array
+                        return possibleContacts;
+                    },
+                    initFilter: function () {
+                        return function (object) {
+                            return true
+                        };
+                    },
+                    initSelector: function () {
+                        return function (object) {
+                            return false
+                        };
+                    },
+                    multiple: function () {
+                        return false;
+                    },
+                    createFct: function () {
+                        return null;
+                    }
+                };
+                dialogOptions.controller = 'ctrlSelectDialog';
+                dialogOptions.templateUrl = 'partials/dialog/dialogSelectObjects.html';
+                resolve.suggestedMenus = function () {
+                    return menus;
+                };
+                dialogOptions.resolve = resolve;
+                $scope.openDialogFct(dialogOptions, function (result) {
+                    if (a4p.isDefined(result)) {
+                        a4p.safeApply($scope, function () {
+                            $scope.clear();
+                            for (var i = 0; i < result.length; i++) {
+                                $scope.object.salutation = result[i].salutation;
+                                $scope.object.first_name = result[i].first_name;
+                                $scope.object.last_name = result[i].last_name;
+                                $scope.object.birthday = result[i].birthday;
+                                $scope.object.description = result[i].description;
+                                $scope.object.salutation = result[i].salutation;
+                                $scope.object.salutation = result[i].salutation;
+                                if (result[i].phone_house) $scope.object.phone_house = result[i].phone_house;
+                                if (result[i].phone_work) $scope.object.phone_work = result[i].phone_work;
+                                if (result[i].phone_mobile) $scope.object.phone_mobile = result[i].phone_mobile;
+                                if (result[i].phone_fax) $scope.object.phone_fax = result[i].phone_fax;
+                                if (result[i].phone_other) $scope.object.phone_other = result[i].phone_other;
+                                if (result[i].email_home) $scope.object.email_home = result[i].email_home;
+                                if (result[i].email) $scope.object.email = result[i].email;
+                                if (result[i].email_other) $scope.object.email_other = result[i].email_other;
+                                if (result[i].primary_address_city) {
+                                    $scope.object.primary_address_street = result[i].primary_address_street;
+                                    $scope.object.primary_address_city = result[i].primary_address_city;
+                                    $scope.object.primary_address_state = result[i].primary_address_state;
+                                    $scope.object.primary_address_zipcode = result[i].primary_address_zipcode;
+                                    $scope.object.primary_address_country = result[i].primary_address_country;
+                                }
+                                if (result[i].alt_address_city) {
+                                    $scope.object.alt_address_street = result[i].alt_address_street;
+                                    $scope.object.alt_address_city = result[i].alt_address_city;
+                                    $scope.object.alt_address_state = result[i].alt_address_state;
+                                    $scope.object.alt_address_zipcode = result[i].alt_address_zipcode;
+                                    $scope.object.alt_address_country = result[i].alt_address_country;
+                                }
+                                if (result[i].title) $scope.object.title = result[i].title;
+                                if (result[i].department) $scope.object.department = result[i].department;
+                                // Check values
+                                for (var objectGroupIdx = 0; objectGroupIdx < $scope.objectGroups.length; objectGroupIdx++) {
+                                    var objectGroup = $scope.objectGroups[objectGroupIdx];
+                                    for (var objectFieldIdx = 0; objectFieldIdx < objectGroup.groupFields.length; objectFieldIdx++) {
+                                        var objectField = objectGroup.groupFields[objectFieldIdx];
+                                        $scope.onFieldChanged(objectField);
+                                    }
+                                }
+                                break; // Only first contact in result array
+                            }
+                        });
+                    }
+                });
+            };
             var onContactsSuccess = function(contacts) {
                 a4p.safeApply($scope, function() {
-                    $scope.stopSpinner();
+                    if (a4p.isDefined(window.plugins.spinnerDialog)) {
+                        window.plugins.spinnerDialog.hide();
+                    } else {
+                        $scope.stopSpinner();
+                    }
                     var nbNewContact = 0;
                     for (var i = 0, nb = contacts.length; i < nb; i++) {
                         var contact = contacts[i];
@@ -455,108 +557,18 @@ function ctrlEditObject($scope, srvData, srvLocale, srvConfig, openDialogFct, $d
                     if (!nbNewContact) {
                         a4p.InternalLog.log('ctrlEditObject', 'NO Contact found in IOS');
                     } else {
-                        var menus = [];
-                        var addedOrganizers = [];
-                        var dialogOptions = {
-                            backdropClick: false,
-                            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
-                            backdropClass: 'modal-backdrop c4p-modal-left'
-                        };
-                        var resolve = {
-                            srvData: function () {
-                                return srvData;
-                            },
-                            srvConfig: function () {
-                                return srvConfig;
-                            },
-                            srvLocale: function () {
-                                return srvLocale;
-                            },
-                            type: function () {
-                                return 'Contact';
-                            },
-                            objects: function () {
-                                //return possibleContacts.slice(0);// copy full array
-                                return possibleContacts;
-                            },
-                            initFilter: function () {
-                                return function (object) {
-                                    return true
-                                };
-                            },
-                            initSelector: function () {
-                                return function (object) {
-                                    return false
-                                };
-                            },
-                            multiple: function () {
-                                return false;
-                            },
-                            createFct: function () {
-                                return null;
-                            }
-                        };
-                        dialogOptions.controller = 'ctrlSelectDialog';
-                        dialogOptions.templateUrl = 'partials/dialog/dialogSelectObjects.html';
-                        resolve.suggestedMenus = function () {
-                            return menus;
-                        };
-                        dialogOptions.resolve = resolve;
-                        $scope.openDialogFct(dialogOptions, function (result) {
-                            if (a4p.isDefined(result)) {
-                                a4p.safeApply($scope, function () {
-                                    $scope.clear();
-                                    for (var i = 0; i < result.length; i++) {
-                                        $scope.object.salutation = result[i].salutation;
-                                        $scope.object.first_name = result[i].first_name;
-                                        $scope.object.last_name = result[i].last_name;
-                                        $scope.object.birthday = result[i].birthday;
-                                        $scope.object.description = result[i].description;
-                                        $scope.object.salutation = result[i].salutation;
-                                        $scope.object.salutation = result[i].salutation;
-                                        if (result[i].phone_house) $scope.object.phone_house = result[i].phone_house;
-                                        if (result[i].phone_work) $scope.object.phone_work = result[i].phone_work;
-                                        if (result[i].phone_mobile) $scope.object.phone_mobile = result[i].phone_mobile;
-                                        if (result[i].phone_fax) $scope.object.phone_fax = result[i].phone_fax;
-                                        if (result[i].phone_other) $scope.object.phone_other = result[i].phone_other;
-                                        if (result[i].email_home) $scope.object.email_home = result[i].email_home;
-                                        if (result[i].email) $scope.object.email = result[i].email;
-                                        if (result[i].email_other) $scope.object.email_other = result[i].email_other;
-                                        if (result[i].primary_address_city) {
-                                            $scope.object.primary_address_street = result[i].primary_address_street;
-                                            $scope.object.primary_address_city = result[i].primary_address_city;
-                                            $scope.object.primary_address_state = result[i].primary_address_state;
-                                            $scope.object.primary_address_zipcode = result[i].primary_address_zipcode;
-                                            $scope.object.primary_address_country = result[i].primary_address_country;
-                                        }
-                                        if (result[i].alt_address_city) {
-                                            $scope.object.alt_address_street = result[i].alt_address_street;
-                                            $scope.object.alt_address_city = result[i].alt_address_city;
-                                            $scope.object.alt_address_state = result[i].alt_address_state;
-                                            $scope.object.alt_address_zipcode = result[i].alt_address_zipcode;
-                                            $scope.object.alt_address_country = result[i].alt_address_country;
-                                        }
-                                        if (result[i].title) $scope.object.title = result[i].title;
-                                        if (result[i].department) $scope.object.department = result[i].department;
-                                        // Check values
-                                        for (var objectGroupIdx = 0; objectGroupIdx < $scope.objectGroups.length; objectGroupIdx++) {
-                                            var objectGroup = $scope.objectGroups[objectGroupIdx];
-                                            for (var objectFieldIdx = 0; objectFieldIdx < objectGroup.groupFields.length; objectFieldIdx++) {
-                                                var objectField = objectGroup.groupFields[objectFieldIdx];
-                                                $scope.onFieldChanged(objectField);
-                                            }
-                                        }
-                                        break; // Only first contact in result array
-                                    }
-                                });
-                            }
-                        });
+                        $scope.setContactImportList(possibleContacts);
+                        possibleContactsSelectionDialog();
                     }
                 });
             };
             var onContactsFailure = function(contactError) {
                 a4p.safeApply($scope, function() {
-                    $scope.stopSpinner();
+                    if (a4p.isDefined(window.plugins.spinnerDialog)) {
+                        window.plugins.spinnerDialog.hide();
+                    } else {
+                        $scope.stopSpinner();
+                    }
                     if (contactError.code == ContactError.UNKNOWN_ERROR) {
                         a4p.ErrorLog.log('ctrlEditObject', 'Device Contacts not imported from IOS : UNKNOWN_ERROR');
                     } else if (contactError.code == ContactError.INVALID_ARGUMENT_ERROR) {
@@ -576,11 +588,20 @@ function ctrlEditObject($scope, srvData, srvLocale, srvConfig, openDialogFct, $d
                     }
                 });
             };
-            var findOptions = new ContactFindOptions();
-            findOptions.filter = "";
-            findOptions.multiple = true;
-            navigator.contacts.find(['*'], onContactsSuccess, onContactsFailure, findOptions);
-            $scope.startSpinner();
+            possibleContacts = $scope.getContactImportList();
+            if (possibleContacts.length > 0) {
+                possibleContactsSelectionDialog();
+            } else {
+                var findOptions = new ContactFindOptions();
+                findOptions.filter = "";
+                findOptions.multiple = true;
+                if (a4p.isDefined(window.plugins.spinnerDialog)) {
+                    window.plugins.spinnerDialog.show();
+                } else {
+                    $scope.startSpinner();
+                }
+                navigator.contacts.find(['*'], onContactsSuccess, onContactsFailure, findOptions);
+            }
         } else {
             a4p.InternalLog.log('ctrlEditObject', 'NO Device to import Contacts');
         }
@@ -589,8 +610,49 @@ function ctrlEditObject($scope, srvData, srvLocale, srvConfig, openDialogFct, $d
     $scope.openImportAccountDialog = function() {
         var possibleAccounts = [];
         if (navigator && navigator.contacts) {
+            var possibleAccountsSelectionDialog = function () {
+                $scope.openDialogFct(
+                    {
+                        backdropClick: true,
+                        dialogClass: 'modal c4p-modal-left c4p-modal-search',
+                        backdropClass: 'modal-backdrop c4p-modal-left',
+                        controller: 'ctrlAddAccount',
+                        templateUrl: 'partials/dialog/dialogAddAccount.html',
+                        resolve: {
+                            srvLocale: function () {
+                                return $scope.srvLocale;
+                            },
+                            accounts: function () {
+                                return possibleAccounts.slice(0);// copy full array
+                            }
+                        }
+                    },
+                    function (result) {
+                        if (a4p.isDefined(result)) {
+                            a4p.safeApply($scope, function () {
+                                $scope.clear();
+                                $scope.object.type = result.type;
+                                $scope.object.company_name = result.company_name;
+                                // Check values
+                                for (var objectGroupIdx = 0; objectGroupIdx < $scope.objectGroups.length; objectGroupIdx++) {
+                                    var objectGroup = $scope.objectGroups[objectGroupIdx];
+                                    for (var objectFieldIdx = 0; objectFieldIdx < objectGroup.groupFields.length; objectFieldIdx++) {
+                                        var objectField = objectGroup.groupFields[objectFieldIdx];
+                                        $scope.onFieldChanged(objectField);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                );
+            };
             var onContactsSuccess = function(contacts) {
                 a4p.safeApply($scope, function() {
+                    if (a4p.isDefined(window.plugins.spinnerDialog)) {
+                        window.plugins.spinnerDialog.hide();
+                    } else {
+                        $scope.stopSpinner();
+                    }
                     var nbNewAccount = 0;
                     var accountIndex = {};
                     for (var i = 0, nb = contacts.length; i < nb; i++) {
@@ -615,45 +677,18 @@ function ctrlEditObject($scope, srvData, srvLocale, srvConfig, openDialogFct, $d
                     if (!nbNewAccount) {
                         a4p.InternalLog.log('ctrlEditObject', 'NO Account found in IOS');
                     } else {
-                        $scope.openDialogFct(
-                            {
-                                backdropClick: true,
-                                dialogClass: 'modal c4p-modal-left c4p-modal-search',
-                                backdropClass: 'modal-backdrop c4p-modal-left',
-                                controller: 'ctrlAddAccount',
-                                templateUrl: 'partials/dialog/dialogAddAccount.html',
-                                resolve: {
-                                    srvLocale: function () {
-                                        return $scope.srvLocale;
-                                    },
-                                    accounts: function () {
-                                        return possibleAccounts.slice(0);// copy full array
-                                    }
-                                }
-                            },
-                            function (result) {
-                                if (a4p.isDefined(result)) {
-                                    a4p.safeApply($scope, function() {
-                                        $scope.clear();
-                                        $scope.object.type = result.type;
-                                        $scope.object.company_name = result.company_name;
-                                        // Check values
-                                        for (var objectGroupIdx = 0; objectGroupIdx < $scope.objectGroups.length; objectGroupIdx++) {
-                                            var objectGroup = $scope.objectGroups[objectGroupIdx];
-                                            for (var objectFieldIdx = 0; objectFieldIdx < objectGroup.groupFields.length; objectFieldIdx++) {
-                                                var objectField = objectGroup.groupFields[objectFieldIdx];
-                                                $scope.onFieldChanged(objectField);
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-                        );
+                        $scope.setAccountImportList(possibleAccounts);
+                        possibleAccountsSelectionDialog();
                     }
                 });
             };
             var onContactsFailure = function(contactError) {
                 a4p.safeApply($scope, function() {
+                    if (a4p.isDefined(window.plugins.spinnerDialog)) {
+                        window.plugins.spinnerDialog.hide();
+                    } else {
+                        $scope.stopSpinner();
+                    }
                     if (contactError.code == ContactError.UNKNOWN_ERROR) {
                         a4p.ErrorLog.log('ctrlEditObject', 'Device Accounts not imported from IOS : UNKNOWN_ERROR');
                     } else if (contactError.code == ContactError.INVALID_ARGUMENT_ERROR) {
@@ -673,10 +708,20 @@ function ctrlEditObject($scope, srvData, srvLocale, srvConfig, openDialogFct, $d
                     }
                 });
             };
-            var findOptions = new ContactFindOptions();
-            findOptions.filter = "";
-            findOptions.multiple = true;
-            navigator.contacts.find(['*'], onContactsSuccess, onContactsFailure, findOptions);
+            possibleAccounts = $scope.getAccountImportList();
+            if (possibleAccounts.length > 0) {
+                possibleAccountsSelectionDialog();
+            } else {
+                var findOptions = new ContactFindOptions();
+                findOptions.filter = "";
+                findOptions.multiple = true;
+                if (a4p.isDefined(window.plugins.spinnerDialog)) {
+                    window.plugins.spinnerDialog.show();
+                } else {
+                    $scope.startSpinner();
+                }
+                navigator.contacts.find(['*'], onContactsSuccess, onContactsFailure, findOptions);
+            }
         } else {
             a4p.InternalLog.log('ctrlEditObject', 'NO Device to import Accounts');
         }

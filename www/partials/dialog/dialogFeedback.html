@@ -7,20 +7,22 @@
             <ul class="nav nav-pills">
               <li>
                 <a href="#question" data-toggle="tab">
-                  <div class="btn">
+                  <div class="btn btn-sm">
                     {{srvLocale.translations.htmlGuiderNeedHelp}}
                   </div>
                 </a>
               </li>
               <li class="pull-right">
                 <a ng-click="close()">
-                  <div class="btn"><span class="c4p-icon-std close">&times;</span></div>
+                  <div class="btn btn-sm"><span class="c4p-icon-std close">&times;</span></div>
                 </a>
               </li>
             </ul>
         </div>
     </div>
 </div>
+
+
 <div class="row">
   <div class="c4p-dialog-container">
     <div class="col-xxs-12">
@@ -66,9 +68,9 @@
 
                   <div class="container">
                     <div class="row" >
+                        <h5 class="col-xxs-12 col-sm-6 col-sm-offset-3">{{srvLocale.translations.htmlMsgFeedbackEmail}}</h5>
                         <!-- Email if unknown -->
                         <div class="col-xxs-12 col-sm-6 col-sm-offset-3" ng-show="feedback.emailRequired">
-                            <label>{{srvLocale.translations.htmlMsgFeedbackEmail}}</label>
                             <c4p-input title-var="srvLocale.translations.htmlMsgFeedbackContactEmpty"
                                        ng-model="feedback.email"
                                        placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}"
