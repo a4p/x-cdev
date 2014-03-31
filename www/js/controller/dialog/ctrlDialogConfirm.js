@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlDialogConfirm($scope, text, textArray, srvLocale, dialog) {
+function ctrlDialogConfirm($scope, text, textArray, srvLocale, $modalInstance) {
     /**
      * Variables
      */
@@ -22,12 +22,12 @@ function ctrlDialogConfirm($scope, text, textArray, srvLocale, dialog) {
 
     $scope.submit = function () {
         console.log('ctrlDialogConfirm : submit');
-        dialog.close(true);
+        $modalInstance.close(true);
     };
 
     $scope.close = function () {
         console.log('ctrlDialogConfirm : close');
-        dialog.close(false);
+        $modalInstance.dismiss(false);
     };
 
     /**

@@ -33,7 +33,7 @@
                    ng-click="srvFacet.toggleCaseSensitive()"><span
                         class="glyphicon glyphicon-font icon-large"></span></a><!-- space collapsing between inline-block element
                 --><a type="button" class="btn btn-default"
-                   ng-click="srvFacet.clear();removeGlobalSearch();"><span class="glyphicon glyphicon-remove"></span>
+                   ng-click="srvFacet.clear();removeGlobalSearch();"><span class="glyphicon glyphicon-times-circle"></span>
                 </a>
             </span>
         </div><!-- space collapsing between inline-block element
@@ -55,13 +55,13 @@
                   <span ng-hide="srvFacet.caseSensitive" class="glyphicon glyphicon-font icon-large"></span>
               </button>
               <button type="button" class="btn btn-default" ng-click="srvFacet.clear();removeGlobalSearch();">
-                  <span class="glyphicon glyphicon-remove"></span>
+                  <span class="glyphicon glyphicon-times-circle"></span>
               </button>
             </div>
         </form>
         --><ul class="list-group">
             <li class="list-group-item" ng-repeat="filterFacet in srvFacet.filterFacets">
-                <span ng-click="srvFacet.removeFacet($index)" class="pull-left glyphicon glyphicon-remove"></span>
+                <span ng-click="srvFacet.removeFacet($index)" class="pull-left glyphicon glyphicon-times-circle"></span>
                 <span>{{srvLocale.translations.htmlFacetName[filterFacet.key]}} : {{filterFacet.title}} </span>
                 <span class="badge">{{filterFacet.items.length}}</span>
             </li>

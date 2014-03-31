@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlAddAccount($scope, srvLocale, accounts, dialog) {
+function ctrlAddAccount($scope, srvLocale, accounts, $modalInstance) {
 
     /**
      * Initialisation
@@ -19,11 +19,11 @@ function ctrlAddAccount($scope, srvLocale, accounts, dialog) {
         if ($scope.idxChosen >= 0) {
             result = accounts[$scope.idxChosen];
         }
-        dialog.close(result);
+        $modalInstance.close(result);
     };
 
     $scope.close = function () {
-        dialog.close();
+        $modalInstance.dismiss();
     };
 
     $scope.toggleItem = function (idxChosen) {

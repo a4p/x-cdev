@@ -1,9 +1,9 @@
 <div class="row col-xxs-12">
     <div ng-style="{width:(getMainWidth() + getAsideWidth())+'px'}"
          resize-opts="{name:'calendar_events', watchRefresh:'navAside'}"
-         resize-css-height="getResizeHeight() -getResizePathValue('calendar_header', '', 'offsetHeight')"
+         resizecss-height="getResizeHeight() -getResizePathValue('calendar_header', '', 'offsetHeight')"
          sense-opts="{name:'calendar_events', axeY:'scroll', watchRefresh:'calendarEventsGroupsByDaySinceToday'}"
-         sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}">
+         sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}">
         <div id="calendar-cards">
             <!-- Title -->
             <div class="row c4p-color-a-gradient1">

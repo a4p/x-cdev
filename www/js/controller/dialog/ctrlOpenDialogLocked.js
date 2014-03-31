@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlOpenDialogLocked($scope, srvLocale, srvSecurity, dialog) {
+function ctrlOpenDialogLocked($scope, srvLocale, srvSecurity, $modalInstance) {
 
     /**
      * Constants
@@ -15,7 +15,7 @@ function ctrlOpenDialogLocked($scope, srvLocale, srvSecurity, dialog) {
      */
 
     $scope.closeDialog = function () {
-        dialog.close(undefined);
+        $modalInstance.dismiss();
     };
 
     $scope.setPinCode = function (pinCode) {
@@ -25,7 +25,7 @@ function ctrlOpenDialogLocked($scope, srvLocale, srvSecurity, dialog) {
     $scope.submit = function () {
         a4p.safeApply($scope, function() {
             if (!$scope.oldPinIncorrect()) {
-                dialog.close();
+                $modalInstance.close();
             }
         });
     };

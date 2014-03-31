@@ -20,7 +20,7 @@
  * @param {Function|null} createFct Function to call if user wants to create a new object of this type. This function must return a promise which gives the new object in resolve arguments.
  * @param {Object} dialog Dialog service (from ui-bootstrap)
  */
-function ctrlSelectObjectsDialog($scope, srvLocale, srvData, srvConfig, type, initFilter, initSelector, multiple, suggestedMenus, createFct, dialog) {
+function ctrlSelectObjectsDialog($scope, srvLocale, srvData, srvConfig, type, initFilter, initSelector, multiple, suggestedMenus, createFct, $modalInstance) {
 
     /**
      * Initialisation
@@ -81,11 +81,11 @@ function ctrlSelectObjectsDialog($scope, srvLocale, srvData, srvConfig, type, in
                 if (!multiple) break;
             }
         }
-        dialog.close(result);
+        $modalInstance.close(result);
     };
 
     $scope.closeDialog = function () {
-        dialog.close();
+        $modalInstance.dismiss();
     };
 
     $scope.createObject = function () {

@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlAddDialogObject($scope, srvData, srvLocale, srvConfig, item, createLinks, dialog) {
+function ctrlAddDialogObject($scope, srvData, srvLocale, srvConfig, item, createLinks, $modalInstance) {
 
     /**
      * Constants
@@ -106,7 +106,7 @@ function ctrlAddDialogObject($scope, srvData, srvLocale, srvConfig, item, create
     };
 
     $scope.close = function (type, sameLinks, linkName) {
-        dialog.close({type: type, sameLinks: sameLinks, linkedBy: linkName});
+        $modalInstance.close({type: type, sameLinks: sameLinks, linkedBy: linkName});
     };
 
     $scope.getItemNameById = function (dbid) {

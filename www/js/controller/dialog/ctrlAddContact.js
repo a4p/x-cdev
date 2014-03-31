@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlAddContact($scope, srvLocale, contacts, dialog) {
+function ctrlAddContact($scope, srvLocale, contacts, $modalInstance) {
 
     /**
      * Initialisation
@@ -19,11 +19,11 @@ function ctrlAddContact($scope, srvLocale, contacts, dialog) {
         if ($scope.idxChosen >= 0) {
             result = contacts[$scope.idxChosen];
         }
-        dialog.close(result);
+        $modalInstance.close(result);
     };
 
     $scope.close = function () {
-        dialog.close();
+        $modalInstance.dismiss();
     };
 
     $scope.toggleItem = function (idxChosen) {

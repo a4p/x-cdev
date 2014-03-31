@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlModifyDialogPinCode($scope, srvLocale, srvSecurity, dialog) {
+function ctrlModifyDialogPinCode($scope, srvLocale, srvSecurity, $modalInstance) {
 
     /**
      * Constants
@@ -18,7 +18,7 @@ function ctrlModifyDialogPinCode($scope, srvLocale, srvSecurity, dialog) {
      */
 
     $scope.closeDialog = function () {
-        dialog.close(undefined);
+        $modalInstance.dismiss();
     };
 
 
@@ -33,7 +33,7 @@ function ctrlModifyDialogPinCode($scope, srvLocale, srvSecurity, dialog) {
     $scope.submitNewPinCode = function () {
         a4p.safeApply($scope, function() {
             if (!$scope.oldPinIncorrect() && !$scope.sameAsOldPin()) {
-                dialog.close($scope.newPinCode);
+                $modalInstance.close($scope.newPinCode);
             }
         });
     };

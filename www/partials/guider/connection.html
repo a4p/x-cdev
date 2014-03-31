@@ -1,19 +1,21 @@
-<div ng-controller="ctrlConfig" class="vertical-container">
-	<div class="vertical-align">
+<div ng-controller="ctrlConfig" class="c4p-vertical-container">
+	<div class="c4p-vertical-align">
 		<!-- first column - login form -->
 		<div class="row">
 			<h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate('htmlGuiderPageTitle')}}</h3>
 		</div>
 
 
-		<form class="form-horizontal" name="loginForm" ng-submit="c4pConnection()">
+		<form class="form-horizontal" name="loginForm">
 			<div class="form-group row">
 				<div class="col-xxs-12 col-sm-offset-3 col-sm-6">
 						<input
+							type="mail"
 							class="form-control"
 							ng-model="configEmail"
+							ng-focus="setInputFocusState(true)"
+							ng-blur="setInputFocusState(false)"
 							placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}"
-							type="mail"
 							required>
                         </input>
 				</div>
@@ -23,6 +25,8 @@
 						<input
 							class="form-control"
 							ng-model="configPassword"
+							ng-focus="setInputFocusState(true)"
+							ng-blur="setInputFocusState(false)"
 							placeholder="{{srvLocale.translations.htmlFormPasswordPlaceHolder}}"
 							type="password"
 							required>
@@ -32,11 +36,13 @@
 
 			<div class="row">
 				<button class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-3"
-						type="submit">
+						ng-click="c4pConnection()"
+						ng-disabled="getInputFocusState()" >
 						{{srvLocale.translations.htmlButtonLogin}}
 				</button>
 				<button class="btn btn-link white col-xxs-12 col-sm-3" 
-					ng-click="gotoSlide(pageGuider, slideGuiderRequestPassword)">
+						ng-click="gotoSlide(pageGuider, slideGuiderRequestPassword)"
+						ng-disabled="getInputFocusState()" >
 					{{srvLocale.translations.htmlButtonPasswordForgotten}}
 				</button>
 			</div>
@@ -48,54 +54,6 @@
 			</div>
 
 		</form>
-
-<!--
-		<form class="form-horizontal" name="loginForm" novalidate ng-submit="c4pConnection();" autocomplete="off">
-			<div class="form-group row" ng-class="{'has-error':(loginForm.email.$dirty && loginForm.email.$invalid)}">
-				<div class="col-xxs-12 col-xs-offset-3 col-xs-6">
-					<span ng-show="loginForm.email.$dirty && loginForm.email.$invalid">
-						<span class="help-inline c4p-field-error-message" ng-show="loginForm.email.$error.required">{{formError('htmlErrorRequired', ['htmlFormEmail'])}}</span>
-						<span class="help-inline c4p-field-error-message" ng-show="loginForm.email.$error.email">{{formError('htmlErrorEmailFormat', ['htmlFormEmail'])}}</span>
-					</span>
-				</div>
-
-				<div class="col-xxs-12 col-xs-offset-3 col-xs-6">
-					<input ng-model="email" type="email" id="email" name="email"
-						class="form-control"
-						placeholder="{{translate('htmlFormEmailPlaceHolder')}}" required />
-				</div>
-			</div>
-
-			<div class="form-group row" ng-class="{'has-error':(loginForm.password.$dirty && loginForm.password.$invalid)}">
-				<div class="col-xxs-12 col-xs-offset-3 col-xs-6">
-					<span ng-show="loginForm.password.$dirty && loginForm.password.$invalid">
-						<span class="help-inline c4p-field-error-message" ng-show="loginForm.password.$error.required">{{formError('htmlErrorRequired', ['htmlFormPassword'])}}</span>
-					</span>
-				</div>
-
-				<div class="col-xxs-12 col-xs-offset-3 col-xs-6">
-					<input ng-model="password" type="password" id="password" name="password"
-					class="form-control"
-					placeholder="{{translate('htmlFormPasswordPlaceHolder')}}" required />
-				</div>
-			</div>
-
-			<div class="form-group row">
-				<div class="col-xxs-12 col-xs-offset-3 col-xs-6">
-					<label class="checkbox white">
-						<input id="rememberPassword" type="checkbox" ng-model="rememberPassword" />{{translate('htmlGuiderFormStaySignedIn')}}
-					</label>
-				</div>
-			</div>
-
-			<div class="row">
-				<button type="submit" ng-disabled="loginForm.$invalid" class="btn btn-primary col-xxs-12 col-xs-offset-3 col-xs-4">{{translate('htmlButtonLogin')}}</button>
-				<a class="btn btn-link white col-xxs-12 text-center col-xs-2" ng-click="gotoSlide(pageGuider, slideGuiderRequestPassword)">
-					<small> {{translate('htmlButtonPasswordForgotten')}} </small>
-				</a>
-			</div>
-		</form>
--->
 
 	</div>
 </div>

@@ -4,7 +4,7 @@
  * Detail N view controller
  *
  * @param $scope
- * @param $dialog
+ * @param $modal
  * @param version
  * @param srvData
  * @param srvFacet
@@ -13,7 +13,7 @@
  * @param srvNav
  * @param srvConfig
  */
-function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvLink, srvNav, srvConfig) {
+function ctrlDetail($scope, $modal, version, srvData, srvFacet, srvLocale, srvLink, srvNav, srvConfig) {
 
     /**
      * Helpers
@@ -52,6 +52,8 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
 	$scope.auditCreatedDate = '';
     $scope.auditModifier = '';
 	$scope.auditModifiedDate = '';
+
+    $scope.itemRelationCount = 0;
 
     // config
     $scope.configStateEdit 	= true;
@@ -242,6 +244,10 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
                 $scope.leader = '';
                 $scope.leaderType = '';
         }
+
+        //how many relation links
+        var linked = $scope.srvData.getLinkedObjects($scope.srvNav.item);
+        $scope.itemRelationCount = (linked && typeof linked != 'undefined') ? linked.length : 0;
     };
 
     function c4pItemHasOnlyOneLinkWithTypeFilter(itemList, linkTypeToExcludeArray) {
@@ -349,9 +355,8 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
         // dialog to edit a new Contact
         $scope.openDialog(
             {
-                backdropClick: false,
-                dialogClass: 'modal c4p-modal-full c4p-dialog',
-                backdropClass: 'modal-backdrop c4p-modal-full',
+                backdrop: false,
+                windowClass: 'modal c4p-modal-full c4p-dialog',
                 controller: 'ctrlEditDialogObject',
                 templateUrl: 'partials/dialog/edit_object.html',
                 resolve: {
@@ -373,8 +378,11 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
                             $scope.srvData.removeAndSaveObject(obj);
                         };
                     },
-                    spinner: function () {
-                        return $scope.spinnerContainer;
+                    startSpinner: function () {
+                        return $scope.startSpinner;
+                    },
+                    stopSpinner: function () {
+                        return $scope.stopSpinner;
                     },
                     openDialogFct: function () {
                         return $scope.openDialog;
@@ -523,9 +531,8 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
         }
 
         var dialogOptions = {
-            backdropClick: true,
-            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-left'
+            backdrop: true,
+            windowClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog'
         };
         var resolve = {
             srvData: function () {
@@ -563,9 +570,8 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
                     var newObject = srvData.createObject(toType, {});
                     // dialog to edit a new Contact
                     return promiseDialog({
-                        backdropClick: false,
-                        dialogClass: 'modal c4p-modal-full c4p-dialog',
-                        backdropClass: 'modal-backdrop c4p-modal-full',
+                        backdrop: false,
+                        windowClass: 'modal c4p-modal-full c4p-dialog',
                         controller: 'ctrlEditDialogObject',
                         templateUrl: 'partials/dialog/edit_object.html',
                         resolve: {
@@ -587,8 +593,11 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
                                     srvData.removeAndSaveObject(obj);
                                 };
                             },
-                            spinner: function () {
-                                return $scope.spinnerContainer;
+                            startSpinner: function () {
+                                return $scope.startSpinner;
+                            },
+                            stopSpinner: function () {
+                                return $scope.stopSpinner;
                             },
                             openDialogFct: function () {
                                 return $scope.openDialog;
@@ -621,6 +630,29 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
                 });
             }
         });
+    };
+
+    /**
+     * Unlink item to selected/created objects
+     */
+    $scope.unlinkDialog = function (linkName, linkItem) {
+        if (!srvNav.item) {
+            return;
+        }   
+
+        var linkItemName = $scope.getItemNameById(linkItem.id.dbid); 
+        var array = [srvLocale.translations.htmlViewNrelatedPageTitle +' '+ linkItemName];
+        $scope.openDialogConfirm(srvLocale.translations.htmlTextConfirmDelete , array,
+            function(confirm) {
+                if (confirm) {
+                    a4p.safeApply($scope, function() {
+                        srvLink.unlinkObjectsFromItem(srvNav.item.a4p_type, linkName, [srvNav.item], linkItem);
+                    });
+                }
+            }
+        );
+
+        
     };
 
     /**
@@ -820,5 +852,5 @@ function ctrlDetail($scope, $dialog, version, srvData, srvFacet, srvLocale, srvL
 	}
 	*/
 }
-ctrlDetail.$inject = ['$scope', '$dialog', 'version', 'srvData', 'srvFacet', 'srvLocale', 'srvLink', 'srvNav', 'srvConfig'];
+ctrlDetail.$inject = ['$scope', '$modal', 'version', 'srvData', 'srvFacet', 'srvLocale', 'srvLink', 'srvNav', 'srvConfig'];
 

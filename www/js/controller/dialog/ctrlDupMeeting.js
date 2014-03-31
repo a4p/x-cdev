@@ -132,7 +132,7 @@ function ctrlDupMeeting($scope, srvLocale, srvData, mEvent, mEventSrc, dialog) {
                             values.push(scope.event[calculation.fromFields[j]]);
                         }
                         scope.event[calculation.toField] = c4p.Model[calculation.getter].apply(c4p.Model, values);
-                        a4p.InternalLog.log('ctrlEditObject', 'onFieldChanged : calculate ' + calculation.toField + '=' + scope.event[calculation.toField]);
+                        a4p.InternalLog.log('ctrlDupMeeting', 'onFieldChanged : calculate ' + calculation.toField + '=' + scope.event[calculation.toField]);
                     }
                 }
             }

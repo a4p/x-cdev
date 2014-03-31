@@ -96,21 +96,17 @@ c4p.Locale = {
 
 
 
-    "htmlViewNrelatedPageTitle":"Relations",
+    "htmlViewNrelatedPageTitle":"Related items",
     "htmlViewNrelatedPageTitleNew":"New relations",
     "htmlViewNlinkItemTextNoRelation": "No relation! Create one using drag & drop",
     "htmlViewNlinkItemTextRemoveLink":"Remove link kind:",
-
-
-
 
 
     "htmlCardsTextActionAs":"as",
 
 
 
-
-
+    "htmlDialogTextImport":"Import...",
     "htmlDialogAddAccountPageTitle":"Account import",
     "htmlDialogAddContactPageTitle":"Contact import",
     "htmlDialogAddRatingsPluralRating":{
@@ -142,6 +138,42 @@ c4p.Locale = {
 	"htmlDialogPINModeDifferent":"New PIN code must be different from old one",
 
 
+    "htmlTitleNewObject":{
+        "Facet":"Tag creation",
+        "Contact":"Contact creation",
+        "Account":"Account creation",
+        "Opportunity":"Opportunity creation",
+        "Lead":"Lead creation",
+        "Event":"Event creation",
+        "Task":"Task creation",
+        "Document":"Document creation",
+        "Note":"Note creation",
+        "Report":"Report creation",
+        "Email":"Email creation",
+        "Picture":"Picture creation",
+        "Plan": "Plan creation",
+        "Attendee":"Attendee creation",
+        "Attachee": "Attachment creation",
+        "Plannee": "Point creation"
+    },
+    "htmlTitleEditObject":{
+        "Facet":"Tag edit",
+        "Contact":"Contact edit",
+        "Account":"Account edit",
+        "Opportunity":"Opportunity edit",
+        "Lead":"Lead edit",
+        "Event":"Event edit",
+        "Task":"Task edit",
+        "Document":"Document edit",
+        "Note":"Note edit",
+        "Report":"Report edit",
+        "Email":"Email edit",
+        "Picture":"Picture edit",
+        "Plan": "Plan edit",
+        "Attendee":"Attendee edit",
+        "Attachee": "Attachment edit",
+        "Plannee": "Point edit"
+    },
 
 
 
@@ -345,7 +377,13 @@ c4p.Locale = {
     "htmlMsgFeedbackMessageEmpty":"Your message text is empty",
     "htmlMsgFeedbackContactEmpty":"Sorry, we need valid email",
     "htmlMsgFeedbackEmail":"Thank you for your feedback !",
-    "htmlMsgFeedbackPhone":"If you could be join by phone",
+    "htmlMsgFeedbackPhone":"If you could be join by phone", 
+    "htmlMsgFeedbackMoreObjects":"Hi!\nPlease i need more objects, like :\n ... which one ?", 
+    "htmlMsgFeedbackMoreObjectsQuestion":"... more?",
+    "htmlMsgFeedbackSFConnector":"Hi there!\nPlease connect to my Salesforce.com data.", 
+    "htmlMsgFeedbackOtherConnector":"Hi team!\nPlease connect to my CRM data :\n ... which one ? ",  
+    "htmlMsgFeedbackOtherConnectorQuestion":"Do you want to connect to your system ?",  
+    "htmlMsgFeedbackSuggestion":"Hi team!\nI need some helpfull topics like :\n ... which one ?", 
     "htmlMsgRejectImportNotLogged":"Import rejected: you are not logged in.",
     "htmlMsgImportFile":"Import of file {0}",
     "htmlMsgFileImport":"File import",
@@ -620,7 +658,8 @@ c4p.Locale = {
 
     "htmlTextConfirmActiveCrm":"Do you want to toggle CRM use (this will clear and reload all data):",
   	"htmlTextConfirmDelete":"Do you want to remove item(s):",
-  	"htmlTextConfirmRemoveLink":"Do you want to remove object link(s):",
+    "htmlTextConfirmRemoveLink":"Do you want to remove object link(s):", 
+    "htmlTextConfirmSwitchUser":"Are you sure to switch user ? You will loose your device data.",
 
   	"htmlTextManager":"Manager",
   	"htmlTextTeam":"Team",
@@ -853,21 +892,17 @@ c4p.Locale = {
 
 
 
-    "htmlViewNrelatedPageTitle":"Relations",
+    "htmlViewNrelatedPageTitle":"Informations associ\u00E9es",
     "htmlViewNrelatedPageTitleNew":"Nouvelles relations",
     "htmlViewNlinkItemTextNoRelation": "Pas de relation, cr\u00E9ez-en une avec un glisser-d\u00E9poser",
     "htmlViewNlinkItemTextRemoveLink":"Supprimer un lien de type :",
-
-
-
 
 
     "htmlCardsTextActionAs":"en tant que",
 
 
 
-
-
+    "htmlDialogTextImport":"Importer...",
     "htmlDialogAddAccountPageTitle":"Import d'un Contact",
     "htmlDialogAddContactPageTitle":"Import d'un Compte",
     "htmlDialogAddRatingsPluralRating":{
@@ -898,6 +933,42 @@ c4p.Locale = {
 	"htmlDialogPINModeKO":"Le code PIN est incorrect",
 	"htmlDialogPINModeDifferent":"Le nouveau code PIN doit \u00EAtre diff\u00E9rent de l'ancien",
 
+    "htmlTitleNewObject":{
+        "Facet":"Cr\u00E9ation de tag",
+        "Contact":"Cr\u00E9ation de contact",
+        "Account":"Cr\u00E9ation de compte",
+        "Opportunity":"Cr\u00E9ation de d'opportunit\u00E9",
+        "Lead":"Cr\u00E9ation de piste",
+        "Event":"Cr\u00E9ation d'\u00E9v\u00E9nement",
+        "Task":"Cr\u00E9ation de t\u00E2che",
+        "Document":"Cr\u00E9ation de document",
+        "Note":"Cr\u00E9ation de note",
+        "Report":"Cr\u00E9ation de comptes-rendu",
+        "Email":"Cr\u00E9ation de courriel",
+        "Picture":"Cr\u00E9ation d'image",
+        "Plan": "Cr\u00E9ation de plan",
+        "Attendee":"Cr\u00E9ation de participant",
+        "Attachee":"Cr\u00E9ation de pi\u00E8ce jointe",
+        "Plannee": "Cr\u00E9ation de point"
+    },
+    "htmlTitleEditObject":{
+        "Facet":"Edition de tag",
+        "Contact":"Edition de contact",
+        "Account":"Edition de compte",
+        "Opportunity":"Edition de d'opportunit\u00E9",
+        "Lead":"Edition de piste",
+        "Event":"Edition d'\u00E9v\u00E9nement",
+        "Task":"Edition de t\u00E2che",
+        "Document":"Edition de document",
+        "Note":"Edition de note",
+        "Report":"Edition de comptes-rendu",
+        "Email":"Edition de courriel",
+        "Picture":"Edition d'image",
+        "Plan": "Edition de plan",
+        "Attendee":"Edition de participant",
+        "Attachee":"Edition de pi\u00E8ce jointe",
+        "Plannee": "Edition de point"
+    },
 
 
 
@@ -1103,6 +1174,12 @@ c4p.Locale = {
     "htmlMsgFeedbackContactEmpty":"Merci d'indiquer une mail valide",
     "htmlMsgFeedbackEmail":"Merci pour votre retour !",
     "htmlMsgFeedbackPhone":"Si vous pouvez \u00EAtre joint par t\u00E9l\u00E9phone",
+    "htmlMsgFeedbackMoreObjects":"Bonjour\nJ'ai besoin de plus d'objets :\n ... comme ?", 
+    "htmlMsgFeedbackMoreObjectsQuestion":"... besoin d'un autre objet ?",
+    "htmlMsgFeedbackSFConnector":"Bonjour\nJe veux me connecter a mes donnees Salesforce.com.", 
+    "htmlMsgFeedbackOtherConnector":"Bonjour\nJe veux me connecter a mon CRM :\n ... lequel ? ", 
+    "htmlMsgFeedbackOtherConnectorQuestion":"Vous voulez vous connecter avec votre CRM ?",  
+    "htmlMsgFeedbackSuggestion":"Bonjour\nJ'adorerais avoir des infos sur :\n ... lesquelles ?", 
     "htmlMsgRejectImportNotLogged":"Import rejet\u00E9 : vous n'\u00EAtes pas connect\u00E9.",
     "htmlMsgImportFile":"Import du fichier {0}",
     "htmlMsgFileImport":"Import de fichier",
@@ -1378,6 +1455,7 @@ c4p.Locale = {
     "htmlTextConfirmActiveCrm":"Voulez-vous changer l'usage du CRM (cela videra et rechargera toutes les donn\u00E9es) :",
   	"htmlTextConfirmDelete":"Voulez-vous supprimer :",
   	"htmlTextConfirmRemoveLink":"Voulez-vous supprimer le(s) lien(s) avec :",
+    "htmlTextConfirmSwitchUser":"Etes vous sur de vouloir changer d'utilisateur ? Vous allez perdre vos donn\u00E9es locales.",
 
   	"htmlTextManager":"Manager",
   	"htmlTextTeam":"Equipe",

@@ -3,18 +3,15 @@
     <div class="c4p-dialog-header">
 
         <div class="col-xxs-12">
-            <!-- Nav tabs -->
             <ul class="nav nav-pills">
-              <li>
-                <a href="#question" data-toggle="tab">
-                  <div class="btn btn-sm">
-                    {{srvLocale.translations.htmlGuiderNeedHelp}}
-                  </div>
+              <li  ng-class="{active:onlyFeedback}">
+                <a class="btn" data-toggle="tab" ng-click="onlyFeedback = true;">
+                    <h5>{{srvLocale.translations.htmlGuiderNeedHelp}}</h5>
                 </a>
               </li>
               <li class="pull-right">
-                <a ng-click="close()">
-                  <div class="btn btn-sm"><span class="c4p-icon-std close">&times;</span></div>
+                <a ng-click="close()" class="btn">
+                    <span class="c4p-icon-std">&times;</span>
                 </a>
               </li>
             </ul>
@@ -30,7 +27,8 @@
 
               <!-- Tab panes -->
               <div class="tab-content">
-                <div class="tab-pane fade in active" id="home" ng-controller="ctrlGuiderDialog">
+                <div class="tab-pane fade in" id="home" ng-class="{active:!onlyFeedback}"
+                      ng-controller="ctrlGuiderDialog">
 
                   <div class="row">
                     <a4p-carousel class="col-xxs-12 col-xs-offset-3 col-xs-6" interval="guider_interval">
@@ -61,10 +59,10 @@
                   </div>
 
                 </div>
-                <div class="tab-pane fade" id="question" 
-                    resize-css-height="getResizeHeight() *0.7"
+                <div class="tab-pane fade in" id="question"  ng-class="{active:onlyFeedback}"
+                    resizecss-height="getResizeHeight() *0.7"
                     sense-opts="{name:'dialogFeedback', axeY:'scroll'}"
-                    sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}" >
+                    sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}" >
 
                   <div class="container">
                     <div class="row" >
@@ -111,11 +109,11 @@
                             {{srvLocale.translations.htmlButtonSend}}
                         </a>
                     </div>
-                    <!--
+                    
                     <div class="row">
-                         Vertical Filler to let scroll inuts while virtual keyboard is masking almost all te screen
+                         <!--Vertical Filler to let scroll inuts while virtual keyboard is masking almost all te screen-->
                         <div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+'px'}"></div>
-                    </div>-->
+                    </div>
 
                   </div>
                 </div>

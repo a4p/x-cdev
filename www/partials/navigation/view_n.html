@@ -11,15 +11,9 @@
                  style="position:absolute; top:50%; right: 0;height:2em; margin-top:-1em;box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.5);z-index: 10;"
                  ng-click="setNavRelated(true)"
                  ng-show="isOnePageFormat()">
-                <span class="c4p-icon-std glyphicon glyphicon-ellipsis-vertical"></span>
+                <span class="c4p-icon-std glyphicon glyphicon-ellipsis-v"></span>
             </div>
 
-            <!-- Use automatically srvNav.item to know which object to show -->
-            <!--<div ng-switch on="isEditMode">
-                <div ng-switch-when="true" class="c4p-dialog c4p-edit-dialog" ng-controller="ctrlEditObject" ng-init="init(srvNav.item)" ng-include="'partials/dialog/edit_object.html'"></div>
-                <div ng-switch-when="true" class="c4p-edit-backdrop" ng-style="{height:getResizeHeight()+'px', width:(getResizeWidth()+getAsideWidth())+'px', left:-(getToolbarWidth()+getAsideWidth())+'px'}"></div>
-                <div ng-switch-default ng-include="'partials/navigation/cards/detailed_item.html'" ></div>
-            </div>-->
             <div ng-include="'partials/navigation/cards/detailed_item.html'"></div>
         </div>
 

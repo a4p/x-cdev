@@ -9,11 +9,11 @@
  * @param srvLocale
  * @param srvSecurity
  * @param srvDataTransfer
- * @param $dialog
+ * @param $modal
  * @param srvAnalytics
  * @param version
  */
-function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, $dialog, srvAnalytics, version) {
+function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, $modal, srvAnalytics, version) {
 
     /**
      * Variables
@@ -130,9 +130,8 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
     $scope.dialogActiveCrm = function () {
         $scope.openDialog(
             {
-                backdropClick: true,
-                dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
-                backdropClass: 'modal-backdrop c4p-modal-left',
+                backdrop: true,
+                windowClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
                 controller: 'ctrlSelectCrmsDialog',
                 templateUrl: 'partials/dialog/dialogSelectCrms.html',
                 resolve: {
@@ -163,7 +162,7 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
    	};
 
     $scope.c4pConnection = function () {
-    	if($scope.configEmail == "demo@apps4pro.com" && $scope.configPassword == "demo") {
+    	if($scope.configEmail.toLowerCase() == "demo@apps4pro.com" && $scope.configPassword.toLowerCase() == "demo") {
             a4p.InternalLog.log('ctrlConfig', 'Entering demo mode');
             $scope.setDemo(true);
             //GA: user really interact with aside, he logs in
@@ -353,8 +352,7 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
     $scope.sendErrorReport = function () {
         $scope.openDialog(
             {
-                dialogClass: 'modal c4p-modal-full c4p-dialog',
-                backdropClass: 'modal-backdrop c4p-modal-full',
+                windowClass: 'modal c4p-modal-full c4p-dialog',
                 controller: 'ctrlEditDialogErrorReport',
                 templateUrl: 'partials/dialog/dialogErrorReport.html',
                 resolve: {
@@ -415,13 +413,6 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
     };
 
     $scope.initConfigCtrl = function () {
-
-        //TODO remove when solution will be find for register c4p-input
-        $('input').bind('blur',function() {
-            $(window).scrollTop(0);
-            $(document.body).scrollTop(0);
-            console.log('scrollTop');
-        });
 
         if ($scope.page != 'guider' && $scope.slide != 'config') return;
 
@@ -485,13 +476,22 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
     };
 
 
-
-
     $scope.sendFeedback = function () {
-        $scope.openDialogSendFeedback('Sales MobPad user feedback');
+        $scope.openDialogSendFeedbackReport('Sales MobPad user feedback');
     };
     $scope.openHelpDialog = function () {
         $scope.openDialogMessage(srvLocale.translations.htmlTextNeedHelpDetail);
+    };
+
+    $scope.switchUser = function(){
+
+        var array = [];
+        $scope.openDialogConfirm(srvLocale.translations.htmlTextConfirmSwitchUser , array,
+            function(confirm) {
+                if (confirm) $scope.gotoLogin();
+            }
+        );
+        
     };
 
     /**
@@ -511,4 +511,4 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
 
 
 }
-ctrlConfig.$inject = [ '$scope', 'srvConfig', 'srvLog', 'srvLocale', 'srvSecurity', 'srvDataTransfer', '$dialog', 'srvAnalytics', 'version'];
+ctrlConfig.$inject = [ '$scope', 'srvConfig', 'srvLog', 'srvLocale', 'srvSecurity', 'srvDataTransfer', '$modal', 'srvAnalytics', 'version'];

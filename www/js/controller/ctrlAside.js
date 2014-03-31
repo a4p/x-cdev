@@ -124,15 +124,18 @@ function ctrlAside($scope, srvFacet, srvLocale, srvData, srvAnalytics, srvNav, v
 
     $scope.selectItem = function (item) {
         a4p.InternalLog.log('ctrlAside - selectItem');
-        $scope.setItemAndGoDetail(item);
+        var closeAside = false;
         if ($scope.closeAsidePage && $scope.setNavAside) {
-            $scope.setNavAside(false);
+            closeAside = true;
+
+        $scope.setItemAndGoDetail(item,closeAside);
+        
         } else if ($scope.updateScroller) $scope.updateScroller();
     };
 
     $scope.selectItemAndCloseAside = function (item) {
-        $scope.setItemAndGoDetail(item);
-        $scope.setNavAside(false);
+        $scope.setItemAndGoDetail(item,true);
+        //$scope.setNavAside(false);
     };
 
     $scope.removeGlobalSearch = function () {
@@ -210,14 +213,17 @@ function ctrlAside($scope, srvFacet, srvLocale, srvData, srvAnalytics, srvNav, v
      */
     $scope.activeItem='';
     $scope.setSearchMenu= function (name) {
-        $scope.inputs = {
-            itemSearchQuery : ''
-        };
-        $scope.rootMenuUp = false;
-        $scope.setNavAside(true);
-        srvFacet.clear();
-        srvFacet.addFacet('objects', srvLocale.translations.htmlTitleType[name], name);
-        $scope.activeItem=$scope.slideNavigationType[name];
+
+        a4p.safeApply($scope,function(){
+            $scope.inputs = {
+                itemSearchQuery : ''
+            };
+            $scope.rootMenuUp = false;
+            $scope.setNavAside(true);
+            srvFacet.clear();
+            srvFacet.addFacet('objects', srvLocale.translations.htmlTitleType[name], name);
+            $scope.activeItem=$scope.slideNavigationType[name];
+        }, $scope.startSpinner, $scope.stopSpinner);
     }
 
     $scope.setCalendar = function () {

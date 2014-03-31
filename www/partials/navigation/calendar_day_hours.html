@@ -40,7 +40,7 @@
              ng-click="removeEvent(event)"
              class="c4p-link5 pull-right"
              style="width:15%;text-align:center;">
-            <span class="glyphicon glyphicon-remove"></span>
+            <span class="glyphicon glyphicon-times-circle"></span>
         </div>
     </div>
 </div>
@@ -55,8 +55,8 @@
                      class="{{hour.cssClass}}-a-gradient1"
                      style="height:40px; position:relative;width:100%;"
                      sense-opts="{bubble:true, callApply:true}"
-                     sense-hold-start="selectHour($event, hour)"
-                     sense-hold-stop="cancelHour($event, hour)"
+                     sense-holdstart="selectHour($event, hour)"
+                     sense-holdstop="cancelHour($event, hour)"
                      sense-tap="newEventAtHour($event, hour)"
                      ng-class="{scrollTop: (calendarSelectedDay.events.length == 0 && $index == 8)}">
                     <span class="c4p-link5" style="font-size:18px;line-height:18px;top:-9px;position: absolute;left: 4px;">{{hour.text}} -</span>

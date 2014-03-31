@@ -227,7 +227,7 @@ serviceModule.factory('srvRunning', ['$window', '$rootScope', '$exceptionHandler
 
             $window.document.addEventListener("backbutton", function () {
                 // Exit application upon BACK button
-                //a4p.InternalLog.log('srvRunning', "Back button will exit the application");
+                alert('srvRunning'+"Back button will exit the application");
 
                 $window.navigator.notification.confirm(
                     "Are you sure you want to EXIT the program ?",

@@ -21,7 +21,7 @@
             <ul class="nav nav-pills" ng-repeat="item in toolboxContacts">
                 <li ng-controller="ctrlNamedObject" ng-init="init(item)">
                     <span class="c4p-detail-c-bg"><span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> {{itemName}} </span>
-                    <span class="glyphicon glyphicon-remove c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeContact($index)"></span>
+                    <span class="glyphicon glyphicon-times-circle c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeContact($index)"></span>
                     <!--<span ng-hide="$last">&nbsp;,&nbsp;</span>-->
                 </li>
             </ul>

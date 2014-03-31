@@ -4,7 +4,7 @@
     xmlns:cdv   = "http://cordova.apache.org/ns/1.0"
     xmlns:android   = "http://schemas.android.com/apk/res/android"
     id          = "com.apps4pro.c4pdev"
-    version     = "14031809"  
+    version     = "14033116"  
     versionCode = "C4P_BUILD_DATE">
     
     <name>C_d</name>
@@ -163,10 +163,9 @@
 -->
 
     <!-- C4P_BUILD_PLUGINS -->
-<gap:plugin name="hu.dpal.phonegap.plugins.spinnerdialog" />
+<gap:plugin name="com.badrit.contactpicker" />
 <gap:plugin name="com.phonegap.plugin.statusbar" />
 <gap:plugin name="com.adobe.plugins.gaplugin" />
-<gap:plugin name="com.plugin.datepicker" />
 <gap:plugin name="org.apache.cordova.console" />
 <gap:plugin name="org.apache.cordova.inappbrowser" />
 <gap:plugin name="org.apache.cordova.splashscreen" />

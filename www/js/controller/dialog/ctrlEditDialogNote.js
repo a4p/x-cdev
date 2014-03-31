@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, attendees, attachments, event, note, editable, modeEdit, spinner, openDialogFct, $dialog, dialog) {
+function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, attendees, attachments, event, note, editable, modeEdit, spinner, openDialogFct, $modalInstance) {
 
     /**
      * Helpers
@@ -215,7 +215,7 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
                 }
             }
             $scope.note.editable = true;
-            dialog.close({note:$scope.note, share:false});
+            $modalInstance.close({note:$scope.note, share:false});
         }
         else {
             //MLE Change event
@@ -225,16 +225,16 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
 
     $scope.submitAndShare = function () {
         $scope.note.editable = true;
-        dialog.close({note:$scope.note, share:true, byChatter:false});
+        $modalInstance.close({note:$scope.note, share:true, byChatter:false});
     };
 
     $scope.submitAndShareByChatter = function () {
         $scope.note.editable = true;
-        dialog.close({note:$scope.note, share:true, byChatter:true});
+        $modalInstance.close({note:$scope.note, share:true, byChatter:true});
     };
 
     $scope.close = function () {
-        dialog.close();
+        $modalInstance.dismiss();
     };
 
     // Button Remove
@@ -246,9 +246,8 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
         var text = $scope.srvLocale.translations.htmlTextConfirmDelete;
         var array = [srvConfig.getItemName($scope.note)];
         $scope.openDialogFct({
-                backdropClick: false,
-                dialogClass: 'modal c4p-modal-full c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-full',
+                backdrop: false,
+                windowClass: 'modal c4p-modal-full c4p-modal-confirm',
                 controller: 'ctrlDialogConfirm',
                 templateUrl: 'partials/dialog/confirm.html',
                 resolve: {
@@ -294,9 +293,8 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
         });
         addedOrganizers.push(srvFacet.createEventAttendeesOrganizer(attendees));
         var dialogOptions = {
-            backdropClick: true,
-            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-left'
+            backdrop: true,
+            windowClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog'
         };
         var resolve = {
             srvData: function () {
@@ -333,9 +331,8 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
                     var newObject = $scope.srvData.createObject('Contact', {});
                     // dialog to edit a new Contact
                     return promiseDialog({
-                        backdropClick: false,
-                        dialogClass: 'modal c4p-modal-full c4p-dialog',
-                        backdropClass: 'modal-backdrop c4p-modal-full',
+                        backdrop: false,
+                        windowClass: 'modal c4p-modal-full c4p-dialog',
                         controller: 'ctrlEditDialogObject',
                         templateUrl: 'partials/dialog/edit_object.html',
                         resolve: {
@@ -357,8 +354,11 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
                                     srvData.removeAndSaveObject(obj);
                                 };
                             },
-                            spinner: function () {
-                                return spinner;
+                            startSpinner: function () {
+                                return $scope.startSpinner;
+                            },
+                            stopSpinner: function () {
+                                return $scope.stopSpinner;
                             },
                             openDialogFct: function () {
                                 return $scope.openDialog;
@@ -413,9 +413,8 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
         });
         addedOrganizers.push(srvFacet.createEventAttachmentsOrganizer(attachments));
         var dialogOptions = {
-            backdropClick: true,
-            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-left'
+            backdrop: true,
+            windowClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog'
         };
         var resolve = {
             srvData: function () {
@@ -481,9 +480,8 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
     $scope.openDialogAddRatings = function () {
         $scope.openDialogFct(
             {
-                dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
-                backdropClass: 'modal-backdrop c4p-modal-left',
-                backdropClick: true,
+                windowClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
+                backdrop: true,
                 controller: 'ctrlAddRatings',
                 templateUrl: 'partials/dialog/dialogAddRatings.html',
                 resolve: {

@@ -1,14 +1,14 @@
 'use strict';
 
-function ctrlEditDialogFeedback($scope, srvLocale, emailRequired, title, $dialog, dialog) {
+function ctrlEditDialogFeedback($scope, srvLocale, title, message, onlyFeedback, emailRequired, $modalInstance) {
 
     /**
      * Variables
      */
 
     $scope.srvLocale = srvLocale;
-    $scope.feedbackLastUpdate = 0; //used for scroll update
-    $scope.feedback = {message:'', emailRequired:emailRequired, email:'', phone:'', title:title||srvLocale.translations.htmlTitleFeedback};
+    $scope.onlyFeedback = (onlyFeedback == true);
+    $scope.feedback = {message:message, emailRequired:emailRequired, email:'', phone:'', title: title ||srvLocale.translations.htmlTitleFeedback};
 
     /**
      * Functions
@@ -17,10 +17,10 @@ function ctrlEditDialogFeedback($scope, srvLocale, emailRequired, title, $dialog
     $scope.submit = function () {
 
     	if ($scope.feedback.emailRequired && !$scope.feedback.email) return;
-        dialog.close({feedback:$scope.feedback});
+        $modalInstance.close({feedback:$scope.feedback});
     };
 
     $scope.close = function () {
-        dialog.close(undefined);
+        $modalInstance.dismiss('cancel');
     };
 }

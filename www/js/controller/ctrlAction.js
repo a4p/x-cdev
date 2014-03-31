@@ -5,14 +5,14 @@
  *
  * @param $scope
  * @param $q
- * @param $dialog
+ * @param $modal
  * @param srvData
  * @param srvNav
  * @param srvFacet
  * @param srvConfig
  * @param srvLocale
  */
-function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, srvLocale) {
+function ctrlAction($scope, $q, $modal, srvData, srvNav, srvFacet, srvConfig, srvLocale) {
 
     /**
      * Helpers
@@ -241,7 +241,7 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
         openDialog(
             {
                 backdrop: false,
-                dialogClass: 'modal c4p-modal-full c4p-dialog',
+                windowClass: 'modal c4p-modal-full c4p-dialog',
                 controller: 'ctrlTimeline',
                 templateUrl: 'partials/dialog/timeline.html',
                 resolve: {
@@ -296,9 +296,8 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
         var attachees = srvData.getTypedRemoteLinks(parentObject, 'attachee', 'Document');
 
         var dialogOptions = {
-            backdropClick: false,
-            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-left'
+            backdrop: false,
+            windowClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog'
         };
         var resolve = {
             srvData: function () {
@@ -404,9 +403,8 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
             addedOrganizers.push(srvFacet.createSameTeamOrganizer(ownerObject.id.dbid));
         }
         var dialogOptions = {
-            backdropClick: false,
-            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-left'
+            backdrop: false,
+            windowClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog'
         };
         var resolve = {
             srvData: function () {
@@ -446,9 +444,8 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
                     var newObject = $scope.srvData.createObject('Contact', {});
                     // dialog to edit a new Contact
                     return promiseDialog({
-                        backdropClick: false,
-                        dialogClass: 'modal c4p-modal-full c4p-dialog',
-                        backdropClass: 'modal-backdrop c4p-modal-full',
+                        backdrop: false,
+                        windowClass: 'modal c4p-modal-full c4p-dialog',
                         controller: 'ctrlEditDialogObject',
                         templateUrl: 'partials/dialog/edit_object.html',
                         resolve: {
@@ -470,8 +467,11 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
                                     srvData.removeAndSaveObject(obj);
                                 };
                             },
-                            spinner: function () {
-                                return $scope.spinnerContainer;
+                            startSpinner: function () {
+                                return $scope.startSpinner;
+                            },
+                            stopSpinner: function () {
+                                return $scope.stopSpinner;
                             },
                             openDialogFct: function () {
                                 return $scope.openDialog;
@@ -521,8 +521,7 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
         };
         $scope.openDialog(
             {
-                dialogClass: 'modal c4p-modal-full c4p-modal-mail c4p-dialog',
-                backdropClass: 'modal-backdrop c4p-modal-full',
+                windowClass: 'modal c4p-modal-full c4p-modal-mail c4p-dialog',
                 controller: 'ctrlEditDialogEmail',
                 templateUrl: 'partials/dialog/dialogEmail.html',
                 resolve: {
@@ -594,8 +593,7 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
 
         $scope.openDialogFct(
             {
-                dialogClass: 'modal c4p-modal-full c4p-modal-mail c4p-dialog',
-                backdropClass: 'modal-backdrop c4p-modal-full',
+                windowClass: 'modal c4p-modal-full c4p-modal-mail c4p-dialog',
                 controller: 'ctrlDialogICal',
                 templateUrl: 'partials/dialog/dialogICal.html',
                 resolve: {
@@ -699,8 +697,7 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
 
         $scope.openDialogFct(
             {
-                dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
-                backdropClass: 'modal-backdrop c4p-modal-left',
+                windowClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
                 controller: 'ctrlDupMeeting',
                 templateUrl: 'partials/dialog/dialogDupMeeting.html',
                 resolve: {
@@ -761,5 +758,5 @@ function ctrlAction($scope, $q, $dialog, srvData, srvNav, srvFacet, srvConfig, s
 
 
 }
-ctrlAction.$inject = ['$scope', '$q', '$dialog', 'srvData', 'srvNav', 'srvFacet', 'srvConfig', 'srvLocale'];
+ctrlAction.$inject = ['$scope', '$q', '$modal', 'srvData', 'srvNav', 'srvFacet', 'srvConfig', 'srvLocale'];
 

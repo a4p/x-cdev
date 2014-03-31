@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlShowImage($scope, imageData, dialog) {
+function ctrlShowImage($scope, imageData, $modalInstance) {
     /*
      * Variables
      */
@@ -28,7 +28,7 @@ function ctrlShowImage($scope, imageData, dialog) {
     };
 
     $scope.close = function() {
-        dialog.close();
+        $modalInstance.dismiss();
     };
 
     $scope.onImageSwipe = function (event) {

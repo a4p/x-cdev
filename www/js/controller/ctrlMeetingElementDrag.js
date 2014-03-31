@@ -5,7 +5,7 @@
  *
  * @param $scope
  */
-function ctrlMeetingElementDrag($scope, $dialog, srvLocale, srvData, srvNav, srvLink, srvConfig) {
+function ctrlMeetingElementDrag($scope, $modal, srvLocale, srvData, srvNav, srvLink, srvConfig) {
 
     $scope.srvNav = srvNav;
     $scope.proxy = null;
@@ -85,7 +85,7 @@ function ctrlMeetingElementDrag($scope, $dialog, srvLocale, srvData, srvNav, srv
 	$scope.dragStart = function (event, index) {
 	    //$scope.dragElementX = event.elementX;
 	    //$scope.dragElementY = event.elementY;
-        // IMPORTANT : USER MUST SET event.dataTransfer UPON sense-drag-start EVENT
+        // IMPORTANT : USER MUST SET event.dataTransfer UPON sense-dragstart EVENT
         $scope.setDragMeetingElementIdx(index);
         event.dataTransfer = $scope.meetingElem;
         a4p.safeApply($scope, function() {
@@ -113,7 +113,7 @@ function ctrlMeetingElementDrag($scope, $dialog, srvLocale, srvData, srvNav, srv
 	};
 
 }
-ctrlMeetingElementDrag.$inject = ['$scope', '$dialog', 'srvLocale', 'srvData', 'srvNav', 'srvLink', 'srvConfig'];
+ctrlMeetingElementDrag.$inject = ['$scope', '$modal', 'srvLocale', 'srvData', 'srvNav', 'srvLink', 'srvConfig'];
 
 
 

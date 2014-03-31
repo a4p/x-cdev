@@ -310,7 +310,7 @@ directiveModule.directive('c4pConfigFeedback', function () {
 });*/
 
 //
-//  Must provide an animation for click; use css class = c4p-color-action-transparent or c4p-color-action-aside-transparent
+//  Must provide an animation for click; use css class = c4p-action or c4p-color-action-transparent or c4p-color-action-aside-transparent
 //
 var actionOnClick = function (scope, element, attrs) {
         var focus = function(){
@@ -351,5 +351,63 @@ var actionOnClick = function (scope, element, attrs) {
         link: actionOnClick
     }
  });
+
+// Spinner Directive
+var startSpinnerDirective = function (scope, element, attrs) {
+        var launch = function(){
+           console.log('Spinner Directive Start !');
+            if (typeof window.spinnerplugin != 'undefined' && a4p.isDefined(window.spinnerplugin)) {
+                window.spinnerplugin.show({
+                    overlay: true, // defaults to true
+                    timeout: 3     // defaults to 0 (no timeout)
+                });
+            } 
+        };
+
+        if (a4p.BrowserCapabilities.hasTouch) {
+            element.bind('touchstart', function(e) {
+                launch();
+            });
+        }
+        else {
+            element.bind('click', function(e) {
+                launch();
+            });
+        }
+};
+directiveModule.directive('c4pAction', function() {
+    return {
+        restrict: 'C',
+        replace: false,
+        link: startSpinnerDirective
+    }
+});
+
+
+// Thumbnails
+
+directiveModule.directive('c4pThumb', function () {
+    return {
+        restrict: 'E',
+        template:   "<div>" +
+                    "</div>",
+        link: function (scope, element, attrs) {
+            
+            console.log(' c4pThumb ');
+            var text = attrs.text;
+            var icon = attrs.icon;
+            var indic = attrs.indic;
+            var width = attrs.width;
+            var height = attrs.height;
+            var color = attrs.color;
+
+            console.log(' c4pThumb '+ text+' '+icon+' '+indic+' '+color+' '+width+' '+height);
+            
+            var thumb = new a4p.Thumb(element[0]);
+            thumb.add(text, indic, color, width, height);
+
+        }
+    }
+});
 
 

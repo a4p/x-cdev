@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem, removeFct, spinner, dialog, $dialog, openDialogFct) {
+function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem, removeFct, startSpinner, stopSpinner, openDialogFct, $modalInstance) {
 
 
 
@@ -28,7 +28,8 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
     $scope.objectTypeLocale = objectItem.a4p_type;
     $scope.objectValidated = false;
 
-
+    $scope.startSpinner = startSpinner;
+    $scope.stopSpinner = stopSpinner;
     $scope.openDialogFct = openDialogFct;
 
     // Prohibit removing an object which you do not own (ex: Group Event)
@@ -39,7 +40,8 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
     $scope.objectGroup = null;
     $scope.objectGroupFilter = null; // used to filter edition group
 
-    $scope.hasOpenImportContactDialog = (($scope.object.a4p_type == 'Contact') && navigator && navigator.contacts);
+    //$scope.hasOpenImportContactDialog = (($scope.object.a4p_type == 'Contact') && navigator && navigator.contacts);
+    $scope.hasOpenImportContactDialog = (($scope.object.a4p_type == 'Contact') && navigator && a4p.isDefined(window.plugins.ContactPicker));
     $scope.hasOpenImportAccountDialog = (($scope.object.a4p_type == 'Account') && navigator && navigator.contacts);
     $scope.hasOpenImportEventDialog = (($scope.object.a4p_type == 'Event') && typeof calendarPlugin != 'undefined');
 
@@ -53,18 +55,6 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
      * 				CONSTANTS DECLARATION END
      *
      *********************************************************/
-
-
-    $scope.startSpinner = function () {
-        if (spinner != null) {
-            spinner.style['display'] = '';
-        }
-    };
-    $scope.stopSpinner = function () {
-        if (spinner != null) {
-            spinner.style['display'] = 'none';
-        }
-    };
 
 
     /**********************************************************
@@ -189,7 +179,7 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
                     objectItem[objectField.key] = $scope.object[objectField.key];
                 }
             }
-            dialog.close(objectItem);
+            $modalInstance.close(objectItem);
         }
         else {
             // Goto first erroneous field and update all groups error
@@ -216,9 +206,8 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
 	        //MLE Change event
 	        $scope.setLastChange();
             $scope.openDialogFct({
-                backdropClick: true,
-                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-small',
+                backdrop: true,
+                windowClass: 'modal c4p-modal-small c4p-modal-confirm',
                 controller: 'ctrlDialogConfirm',
                 templateUrl: 'partials/dialog/message.html',
                 resolve: {
@@ -255,7 +244,7 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
         var validationHasChanged = false;
 
         // Perform fields value initialization (fields value can depend on other fields)
-        calculateFields($scope, field);
+        //MLE calculateFields($scope, field);
 
         // If object "Edit object" structure is defined
         if (a4p.isDefined(c4p.Model.a4p_types[objectItem.a4p_type].editObjectFields)) {
@@ -332,7 +321,7 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
 
     // Button cancel
     $scope.close = function () {
-        dialog.close();
+        $modalInstance.dismiss();
     };
 
     // Button clear
@@ -357,9 +346,7 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
         var text = $scope.srvLocale.translations.htmlTextConfirmDelete;
         var array = [$scope.objectName];
         $scope.openDialogFct({
-                backdropClick: false,
-                dialogClass: 'modal c4p-modal-full c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-full',
+                windowClass: 'modal c4p-modal-full c4p-modal-confirm',
                 controller: 'ctrlDialogConfirm',
                 templateUrl: 'partials/dialog/confirm.html',
                 resolve: {
@@ -378,7 +365,7 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
                 if (result) {
                     //$scope.srvData.removeObject(objectItem.id.dbid, false);
                     $scope.removeFct(objectItem);
-                    dialog.close();
+                    $modalInstance.close();
                 }
             });
     };
@@ -557,16 +544,145 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
      * 				IMPORTS START
      *
      *********************************************************/
+
+     var createNewContact = function(contact) {
+
+        a4p.InternalLog.log('ctrlEditDialogObject', 'createNewContact analyze a contact from Device : ' + a4pDumpData(contact, 3));
+        var possibleContact = {
+            salutation: contact.name.honorificPrefix || '',
+            first_name: contact.name.givenName,
+            last_name: contact.name.familyName,
+            birthday: contact.birthday,
+            description: contact.note || ''
+        };
+        var j, max;
+        if (contact.phoneNumbers) {
+            for (j = 0, max = contact.phoneNumbers.length; j < max; j++) {
+                if (contact.phoneNumbers[j].type == 'home') {
+                    if (!possibleContact.phone_house) possibleContact.phone_house = contact.phoneNumbers[j].value;
+                } else if (contact.phoneNumbers[j].type == 'work') {
+                    if (!possibleContact.phone_work) possibleContact.phone_work = contact.phoneNumbers[j].value;
+                } else if (contact.phoneNumbers[j].type == 'mobile') {
+                    if (!possibleContact.phone_mobile) possibleContact.phone_mobile = contact.phoneNumbers[j].value;
+                } else if (contact.phoneNumbers[j].type == 'fax') {
+                    if (!possibleContact.phone_fax) possibleContact.phone_fax = contact.phoneNumbers[j].value;
+                } else if (contact.phoneNumbers[j].type == 'pager') {
+                } else {
+                    if (!possibleContact.phone_other) possibleContact.phone_other = contact.phoneNumbers[j].value;
+                }
+            }
+        }
+        if (contact.emails) {
+            for (j = 0, max = contact.emails.length; j < max; j++) {
+                if (contact.emails[j].type == 'home') {
+                    if (!possibleContact.email_home) possibleContact.email_home = contact.emails[j].value;
+                } else if (contact.emails[j].type == 'work') {
+                    if (!possibleContact.email) possibleContact.email = contact.emails[j].value;
+                } else {
+                    if (!possibleContact.email_other) possibleContact.email_other = contact.emails[j].value;
+                }
+            }
+        }
+        if (contact.addresses) {
+            for (j = 0, max = contact.addresses.length; j < max; j++) {
+                if (!possibleContact.primary_address_city) {
+                    possibleContact.primary_address_street = contact.addresses[j].streetAddress;
+                    possibleContact.primary_address_city = contact.addresses[j].locality;
+                    possibleContact.primary_address_state = contact.addresses[j].region;
+                    possibleContact.primary_address_zipcode = contact.addresses[j].postalCode;
+                    possibleContact.primary_address_country = contact.addresses[j].country;
+                } else if (!possibleContact.alt_address_city) {
+                    possibleContact.alt_address_street = contact.addresses[j].streetAddress;
+                    possibleContact.alt_address_city = contact.addresses[j].locality;
+                    possibleContact.alt_address_state = contact.addresses[j].region;
+                    possibleContact.alt_address_zipcode = contact.addresses[j].postalCode;
+                    possibleContact.alt_address_country = contact.addresses[j].country;
+                }
+            }
+        }
+        if (contact.organizations) {
+            for (j = 0, max = contact.organizations.length; j < max; j++) {
+                // TODO : how to enable Account creation ?
+                // newAccount.type = contact.organizations[j].type;
+                // newAccount.company_name = contact.organizations[j].name;
+                if (!possibleContact.title) possibleContact.title = contact.organizations[j].title;
+                if (!possibleContact.department) possibleContact.department = contact.organizations[j].department;
+            }
+        }
+
+        var contactCreated = srvData.createObject('Contact', possibleContact);
+
+        return contactCreated;
+     };
+
+
+
+    //TODO fork https://github.com/hazemhagrass/ContactPicker and submit new plugin
+    // look @ http://stackoverflow.com/questions/7118772/how-to-get-contacts-detail-of-iphone-and-make-csv-file-of-that-contact
+    // from Device : {
+    //   displayName : Charron Cyrille
+    //   id : 2044
+    //   email : je@hd.com
+    //   phoneNumber : +3356789999
+    // }
+    var createNewContactViaPlugin = function(contact, objectToFill) {
+
+        a4p.InternalLog.log('ctrlEditDialogObject', 'createNewContactViaPlugin analyze a contact from Device : ' + a4pDumpData(contact, 3));
+        
+        var splitName = contact.displayName ? contact.displayName.split(' ') : ['...','...'];
+        var firstName = splitName[0] ? splitName[0] : '...';
+        var lastName = splitName[1] ? splitName[1] : '...';
+
+        var possibleContact = {
+            id: contact.id || 0,
+            //salutation: '',
+            first_name: firstName,
+            last_name: lastName,
+            //birthday: '',
+            //description: contact.note || '',
+            phone_work : contact.phoneNumber || '',
+            email : contact.email || ''
+        };
+
+        //var contactCreated = $scope.srvData.createObject('Contact', possibleContact);
+        objectToFill.first_name = possibleContact.first_name;
+        objectToFill.last_name = possibleContact.last_name;
+        if (possibleContact.phone_work) objectToFill.phone_work = possibleContact.phone_work;
+        if (possibleContact.email) objectToFill.email = possibleContact.email;
+
+        // Check values
+        // for (var objectGroupIdx = 0; objectGroupIdx < $scope.objectGroups.length; objectGroupIdx++) {
+        //     var objectGroup = $scope.objectGroups[objectGroupIdx];
+        //     for (var objectFieldIdx = 0; objectFieldIdx < objectGroup.groupFields.length; objectFieldIdx++) {
+        //         var objectField = objectGroup.groupFields[objectFieldIdx];
+        //         $scope.onFieldChanged(objectField);
+        //     }
+        // }
+
+        //return contactCreated;
+     };
+
     $scope.openImportContactDialog = function() {
+
+        if ($scope.hasOpenImportContactDialog) {
+            window.plugins.ContactPicker.chooseContact(function(contactInfo) {
+                //alert(contactInfo.displayName + " " + contactInfo.email);
+                if (contactInfo && $scope.object) a4p.safeApply($scope,createNewContactViaPlugin(contactInfo, $scope.object));
+            });
+        }
+        else  {
+            a4p.InternalLog.log('ctrlEditDialogObject', 'NO Device to import Contacts');
+        }
+
+        /*
         var possibleContacts = [];
         if (navigator && navigator.contacts) {
             var possibleContactsSelectionDialog = function () {
                 var menus = [];
                 var addedOrganizers = [];
                 var dialogOptions = {
-                    backdropClick: false,
-                    dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
-                    backdropClass: 'modal-backdrop c4p-modal-left'
+                    backdrop: false,
+                    windowClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog'
                 };
                 var resolve = {
                     srvData: function () {
@@ -660,94 +776,28 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
             };
             var onContactsSuccess = function(contacts) {
                 a4p.safeApply($scope, function() {
-                    if (a4p.isDefined(window.plugins.spinnerDialog)) {
-                        window.plugins.spinnerDialog.hide();
-                    } else {
-                        $scope.stopSpinner();
-                    }
+                    $scope.stopSpinner();
+
                     var nbNewContact = 0;
                     for (var i = 0, nb = contacts.length; i < nb; i++) {
                         var contact = contacts[i];
                         a4p.InternalLog.log('ctrlEditDialogObject', 'analyze a contact from IOS : ' + a4pDumpData(contact, 3));
-                        var possibleContact = {
-                            salutation: contact.name.honorificPrefix || '',
-                            first_name: contact.name.givenName,
-                            last_name: contact.name.familyName,
-                            birthday: contact.birthday,
-                            description: contact.note || ''
-                        };
-                        var j, max;
-                        if (contact.phoneNumbers) {
-                            for (j = 0, max = contact.phoneNumbers.length; j < max; j++) {
-                                if (contact.phoneNumbers[j].type == 'home') {
-                                    if (!possibleContact.phone_house) possibleContact.phone_house = contact.phoneNumbers[j].value;
-                                } else if (contact.phoneNumbers[j].type == 'work') {
-                                    if (!possibleContact.phone_work) possibleContact.phone_work = contact.phoneNumbers[j].value;
-                                } else if (contact.phoneNumbers[j].type == 'mobile') {
-                                    if (!possibleContact.phone_mobile) possibleContact.phone_mobile = contact.phoneNumbers[j].value;
-                                } else if (contact.phoneNumbers[j].type == 'fax') {
-                                    if (!possibleContact.phone_fax) possibleContact.phone_fax = contact.phoneNumbers[j].value;
-                                } else if (contact.phoneNumbers[j].type == 'pager') {
-                                } else {
-                                    if (!possibleContact.phone_other) possibleContact.phone_other = contact.phoneNumbers[j].value;
-                                }
-                            }
-                        }
-                        if (contact.emails) {
-                            for (j = 0, max = contact.emails.length; j < max; j++) {
-                                if (contact.emails[j].type == 'home') {
-                                    if (!possibleContact.email_home) possibleContact.email_home = contact.emails[j].value;
-                                } else if (contact.emails[j].type == 'work') {
-                                    if (!possibleContact.email) possibleContact.email = contact.emails[j].value;
-                                } else {
-                                    if (!possibleContact.email_other) possibleContact.email_other = contact.emails[j].value;
-                                }
-                            }
-                        }
-                        if (contact.addresses) {
-                            for (j = 0, max = contact.addresses.length; j < max; j++) {
-                                if (!possibleContact.primary_address_city) {
-                                    possibleContact.primary_address_street = contact.addresses[j].streetAddress;
-                                    possibleContact.primary_address_city = contact.addresses[j].locality;
-                                    possibleContact.primary_address_state = contact.addresses[j].region;
-                                    possibleContact.primary_address_zipcode = contact.addresses[j].postalCode;
-                                    possibleContact.primary_address_country = contact.addresses[j].country;
-                                } else if (!possibleContact.alt_address_city) {
-                                    possibleContact.alt_address_street = contact.addresses[j].streetAddress;
-                                    possibleContact.alt_address_city = contact.addresses[j].locality;
-                                    possibleContact.alt_address_state = contact.addresses[j].region;
-                                    possibleContact.alt_address_zipcode = contact.addresses[j].postalCode;
-                                    possibleContact.alt_address_country = contact.addresses[j].country;
-                                }
-                            }
-                        }
-                        if (contact.organizations) {
-                            for (j = 0, max = contact.organizations.length; j < max; j++) {
-                                // TODO : how to enable Account creation ?
-                                // newAccount.type = contact.organizations[j].type;
-                                // newAccount.company_name = contact.organizations[j].name;
-                                if (!possibleContact.title) possibleContact.title = contact.organizations[j].title;
-                                if (!possibleContact.department) possibleContact.department = contact.organizations[j].department;
-                            }
-                        }
-                        possibleContacts.push(srvData.createObject('Contact', possibleContact));
+                        var createdContact = createNewContact(contact);
+                        possibleContacts.push(createdContact);
                         nbNewContact++;
                     }
                     if (!nbNewContact) {
                         a4p.InternalLog.log('ctrlEditDialogObject', 'NO Contact found in IOS');
                     } else {
-                        $scope.setContactImportList(possibleContacts);
+                        //mle ?? $scope.setContactImportList(possibleContacts);
                         possibleContactsSelectionDialog();
                     }
                 });
             };
             var onContactsFailure = function(contactError) {
                 a4p.safeApply($scope, function() {
-                    if (a4p.isDefined(window.plugins.spinnerDialog)) {
-                        window.plugins.spinnerDialog.hide();
-                    } else {
-                        $scope.stopSpinner();
-                    }
+                    $scope.stopSpinner();
+
                     if (contactError.code == ContactError.UNKNOWN_ERROR) {
                         a4p.ErrorLog.log('ctrlEditDialogObject', 'Device Contacts not imported from IOS : UNKNOWN_ERROR');
                     } else if (contactError.code == ContactError.INVALID_ARGUMENT_ERROR) {
@@ -767,34 +817,30 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
                     }
                 });
             };
-            possibleContacts = $scope.getContactImportList();
-            if (possibleContacts.length > 0) {
+            //mle ?? possibleContacts = $scope.getContactImportList();
+            if (false) {//mle ?? if (possibleContacts.length > 0) {
                 possibleContactsSelectionDialog();
             } else {
                 var findOptions = new ContactFindOptions();
                 findOptions.filter = "";
                 findOptions.multiple = true;
-                if (a4p.isDefined(window.plugins.spinnerDialog)) {
-                    window.plugins.spinnerDialog.show();
-                } else {
-                    $scope.startSpinner();
-                }
+                $scope.startSpinner();
                 navigator.contacts.find(['*'], onContactsSuccess, onContactsFailure, findOptions);
             }
         } else {
             a4p.InternalLog.log('ctrlEditDialogObject', 'NO Device to import Contacts');
         }
+        */
     };
 
     $scope.openImportAccountDialog = function() {
         var possibleAccounts = [];
-        if (navigator && navigator.contacts) {
+        if (hasOpenImportAccountDialog) {
             var possibleAccountsSelectionDialog = function () {
                 $scope.openDialogFct(
                     {
-                        backdropClick: true,
-                        dialogClass: 'modal c4p-modal-left c4p-modal-search',
-                        backdropClass: 'modal-backdrop c4p-modal-left',
+                        backdrop: true,
+                        windowClass: 'modal c4p-modal-left c4p-modal-search',
                         controller: 'ctrlAddAccount',
                         templateUrl: 'partials/dialog/dialogAddAccount.html',
                         resolve: {
@@ -827,11 +873,8 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
             };
             var onContactsSuccess = function(contacts) {
                 a4p.safeApply($scope, function() {
-                    if (a4p.isDefined(window.plugins.spinnerDialog)) {
-                        window.plugins.spinnerDialog.hide();
-                    } else {
-                        $scope.stopSpinner();
-                    }
+                    $scope.stopSpinner();
+
                     var nbNewAccount = 0;
                     var accountIndex = {};
                     for (var i = 0, nb = contacts.length; i < nb; i++) {
@@ -863,11 +906,8 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
             };
             var onContactsFailure = function(contactError) {
                 a4p.safeApply($scope, function() {
-                    if (a4p.isDefined(window.plugins.spinnerDialog)) {
-                        window.plugins.spinnerDialog.hide();
-                    } else {
-                        $scope.stopSpinner();
-                    }
+                    $scope.stopSpinner();
+
                     if (contactError.code == ContactError.UNKNOWN_ERROR) {
                         a4p.ErrorLog.log('ctrlEditDialogObject', 'Device Accounts not imported from IOS : UNKNOWN_ERROR');
                     } else if (contactError.code == ContactError.INVALID_ARGUMENT_ERROR) {
@@ -894,11 +934,7 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
                 var findOptions = new ContactFindOptions();
                 findOptions.filter = "";
                 findOptions.multiple = true;
-                if (a4p.isDefined(window.plugins.spinnerDialog)) {
-                    window.plugins.spinnerDialog.show();
-                } else {
-                    $scope.startSpinner();
-                }
+                $scope.startSpinner();
                 navigator.contacts.find(['*'], onContactsSuccess, onContactsFailure, findOptions);
             }
         } else {
@@ -908,7 +944,7 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
 
     $scope.openImportEventDialog = function() {
         var possibleEvents = [];
-        if (typeof calendarPlugin != 'undefined') {
+        if (hasOpenImportEventDialog) {
             var onEventsSuccess = function(events) {
                 a4p.InternalLog.log('ctrlEditDialogObject', 'analyze events from IOS : ' + a4pDumpData(events, 3));
                 /*
@@ -929,9 +965,8 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
                     } else {
                         openDialog(
                             {
-                                backdropClick: true,
-                                dialogClass: 'modal c4p-modal-left c4p-modal-search',
-                                backdropClass: 'modal-backdrop c4p-modal-left',
+                                backdrop: true,
+                                windowClass: 'modal c4p-modal-left c4p-modal-search',
                                 controller: 'ctrlAddEvent',
                                 templateUrl: 'partials/dialog/dialogAddEvent.html',
                                 resolve: {

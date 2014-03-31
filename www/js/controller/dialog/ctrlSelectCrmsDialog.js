@@ -9,7 +9,7 @@
  * @param {boolean} multiple Can we select many actions or only one ?
  * @param {Object} dialog Dialog service (from ui-bootstrap)
  */
-function ctrlSelectCrmsDialog($scope, srvLocale, possibleCrms, activeCrms, multiple, dialog) {
+function ctrlSelectCrmsDialog($scope, srvLocale, possibleCrms, activeCrms, multiple, $modalInstance) {
 
     /**
      * Initialisation
@@ -43,11 +43,11 @@ function ctrlSelectCrmsDialog($scope, srvLocale, possibleCrms, activeCrms, multi
                 if (!multiple) break;
             }
         }
-        dialog.close(result);
+        $modalInstance.close(result);
     };
 
     $scope.closeDialog = function () {
-        dialog.close();
+        $modalInstance.dismiss();
     };
 
     $scope.toggleItem = function (key) {

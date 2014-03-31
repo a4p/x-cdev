@@ -20,12 +20,12 @@
 </div>
 
 <div class="row c4p-dialog-bg"
-     resize-css-height="getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight')">
+     resizecss-height="getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight')">
     <!-- Body -->
     <div class="col-xxs-12 c4p-dialog-edit-container c4p-color-gradient0"
          sense-opts="{axeY:'scroll', init: 'setSenseScroller($sense)'}"
-         sense-scroll-opts="{scrollbarClass:'c4p-scrollbar', pageSelector: 'marker'}"
-         sense-after-scroll-end="onSenseScrollEnd($event)"
+         sense-scrollopts="{scrollbarClass:'c4p-scrollbar', pageSelector: 'marker'}"
+         sense-afterscrollend="onSenseScrollEnd($event)"
          style="height: 100%">
 
         <c4p-timeline data="buildTimelineData()"></c4p-timeline>

@@ -4,8 +4,8 @@
     <div ng-style="{width:getViewerWidth()+'px', height:getViewerHeight()+px}"
          resize-opts="{name:'meeting_ctrlViewerContent'}"
          sense-opts="{name:'meeting_ctrlViewerContent', axeX:'swipe', axeY:'', init:'setSensePanel($sense);', watchRefresh:'isFullScreen'}"
-         sense-scroll-opts="{scrollbarClass:'c4p-scrollbar', wheelAction:'zoom', zoom: true, momentum: 0, zoomMin: 1, zoomMax: 10}"
-         sense-swipe-end="onDocumentSwipe($event)">
+         sense-scrollopts="{scrollbarClass:'c4p-scrollbar', wheelAction:'zoom', zoom: true, momentum: 0, zoomMin: 1, zoomMax: 10}"
+         sense-swipeend="onDocumentSwipe($event)">
 
         <!--
         <img ng-show="documentObject != null" ng-src="{{documentObject.fileUrl}}" />

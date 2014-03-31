@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlDialogDemoMode($scope, textFunc, srvLocale, dialog) {
+function ctrlDialogDemoMode($scope, textFunc, srvLocale, $modalInstance) {
     /**
      * Variables
      */
@@ -19,14 +19,14 @@ function ctrlDialogDemoMode($scope, textFunc, srvLocale, dialog) {
     };
 
     $scope.login = function () {
-        dialog.close('login');
+        $modalInstance.close('login');
     };
     $scope.register = function () {
-        dialog.close('register');
+        $modalInstance.close('register');
     };
 
     $scope.close = function () {
-        dialog.close(false);
+        $modalInstance.dismiss(false);
     };
 
     /**

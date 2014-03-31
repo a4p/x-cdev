@@ -25,7 +25,7 @@
             &nbsp;
             <div class="btn c4p-padding-w-packed c4p-color-cancel-transparent-transparent c4p-stroke"
                  ng-click="close()" style="display: inline-block">
-                <span class="c4p-icon-std glyphicon glyphicon-remove"></span>
+                <span class="c4p-icon-std glyphicon glyphicon-times-circle"></span>
             </div>
         </div>
     </div>
@@ -34,9 +34,9 @@
 <div class="c4p-color-a-gradient3">
     <div class="row">
         <div class="col-xxs-12"
-             resize-css-height="getResizeHeight() -getPathValue('parentNode.parentNode.previousElementSibling', 'offsetHeight')"
+             resizecss-height="getResizeHeight() -getPathValue('parentNode.parentNode.previousElementSibling', 'offsetHeight')"
              sense-opts="{name:'dialogICal', axeY:'scroll', watchRefresh:'mailLastUpdate'}"
-             sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}">
+             sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}">
             <div class="container">
                 <div class="c4p-color-a-gradient1">
                     <div class="c4p-card">
@@ -51,7 +51,7 @@
                         <div>
                             <c4p-input title-var="srvLocale.translations.htmlFormTo"
                                        ng-model="emailInput"
-                                       c4p-blur="addEmailToList(emailInput);emailInput='';"
+                                       ng-blur="addEmailToList(emailInput);emailInput='';"
                                        placeholder="{{srvLocale.translations.htmlFormToPlaceHolder}}"
                                        style="width: 100%"></c4p-input>
                         </div>

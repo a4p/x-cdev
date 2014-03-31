@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlAddRatings($scope, srvLocale, ratings, dialog) {
+function ctrlAddRatings($scope, srvLocale, ratings, $modalInstance) {
 
     /**
      * Variables
@@ -26,10 +26,10 @@ function ctrlAddRatings($scope, srvLocale, ratings, dialog) {
     };
 
     $scope.close = function () {
-        dialog.close();
+        $modalInstance.dismiss();
     };
     $scope.add = function () {
-        dialog.close($scope.ratingsChosen);
+        $modalInstance.close($scope.ratingsChosen);
     };
 
     $scope.toggleItem = function (rating) {

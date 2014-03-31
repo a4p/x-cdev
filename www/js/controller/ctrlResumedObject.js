@@ -64,6 +64,7 @@ function ctrlResumedObject($scope, srvLocale, srvData, srvLink, srvConfig) {
         $scope.itemName = '';
         $scope.isFile = false;
         $scope.allDayEvent = false;
+        $scope.manyDayEvent = false;
         $scope.groups = [];
         $scope.linkedItems = {};
     };
@@ -77,12 +78,15 @@ function ctrlResumedObject($scope, srvLocale, srvData, srvLink, srvConfig) {
 
         // fieldset
         $scope.allDayEvent = false;
+        $scope.manyDayEvent = false;
         // TODO : Specific case not yet parameterized in c4p.Model.displayResumedObjectGroups
         if ($scope.item['date_start'] && $scope.item['date_end']) {
             var startDate = srvLocale.formatDate($scope.item['date_start'], 'shortDate');
             var endDate = srvLocale.formatDate($scope.item['date_end'], 'shortDate');
-            if ((startDate != endDate) || ($scope.item['duration_hours'] > 23)) {
-                // All day event
+            if (startDate != endDate) {
+                $scope.manyDayEvent = true;
+                $scope.allDayEvent = true;
+            } else  if ($scope.item['duration_hours'] > 23) {
                 $scope.allDayEvent = true;
             }
         }
@@ -95,11 +99,11 @@ function ctrlResumedObject($scope, srvLocale, srvData, srvLink, srvConfig) {
         if (a4p.isDefined(editDesc) && a4p.isDefined(groups)) {
             for (var groupIdx = 0, groupNb = groups.length; groupIdx < groupNb; groupIdx++) {
                 var groupDesc = groups[groupIdx];
-                var groupShow = !!groupDesc.icon || !!groupDesc.name || !!groupDesc.synchro;
+                var groupShow = (!!groupDesc.icon && (groupDesc.icon.length > 0)) || !!groupDesc.name || !!groupDesc.synchro;
                 var group = {
                     key:groupDesc.key,
                     synchro:!!groupDesc.synchro,
-                    icon:!!groupDesc.icon,
+                    icon: !!groupDesc.icon ? groupDesc.icon : '',
                     name:!!groupDesc.name,
                     title:groupDesc.title?srvLocale.translations[groupDesc.title]:'',
                     size:groupDesc.size,
@@ -149,12 +153,19 @@ function ctrlResumedObject($scope, srvLocale, srvData, srvLink, srvConfig) {
                         if (fieldType == 'duration') {
                             // TODO : Specific case not yet parameterized in c4p.Model.displayResumedObjectGroups
                             if ($scope.allDayEvent) {
-                                // All day event
                                 fieldType = 'datetime';
                                 value = fieldValue;
                             } else {
                                 fieldType = '';
                                 value = $scope.item['duration_hours'] + ":" + a4pPadNumber($scope.item['duration_minutes'], 2);
+                            }
+                        } else if (fieldType == 'samedayTIME') {
+                            if ($scope.manyDayEvent) {
+                                fieldType = 'dateTIME';
+                                value = fieldValue;
+                            } else {
+                                fieldType = 'TIME';
+                                value = fieldValue;
                             }
                         } else {
                             value = fieldValue;

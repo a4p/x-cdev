@@ -1,6 +1,6 @@
 'use strict';
 
-function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version,
+function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, version,
                         srvLoad, srvLocalStorage, srvFileStorage, srvAnalytics, srvConfig,
                         srvLog, srvLocale, srvData, srvRunning, srvSecurity,
                         srvSynchro, cordovaReady, srvLink, srvNav, srvGuider, srvFacet, srvOpenUrl) {
@@ -20,7 +20,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     /**
      * Calendar view to display as init view in app
      */
-	$scope.calendarView = 'dayView';	// 'monthView';
+	$scope.calendarView = 'monthView';	// 'monthView'; //'dayView';
 
 
     /**
@@ -141,9 +141,9 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     $scope.firstConfigDone = false;
     $scope.rememberPassword = true;
     $scope.keepCrmLogin = false;
-    //MLE  $scope.elementsOrderByAlphabet = {'contacts' : false, 'accounts' : false, 'opportunities' : false, 'documents' : false};
-
-
+    $scope.inputHasBeenFocused = false; // prevent iOS keyboard focus/blur on input with ng-focus / ng-blur
+    
+/* not used due to plugin  window.plugins.ContactPicker
     $scope.contactImportList = [];
     $scope.setContactImportList = function(list) {
         $scope.contactImportList = list;
@@ -159,6 +159,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     $scope.getAccountImportList = function () {
         return $scope.accountImportList;
     };
+    */
 
 
     /**
@@ -525,9 +526,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         } else if(!item || (item.a4p_type != 'Event')) {
             $scope.openDialog(
                 {
-                    backdropClick: false,
-                    dialogClass: 'modal c4p-modal-small c4p-modal-goto-meeting',
-                    backdropClass: 'modal-backdrop c4p-modal-small',
+                    backdrop: false,
+                    windowClass: 'modal c4p-modal-small c4p-modal-goto-meeting',
                     controller: 'ctrlGoToMeetingDialog',
                     templateUrl: 'partials/dialog/dialogGoToMeeting.html',
                     resolve: {
@@ -569,69 +569,43 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
 
     // Spinner functions
 
-    $scope.spinner = null;
-    $scope.spinnerOpts = null;
     $scope.spinnerContainer = null;
-    $scope.spinnerCnt = 0;
     $scope.setSpinner = function (spinnerContainer) {
 
         $scope.spinnerContainer = spinnerContainer;
-        /*
-         $scope.spinnerOpts = {
-             lines: 12,            // The number of lines to draw
-             length: 40,            // The length of each line
-             width: 10,             // The line thickness
-             radius: 30,           // The radius of the inner circle
-             rotate: 0,            // Rotation offset
-             corners: 1,           // Roundness (0..1)
-             color: '#000',        // #rgb or #rrggbb
-             direction: 1,         // 1: clockwise, -1: counterclockwise
-             speed: 1,             // Rounds per second
-             trail: 40,           // Afterglow percentage
-             opacity: 1/4,         // Opacity of the lines
-             fps: 20,              // Frames per second when using setTimeout()
-             zIndex: 2e9,          // Use a high z-index by default
-             className: 'a4p-spin', // CSS class to assign to the element
-             top: 'auto',          // center vertically
-             left: 'auto',         // center horizontally
-             position: 'relative'  // element position
-         };
-         $scope.spinner = new Spinner($scope.spinnerOpts);
-         */
     };
     $scope.startSpinner = function () {
-        if ($scope.spinnerContainer != null) {
-            //$scope.spinnerContainer.style['zIndex'] = 1050;
+
+        console.log('startSpinner !');
+        /*if (a4p.isDefined(window.plugins.spinnerDialog)) {
+            window.plugins.spinnerDialog.show();
+        } else if (typeof window.spinnerplugin != 'undefined' && a4p.isDefined(window.spinnerplugin)) {
+            window.spinnerplugin.show({
+                overlay: true, // defaults to true
+                timeout: 3     // defaults to 0 (no timeout)
+            });
+        } else */if ($scope.spinnerContainer != null) {
+            //$scope.spinnerContainer.style['zIndex'] = -1;
             $scope.spinnerContainer.style['display'] = '';
+            var iconToSpin = $($scope.spinnerContainer).find('.has-to-spin');
+            if (iconToSpin) iconToSpin.addClass('glyphicon-spin');
         }
-
-        /* old code
-
-         if ($scope.spinner) {
-             $scope.spinnerCnt++;
-
-             if ($scope.spinnerCnt == 1) {
-                 $scope.spinner.opts.top = (a4p.Resize.resizeHeight>>1) - $scope.spinnerOpts.length - $scope.spinnerOpts.radius;
-                 $scope.spinner.opts.left = (a4p.Resize.resizeWidth>>1) - $scope.spinnerOpts.length - $scope.spinnerOpts.radius;
-                 $scope.spinner.spin($scope.spinnerContainer);
-                 $scope.spinnerContainer.style['zIndex'] = 1050;
-             }
-         }
-         */
     };
     $scope.stopSpinner = function () {
-        if ($scope.spinnerContainer != null) {
+
+        console.log('stopSpinner !');
+        /*if (a4p.isDefined(window.plugins.spinnerDialog)) {
+            window.plugins.spinnerDialog.hide();
+        } else if (typeof window.spinnerplugin != 'undefined' && a4p.isDefined(window.spinnerplugin)) {
+            window.spinnerplugin.hide();
+        } else*/ if ($scope.spinnerContainer != null) {
             //$scope.spinnerContainer.style['zIndex'] = -1;
-            $scope.spinnerContainer.style['display'] = 'none';
+            $timeout(function(){
+                $scope.spinnerContainer.style['display'] = 'none';
+                var iconToSpin = $($scope.spinnerContainer).find('.has-to-spin');
+                if (iconToSpin) iconToSpin.removeClass('glyphicon-spin');
+            },500);
         }
-        /*
-         if ($scope.spinner) {
-             $scope.spinnerCnt--;
-             if ($scope.spinnerCnt <= 0) {
-                 $scope.spinner.stop();
-                 $scope.spinnerContainer.style['zIndex'] = -1;
-             }
-         }*/
     };
 
     // Synchronization functions
@@ -673,14 +647,14 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         //a4p.InternalLog.log('beginSynchronization');
     	srvRunning.setRefresh(true);
         scope.setA4pSpinnerState('run');
-        //$scope.startSpinner();
+        $scope.startSpinner();
     }
 
     function endSynchronization(scope) {
         //a4p.InternalLog.log('endSynchronization');
     	srvRunning.setRefresh(false);
         scope.setA4pSpinnerState('done');
-        //$scope.stopSpinner();
+        $scope.stopSpinner();
 
         // TODO : move logSuccess() and gotoWelcome() out of this function
         srvLog.logSuccess(true, srvLocale.translations.htmlMsgSynchronizationOK,
@@ -1001,6 +975,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     	}
 
         $scope.updateScroller();
+        $scope.stopSpinner();
     };
 
     $scope.getSlide = function() {
@@ -1352,10 +1327,10 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     };
 
 
-    $scope.closeAsidePage = false;// Config
+    $scope.closeAsidePage = false;// Config - ?? used for what reason ?
     $scope.navPage = 1;
     $scope.navRelated = false;
-    $scope.navAside = true;
+    $scope.navAside = false; // Aside menu visible by default
 
     $scope.toggleNavRelated = function() {
         $scope.setNavRelated(!$scope.navRelated);
@@ -1476,19 +1451,22 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     	alert('TEST MLE redefine in sub controller ?'+type);
     };
 
-    $scope.setItemAndGoDetail = function(item) {
+    $scope.setItemAndGoDetail = function(item, closeAside) {
 
-        $scope.startSpinner();
-
-        window.setTimeout(function () {
-            a4p.safeApply($scope, function () {
+        
+        //window.setTimeout(function () {
+            $scope.startSpinner();
+            $timeout(function () {
                 if (item) {
                     srvNav.goto($scope.pageNavigation, $scope.slideNavigationType[item.a4p_type], item);
                 }
                 $scope.gotoSlide($scope.pageNavigation, $scope.slideNavigationType[item.a4p_type]);
                 if (item) $scope.$broadcast('setItemDetail', item);
-            });
-        }, 200);
+
+                if (closeAside) $scope.setNavAside(false);
+
+            },1);
+       // }, 200);
         /*
         $timeout(function () {
             if (item) {
@@ -1499,11 +1477,11 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         }, 200 );
         */
 
-        window.setTimeout(function () {
+        /*window.setTimeout(function () {
             a4p.safeApply($scope, function () {
                 $scope.stopSpinner();
             });
-        }, 1000);
+        }, 1000);*/
         /*
         $timeout(function () {
             $scope.stopSpinner();
@@ -1649,13 +1627,13 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
      */
 
     $scope.promiseDialog = function (dialogOptions) {
-        return $dialog.dialog(dialogOptions).open();
+        return $modal.open(dialogOptions).result;
     };
 
     $scope.openDialog = function (dialogOptions, onSuccess) {
         a4p.safeApply($scope, function() {
         	$scope.setBlur(true);
-            $dialog.dialog(dialogOptions).open().then(
+            $modal.open(dialogOptions).result.then(
             	function(result) {
             		onSuccess(result);
             		$scope.setBlur(false);
@@ -1669,9 +1647,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     $scope.openDialogConfirm = function (text, array, fctConfirm) {
         $scope.openDialog(
             {
-                backdropClick: false,
-                dialogClass: 'modal c4p-modal-full c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-full',
+                backdrop: false,
+                windowClass: 'modal c4p-modal-full c4p-modal-confirm',
                 controller: 'ctrlDialogConfirm',
                 templateUrl: 'partials/dialog/confirm.html',
                 resolve: {
@@ -1697,9 +1674,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         //fctSuccess
         $scope.openDialog(
             {
-                backdropClick: false,
-                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-small',
+                backdrop: false,
+                windowClass: 'modal c4p-modal-small c4p-modal-confirm',
                 controller: 'ctrlInitDialogPinCode',
                 templateUrl: 'partials/dialog/pin_init.html',
                 resolve: {
@@ -1718,9 +1694,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     $scope.openDialogModifyPinCode = function (fctSuccess) {
         $scope.openDialog(
             {
-                backdropClick: false,
-                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-small',
+                backdrop: false,
+                windowClass: 'modal c4p-modal-small c4p-modal-confirm',
                 controller: 'ctrlModifyDialogPinCode',
                 templateUrl: 'partials/dialog/pin_modify.html',
                 resolve: {
@@ -1744,9 +1719,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     $scope.openDialogLocked = function (fctSuccess) {
         $scope.openDialog(
             {
-                backdropClick: false,
-                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-small',
+                backdrop: false,
+                windowClass: 'modal c4p-modal-small c4p-modal-confirm',
                 controller: 'ctrlOpenDialogLocked',
                 templateUrl: 'partials/dialog/pin_locked.html',
                 resolve: {
@@ -1772,9 +1746,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     $scope.openDialogMessage = function (text) {
         $scope.openDialog(
             {
-                backdropClick: true,
-                dialogClass: 'modal c4p-modal-small c4p-modal-confirm',
-                backdropClass: 'modal-backdrop c4p-modal-small',
+                backdrop: true,
+                windowClass: 'modal c4p-modal-small c4p-modal-confirm',
                 controller: 'ctrlDialogConfirm',
                 templateUrl: 'partials/dialog/message.html',
                 resolve: {
@@ -1799,7 +1772,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         $scope.openDialog(
             {
                 backdrop: false,
-                dialogClass: 'modal',
+                windowClass: 'modal c4p-modal-full c4p-modal-image',
                 controller: 'ctrlShowImage',
                 templateUrl: 'partials/dialog/dialogShowImage.html',
                 resolve: {
@@ -1816,9 +1789,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     $scope.editObjectDialog = function(event, fctSuccess) {
         return $scope.openDialog(
             {
-                backdropClick: false,
-                dialogClass: 'modal c4p-modal-large c4p-dialog',
-                backdropClass: 'modal-backdrop c4p-modal-large',
+                backdrop: false,
+                windowClass: 'modal c4p-modal-large c4p-dialog',
                 controller: 'ctrlEditDialogObject',
                 templateUrl: 'partials/dialog/edit_object.html',
                 resolve: {
@@ -1841,8 +1813,11 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                             $scope.gotoBack(0);
                         };
                     },
-                    spinner: function () {
-                        return $scope.spinnerContainer;
+                    startSpinner: function () {
+                        return $scope.startSpinner;
+                    },
+                    stopSpinner: function () {
+                        return $scope.stopSpinner;
                     },
                     openDialogFct: function () {
                         return $scope.openDialog;
@@ -1904,7 +1879,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         };
         $scope.openDialog(
             {
-                dialogClass: 'modal c4p-modal-full c4p-dialog',
+                windowClass: 'modal c4p-modal-full c4p-dialog',
                 controller: 'ctrlEditDialogNote',
                 templateUrl: 'partials/dialog/dialogNote.html',
                 resolve: {
@@ -2006,7 +1981,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         };
         $scope.openDialog(
             {
-                dialogClass: 'modal c4p-modal-full c4p-dialog',
+                windowClass: 'modal c4p-modal-full c4p-dialog',
                 controller: 'ctrlEditDialogNote',
                 templateUrl: 'partials/dialog/dialogNote.html',
                 resolve: {
@@ -2085,12 +2060,15 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     };
 
 
-    $scope.openDialogSendFeedbackReport = function (title) {
+    $scope.openDialogSendFeedbackReport = function (title, praiseCode, praiseText) {
+
+        //GA: user praise for func
+        if (praiseCode) srvAnalytics.add('Once', 'Interest in '+praiseCode);
+
         $scope.openDialog(
             {
-                backdropClick: true,
-                dialogClass: 'modal c4p-modal-large c4p-dialog',
-                backdropClass: 'modal-backdrop c4p-modal-large',
+                backdrop: true,
+                windowClass: 'modal c4p-modal-large c4p-dialog',
                 controller: 'ctrlEditDialogFeedback',
                 templateUrl: 'partials/dialog/dialogFeedback.html',
                 resolve: {
@@ -2100,8 +2078,15 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                     title: function () {
                         return title;
                     },
+                    message: function () {
+                        return praiseText ||'';
+                    },
+                    onlyFeedback: function () {
+                        var onlyFeedback = ((typeof praiseCode != 'undefined') && (praiseCode)) ? true : false;
+                        return onlyFeedback;
+                    },
                     emailRequired: function () {
-                        return (srvSecurity.getA4pLogin() ? false : true);
+                        return ((srvSecurity.getA4pLogin() || $scope.isDemo) ? false : true);
                     }
                 }
             },
@@ -2184,12 +2169,16 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
             });
     };
 
-    $scope.openDialogSendFeedback = function (title) {
+/*
+    $scope.openDialogSendFeedback = function (title, praiseCode, praiseText) {
+
+        //GA: user praise for func
+        if (praiseCode) srvAnalytics.add('Once', 'Interest in '+praiseCode);
+
         $scope.openDialog(
             {
-                backdropClick: true,
-                dialogClass: 'modal c4p-modal-large c4p-dialog',
-                backdropClass: 'modal-backdrop c4p-modal-large',
+                backdrop: true,
+                windowClass: 'modal c4p-modal-large c4p-dialog',
                 controller: 'ctrlEditDialogFeedback',
                 templateUrl: 'partials/dialog/dialogFeedback.html',
                 resolve: {
@@ -2197,7 +2186,13 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                         return srvLocale;
                     },
                     title: function () {
-                        return title;
+                        return title ||'';
+                    },
+                    message: function () {
+                        return praiseText ||'';
+                    },
+                    onlyFeedback: function () {
+                        return (typeof praiseCode != 'undefined' && praiseCode);
                     },
                     emailRequired: function () {
                         return (srvSecurity.getA4pLogin() ? false : true);
@@ -2287,10 +2282,10 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                         appVersion: $scope.version,
                         feedback: result.feedback.message
                     };
-                    /*
-                     srvDataTransfer.sendData(srvConfig.c4pUrlFeedback, params, null, 30000)
-                     .then(fctOnHttpSuccess, fctOnHttpError);
-                     */
+                    
+                    // srvDataTransfer.sendData(srvConfig.c4pUrlFeedback, params, null, 30000)
+                    // .then(fctOnHttpSuccess, fctOnHttpError);
+                     
                     var requestCtx = {
                         type: 'Feedback',
                         title: 'Send user feedback'
@@ -2300,7 +2295,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
                 }
             });
     };
-
+*/
     $scope.removeItemDialog = function(object) {
         if (!object) {
             object = srvNav.item;
@@ -2471,7 +2466,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         $scope.openDialog(
             {
                 backdrop: false,
-                dialogClass: 'modal c4p-modal-full c4p-modal-mail c4p-dialog',
+                windowClass: 'modal c4p-modal-full c4p-modal-mail c4p-dialog',
                 controller: 'ctrlEditDialogEmail',
                 templateUrl: 'partials/dialog/dialogEmail.html',
                 resolve: {
@@ -2563,7 +2558,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         $scope.openDialog(
             {
                 backdrop: false,
-                dialogClass: 'modal c4p-modal-full c4p-modal-mail c4p-dialog',
+                windowClass: 'modal c4p-modal-full c4p-modal-mail c4p-dialog',
                 controller: 'ctrlEditDialogFeed',
                 templateUrl: 'partials/dialog/dialogFeed.html',
                 resolve: {
@@ -2623,10 +2618,10 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         };
         var title;
         if (item.email.emailType == 'share') {
-            dialogOptions.dialogClass = 'modal c4p-modal-full c4p-modal-mail c4p-dialog';
+            dialogOptions.windowClass = 'modal c4p-modal-full c4p-modal-mail c4p-dialog';
             title = srvLocale.translations.htmlTitleShareByEmail;
         } else {
-            dialogOptions.dialogClass = 'modal c4p-modal-full c4p-modal-mail c4p-dialog';
+            dialogOptions.windowClass = 'modal c4p-modal-full c4p-modal-mail c4p-dialog';
             title = srvLocale.translations.htmlFormEmail;
         }
         $scope.openDialog(
@@ -2700,7 +2695,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         var editable = true;
         $scope.openDialog(
             {
-                dialogClass: 'modal c4p-modal-full c4p-dialog',
+                windowClass: 'modal c4p-modal-full c4p-dialog',
                 backdrop: false,
                 controller: 'ctrlEditDialogNote',
                 templateUrl: 'partials/dialog/dialogNote.html',
@@ -2851,7 +2846,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
         $scope.openDialog(
             {
                 backdrop: false,
-                dialogClass: 'modal',
+                windowClass: 'modal c4p-modal-full c4p-modal-image',
                 controller: 'ctrlShowImage',
                 templateUrl: 'partials/dialog/dialogShowImage.html',
                 resolve: {
@@ -2903,8 +2898,23 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $dialog, version
     	$scope.isBlurOn = isBlur;
     };
 
+
+    $scope.setInputFocusState = function(f){
+        $scope.inputHasBeenFocused = (f == true); 
+
+        // prevent ios bug (keyboard) fixed pb
+        // cf. http://stackoverflow.com/questions/7970389/ios-5-fixed-positioning-and-virtual-keyboard
+        if (!$scope.inputHasBeenFocused) {
+            $(window).scrollTop(0);
+            console.log('scrollTop');
+        }
+    };
+    $scope.getInputFocusState = function(){
+        return ($scope.inputHasBeenFocused == true); 
+    };
+
 }
-navigationCtrl.$inject = ['$scope', '$q', '$timeout', '$location', '$http', '$dialog', 'version',
+navigationCtrl.$inject = ['$scope', '$q', '$timeout', '$location', '$http', '$modal', 'version',
     'srvLoad', 'srvLocalStorage', 'srvFileStorage', 'srvAnalytics', 'srvConfig',
     'srvLog', 'srvLocale', 'srvData', 'srvRunning', 'srvSecurity',
     'srvSynchro', 'cordovaReady', 'srvLink', 'srvNav', 'srvGuider', 'srvFacet', 'srvOpenUrl'];

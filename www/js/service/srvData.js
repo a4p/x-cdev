@@ -5010,7 +5010,7 @@ var SrvData = (function() {
      */
     Service.prototype.getLinkedObjects = function (fromObject) {
         var result = [];
-        if (a4p.isUndefined(fromObject)) {
+        if (!fromObject || typeof fromObject == 'undefined' || a4p.isUndefined(fromObject)) {
             return result;
         }
         var index = {};
@@ -5444,9 +5444,9 @@ var SrvData = (function() {
                 return rating;
             }
         } else {// tel, mail, textarea, url or ''
-            if (typeof(value) == 'undefined') {
+            if (typeof value == 'undefined') {
                 return '';
-            } else if (typeof(value) != 'string') {
+            } else if (value && typeof value != 'string') {
                 return value.toString();
             } else {
                 return value;

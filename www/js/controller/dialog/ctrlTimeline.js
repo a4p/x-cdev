@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlTimeline($scope, srvData, srvLocale, srvConfig, srvNav, objectItem, dialog, $filter) {
+function ctrlTimeline($scope, srvData, srvLocale, srvConfig, srvNav, objectItem, $modalInstance, $filter) {
 
     /**********************************************************
      *
@@ -16,7 +16,7 @@ function ctrlTimeline($scope, srvData, srvLocale, srvConfig, srvNav, objectItem,
      *********************************************************/
 
     $scope.close = function () {
-        dialog.close();
+        $modalInstance.dismiss();
     };
 
     $scope.buildTimelineData = function(){

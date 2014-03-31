@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlGoToMeetingDialog($scope, item, version, srvData, srvNav, srvLink, srvLocale, srvConfig, srvAnalytics, dialog) {
+function ctrlGoToMeetingDialog($scope, item, version, srvData, srvNav, srvLink, srvLocale, srvConfig, srvAnalytics, $modalInstance) {
     /**
      * Variables
      */
@@ -41,16 +41,16 @@ function ctrlGoToMeetingDialog($scope, item, version, srvData, srvNav, srvLink, 
             srvLink.linkObjectsToItem(linkType, linkName, newLinkList, meeting);
         }
 
-        dialog.close(meeting);
+        $modalInstance.close(meeting);
     };
 
     $scope.gotoMeeting = function() {
-        dialog.close($scope.selectedEvent);
+        $modalInstance.close($scope.selectedEvent);
     };
 
     $scope.close = function () {
         console.log('ctrlGoToMeetingDialog : close');
-        dialog.close(false);
+        $modalInstance.dismiss();
     };
 
     /**

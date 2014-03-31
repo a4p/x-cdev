@@ -42,7 +42,7 @@
                                   class="glyphicon"
                                   ng-class="{
                                     'glyphicon-trash'    : (item.c4p_synchro.deleting > 1),
-                                    'glyphicon-remove'   : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),
+                                    'glyphicon-times-circle' : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),
                                     'glyphicon-upload'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),
                                     'glyphicon-download' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),
                                     'glyphicon-spinner'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),

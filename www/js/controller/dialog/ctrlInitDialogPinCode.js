@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlInitDialogPinCode($scope, srvLocale, dialog) {
+function ctrlInitDialogPinCode($scope, srvLocale, $modalInstance) {
 
     /**
      * Constants
@@ -17,7 +17,7 @@ function ctrlInitDialogPinCode($scope, srvLocale, dialog) {
     };
 
     $scope.closeDialog = function () {
-        dialog.close(undefined);
+        $modalInstance.dismiss();
     };
 
 
@@ -32,7 +32,7 @@ function ctrlInitDialogPinCode($scope, srvLocale, dialog) {
             });
         }
         else {
-            dialog.close($scope.pinCode);
+            $modalInstance.close($scope.pinCode);
         }
     };
 

@@ -1,7 +1,7 @@
 
 <ul class="nav nav-pills"  resize-opts="{name:'guider_footer'}">
 	<li ng-click="doubleSetDemo(true)">
-		<div class="btn">
+		<div class="btn btn-link">
 			<span style="color: grey;font-size: 50%;">
 			    <span app-version></span><span> {{srvConfig.c4pBuildDate}} {{srvConfig.env}}</span>
 			    <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span>
@@ -9,28 +9,8 @@
 		</div>
 	</li>
 	<li class="pull-right">
-		<a class="btn pull-right" ng-click="openDialogSendFeedbackReport('Login Feedback')">
+		<a class="btn pull-right" ng-click="openDialogSendFeedbackReport('Login Feedback')" ng-hide="getInputFocusState()">
 			<span class="c4p-icon-std glyphicon glyphicon-question"></span>
 		</a>
 	</li>
 </ul>
-
-<!--
-<div class="row" resize-opts="{name:'guider_footer'}">
-	<div class="col-xxs-8" ng-click="doubleSetDemo(true)">
-		<div class="btn">
-			<span style="color: grey;font-size: 50%;">
-			    <span app-version></span><span> {{srvConfig.c4pBuildDate}} {{srvConfig.env}}</span>
-			    <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span>
-			</span>
-		</div>
-
-
-	</div>
-	<div class="col-xxs-4">
-		<div class="btn c4p-color-action-aside-transparent pull-right" ng-click="openDialogSendFeedbackReport('Login Feedback')">
-			<span class="c4p-icon-std glyphicon glyphicon-question"></span>
-		</div>
-	</div>
-</div>
--->

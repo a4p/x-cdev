@@ -1,17 +1,15 @@
-<div ng-include="'partials/navigation/calendar_header.html'"
-       class="c4p-color-gradient0">
-</div>
+<header class="row c4p-color-gradient0" ng-include="'partials/navigation/calendar_header.html'"></header>
 <div class="row c4p-color-a-gradient4">
     <!-- row class required to put footer in another line below or else sizes are not good for Resize calculations -->
-    <article class="col-xxs-12 ng-cloak" ng-switch on="calendarView" >
+    <article class="col-xxs-12" ng-switch on="calendarView" >
         <!-- Day View -->
-        <div ng-switch-when="dayView" 	ng-include="'partials/navigation/calendar_day.html'"></div>
+        <div ng-switch-when="dayView"><div ng-include="'partials/navigation/calendar_day.html'"></div></div>
 
         <!-- List View -->
-        <div ng-switch-when="listView" 	ng-include="'partials/navigation/calendar_events.html'"></div>
+        <div ng-switch-when="listView"><div ng-include="'partials/navigation/calendar_events.html'"></div></div>
 
         <!-- Month View -->
-        <div ng-switch-default 			ng-include="'partials/navigation/calendar_month.html'"></div>
+        <div ng-switch-default><div ng-include="'partials/navigation/calendar_month.html'"></div></div>
 
     </article>
 

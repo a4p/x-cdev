@@ -65,7 +65,7 @@ function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConf
         $scope.calendarViews = [
             {
                 id: 'dayView',
-                icon: 'time'
+                icon: 'clock-o'
             },
             {
                 id: 'monthView',
@@ -446,12 +446,13 @@ function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConf
 	};
 
     $scope.onEventClick = function (event) {
-        a4p.InternalLog.log('ctrlCalendar - onEventClick',event.name);
-    	$scope.setItemAndGoDetail(event);
+        //a4p.InternalLog.log('ctrlCalendar - onEventClick goto Event with aside closed ',event.name);
+    	$scope.setItemAndGoDetail(event,true);
     };
 
-    $scope.onDayClick = function (date) {
-    	if (!date || date == "undefined") return;
+    $scope.setSelectedDate = function (date){
+
+        if (!date || date == "undefined") return;
         if (($scope.sel.getFullYear() != date.getFullYear())
             || ($scope.sel.getMonth() != date.getMonth())
             || ($scope.sel.getDate() != date.getDate())) {
@@ -459,6 +460,41 @@ function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConf
             // Refresh
             onSelChange();
         }
+    };
+
+    $scope.onDayClick = function (date) {
+
+        $scope.setSelectedDate(date);
+
+        // temp ?
+        $scope.openDialog(
+                {
+                    backdrop: true,
+                    windowClass: 'modal c4p-modal-large c4p-dialog',
+                    controller: 'ctrlDialogCalendarDay',
+                    templateUrl: 'partials/dialog/dialogCalendarDay.html',
+                    resolve: {
+                        srvLocale: function () {
+                            return $scope.srvLocale;
+                        },
+                        calendarDayCasualName: function () {
+                            return $scope.calendarDayCasualName;
+                        },
+                        calendarDayFullName: function () {
+                            return $scope.calendarDayFullName;
+                        },
+                        calendarSelectedDay: function () {
+                            return $scope.calendarSelectedDay;
+                        }
+                    }
+                },
+                function (item) {
+                    if (item) $scope.onEventClick(item);
+                }
+        );
+
+        return; //soon
+
         //focus on Day Column
         $scope.setCalendarView('dayView');
     };
@@ -628,9 +664,8 @@ function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConf
 
         $scope.openDialog(
                 {
-                    backdropClick: false,
-                    dialogClass: 'modal c4p-modal-full c4p-dialog',
-                    backdropClass: 'modal-backdrop c4p-modal-full',
+                    backdrop: false,
+                    windowClass: 'modal c4p-modal-large c4p-dialog',
                     controller: 'ctrlEditDialogObject',
                     templateUrl: 'partials/dialog/edit_object.html',
                     resolve: {
@@ -640,7 +675,7 @@ function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConf
                         srvLocale: function () {
                             return $scope.srvLocale;
                         },
-                        srvonfig: function () {
+                        srvConfig: function () {
                             return srvConfig;
                         },
                         objectItem: function () {
@@ -653,12 +688,15 @@ function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConf
                                 $scope.gotoBack(0);
                             };
                         },
-                        spinner: function () {
-                            return $scope.spinnerContainer;
+                        startSpinner: function () {
+                            return $scope.startSpinner;
+                        },
+                        stopSpinner: function () {
+                            return $scope.stopSpinner;
                         },
                         openDialogFct: function () {
                             return $scope.openDialog;
-                        }    
+                        }
                     }
                 },
                 function (result) {

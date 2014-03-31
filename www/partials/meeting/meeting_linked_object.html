@@ -52,10 +52,10 @@
     <div ng-controller="ctrlSingleTap"
          class="meeting-link-obj"
          sense-opts="{name:'detailed_links_wrapper', axeY:'scroll', watchRefresh:['srvNav.itemRelatedGroupList', 'srvNav.item', 'linksTimestamp'], init: 'setLinksScroller($sense)'}"
-         sense-scroll-opts="{scrollbarClass:'c4p-scrollbar', pageSelector: 'div.c4p-related-card'}"
-         sense-after-scroll-end="onLinksScrollEnd($event)"
+         sense-scrollopts="{scrollbarClass:'c4p-scrollbar', pageSelector: 'div.c4p-related-card'}"
+         sense-afterscrollend="onLinksScrollEnd($event)"
          resize-opts="{name:'meeting_links_wrapper'}"
-         resize-css-height="getResizeHeight() -getResizePathValue('meeting_header', '', 'offsetHeight') -getPathValue('previousElementSibling', 'offsetHeight')">
+         resizecss-height="getResizeHeight() -getResizePathValue('meeting_header', '', 'offsetHeight') -getPathValue('previousElementSibling', 'offsetHeight')">
         <div resize-opts="{name:'detailed_links_scroller', watchRefresh:['srvNav.itemRelatedGroupList', 'srvNav.item']}">
             <div class="c4p-related-card" ng-repeat="group in srvNav.itemRelatedGroupList"
                 ng-show="group.type != 'Plan'">
@@ -87,7 +87,7 @@
                                     <div id="{{link.item.id.dbid}}-unlink"
                                          class="btn c4p-color-action-transparent c4p-padding-w-packed"
                                          ng-click="srvLink.unlinkObjectsFromItem(srvNav.item.a4p_type, link.linkNames[0], [srvNav.item], link.item)">
-                                        <span class="c4p-icon-std-sm glyphicon glyphicon-remove"></span>
+                                        <span class="c4p-icon-std-sm glyphicon glyphicon-times-circle"></span>
                                     </div>
                                 </div>
                                 <div class="dropdown" ng-show="link.linkNames.length > 1">
@@ -124,12 +124,12 @@
          ng-click=""
          ng-controller="ctrlMeetingObjLinkDrop"
          sense-opts="{name:'dropObjectMeeting'}"
-         sense-dnd-start="dndStart($event)"
-         sense-dnd-end="dndEnd($event)"
-         sense-dnd-cancel="dndCancel($event)"
-         sense-drop-over-enter="dropOverEnter($event)"
-         sense-drop-over-leave="dropOverLeave($event)"
-         sense-drop-end="dropEnd($event)"
+         sense-dndstart="dndStart($event)"
+         sense-dndend="dndEnd($event)"
+         sense-dndcancel="dndCancel($event)"
+         sense-dropoverenter="dropOverEnter($event)"
+         sense-dropoverleave="dropOverLeave($event)"
+         sense-dropend="dropEnd($event)"
          style="background-color: rgba(0,255,0, 0.6); height: 4em; ">
         <div class="c4p-icn-side-drop"></div>
         <div class="c4p-txt-side-drop">

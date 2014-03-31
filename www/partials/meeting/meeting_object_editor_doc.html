@@ -21,12 +21,12 @@
              ng-show="dndActive"
              ng-controller="ctrlMeetingObjLinkDrop"
              sense-opts="{name:'dropObjectMeeting'}"
-             sense-dnd-start="dndStart($event)"
-             sense-dnd-end="dndEnd($event)"
-             sense-dnd-cancel="dndCancel($event)"
-             sense-drop-over-enter="dropOverEnter($event)"
-             sense-drop-over-leave="dropOverLeave($event)"
-             sense-drop-end="dropEnd($event)"
+             sense-dndstart="dndStart($event)"
+             sense-dndend="dndEnd($event)"
+             sense-dndcancel="dndCancel($event)"
+             sense-dropoverenter="dropOverEnter($event)"
+             sense-dropoverleave="dropOverLeave($event)"
+             sense-dropend="dropEnd($event)"
              style="background-color: rgba(0,255,0, 0.6); height: 4em; ">
              {{srvLocale.translations.htmlMeetingDropItemHere}}
         </div>

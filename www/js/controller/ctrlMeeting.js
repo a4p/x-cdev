@@ -4,12 +4,12 @@
  * Meeting pane controller
  *
  * @param $scope
- * @param $dialog
+ * @param $modal
  * @param srvData
  * @param srvConfig
  * @param srvNav
  */
-function ctrlMeeting($scope, $dialog, srvData, srvConfig, srvNav, srvLocale, srvAnalytics) {
+function ctrlMeeting($scope, $modal, srvData, srvConfig, srvNav, srvLocale, srvAnalytics) {
 
     /**
      * Injected Services
@@ -574,4 +574,4 @@ function ctrlMeeting($scope, $dialog, srvData, srvConfig, srvNav, srvLocale, srv
 
 
 }
-ctrlMeeting.$inject = ['$scope', '$dialog', 'srvData', 'srvConfig', 'srvNav', 'srvLocale', 'srvAnalytics'];
+ctrlMeeting.$inject = ['$scope', '$modal', 'srvData', 'srvConfig', 'srvNav', 'srvLocale', 'srvAnalytics'];

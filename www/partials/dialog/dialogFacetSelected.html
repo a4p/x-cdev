@@ -24,7 +24,7 @@
                 &nbsp;
                 <div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke"
                      ng-click="closeDialog()" style="display: inline-block">
-                    <span class="c4p-icon-std glyphicon glyphicon-remove"></span>
+                    <span class="c4p-icon-std glyphicon glyphicon-times-circle"></span>
                 </div>
             </div>
         </div>
@@ -61,7 +61,7 @@
                        ng-model="searchQuery"
                        ng-change="setFilterQuery(searchQuery);" />
                 <span style="position: absolute; right: 10px;"
-                      ng-click="searchQuery=''; setFilterQuery('')"><span class="glyphicon glyphicon-remove"></span></span>
+                      ng-click="searchQuery=''; setFilterQuery('')"><span class="glyphicon glyphicon-times-circle"></span></span>
             </div>
         </div>
     </div>
@@ -72,13 +72,13 @@
          ng-repeat="filterFacet in filterFacets">
         <span>{{srvLocale.translations.htmlFacetName[filterFacet.key]}} : {{filterFacet.title}} - {{filterFacet.items.length}}</span>
         <span style="position: absolute; right: 10px;"
-              ng-click="removeFacet($index)"><span class="glyphicon glyphicon-remove"></span></span>
+              ng-click="removeFacet($index)"><span class="glyphicon glyphicon-times-circle"></span></span>
     </div>
 </div>
 <div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a"
-     resize-css-height="getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight') -getPathValue('previousElementSibling.previousElementSibling', 'offsetHeight')"
+     resizecss-height="getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight') -getPathValue('previousElementSibling.previousElementSibling', 'offsetHeight')"
      sense-opts="{axeY:'scroll', watchRefresh:['filterFacet.key', 'items.keyes.length', 'items.others.length']}"
-     sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}">
+     sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}">
     <div class="col-xxs-12">
         <!-- Keyes - {{items.keyes.length}} -->
         <ul class='nav nav-stacked' ng-repeat="groupKey in items.keyes">

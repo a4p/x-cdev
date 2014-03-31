@@ -8,7 +8,7 @@
                       class="glyphicon"
                       ng-class="{
                     'glyphicon-trash'    : (item.c4p_synchro.deleting > 1),
-                    'glyphicon-remove'   : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),
+                    'glyphicon-times-circle' : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),
                     'glyphicon-upload'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),
                     'glyphicon-download' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),
                     'glyphicon-spinner'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),
@@ -26,6 +26,7 @@
             <div class="clearfix" ng-show="($index%2)==1"></div>
             <span ng-show="group.title">{{group.title}}</span>
             <fieldset>
+                <span ng-show="group.icon" class="icon-large glyphicon glyphicon-{{group.icon}}"> </span>
                 <span ng-repeat="field in group.fields"
                       class="c4p-size-{{field.size}}">
                       <!--ng-class="{'c4p-n_1' : field.size == 'bigger', 'c4p-n_2' : field.size == 'big', 'c4p-n_4' : field.size == 'small', 'c4p-n_6' : field.size == 'smaller'}"-->
@@ -44,8 +45,10 @@
                                     <span ng-switch-when="percent"><span>{{item}}%</span></span>
                                     <span ng-switch-when="probability"><span>{{item}}%</span></span>
                                     <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(item, 'short')}}</span></span>
+                                    <span ng-switch-when="dateTIME"><span>{{srvLocale.formatDate(item, 'shortDate')}} <b>{{srvLocale.formatDate(item, 'shortTime')}}</b></span></span>
                                     <span ng-switch-when="date"><span>{{srvLocale.formatDate(item, 'shortDate')}}</span></span>
                                     <span ng-switch-when="time"><span>{{srvLocale.formatDate(item, 'shortTime')}}</span></span>
+                                    <span ng-switch-when="TIME"><span><b>{{srvLocale.formatDate(item,  'shortTime')}}</b></span></span>
                                     <span ng-switch-when="number"><span>{{item | c4pNumber}}</span></span>
                                     <span ng-switch-when="rating"><span ng-include="'partials/navigation/cards/4_rating_ro2.html'" style="padding:0 10px;"></span></span>
                                     <span ng-switch-default><span>{{item}}</span></span>
@@ -61,8 +64,10 @@
                                 <span ng-switch-when="percent"><span>{{field.value}}%</span></span>
                                 <span ng-switch-when="probability"><span>{{field.value}}%</span></span>
                                 <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(field.value, 'short')}}</span></span>
+                                <span ng-switch-when="dateTIME"><span>{{srvLocale.formatDate(field.value, 'shortDate')}} <b>{{srvLocale.formatDate(field.value, 'shortTime')}}</b></span></span>
                                 <span ng-switch-when="date"><span>{{srvLocale.formatDate(field.value, 'shortDate')}}</span></span>
                                 <span ng-switch-when="time"><span>{{srvLocale.formatDate(field.value, 'shortTime')}}</span></span>
+                                <span ng-switch-when="TIME"><span><b>{{srvLocale.formatDate(field.value, 'shortTime')}}</b></span></span>
                                 <span ng-switch-when="number"><span>{{field.value | c4pNumber}}</span></span>
                                 <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="'partials/navigation/cards/4_rating_ro2.html'" style="padding:0 10px;"></span></span>
                                 <span ng-switch-default><span>{{field.value}}</span></span>

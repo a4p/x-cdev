@@ -1,7 +1,7 @@
 <div class="c4p-footer-details c4p-color-gradient0"
      style="position:relative"
      resize-opts="{name:'navigation_footer_detail', watchRefresh:['srvNav.item', 'srvNav.history']}"
-     resize-css-width="getPathValue('parentNode', 'offsetWidth')"><!-- space collapsing between inline-block element
+     resizecss-width="getPathValue('parentNode', 'offsetWidth')"><!-- space collapsing between inline-block element
 
 
     --><!-- Back button
@@ -13,7 +13,7 @@
     --><div class="btn btn-xs"
          ng-controller="ctrlNavObject"
          resize-opts="{name:'navigation_footer_detail_history', watchRefresh:['srvNav.item', 'srvNav.history']}"
-         resize-css-width="getResizePathValue('navigation_footer_detail', '', 'offsetWidth') -1 -getResizePathValue('navigation_footer_detail_back', '', 'offsetWidth') -getResizePathValue('navigation_footer_detail_spacer', '', 'offsetWidth') -getResizePathValue('navigation_footer_detail_lock', '', 'offsetWidth') -getResizePathValue('navigation_footer_detail_meeting', '', 'offsetWidth')">
+         resizecss-width="getResizePathValue('navigation_footer_detail', '', 'offsetWidth') -1 -getResizePathValue('navigation_footer_detail_back', '', 'offsetWidth') -getResizePathValue('navigation_footer_detail_spacer', '', 'offsetWidth') -getResizePathValue('navigation_footer_detail_lock', '', 'offsetWidth') -getResizePathValue('navigation_footer_detail_meeting', '', 'offsetWidth')">
         <ul style="overflow-x:hidden;" class="c4p-list-footer-details">
             <li class="c4p-item-list-footer-details"
                 ng-repeat="back in srvNav.history | limitTo:3"
@@ -52,12 +52,12 @@
          ng-show="dndActive"
          ng-controller="ctrlTrashObject"
          sense-opts="{name:'dropObjectTrash'}"
-         sense-dnd-start="dndStart($event)"
-         sense-dnd-end="dndEnd($event)"
-         sense-dnd-cancel="dndCancel($event)"
-         sense-drop-over-enter="dropOverEnter($event)"
-         sense-drop-over-leave="dropOverLeave($event)"
-         sense-drop-end="dropEnd($event)"
+         sense-dndstart="dndStart($event)"
+         sense-dndend="dndEnd($event)"
+         sense-dndcancel="dndCancel($event)"
+         sense-dropoverenter="dropOverEnter($event)"
+         sense-dropoverleave="dropOverLeave($event)"
+         sense-dropend="dropEnd($event)"
          style="position:absolute;z-index:1041;top:0;left:0;">
         <span class="c4p-icon-std glyphicon glyphicon-trash"></span>
     </div><!-- space collapsing between inline-block element

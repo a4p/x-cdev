@@ -33,26 +33,30 @@ function ctrlDetailedObject($scope, srvLocale, srvData, srvNav, srvLink, srvConf
      *********************************************************/
     $scope.init = function (item) {
     	// TODO : Specific case not yet parameterized in c4p.Model.displayResumedObjectGroups
-    	
+
         $scope.item = item;
         $scope.itemIcon = c4p.Model.getItemIcon(item);
+        $scope.itemColor = c4p.Model.getItemColor(item);
         $scope.itemName = srvConfig.getItemName(item);
         $scope.isFile = !!c4p.Model.files[item.a4p_type];
         $scope.isVideo = $scope.isVideoFormatSupported();
         $scope.linkedItems = {};
         $scope.cards = [];
         $scope.allDayEvent = false;
-        
+        $scope.manyDayEvent = false;
+
         var objDesc = c4p.Model.a4p_types[$scope.item.a4p_type];	// Item category
         var editDesc = objDesc.editObjectFields;					// Item 'Edit object' structure
         var cards = objDesc.displayDetailedObjectCards;				// Item 'Display object' structure
-        
+
         // Check if item is all day event (case item == event)
         if ($scope.item['date_start'] && $scope.item['date_end']) {
             var startDate = srvLocale.formatDate($scope.item['date_start'], 'shortDate');
             var endDate = srvLocale.formatDate($scope.item['date_end'], 'shortDate');
-            if ((startDate != endDate) || ($scope.item['duration_hours'] > 23)) {
-                // All day event
+            if (startDate != endDate) {
+                $scope.manyDayEvent = true;
+                $scope.allDayEvent = true;
+            } else if ($scope.item['duration_hours'] > 23) {
                 $scope.allDayEvent = true;
             }
         }
@@ -62,77 +66,77 @@ function ctrlDetailedObject($scope, srvLocale, srvData, srvNav, srvLink, srvConf
             for (var cardIdx = 0, cardNb = cards.length; cardIdx < cardNb; cardIdx++) {
             	// Retrieve a card structure
                 var cardDesc = cards[cardIdx];
-                
+
                 var cardShow = false;
-                
+
                 var card = {
                     type:cardDesc.type,					// Deprecated: type used for 'well' classes
                     brSeparated:cardDesc.brSeparated,	// Tells whether the card must be followed by a <br/>
                     groups:[]							// Fields display structure
                 };
-                
+
                 // Retrieve fields display structures for retrieved card
                 var groups = cardDesc.groups;
-                
+
                 if (a4p.isDefined(groups)) {
                 	// Loop on card groups
                     for (var groupIdx = 0, groupNb = groups.length; groupIdx < groupNb; groupIdx++) {
                     	// Fields display structure
                         var groupDesc = groups[groupIdx];
-                        
+
                         // Display group if at least icon, name or synchro is defined and true
-                        var groupShow = !!groupDesc.icon || !!groupDesc.name || !!groupDesc.synchro;
-                        
+                        var groupShow = (!!groupDesc.icon && (groupDesc.icon.length > 0)) || !!groupDesc.name || !!groupDesc.synchro;
+
                         var group = {
                             synchro:!!groupDesc.synchro,	// Is the group currently synchronizing with CRM ?
-                            icon:!!groupDesc.icon,			// Boolean for group icon display
+                            icon: !!groupDesc.icon ? groupDesc.icon : '', // Icon name for group icon display
                             name:!!groupDesc.name,			// Boolean for group name display
                             title:groupDesc.title?srvLocale.translations[groupDesc.title]:'', // Field label
                             size:groupDesc.size,			// Font size
                             fields:[]
                         };
-                        
+
                         // Loop on group fields
                         for (var fieldIdx = 0, fieldNb = groupDesc.fields.length; fieldIdx < fieldNb; fieldIdx++) {
-                            
+
                         	var fieldType = '';
-                            var value = '';                  
+                            var value = '';
                             var fieldTitle = '';
-                            
+
                         	// Retrieve field display structure
                             var fieldDesc = groupDesc.fields[fieldIdx];
-                            
+
                             // Item key for value access
                             var fieldKey = fieldDesc.key;
-                            
+
                             // Item value, can be an array of technical ids
                             var fieldValue = $scope.item[fieldKey];
-                            
+
                             // Is the field a foreign key to other objects ? (example: owner_id, created_by_id...)
                             var isLink = objDesc.linkDescs[fieldKey];
-                            
+
                             // Is the field an array of subfields ?
                             var isArray = a4p.isDefined(c4p.Model.objectArrays[$scope.item.a4p_type][fieldKey]);
 
-                            // Beware : editDesc[fieldKey] does not exists for link attributes                 
+                            // Beware : editDesc[fieldKey] does not exists for link attributes
                             if (isLink) {
                             	// Get field label
                                 fieldTitle = srvLocale.translations.htmlShortLinkName[objDesc.linkDescs[fieldKey].one];
-                                
+
                                 // Get field type
                                 fieldType = '';// TODO : 'link';
-                                
+
                                 var targetItem;
-                                
+
                                 // Case field is an array of technical ids
                                 if (isArray) {
                                     value = [];
-                                    
+
                                     // Loop on all technical ids
                                     for (var valueIdx = 0, valueNb = fieldValue.length; valueIdx < valueNb; valueIdx++) {
                                     	// Retrieve object associated to id
                                         targetItem = srvData.getObject(fieldValue[valueIdx].dbid);
-                                        
+
                                         // If defined store its value for display
                                         // And listen to srvData to update fields if link target objects updated
                                         if (targetItem) {
@@ -144,7 +148,7 @@ function ctrlDetailedObject($scope, srvLocale, srvData, srvNav, srvLink, srvConf
                                 } else {
                                 	// Retrieve object associated to id
                                     targetItem = srvData.getObject(fieldValue.dbid);
-                                    
+
                                     // If defined store its value for display
                                     // And listen to srvData to update fields if link target objects updated
                                     if (targetItem) {
@@ -158,12 +162,12 @@ function ctrlDetailedObject($scope, srvLocale, srvData, srvNav, srvLink, srvConf
                                 if (a4p.isDefined(editDesc[fieldKey].type) || a4p.isDefined(fieldDesc.type)) {
                                     fieldType = fieldDesc.type ? fieldDesc.type : editDesc[fieldKey].type;
                                 }
-                                
+
                                 // Get field label
                                 if (a4p.isDefined(editDesc[fieldKey].title)) {
                                     fieldTitle = srvLocale.translations[editDesc[fieldKey].title];
                                 }
-                                
+
                                 // Process field value
                                 if (fieldType == 'duration') {
                                     // TODO : Specific case not yet parameterized in c4p.Model.displayDetailedObjectGroups
@@ -176,6 +180,14 @@ function ctrlDetailedObject($scope, srvLocale, srvData, srvNav, srvLink, srvConf
                                     } else {
                                         fieldType = '';
                                         value = $scope.item['duration_hours'] + ":" + a4pPadNumber($scope.item['duration_minutes'], 2);
+                                    }
+                                } else if (fieldType == 'samedayTIME') {
+                                    if ($scope.manyDayEvent) {
+                                        fieldType = 'dateTIME';
+                                        value = fieldValue;
+                                    } else {
+                                        fieldType = 'TIME';
+                                        value = fieldValue;
                                     }
                                 } else {
                                     value = fieldValue;
@@ -199,7 +211,7 @@ function ctrlDetailedObject($scope, srvLocale, srvData, srvNav, srvLink, srvConf
                                     }
                                 }
                             }
-                            
+
                             // Field final display structure
                             var field = {
                                 key:fieldKey,								// Field technical key
@@ -212,14 +224,14 @@ function ctrlDetailedObject($scope, srvLocale, srvData, srvNav, srvLink, srvConf
                                 size:fieldDesc.size,						// CSS class to apply for font size
                                 separator:fieldDesc.separator || ''			// String between this and next field
                             };
-                            
+
                             // If value is defined and not blank
                             if (!!value) {
                                 groupShow = true;			// Display fields group
                                 group.fields.push(field);	// Push into array for display
                             }
                         }
-                        
+
                         // Show group if at least 1 field is to be displayed
                         if (groupShow) {
                             cardShow = true;			// Display groups card
@@ -230,7 +242,7 @@ function ctrlDetailedObject($scope, srvLocale, srvData, srvNav, srvLink, srvConf
                         }
                     }
                 }
-                
+
                 // Show card if at  least 1 group is to be displayed
                 if (cardShow) {
                     $scope.cards.push(card); 	// Push into array for display
@@ -265,6 +277,7 @@ function ctrlDetailedObject($scope, srvLocale, srvData, srvNav, srvLink, srvConf
         $scope.isFile = false;
         $scope.isVideo = false;
         $scope.allDayEvent = false;
+        $scope.manyDayEvent = false;
         $scope.cards = [];
         $scope.linkedItems = {};
     };
@@ -284,7 +297,7 @@ function ctrlDetailedObject($scope, srvLocale, srvData, srvNav, srvLink, srvConf
         }
         return false;
     };
-    
+
     /**********************************************************
      *
      * 				METHODS END
@@ -360,9 +373,9 @@ function ctrlDetailedObject($scope, srvLocale, srvData, srvNav, srvLink, srvConf
      *
      *********************************************************/
 
-    
-    
-    
+
+
+
     /**
      * Initialization
      */

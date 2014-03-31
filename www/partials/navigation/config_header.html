@@ -1,7 +1,11 @@
-<div class="c4p-header-std c4p-color-gradient0"
-     ng-style="{width:getResizeWidth()+'px'}"
-     resize-opts="{name:'config_header'}">
+<div class="c4p-header-std"
+     resize-opts="{name:'config_header'}"> <!-- 
+     ng-style="{width:getResizeWidth()+'px'}" -->
     <div class="row">
+
+
+<!--
+
         <div class="col-xxs-12" style="text-align: center;">
             <div class="btn dropdown c4p-padding-w-packed c4p-color-action-transparent"
                  ng-controller="ctrlNavObject"
@@ -23,13 +27,30 @@
             <div class="btn">
                 <span>{{navTitle}}</span>
             </div>
-            <!-- ATTENTION: Next line use for vertical align -->
-            <!-- Sync all icon-Xx value in this file to keep alignment -->
             <div class="btn">
                 <div class="c4p-icon-std glyphicon">&nbsp;</div>
             </div>
 
+        </div> -->
+
+
+        <div class="col-xxs-12">
+            <ul class="nav nav-pills">
+                <li class="">
+                <!-- ng-click="gotoMeeting(srvNav.item)" -->
+                    <a class="btn disabled">
+                        <img class="c4p-img-icon" src="l4p/img/logo_meeting_.png" />
+                    </a>
+                </li>
+                <li class="">
+                    <a class="btn disabled">
+                        <h5 class="a4p-dot">{{navTitle}}</h5>
+                    </a>
+                </li>
+            </ul>
         </div>
+
+
     </div>
 </div>
 

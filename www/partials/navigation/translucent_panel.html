@@ -4,7 +4,7 @@
      style="position:absolute; top:50%; right: 0;height:2em; margin-top:-1em;box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.5);z-index: 5;"
      ng-click="setNavAside(false)"
      ng-show="isOnePageFormat() && (srvNav.current == null) ">
-    <span class="c4p-icon-std glyphicon glyphicon-ellipsis-vertical"></span>
+    <span class="c4p-icon-std glyphicon glyphicon-ellipsis-v"></span>
 </div>
 
 
@@ -16,23 +16,32 @@
      ng-controller="ctrlLinkActions"
      ng-click="setNavAside(false)"
      sense-opts="{name:'navigation_detail_small_drop_zone'}"
-     sense-dnd-start="dndStart($event)"
-     sense-dnd-end="dndEnd($event)"
-     sense-dnd-cancel="dndCancel($event)"
-     sense-drop-start="dropStart($event)"
-     sense-drop-end="dropEnd($event)"
-     sense-drop-cancel="dropCancel($event)"
-     sense-drop-over-enter="dropOverEnter($event)"
-     sense-drop-over-leave="dropOverLeave($event)">
+     sense-dndstart="dndStart($event)"
+     sense-dndend="dndEnd($event)"
+     sense-dndcancel="dndCancel($event)"
+     sense-dropstart="dropStart($event)"
+     sense-dropend="dropEnd($event)"
+     sense-dropcancel="dropCancel($event)"
+     sense-dropoverenter="dropOverEnter($event)"
+     sense-dropoverleave="dropOverLeave($event)">
 
     <div class="c4p-icn-side-drop">
         <span class="c4p-icon-std glyphicon glyphicon-{{srvNav.current.itemIcon}} "></span>
     </div>
-    <div class="c4p-txt-side-drop"
-         ng-hide="dndActive">
+    
+    <!--
+    <c4p-thumb width="30" height="30"
+        text="{{srvNav.current.itemName}}" indic="{{srvNav.current.itemRelationCount}}"  
+        icon="glyphicon-{{srvNav.current.itemIcon}}" color="{{srvNav.current.itemColor}}"
+        url="{{srvNav.current.thumb_url}}">
+    </c4p-thumb>
+    -->
+
+    <div class="c4p-txt-side-drop"> <!-- ng-hide="dndActive" -->
         <div class="rotate-txt">
             <div class="c4p-no-dot-container">
-                <span class="c4p-no-dot:srvNav.current.itemName;">{{srvNav.current.itemName}}</span>
+                <!--<span class="c4p-no-dot:srvNav.current.itemName;">{{srvNav.current.itemName}}</span>-->
+                <small class="a4p-dot">{{srvNav.current.itemName}}</small>
             </div>
         </div>
     </div>

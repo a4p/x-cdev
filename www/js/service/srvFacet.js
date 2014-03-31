@@ -1073,7 +1073,7 @@ var SrvFacet = (function () {
         var companyName = a4p.isDefined(account) ? this.srvConfig.getItemName(account) : this.srvLocale.translations.htmlFacetName['sameCompany'];
         return {
             key:'sameCompany',
-            icon:'building',
+            icon:'building-o',
             keepValue:function (title, value, parentFilterFacets) {
                 // Return true if you want to keep this facet in stack of added facets depending on existing parentFilterFacets
                 return true;

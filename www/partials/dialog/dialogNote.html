@@ -51,16 +51,16 @@
             &nbsp;
             <div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke"
                  ng-click="close()" style="display: inline-block">
-                <span class="c4p-icon-std glyphicon glyphicon-remove"></span>
+                <span class="c4p-icon-std glyphicon glyphicon-times-circle"></span>
             </div>
         </div>
     </div>
 </div>
 
 <div class="row c4p-dialog-edit-container col-xxs-12 c4p-color-a-gradient{{objectGroups.length}}"
-     resize-css-height="getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight')"
+     resizecss-height="getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight')"
      sense-opts="{name:'dialogNote', axeY:'scroll', watchRefresh:'noteLastUpdate'}"
-     sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}"
+     sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}"
      style="height: 100%;">
     <div ng-switch on="note.a4p_type">
         <div ng-switch-when="Report"

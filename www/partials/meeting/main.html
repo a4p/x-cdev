@@ -16,7 +16,7 @@
                         floating menu panel
             --><div class="meeting-container"
                  ng-show="showMenu"
-                 resize-css-height="getResizeHeight() - getResizePathValue('meeting_header', '', 'offsetHeight')"
+                 resizecss-height="getResizeHeight() - getResizePathValue('meeting_header', '', 'offsetHeight')"
                  ng-style="{width:getAsideWidth()+'px'}"
                  ng-include="''+sidePanel"
                  ng-click="hideMenuMeeting">
@@ -25,7 +25,7 @@
             --><div id="a4pMeetingPage"
                  ng-include="''+mainPanel"
                  c4p-show="!isOnePageFormat()"
-                 resize-css-height="getResizeHeight() - getResizePathValue('meeting_header', '', 'offsetHeight')"
+                 resizecss-height="getResizeHeight() - getResizePathValue('meeting_header', '', 'offsetHeight')"
                  ng-style="{width:(getResizeWidth() - getAsideWidth() - getToolbarWidth())+'px'}"
                  style="display: inline-block; vertical-align: top; background-color: rgba(255,255,255, 0.10 )">
             </div>

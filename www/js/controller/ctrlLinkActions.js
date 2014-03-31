@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlLinkActions($scope, srvData, srvNav, srvLink, srvConfig) {
+function ctrlLinkActions($scope, srvData, srvNav, srvLink, srvConfig, srvLog) {
 
     $scope.dndActive = false;// During Drag And Drop : show drop zone
     $scope.fromLink = '';
@@ -73,11 +73,24 @@ function ctrlLinkActions($scope, srvData, srvNav, srvLink, srvConfig) {
     };
 
     $scope.dropEnd = function (event) {
+
+        var fromName = $scope.getItemNameById($scope.fromItem.id.dbid);
+        var toName = $scope.getItemNameById(srvNav.item.id.dbid);
+        var linkName = $scope.fromLink;
+
         if ($scope.dndActive) {
             a4p.safeApply($scope, function() {
                 $scope.dndActive = false;
                 srvLink.linkObjectsToItem($scope.fromItem.a4p_type, $scope.fromLink, [$scope.fromItem], srvNav.item);
+                var linkDoneMsg = "Link done beetween "+fromName+" and "+toName+" as "+linkName;
+                var linkNotyMsg = 'Link created';
+                srvLog.logSuccess(true,linkDoneMsg,linkNotyMsg);
             });
+        }
+        else {
+            var linkDoneMsg = "Link impossible or already done beetween "+fromName+" and "+toName+" as "+linkName;
+            var linkNotyMsg = 'Link canceled';
+            srvLog.logWarning(true,linkDoneMsg,linkNotyMsg);
         }
     };
 
@@ -96,5 +109,5 @@ function ctrlLinkActions($scope, srvData, srvNav, srvLink, srvConfig) {
         });
     };
 }
-ctrlLinkActions.$inject = ['$scope', 'srvData', 'srvNav', 'srvLink', 'srvConfig'];
+ctrlLinkActions.$inject = ['$scope', 'srvData', 'srvNav', 'srvLink', 'srvConfig', 'srvLog'];
 

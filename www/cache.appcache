@@ -1,6 +1,6 @@
 CACHE
 MANIFEST
-#2014-03-18 09:58:23
+#2014-03-31 16:04:44
 
 img/dragPointer64.png
 img/dropPointer64.png
@@ -9,7 +9,6 @@ img/guider/c4p-guider-02.gif
 index.html
 js/a4p/appcache.js
 js/app.js
-js/app_mock.js
 js/controller/ctrlAction.js
 js/controller/ctrlAside.js
 js/controller/ctrlCalendar.js
@@ -18,7 +17,6 @@ js/controller/ctrlDetail.js
 js/controller/ctrlDetailLink.js
 js/controller/ctrlDetailedObject.js
 js/controller/ctrlDragObject.js
-js/controller/ctrlEditObject.js
 js/controller/ctrlInlinedObject.js
 js/controller/ctrlLinkActions.js
 js/controller/ctrlMeeting.js
@@ -40,6 +38,7 @@ js/controller/dialog/ctrlAddAccount.js
 js/controller/dialog/ctrlAddContact.js
 js/controller/dialog/ctrlAddDialogObject.js
 js/controller/dialog/ctrlAddRatings.js
+js/controller/dialog/ctrlDialogCalendarDay.js
 js/controller/dialog/ctrlDialogConfirm.js
 js/controller/dialog/ctrlDialogDemoMode.js
 js/controller/dialog/ctrlDialogICal.js
@@ -63,7 +62,6 @@ js/controller/dialog/ctrlShowImage.js
 js/controller/dialog/ctrlTimeline.js
 js/directive/accordion.js
 js/directive/all.js
-js/directive/angular-google-maps.js
 js/directive/carousel.js
 js/directive/fields.js
 js/directive/inputs.js
@@ -129,8 +127,12 @@ l4p/img/logo_meeting.png
 l4p/img/logo_meeting_.png
 l4p/img/logo_new.png
 l4p/libs/js/angular/angular-a4p-patched.1.1.4.js
+l4p/libs/js/angular/angular-animate.min.js
+l4p/libs/js/angular/angular-google-maps.js
+l4p/libs/js/angular/angular-google-maps.min.js
 l4p/libs/js/angular/angular-resource.min.1.1.4.js
 l4p/libs/js/angular/angular-resource.min.js
+l4p/libs/js/angular/angular-touch.min.js
 l4p/libs/js/angular/angular.js
 l4p/libs/js/angular/angular.min.1.1.4.js
 l4p/libs/js/angular/angular.min.js
@@ -195,6 +197,7 @@ partials/dialog/confirm.html
 partials/dialog/dialogAddAccount.html
 partials/dialog/dialogAddContact.html
 partials/dialog/dialogAddRatings.html
+partials/dialog/dialogCalendarDay.html
 partials/dialog/dialogDupMeeting.html
 partials/dialog/dialogEmail.html
 partials/dialog/dialogErrorReport.html

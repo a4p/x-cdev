@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, title, attendees, attachments, email, emailId, editable, modeEdit, openDialogFct, $dialog, dialog) {
+function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, title, attendees, attachments, email, emailId, editable, modeEdit, openDialogFct, $modal, dialog) {
     /**
      * Helpers
      */
@@ -91,9 +91,8 @@ function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, ti
         });
         addedOrganizers.push(srvFacet.createEventAttendeesOrganizer(attendees));
         var dialogOptions = {
-            backdropClick: false,
-            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-left'
+            backdrop: false,
+            windowClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog'
         };
         var resolve = {
             srvData: function () {
@@ -172,9 +171,8 @@ function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, ti
         });
         addedDocuments.push(srvFacet.createEventAttachmentsOrganizer(attachments));
         var dialogOptions = {
-            backdropClick: false,
-            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-left'
+            backdrop: false,
+            windowClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog'
         };
         var resolve = {
             srvData: function () {
@@ -331,9 +329,8 @@ function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, ti
         });
         toPasteDoc.push(srvFacet.createEventAttachmentsOrganizer(attachments));
         var dialogOptions = {
-            backdropClick: false,
-            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-left'
+            backdrop: false,
+            windowClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog'
         };
         var resolve = {
             srvData: function () {
@@ -411,9 +408,8 @@ function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, ti
         });
         toPasteDoc.push(srvFacet.createEventAttachmentsOrganizer(attachments));
         var dialogOptions = {
-            backdropClick: false,
-            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-left'
+            backdrop: false,
+            windowClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog'
         };
         var resolve = {
             srvData: function () {

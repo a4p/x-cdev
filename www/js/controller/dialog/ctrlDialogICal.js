@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlDialogICal($scope, srvLocale, srvData, srvConfig, srvFacet, ical, attendees, $dialog, dialog) {
+function ctrlDialogICal($scope, srvLocale, srvData, srvConfig, srvFacet, ical, attendees, $modal, dialog) {
     /**
      * Helpers
      */
@@ -58,9 +58,8 @@ function ctrlDialogICal($scope, srvLocale, srvData, srvConfig, srvFacet, ical, a
         });
         addedOrganizers.push(srvFacet.createEventAttendeesOrganizer(attendees));
         var dialogOptions = {
-            backdropClick: false,
-            dialogClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog',
-            backdropClass: 'modal-backdrop c4p-modal-left'
+            backdrop: false,
+            windowClass: 'modal c4p-modal-left c4p-modal-search c4p-dialog'
         };
         var resolve = {
             srvData: function () {

@@ -1,6 +1,6 @@
 'use strict';
 
-function networkTestRunnerCtrl($scope, $q, $location, $http, $dialog, version, srvLoad, srvLocalStorage, srvFileStorage, srvAnalytics, srvConfig, srvLog, srvLocale, srvData, srvRunning, srvSecurity, srvSynchro, cordovaReady, srvLink, srvNav, srvGuider, srvFacet) {
+function networkTestRunnerCtrl($scope, $q, $location, $http, $modal, version, srvLoad, srvLocalStorage, srvFileStorage, srvAnalytics, srvConfig, srvLog, srvLocale, srvData, srvRunning, srvSecurity, srvSynchro, cordovaReady, srvLink, srvNav, srvGuider, srvFacet) {
     $scope.todo = [];
     $scope.tests = [];
     $scope.status = 'No test started';
@@ -1140,7 +1140,7 @@ function networkTestRunnerCtrl($scope, $q, $location, $http, $dialog, version, s
         //srvRunning.setOnline(true);
     }});
 }
-networkTestRunnerCtrl.$inject = ['$scope', '$q', '$location', '$http', '$dialog', 'version',
+networkTestRunnerCtrl.$inject = ['$scope', '$q', '$location', '$http', '$modal', 'version',
     'srvLoad', 'srvLocalStorage', 'srvFileStorage', 'srvAnalytics', 'srvConfig',
     'srvLog', 'srvLocale', 'srvData', 'srvRunning', 'srvSecurity',
     'srvSynchro', 'cordovaReady', 'srvLink', 'srvNav', 'srvGuider', 'srvFacet'];

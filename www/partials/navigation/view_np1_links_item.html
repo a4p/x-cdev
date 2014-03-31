@@ -2,10 +2,10 @@
 
 <div
      sense-opts="{name:'detailed_links_wrapper', axeY:'scroll', watchRefresh:['srvNav.itemRelatedGroupList', 'srvNav.item', 'linksTimestamp'], init: 'setLinksScroller($sense)'}"
-     sense-scroll-opts="{scrollbarClass:'c4p-scrollbar', pageSelector: 'div.c4p-related-card'}"
-     sense-after-scroll-end="onLinksScrollEnd($event)"
+     sense-scrollopts="{scrollbarClass:'c4p-scrollbar', pageSelector: 'div.c4p-related-card'}"
+     sense-afterscrollend="onLinksScrollEnd($event)"
      resize-opts="{name:'detailed_links_wrapper'}"
-     resize-css-height="getResizeHeight() -getResizePathValue('detailed_links_header', '', 'offsetHeight')">
+     resizecss-height="getResizeHeight() -getResizePathValue('detailed_links_header', '', 'offsetHeight')">
     <div resize-opts="{name:'detailed_links_scroller', watchRefresh:['srvNav.itemRelatedGroupList', 'srvNav.item']}">
 
 
@@ -24,11 +24,11 @@
 
 
         <div class="c4p-related-card c4p-color-a-gradient1" ng-repeat="group in srvNav.itemRelatedGroupList"
-            ng-show="group.type != 'Plan'">
+            ng-show="group.type != 'Plan' && group.type != 'Facet'">
             <ul class="c4p-related-card-list">
                 <li class="c4p-related-card-header c4p-color-{{group.colorType}}-dark-iii"
                     ng-click="toggleShowGroup(group)">
-                    <span class="glyphicon glyphicon-{{group.icon}}"></span>
+                    <span class="glyphicon glyphicon-fw glyphicon-{{group.icon}}"></span>
                     <span>{{group.name}}</span><span class="c4p-aside-count">{{group.size}}</span>
                     <span c4p-show="isDocumentGroup(group.type) && (srvNav.imageRelatedList.length > 0)"
                           ng-click="$event.stopPropagation();showGallery();"
@@ -44,19 +44,19 @@
                         <div class="col-xxs-0" style="text-align: center;">
                             <div ng-show="link.linkNames.length == 1">
                                 <div id="{{link.item.id.dbid}}-unlink" class="btn c4p-color-action-transparent c4p-padding-w-packed"
-                                     ng-click="srvLink.unlinkObjectsFromItem(srvNav.item.a4p_type, link.linkNames[0], [srvNav.item], link.item)">
-                                    <span class="c4p-icon-std-sm glyphicon glyphicon-remove"></span>
+                                     ng-click="unlinkDialog(link.linkNames[0], link.item)">
+                                    <span class="c4p-icon-std close">&times;</span>
                                 </div>
                             </div>
                             <div class="dropdown" ng-show="link.linkNames.length > 1">
                                 <div id="{{link.item.id.dbid}}-unlink" class="dropdown-toggle c4p-color-action-transparent c4p-padding-w-packed" data-toggle="dropdown">
-                                    <span class="c4p-icon-std-sm glyphicon glyphicon-remove"></span>
+                                    <span class="c4p-icon-std close">&times;</span>
                                 </div>
                                 <ul class="dropdown-menu c4p-dropdown-menu pull-right c4p-dropdown" aria-labelledby="{{link.item.id.dbid}}-unlink">
                                     <li>{{translate('htmlViewNlinkItemTextRemoveLink')}}</li>
                                     <li ng-repeat="linkName in getPossibleLinkActionList(srvNav.item.a4p_type, link.item.a4p_type)"
                                         ng-show="srvData.isObjectOwnedByUser(link.item) && srvData.isObjectOwnedByUser(srvNav.item)">
-                                        <div class="btn" ng-click="srvLink.unlinkObjectsFromItem(srvNav.item.a4p_type, linkName, [srvNav.item], link.item)">
+                                        <div class="btn" ng-click="unlinkDialog(linkName, link.item)">
                                             <span style="vertical-align:top">{{srvLocale.translations.htmlShortLinkName[linkName]}}</span>
                                         </div>
                                     </li>

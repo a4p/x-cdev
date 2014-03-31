@@ -53,6 +53,16 @@ var c4pInputCompile = function (element, attrs, transclude, $compile) {
     //    element.attr('ng-class', "{'has-error': " + attrs.warnVar + "}");
     //}
 
+    var addClearButton = function (html) {
+        return '<div class="input-group">'
+            + html
+            + '<span class="input-group-addon input-sm">'
+            //+ '<span class="input-group-addon input-sm btn-group btn-group-sm">'
+            + '<a type="button" class="btn c4p-color-action-transparent c4p-padding-w-packed" ng-click="clearInput()"><span class="glyphicon glyphicon-times-circle"></span></a>'
+            + '</span>'
+            + '</div>';
+    };
+
     // link function
     return function (scope, element, attrs, ngModelCtrl) {
 
@@ -104,15 +114,15 @@ var c4pInputCompile = function (element, attrs, transclude, $compile) {
                 }
             }
         }*/
-        
+
         var autofocus = '';
         if(scope.$eval(attrs.focusVar)) autofocus = 'autofocus';
-        
+
         var inputAttrs = 'class="form-control has-feedback" onfocus="this.select();" ' + autofocus + ' ';
         var inputDateAttrs = 'class="form-control" onfocus="this.select();" ' + autofocus + ' ';
         var inputTimeAttrs = 'class="form-control" onfocus="this.select();" ' + autofocus + ' ';
         var inputSelectAttrs = 'class="form-control" ' + autofocus + ' ';
-        
+
         if (a4p.isDefined(attrs.ngModel)) {
             //element.find("input").attr('ng-model', attrs.ngModel);
             inputAttrs = inputAttrs + 'ng-model="' + attrs.ngModel + '" name="' + attrs.ngModel + '"';
@@ -122,69 +132,71 @@ var c4pInputCompile = function (element, attrs, transclude, $compile) {
             //element.find("input").attr('ng-change', attrs.ngChange);
             inputAttrs = inputAttrs + 'ng-change="' + attrs.ngChange + '" ';
         }
-        if (a4p.isDefined(attrs.c4pBlur)) {
-            inputAttrs = inputAttrs + 'c4p-blur="' + attrs.c4pBlur + '" ';
+        if (a4p.isDefined(attrs.ngBlur)) {
+            inputAttrs = inputAttrs + 'ng-blur="' + attrs.ngBlur + '" ';
         }
         if (a4p.isDefined(attrs.placeholder)) {
             inputAttrs = inputAttrs + 'placeholder="' + attrs.placeholder + '" ';
         }
         if (inputType == "tel") {
-            controlsTemplate = controlsTemplate + '<input type="tel" ' + inputAttrs + '/>';
+            controlsTemplate = controlsTemplate + addClearButton('<input type="tel" ' + inputAttrs + '/>');
         } else if (inputType == "mail") {
-            controlsTemplate = controlsTemplate + '<input type="email" ' + inputAttrs + '/>';
+            controlsTemplate = controlsTemplate + addClearButton('<input type="email" ' + inputAttrs + '/>');
         } else if (inputType == "url") {
-            controlsTemplate = controlsTemplate + '<input type="url" ' + inputAttrs + '/>';
+            controlsTemplate = controlsTemplate + addClearButton('<input type="url" ' + inputAttrs + '/>');
         } else if (inputType == "password") {
-            controlsTemplate = controlsTemplate + '<input type="password" ' + inputAttrs + '/>';
+            controlsTemplate = controlsTemplate + addClearButton('<input type="password" ' + inputAttrs + '/>');
         } else if ((inputType == "number") || (inputType == "currency")) {
-            controlsTemplate = controlsTemplate + '<input type="number" min="0" ' + inputAttrs + '/>';
+            controlsTemplate = controlsTemplate + addClearButton('<input type="number" min="0" ' + inputAttrs + '/>');
         } else if ((inputType == "probability")) {
-            controlsTemplate = controlsTemplate + '<input type="number" min="0" max="100" ' + inputAttrs + '/>';
+            controlsTemplate = controlsTemplate + addClearButton('<input type="number" min="0" max="100" ' + inputAttrs + '/>');
         } else if ((inputType == "boolean")) {
-            controlsTemplate = controlsTemplate + '<input type="checkbox" ' + inputAttrs + '/>';
+            controlsTemplate = controlsTemplate + addClearButton('<input type="checkbox" ' + inputAttrs + '/>');
         } else if (inputType == "date") {
-            inputDateAttrs = inputDateAttrs + 'ng-model="stringDate" ';
+            inputDateAttrs = inputDateAttrs + 'ng-model="currentDatePart" ';
             if (a4p.isDefined(attrs.ngChange)) {
                 inputDateAttrs = inputDateAttrs + 'ng-change="onDateChanged();' + attrs.ngChange + '" ';
             } else {
                 inputDateAttrs = inputDateAttrs + 'ng-change="onDateChanged()" ';
             }
-            if (a4p.isDefined(attrs.c4pBlur)) {
-                inputDateAttrs = inputDateAttrs + 'c4p-blur="' + attrs.c4pBlur + '" ';
+            if (a4p.isDefined(attrs.ngBlur)) {
+                inputDateAttrs = inputDateAttrs + 'ng-blur="' + attrs.ngBlur + '" ';
             }
-            controlsTemplate = controlsTemplate + '<input type="date" c4p-input-date style="margin-bottom:10px;" ' + inputDateAttrs + '/>';
+            controlsTemplate = controlsTemplate + '<input type="date" c4p-inputdate ' + inputDateAttrs + '/>';
         } else if (inputType == "time") {
-            inputTimeAttrs = inputTimeAttrs + 'ng-model="stringTime" ';
+            inputTimeAttrs = inputTimeAttrs + 'ng-model="currentTimePart"  ';
             if (a4p.isDefined(attrs.ngChange)) {
                 inputTimeAttrs = inputTimeAttrs + 'ng-change="onTimeChanged();' + attrs.ngChange + '" ';
             } else {
                 inputTimeAttrs = inputTimeAttrs + 'ng-change="onTimeChanged()" ';
             }
-            if (a4p.isDefined(attrs.c4pBlur)) {
-                inputTimeAttrs = inputTimeAttrs + 'c4p-blur="' + attrs.c4pBlur + '" ';
+            if (a4p.isDefined(attrs.ngBlur)) {
+                inputTimeAttrs = inputTimeAttrs + 'ng-blur="' + attrs.ngBlur + '" ';
             }
-            controlsTemplate = controlsTemplate + '<input type="time" c4p-input-date style="margin-bottom:10px;" ' + inputTimeAttrs + '/>';
+            controlsTemplate = controlsTemplate + '<input type="time" c4p-inputdate ' + inputTimeAttrs + '/>';
         } else if (inputType == "datetime") {
-            inputDateAttrs = inputDateAttrs + 'ng-model="stringDate" ';
+            inputDateAttrs = inputDateAttrs + 'ng-model="currentDatePart" ';
             if (a4p.isDefined(attrs.ngChange)) {
                 inputDateAttrs = inputDateAttrs + 'ng-change="onDateTimeChanged();' + attrs.ngChange + '" ';
             } else {
                 inputDateAttrs = inputDateAttrs + 'ng-change="onDateTimeChanged()" ';
             }
-            if (a4p.isDefined(attrs.c4pBlur)) {
-                inputDateAttrs = inputDateAttrs + 'c4p-blur="' + attrs.c4pBlur + '" ';
+            if (a4p.isDefined(attrs.ngBlur)) {
+                inputDateAttrs = inputDateAttrs + 'ng-blur="' + attrs.ngBlur + '" ';
             }
-            inputTimeAttrs = inputTimeAttrs + 'ng-model="stringTime" ';
+            inputTimeAttrs = inputTimeAttrs + 'ng-model="currentTimePart"  ';
             if (a4p.isDefined(attrs.ngChange)) {
                 inputTimeAttrs = inputTimeAttrs + 'ng-change="onDateTimeChanged();' + attrs.ngChange + '" ';
             } else {
                 inputTimeAttrs = inputTimeAttrs + 'ng-change="onDateTimeChanged()" ';
             }
-            if (a4p.isDefined(attrs.c4pBlur)) {
-                inputTimeAttrs = inputTimeAttrs + 'c4p-blur="' + attrs.c4pBlur + '" ';
+            if (a4p.isDefined(attrs.ngBlur)) {
+                inputTimeAttrs = inputTimeAttrs + 'ng-blur="' + attrs.ngBlur + '" ';
             }
-            controlsTemplate = controlsTemplate + '<input type="date" c4p-input-date style="margin-bottom:10px;" ' + inputDateAttrs + '/>';
-            controlsTemplate = controlsTemplate + '<input type="time" c4p-input-date style="margin-bottom:10px;" ' + inputTimeAttrs + '/>';
+            //controlsTemplate = controlsTemplate + '{{currentDate}} {{currentDatePart}} {{currentTimePart}}';
+            controlsTemplate = controlsTemplate + '<input type="date" c4p-inputdate class="col-xxs-7 form-control" ' + inputDateAttrs + '/>';
+            controlsTemplate = controlsTemplate + '<input type="time" c4p-inputdate class="col-xxs-4 col-xxs-offset-1 form-control" ' + inputTimeAttrs + '/>';
+            //controlsTemplate = controlsTemplate + '<input type="datetime" c4p-inputdate style="margin-bottom:10px;" ' + inputDateAttrs + '/>';
 
         } else if (inputType == "textarea") {
             inputAttrs = inputAttrs + 'ng-trim="false"';
@@ -194,26 +206,23 @@ var c4pInputCompile = function (element, attrs, transclude, $compile) {
             if (a4p.isDefined(attrs.cols)) {
                 inputAttrs = inputAttrs + 'cols="' + attrs.cols + '" ';
             }
-            controlsTemplate = controlsTemplate + '<textarea ' + inputAttrs + '/>';
+            controlsTemplate = controlsTemplate + addClearButton('<textarea ' + inputAttrs + '/>');
         } else if (inputType == "select") {
             var optionsArr = scope.$eval(attrs.optionsVar);
-            
             controlsTemplate = controlsTemplate + '<select '+ inputSelectAttrs + '>';
-            
             if(optionsArr != '') {
                 for(var key in optionsArr) {
                     controlsTemplate = controlsTemplate + '<option>' + optionsArr[key] + '</option>';
                 }
             }
-            
             controlsTemplate = controlsTemplate + '</select>';
         } else {
-            controlsTemplate = controlsTemplate + '<input type="text" ' + inputAttrs + '/>';
+            controlsTemplate = controlsTemplate + addClearButton('<input type="text" ' + inputAttrs + '/>');
         }
 
         //TODO opportunity to remove old text in the input
         //controlsTemplate = controlsTemplate + '<span class="glyphicon glyphicon-times-circle form-control-feedback"></span>';
-        
+
         var controlsElt = $(element[0]);//.find("div.form-group");
         //controlsElt.append($compile(controlsTemplate)(scope));
         controlsTemplate = $compile(controlsTemplate)(scope);
@@ -223,6 +232,8 @@ var c4pInputCompile = function (element, attrs, transclude, $compile) {
         // Watchers
 
         // Equivalent of 'ng-class="{\'has-error\': ' + attrs.warnVar + '}"' directive
+        /*
+        //TODO mle 
         var oldWarnValue = undefined;
         function warnVarWatchAction(warnValue) {
             if (warnValue) {
@@ -245,12 +256,11 @@ var c4pInputCompile = function (element, attrs, transclude, $compile) {
                 var ngClass = scope.$eval(attrs.warnVar);
                 warnVarWatchAction(ngClass, ngClass);
             });
-        }
+        }*/
 
         scope.initInputCtrl(ngModelCtrl, inputType);
-        if (a4p.isDefined(attrs.ngModel)) {
-            scope.setInputValue(scope.$eval(attrs.ngModel));
-        }
+        //if (a4p.isDefined(attrs.ngModel)) scope.setInputValue(scope.$eval(attrs.ngModel));
+
         // change the attribute
         //attrs.$set('ngModel', 'new value');
         // observe changes to interpolated attribute ({{...}})
@@ -290,8 +300,8 @@ var c4pInputCompile = function (element, attrs, transclude, $compile) {
                 });
             }
         } else if (inputType == "date") {
-            if (a4p.isDefined(attrs.ngModel)) {
-                scope.$watch(attrs.ngModel, function (value) {
+             if (a4p.isDefined(attrs.ngModel)) {
+                 scope.$watch(attrs.ngModel, function (value) {
                     // Required if user set some other fields on same $digest loop
                     scope.setInputValue(value);
                 });
@@ -402,9 +412,14 @@ angular.module('c4p.input', ['c4p/input.html'])
          };
          */
 
-        $scope.stringDate = '';
-        $scope.stringTime = '';
-        $scope.previousStringDate = '';
+        $scope.currentDate = new Date();
+        $scope.currentDatePart = new Date();
+        $scope.currentTimePart = new Date();
+        $scope.previousDate = new Date();
+
+        //$scope.stringDate = '';
+        //$scope.stringTime = '';
+        //$scope.previousStringDate = '';
         $scope.valueType = '';
         $scope.ngModelCtrl = null;
 
@@ -418,8 +433,20 @@ angular.module('c4p.input', ['c4p/input.html'])
         };
 
         $scope.setInputValue = function (value) {
+
+            console.log('input : '+value);
             if (!$scope.ngModelCtrl) return;
 
+            if (($scope.valueType == 'time') || ($scope.valueType == 'date') || ($scope.valueType == 'datetime')) {
+
+                var date = a4pDateParse(a4pDateFormatObject(value));
+                if (!date) date = new Date();
+                $scope.currentDate = date;
+                $scope.currentDatePart = $scope.currentDate;
+                $scope.currentTimePart = $scope.currentDate;
+            }
+
+/*
             if (($scope.valueType == 'time') || ($scope.valueType == 'datetime')) {
                 var hourS, minuteS;
                 var timeReg = new RegExp("([01]\\d|2[0-3]):([0-5]\\d)");
@@ -433,6 +460,10 @@ angular.module('c4p.input', ['c4p/input.html'])
                         minuteS = '00';
                     }
                     $scope.stringTime = hourS + ':' + minuteS;
+
+                    $scope.currentDate.setHours(parseInt(hourS));
+                    $scope.currentDate.setMinutes(parseInt(minuteS));
+                    $scope.currentDate.setSeconds(0);
                 }
             }
             if (($scope.valueType == 'date') || ($scope.valueType == 'datetime')) {
@@ -446,42 +477,50 @@ angular.module('c4p.input', ['c4p/input.html'])
                     while (dayS.length < 2) dayS = '0' + dayS;
                     $scope.stringDate = yearS + '-' + monthS + '-' + dayS;
                     $scope.previousStringDate = $scope.stringDate;
+
+                    $scope.currentDate.setDate(parseInt(dayS));
+                    $scope.currentDate.setMonth(parseInt(monthS));
+                    $scope.currentDate.setYear(parseInt(yearS));
                 }
             }
+*/
+        };
+
+        $scope.clearInput = function () {
+            if (!$scope.ngModelCtrl) return;
+
+            $scope.ngModelCtrl.$setViewValue('');
+            $scope.ngModelCtrl.$render();
         };
 
         $scope.onDateChanged = function () {
             if (!$scope.ngModelCtrl) return;
 
-            var dateReg = new RegExp("[-/]+", "g");
-            var dateParts = $scope.stringDate.split(dateReg);
-            var yearS = dateParts[0] || '0000';
-            var monthS = dateParts[1] || '00';
-            while (monthS.length < 2) monthS = '0' + monthS;
-            var dayS = dateParts[2] || '00';
-            while (dayS.length < 2) dayS = '0' + dayS;
-
-            var newDate = yearS + '-' + monthS + '-' + dayS;
-            if (!a4pDateParse(newDate)) {
-                a4p.ErrorLog.log('c4pInputCtrl', 'date ' + $scope.stringDate + ' is invalid => return to previous date ' + $scope.previousStringDate);
-                $scope.stringDate = $scope.previousStringDate;
-                dateParts = $scope.stringDate.split(dateReg);
-                yearS = dateParts[0] || '1970';
-                monthS = dateParts[1] || '01';
-                while (monthS.length < 2) monthS = '0' + monthS;
-                dayS = dateParts[2] || '01';
-                while (dayS.length < 2) dayS = '0' + dayS;
-                newDate = yearS + '-' + monthS + '-' + dayS;
+            if (!$scope.currentDatePart) $scope.currentDatePart = new Date();
+            $scope.currentDate.setFullYear()($scope.currentDatePart.getFullYear());
+            $scope.currentDate.setMonth($scope.currentDatePart.getMonth());
+            $scope.currentDate.setDate($scope.currentDatePart.getDate());
+            /*
+            var newDate = a4pDateFormatObject($scope.stringDate);
+            var dateS = a4pDateExtractDate(newDate);
+            if (!dateS) { 
+                newDate = a4pDateFormatObject($scope.previousStringDate);
+                dateS = a4pDateExtractDate(newDate);
             }
+            */
 
-            $scope.ngModelCtrl.$setViewValue(newDate);
+            var formatDate = a4pDateFormat($scope.currentDate);
+            $scope.ngModelCtrl.$setViewValue(formatDate);
             $scope.ngModelCtrl.$render();
         };
 
         $scope.onTimeChanged = function () {
             if (!$scope.ngModelCtrl) return;
 
-            var hourS, minuteS;
+            if (!$scope.currentTimePart) $scope.currentTimePart = new Date();
+            $scope.currentDate.setHours($scope.currentTimePart.getHours());
+            $scope.currentDate.setMinutes($scope.currentTimePart.getMinutes());
+            /*var hourS, minuteS;
             var timeReg = new RegExp("([01]\\d|2[0-3]):([0-5]\\d)");
             var timeParts = $scope.stringTime.match(timeReg);
             if (timeParts != null) {
@@ -491,53 +530,40 @@ angular.module('c4p.input', ['c4p/input.html'])
                 hourS = '00';
                 minuteS = '00';
             }
-
-            // do not show seconds
             $scope.ngModelCtrl.$setViewValue(hourS + ':' + minuteS + ':00');
+            */
+
+            var formatDate = a4pDateFormat($scope.currentDate);
+            $scope.ngModelCtrl.$setViewValue(formatDate);
             $scope.ngModelCtrl.$render();
         };
 
         $scope.onDateTimeChanged = function () {
+
             if (!$scope.ngModelCtrl) return;
 
-            var dateReg = new RegExp("[-/]+", "g");
-            var dateParts = $scope.stringDate.split(dateReg);
-            var yearS = dateParts[0] || '0000';
-            var monthS = dateParts[1] || '00';
-            while (monthS.length < 2) monthS = '0' + monthS;
-            var dayS = dateParts[2] || '00';
-            while (dayS.length < 2) dayS = '0' + dayS;
+            if (!$scope.currentDatePart) $scope.currentDatePart = new Date();
+            if (!$scope.currentTimePart) $scope.currentTimePart = new Date();
+            $scope.currentDate.setFullYear($scope.currentDatePart.getFullYear());
+            $scope.currentDate.setMonth($scope.currentDatePart.getMonth());
+            $scope.currentDate.setDate($scope.currentDatePart.getDate());
+            $scope.currentDate.setHours($scope.currentTimePart.getHours());
+            $scope.currentDate.setMinutes($scope.currentTimePart.getMinutes());
 
-            var hourS, minuteS;
-            var timeReg = new RegExp("([01]\\d|2[0-3]):([0-5]\\d)");
-            var timeParts = $scope.stringTime.match(timeReg);
-            if (timeParts != null) {
-                hourS = timeParts[1] || '00';
-                minuteS = timeParts[2] || '00';
-            } else {
-                hourS = '00';
-                minuteS = '00';
+/*
+            var newDate = a4pDateFormatObject($scope.stringDate);
+            $scope.currentDate = a4pDateParse(newDate);
+            if (!$scope.currentDate) {
+                newDate = a4pDateFormatObject($scope.previousStringDate);
+                $scope.currentDate = a4pDateParse(newDate);
             }
+            */
 
-            var newDate = yearS + '-' + monthS + '-' + dayS + ' ' + hourS + ':' + minuteS + ':00';
-            if (!a4pDateParse(newDate)) {
-                a4p.ErrorLog.log('c4pInputCtrl', 'date ' + $scope.stringDate + ' is invalid => return to previous date ' + $scope.previousStringDate);
-                $scope.stringDate = $scope.previousStringDate;
-                $scope.stringDate = $scope.previousStringDate;
-                dateParts = $scope.stringDate.split(dateReg);
-                yearS = dateParts[0] || '1970';
-                monthS = dateParts[1] || '01';
-                while (monthS.length < 2) monthS = '0' + monthS;
-                dayS = dateParts[2] || '01';
-                while (dayS.length < 2) dayS = '0' + dayS;
-                newDate = yearS + '-' + monthS + '-' + dayS + ' ' + hourS + ':' + minuteS + ':00';
-            }
-
-            // do not show seconds
-            $scope.ngModelCtrl.$setViewValue(newDate);
+            var formatDate = a4pDateFormat($scope.currentDate);
+            $scope.ngModelCtrl.$setViewValue(formatDate);
             $scope.ngModelCtrl.$render();
         };
-    }]).directive('c4pInputLimited', [function () {
+    }]).directive('c4pInputlimited', [function () {
         return {
             restrict: 'E',
             replace: true,
@@ -606,7 +632,7 @@ angular.module('c4p.input', ['c4p/input.html'])
             }
         };
     }])
-    .directive('c4pInputCard', [function () {
+    .directive('c4pInputcard', [function () {
         return {
             restrict: 'E',
             replace: true,
@@ -666,7 +692,7 @@ angular.module('c4p.input', ['c4p/input.html'])
             compile: function(element, attrs, transclude) { return c4pInputCompile(element, attrs, transclude,$compile);}
         };
     }])
-    .directive('c4pInputSimple', ["$compile", function ($compile) {
+    .directive('c4pInputsimple', ["$compile", function ($compile) {
         return {
             restrict: 'E',
             replace: true,
@@ -677,7 +703,7 @@ angular.module('c4p.input', ['c4p/input.html'])
             compile: function(element, attrs, transclude) { return c4pInputCompile(element, attrs, transclude,$compile);}
         };
     }])
-    .directive('c4pInputDate', [function () {
+    .directive('c4pInputdate', [function () {
         return {
             replace: false,
             restrict: 'A',
@@ -715,7 +741,7 @@ angular.module('c4p.input', ['c4p/input.html'])
                         element.bind('click', function (event) {
                             a4p.safeApply(scope, function() {
                                 var myNewDate, value = scope.$eval(attrs.ngModel);
-                                a4p.InternalLog.log('c4pInputDate', 'Android datePicker focus : ' + attrs.ngModel + '=' + value);
+                                a4p.InternalLog.log('c4pInputdate', 'Android datePicker focus : ' + attrs.ngModel + '=' + value);
                                 if (type == 'time') {
                                     var hourS = parseInt(value.substr(0, 2)) || 0;
                                     var minuteS = parseInt(value.substr(3, 2)) || 0;
@@ -839,10 +865,15 @@ angular.module('c4p.ratings', [])
         };
     }]);
 
+/*
 directiveModule.directive('c4pBlur', function () {
+
+console.log('c4pBlur compile');
     return {
         restrict: 'A',
         link: function (scope, element, attr) {
+console.log('c4pBlur link');
+
             element.bind('blur', function () {
                 //apply scope (attributes)
                 scope.$apply(attr.c4pBlur);
@@ -850,7 +881,7 @@ directiveModule.directive('c4pBlur', function () {
         }
     };
 });
-
+*/
 
 // Check Box
 directiveModule.directive('c4pCheck', ['$parse', function ($parse) {

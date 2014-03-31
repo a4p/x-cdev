@@ -6,7 +6,7 @@
  */
 angular.module("a4p/carousel/carousel.html", []).run(["$templateCache", function ($templateCache) {
     $templateCache.put("a4p/carousel/carousel.html",
-            "<div ng-mouseenter=\"pause()\" ng-mouseleave=\"play()\" class=\"carousel\" sense-opts=\"{name:'slide', axeX:'scroll', axeY:'swipe'}\" sense-scroll-opts=\"{scrollbarClass:'c4p-scrollbar'}\" sense-scroll-end=\"scrollEnd($event)\">" +
+            "<div ng-mouseenter=\"pause()\" ng-mouseleave=\"play()\" class=\"carousel\" sense-opts=\"{name:'slide', axeX:'scroll', axeY:'swipe'}\" sense-scrollopts=\"{scrollbarClass:'c4p-scrollbar'}\" sense-scrollend=\"scrollEnd($event)\">" +
             	   "<div class=\"carousel-inner\" ng-transclude></div>" +
                     //"    <a sense-tap=\"prev()\" class=\"carousel-control left\">&lsaquo;</a>" +
                     //"    <a sense-tap=\"next()\" class=\"carousel-control right\">&rsaquo;</a>" +

@@ -11,9 +11,9 @@
     </div>
 
     <div class="meeting-plan"
-         resize-css-height="getResizeHeight() -getResizePathValue('meeting_header', '', 'offsetHeight') -getPathValue('previousElementSibling', 'offsetHeight')"
+         resizecss-height="getResizeHeight() -getResizePathValue('meeting_header', '', 'offsetHeight') -getPathValue('previousElementSibling', 'offsetHeight')"
          sense-opts="{axeY:'scroll'}"
-         sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}">
+         sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}">
         <div>
             <!--  list -->
 
@@ -28,12 +28,12 @@
                          ng-show="dndActive && (dragMeetingElementIdx > $index)"
                          ng-controller="ctrlMeetingElementDrop"
                          sense-opts="{name:'dropObjectTrash', callApply: true }"
-                         sense-dnd-start="dndStart($event)"
-                         sense-dnd-end="dndEnd($event)"
-                         sense-dnd-cancel="dndCancel($event)"
-                         sense-drop-over-enter="dropOverEnter($event)"
-                         sense-drop-over-leave="dropOverLeave($event)"
-                         sense-drop-end="dropEnd($event, $index)"
+                         sense-dndstart="dndStart($event)"
+                         sense-dndend="dndEnd($event)"
+                         sense-dndcancel="dndCancel($event)"
+                         sense-dropoverenter="dropOverEnter($event)"
+                         sense-dropoverleave="dropOverLeave($event)"
+                         sense-dropend="dropEnd($event, $index)"
                          style="text-align: center">
                         {{srvLocale.translations.htmlMeetingMoveItem}}
                     </div>
@@ -52,12 +52,12 @@
                         style="border-top: 1px solid black">
                     <div ng-controller="ctrlMeetingElementDrag"
                          ng-init="initMeetingElemDrag(mObj)"
-                         sense-long-drag-over-enter="dragOverEnter($event)"
-                         sense-long-drag-over-leave="dragOverLeave($event)"
-                         sense-long-drag-start="dragStart($event, $index)"
-                         sense-long-drag-move="dragMove($event)"
-                         sense-long-drag-end="dragEnd($event)"
-                         sense-long-drag-cancel="dragCancel($event)">
+                         sense-longdragoverenter="dragOverEnter($event)"
+                         sense-longdragoverleave="dragOverLeave($event)"
+                         sense-longdragstart="dragStart($event, $index)"
+                         sense-longdragmove="dragMove($event)"
+                         sense-longdragend="dragEnd($event)"
+                         sense-longdragcancel="dragCancel($event)">
                         <div style="width:20%; overflow:hidden;display: inline-block">
                             <img class="media-object" ng-src="{{meetingThumb}}"
                                  style="height:75px;-webkit-background-size: contain;"/>
@@ -81,12 +81,12 @@
                          ng-show="dndActive && (dragMeetingElementIdx < $index)"
                          ng-controller="ctrlMeetingElementDrop"
                          sense-opts="{name:'dropObjectTrash', callApply: true }"
-                         sense-dnd-start="dndStart($event)"
-                         sense-dnd-end="dndEnd($event)"
-                         sense-dnd-cancel="dndCancel($event)"
-                         sense-drop-over-enter="dropOverEnter($event)"
-                         sense-drop-over-leave="dropOverLeave($event)"
-                         sense-drop-end="dropEnd($event, $index)"
+                         sense-dndstart="dndStart($event)"
+                         sense-dndend="dndEnd($event)"
+                         sense-dndcancel="dndCancel($event)"
+                         sense-dropoverenter="dropOverEnter($event)"
+                         sense-dropoverleave="dropOverLeave($event)"
+                         sense-dropend="dropEnd($event, $index)"
                          style=" text-align: center">
                         {{srvLocale.translations.htmlMeetingMoveItem}}
                     </div>

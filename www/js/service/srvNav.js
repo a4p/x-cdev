@@ -71,6 +71,9 @@ var SrvNav = (function() {
                             slide:self.current.slide,
                             itemName:srvConfig.getItemName(self.item),
                             itemIcon:c4p.Model.getItemIcon(self.item),
+                            itemColor:c4p.Model.getItemColor(self.item),
+                            itemThumbUrl:self.item.thumb_url,
+                            itemRelationCount:0,
                             type:self.item.a4p_type,
                             id:self.item.id.dbid,
                             pageHistory:self.current.pageHistory
@@ -227,6 +230,9 @@ var SrvNav = (function() {
                         slide: this.current.slide,
                         itemName: this.current.itemName,
                         itemIcon: this.current.itemIcon,
+                        itemColor: this.current.itemColor,
+                        itemRelationCount: this.current.itemRelationCount,
+                        itemThumbUrl:this.current.thumb_url,
                         type: this.current.type,
                         id: this.current.id,
                         pageHistory:this.current.pageHistory
@@ -253,6 +259,9 @@ var SrvNav = (function() {
                         slide: this.current.slide,
                         itemName: this.current.itemName,
                         itemIcon: this.current.itemIcon,
+                        itemColor: this.current.itemColor,
+                        itemRelationCount: this.current.itemRelationCount,
+                        itemThumbUrl: this.current.thumb_url,
                         type: this.current.type,
                         id: this.current.id,
                         pageHistory:this.current.pageHistory
@@ -283,6 +292,9 @@ var SrvNav = (function() {
                 }
                 this.current.itemName = this.srvConfig.getItemName(this.item);
                 this.current.itemIcon = c4p.Model.getItemIcon(this.item);
+                this.current.itemColor = c4p.Model.getItemColor(this.item);
+                this.current.itemRelationCount = 0;
+                this.current.itemThumbUrl = this.item.thumb_url;
                 this.current.type = this.item.a4p_type;
             } else {
                 this.current = {
@@ -290,6 +302,8 @@ var SrvNav = (function() {
                     slide:slide,
                     itemName:this.srvConfig.getItemName(this.item),
                     itemIcon:c4p.Model.getItemIcon(this.item),
+                    itemRelationCount:0,
+                    itemThumbUrl:this.item.thumb_url,
                     type:this.item.a4p_type,
                     id:this.item.id.dbid,
                     pageHistory:[]
@@ -302,6 +316,8 @@ var SrvNav = (function() {
                 slide:slide,
                 itemName:'',
                 itemIcon:'',
+                itemRelationCount:0,
+                itemThumbUrl:'',
                 type:'',
                 id:'',
                 pageHistory:[]
@@ -444,7 +460,7 @@ var SrvNav = (function() {
             var group = {
                 type: relatedType,
                 colorType: c4p.Model.a4p_types[relatedType].colorType,
-                name: this.srvLocale.translations.htmlTitle[relatedType],
+                name: this.srvLocale.translations.htmlTitleType[relatedType],
                 icon: c4p.Model.getTypeIcon(relatedType),
                 size: itemRelatedList[relatedType].length,
                 show: false
@@ -508,6 +524,8 @@ var SrvNav = (function() {
         this.itemRelatedGroupList = itemRelatedGroupList;
         this.itemRelatedGroupMap = itemRelatedGroupMap;
         this.itemRelatedGroup = itemRelatedGroup;
+
+        this.current.itemRelationCount = itemRelatedList.length;
 
         return change;
     };

@@ -1,57 +1,60 @@
 
+<!-- no header .. just a backdrop -->
 
-<div class="modal-body vertical-container">
-    <div class="c4p-dialog vertical-align">
-        <div class="row">
-            <div class="col-xxs-offset-1 col-xxs-10 col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 c4p-modal-confirm-container">
-                <div class="row">
-    				<div class="c4p-dialog-header c4p-color-gradient0">
-				        <div class="btn c4p-padding-w-packed">
-				            <span>{{text}}</span>
-				        </div>
-		                <div class="pull-right">
-			                <div class="row c4p-modal-confirm-btns">
-				            	<div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke"ng-click="submit()"><span class="c4p-icon-std glyphicon glyphicon-check"></span></div>
-				            	<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke"ng-click="close()"><span class="c4p-icon-std glyphicon glyphicon-times"></span></div>
-			                </div>
-		                </div>
+<div class="row modal-body c4p-vertical-container">
+    <div class="c4p-dialog c4p-vertical-align">
+        
+                  <div class="container c4p-modal-confirm-container col-xxs-12 col-sm-4 col-sm-offset-4">
+                    <!-- Headers -->
+                    <div class="row">
+                      <div class="c4p-dialog-header">
 
-<!--
+                          <div class="col-xxs-12">
+                              <ul class="nav nav-pills">
+                                <li>
+                                  <a class="btn disabled" data-toggle="tab">
+                                      <h5 style="white-space:normal">{{text}}</h5>
+                                  </a>
+                                </li>
 
-            <ul class="nav nav-pills">
-                <li class="pull-right">
-                    <a ng-click="close()">
-                      <div class="btn btn-sm"><span class="c4p-icon-std close">&times;</span></div>
-                    </a>
-                </li>
-                <li class="pull-right">
-                    <a ng-click="submit()">
-                        <div class="btn btn-sm" ng-class="{'c4p-color-ok-transparent' : objectValidated, 'c4p-color-cancel-transparent' : !objectValidated}">
-                          <span class="c4p-icon-std glyphicon glyphicon-check"></span>
-                        </div>
-                    </a>
-                </li>
-         	</ul>-->
 
-					</div>
-				</div>
-                
-                <div class="row">
-                    <div class="col-xxs-12 c4p-modal-confirm-cont"
-                         sense-opts="{axeY:'scroll'}"
-                         sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}">
-                         <div class="container">
-	                		<div class="c4p-form-group c4p-color-a-gradient1">
-	                            <ul>
-	                                <li ng-repeat='item in textArray'>
-	                                    <span>{{item}}</span>
-	                                </li>
-	                            </ul>
-	                        </div>
-	                    </div>
-					</div>
-                </div>
-            </div>
-        </div>
+                                <li class="pull-right">
+                                  <a class="btn c4p-color-cancel-transparent" ng-click="close()">
+                                      <span class="c4p-icon-std">&times;</span>
+                                  </a>
+                                </li>
+
+                                <li class="pull-right">
+                                  <a class="btn c4p-color-ok-transparent c4p-stroke" ng-click="submit()">
+                                    <span class="c4p-icon-std glyphicon glyphicon-check"></span>
+                                  </a>
+                                </li>
+
+                              </ul>
+                          </div>
+
+
+                      </div>
+                    </div>
+
+                    <!-- Confirm core -->
+                    <div class="row" ng-show="{{textArray.length}}">
+                      <div class="col-xxs-12 c4p-modal-confirm-cont"
+                           sense-opts="{axeY:'scroll'}"
+                           sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}">
+                          <div class="container">
+                          		<div class="c4p-form-group c4p-color-a-gradient1">
+                                      <ul>
+                                          <li ng-repeat='item in textArray'>
+                                              <span>{{item}}</span>
+                                          </li>
+                                      </ul>
+                              </div>
+                          </div>
+            					</div>
+                    </div>
+
+                  </div>
+            
     </div>
 </div>

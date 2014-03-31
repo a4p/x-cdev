@@ -2,9 +2,9 @@
      ng-style="{width:(getMainWidth())+'px'}">
     <div ng-style="{width:(getMainWidth())+'px'}"
          sense-opts="{name:'calendar_day_events_wrapper', axeY:'scroll'}"
-         sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}"
+         sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}"
          resize-opts="{name:'calendar_day_events_wrapper', watchRefresh:'navAside'}"
-         resize-css-height="getResizeHeight() -getResizePathValue('calendar_header', '', 'offsetHeight')">
+         resizecss-height="getResizeHeight() -getResizePathValue('calendar_header', '', 'offsetHeight')">
         <div resize-opts="{name:'calendar_day_event_scroller', watchRefresh:'navAside'}">
             <div ng-include="'partials/navigation/calendar_day_events.html'"></div>
         </div>
@@ -24,9 +24,9 @@
         ng-style="{width:(getAsideWidth())+'px'}">
     <div ng-style="{width:(getAsideWidth())+'px'}"
          sense-opts="{name:'calendar_day_hours_wrapper', axeY:'scroll'}"
-         sense-scroll-opts="{scrollbarClass:'c4p-scrollbar'}"
+         sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}"
          resize-opts="{name:'calendar_day_hours_wrapper', watchRefresh:'navAside'}"
-         resize-css-height="getResizeHeight() -getResizePathValue('calendar_header', '', 'offsetHeight')">
+         resizecss-height="getResizeHeight() -getResizePathValue('calendar_header', '', 'offsetHeight')">
         <div resize-opts="{name:'calendar_day_hours_scroller', watchRefresh:'navAside'}">
             <div ng-include="'partials/navigation/calendar_day_hours.html'"
                  class="c4p-cal-day-hour"></div>

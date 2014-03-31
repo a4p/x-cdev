@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlEditDialogErrorReport($scope, srvLocale, $dialog, dialog) {
+function ctrlEditDialogErrorReport($scope, srvLocale, $modalInstance) {
 
     /**
      * Variables
@@ -15,10 +15,10 @@ function ctrlEditDialogErrorReport($scope, srvLocale, $dialog, dialog) {
      */
 
     $scope.submit = function () {
-        dialog.close({feedback:$scope.feedback});
+        $modalInstance.close({feedback:$scope.feedback});
     };
 
     $scope.close = function () {
-        dialog.close(undefined);
+        $modalInstance.dismiss(undefined);
     };
 }

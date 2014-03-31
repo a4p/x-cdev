@@ -1,65 +1,42 @@
-<div ng-controller="ctrlConfig" class="vertical-container">
-	<div class="vertical-align">
+<div ng-controller="ctrlConfig" class="c4p-vertical-container">
+	<div class="c4p-vertical-align">
 		<!-- first column - login form -->
 		<div class="row">
-			<h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate('htmlGuiderPageTitle')}}</h3>
+			<h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">
+				{{translate('htmlGuiderPageTitle')}}
+			</h3>
 		</div>
 
-
-		<form class="form-horizontal" name="loginForm" novalidate ng-submit="createAccount()">
-			<div class="form-group row" ng-class="{'has-error': loginForm.$invalid}">
-				
+		<form class="form-horizontal" name="loginForm" novalidate>
+			<div class="form-group row"><!-- ng-class="{'has-error': loginForm.$invalid}" -->
 				
 				<div class="col-xxs-12 col-sm-offset-3 col-sm-6">
 						<input
+							type="mail"
 							class="form-control"
 							ng-model="configEmail"
+							ng-focus="setInputFocusState(true)"
+							ng-blur="setInputFocusState(false)"
 							placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}"
-							type="mail"
 							required>
                         </input>
 				</div>
 			</div>
 
 			<div class="row">
-				<button class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-3"
-						type="submit" ng-disabled="loginForm.$invalid" >
+				<a class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-3"
+						ng-submit="createAccount()"
+						ng-disabled="getInputFocusState()" ><!-- ng-disabled="loginForm.$invalid" -->
 						{{srvLocale.translations.htmlButtonRegister}}
-				</button>
-				<button class="btn btn-link white col-xxs-12 col-sm-3" 
-					ng-click="gotoLogin()">
+				</a>
+				<a class="btn btn-link white col-xxs-12 col-sm-3" 
+						ng-click="gotoLogin()"
+						ng-disabled="getInputFocusState()">
 					{{srvLocale.translations.htmlTextAlreadyRegistered}}
-				</button>
+				</a>
 			</div>
 
 		</form>
-		
-		<!--
-		<form class="form-horizontal" name="loginForm" novalidate ng-submit="createAccount()">
-			<div class="form-group row" ng-class="{'has-error':(loginForm.email.$dirty && loginForm.email.$invalid)}">
-				
-				<div class="col-xxs-12 col-xs-offset-3 col-xs-6">
-					<span ng-show="loginForm.email.$dirty && loginForm.email.$invalid">
-						<span class="help-inline c4p-field-error-message" ng-show="loginForm.email.$error.required">{{formError('htmlErrorRequired', ['htmlFormEmail'])}}</span>
-						<span class="help-inline c4p-field-error-message" ng-show="loginForm.email.$error.email">{{formError('htmlErrorEmailFormat', ['htmlFormEmail'])}}</span>
-					</span> 
-				</div>
-				
-				<div class="col-xxs-12 col-xs-offset-3 col-xs-6">
-					<input ng-model="email" type="email" id="email" name="email" 
-						class="form-control" 
-						placeholder="{{translate('htmlFormEmailPlaceHolder')}}" required />
-				</div>
-			</div>
-			
-			<div class="row">
-				<button type="submit" ng-disabled="loginForm.$invalid" class="btn btn-primary col-xxs-12 col-xs-offset-3 col-xs-4">{{translate('htmlButtonRegister')}}</button>
-				<a class="btn btn-link white col-xxs-12 text-center col-xs-2" ng-click="gotoLogin()">
-					<small>{{translate('htmlButtonLogin')}}</small>
-				</a>
-			</div>
-		</form>
-		-->
 
 	</div>
 </div>

@@ -1,34 +1,34 @@
 <div>
     <table class="table c4p-table-calendar-month" style="width:100%;table-layout: fixed;">
-        <thead>
-        <tr resize-opts="{name:'calendar_month_header'}">
+        <thead resize-opts="{name:'calendar_month_header'}">
+        <tr>
             <th class="empty" style="width:20px;"></th>
             <th class="c4p-link5" ng-click="gotoPreviousYear()">
                 <a class="c4p-link1">
-                    <span class="glyphicon glyphicon-double-angle-left icon-large"></span><br>
-                    <h6 ng-hide="getResizeOneColumn()">{{calendarPreviousYear}}</h6>
+                    <span class="glyphicon glyphicon-angle-double-left"></span><br>
+                    <h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousYear}}</h5>
                 </a>
             </th>
             <th class="c4p-link5" ng-click="gotoPreviousMonth()">
                 <a class="c4p-link1">
-                    <span class="glyphicon glyphicon-angle-left icon-large"></span><br>
-                    <h6 ng-hide="getResizeOneColumn()">{{calendarPreviousMonthName}}</h6>
+                    <span class="glyphicon glyphicon-angle-left"></span><br>
+                    <h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousMonthName}}</h5>
                 </a>
             </th>
             <th class="disabled" colspan=3 style="text-align:center;vertical-align:middle;">
-                <h2 ng-hide="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</h2>
+                <h4 ng-hide="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</h4>
                 <span ng-show="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</span>
             </th>
             <th class="c4p-link5" ng-click="gotoNextMonth()">
                 <a class="c4p-link1">
-                    <span class="glyphicon glyphicon-angle-right icon-large"></span><br>
-                    <h6 ng-hide="getResizeOneColumn()">{{calendarNextMonthName}}</h6>
+                    <span class="glyphicon glyphicon-angle-right"></span><br>
+                    <h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextMonthName}}</h5>
                 </a>
             </th>
             <th class="c4p-link5" ng-click="gotoNextYear()">
                 <a class="c4p-link1">
-                    <span class="glyphicon glyphicon-double-angle-right icon-large"></span><br>
-                    <h6 ng-hide="getResizeOneColumn()">{{calendarNextYear}}</h6>
+                    <span class="glyphicon glyphicon-angle-double-right"></span><br>
+                    <h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextYear}}</h5>
                 </a>
             </th>
         </tr>
@@ -70,7 +70,7 @@
                         <div class="pull-left" style="position:relative; height:100%;width:8%;">
                             <div ng-repeat="position in day.group.eventsPosition"
                                  class="label c4p-label-calendar-notallday-inverse"
-                                 style="position:absolute; width:90%; padding:0; border:1px solid gray; top:{{position.posPercent}}%; height:{{position.lengthPercent}}%;"
+                                 style="position:absolute; width:90%; padding:2px 0; border:1px solid gray; top:{{position.posPercent}}%; height:{{position.lengthPercent}}%;"
                                  ng-class="position.event.id">
                                 &nbsp;
                             </div>
@@ -80,7 +80,7 @@
                             <div style="height:{{(bodyHeight / calendarMonthWeeks.length) - 20}}px;overflow:hidden;text-overflow:ellipsis;display:block;">
                                 <!-- allDay events -->
                                 <span ng-repeat="position in day.group.eventsAllDayPosition"
-                                      style="width:{{position.lengthPercent}}%; margin-left:{{position.posPercent}}%; padding:0; margin-top:1px; min-height:2px;"
+                                      style="width:{{position.lengthPercent}}%; margin-left:{{position.posPercent}}%; margin-top:1px; min-height:2px;"
                                       class="label c4p-label-calendar-all-day a4p-dot">
                                       <!--
                                       <span class="hidden-xs hidden-sm"
@@ -90,7 +90,7 @@
                                 </span>
                                 <!-- Standart events -->
                                 <span ng-repeat="event in day.group.events"
-                                      style="width:100%; padding:0 0 0 5px"
+                                      style="width:100%; margin-top: 1px;"
                                       class="label c4p-label-calendar-day a4p-dot hidden-xs hidden-sm">{{event.name}}</span>
                             </div>
                             <!-- More ...
