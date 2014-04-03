@@ -89,15 +89,32 @@
                  resize-opts="{name:'right_toolbar_wrapper'}"
                  resizecss-height="getResizeHeight() - getResizePathValue('right_toolbar_header', '', 'offsetHeight')">
                 <div resize-opts="{name:'right_toolbar_scroller', watchRefresh:['srvNav.item', 'srvNav.itemRelatedGroupList']}">
+
+
+                    <!-- suggestions -->
+                    <div ng-click="setNavRelated(true);setShowGroupSuggestion(true);setLinksScrollerPageY(0); "
+                        ng-show="(getSlideFromNavIndex() != 'calendar')">
+                        <div class="c4p-color-j-dark-iii" ng-style="{width:getSliderWidth()+'px'}">
+                            <div class="c4p-related-square-icon">
+                                <span class="c4p-icon-std glyphicon glyphicon-ellipsis-h"></span>
+                            </div>
+                            <div class="c4p-related-square-text"><span>&nbsp;</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- the related infos -->
                     <div ng-repeat="group in srvNav.itemRelatedGroupList" 
                          ng-show="group.type != 'Plan' && group.type != 'Facet'"
                          ng-class="{'active': linksPageY == $index}"
                          ng-click="setNavRelated(true);setShowGroup(group, true);setLinksScrollerPageY($index); ">
                         <div class="c4p-color-{{group.colorType}}-dark-iii" ng-style="{width:getSliderWidth()+'px'}">
-                            <div class="c4p-related-square-icon"><span class="c4p-icon-std glyphicon glyphicon-{{group.icon}}"></span></div>
+                            <div class="c4p-related-square-icon">
+                                <span class="c4p-icon-std glyphicon glyphicon-{{group.icon}}"></span>
+                            </div>
                             <div class="c4p-related-square-text"><span>{{group.size}}</span></div>
                         </div>
                     </div>
+
                 </div>
             </div>
 

@@ -23,6 +23,7 @@ function ctrlAside($scope, srvFacet, srvLocale, srvData, srvAnalytics, srvNav, v
 
     $scope.rootMenuUp = true; // ((inputs.itemSearchQuery.length == 0) && (srvFacet.filterFacets.length == 0));
     $scope.activeSearch = false;
+    $scope.showGroupSuggestion = true; // show aside suggestions
 
     // Filter
     $scope.inputs = {
@@ -206,6 +207,11 @@ function ctrlAside($scope, srvFacet, srvLocale, srvData, srvAnalytics, srvNav, v
             }
         });
     };
+
+    $scope.setShowGroupSuggestion = function(b){
+
+        $scope.showGroupSuggestion = b;
+    }
 
 
     /**

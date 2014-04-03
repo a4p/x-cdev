@@ -1,9 +1,9 @@
 'use strict';
 
 // Declare app level module which depends on filters, and services
-var appModule = angular.module('c4p', ['ui.bootstrap', 'c4p.filters', 'c4p.services', 'c4p.directives']);
+var appModule = angular.module('c4p', ['ngTouch', 'ui.bootstrap', 'c4p.filters', 'c4p.services', 'c4p.directives']);
 
-appModule.value('version', '14S12'); //cf BUILD_DATE
+appModule.value('version', '14S15'); //TODO cf BUILD_DATE
 
 /*
 appModule.config(['$routeProvider', function ($routeProvider) {

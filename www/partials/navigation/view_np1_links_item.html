@@ -9,20 +9,58 @@
     <div resize-opts="{name:'detailed_links_scroller', watchRefresh:['srvNav.itemRelatedGroupList', 'srvNav.item']}">
 
 
+        <!-- Suggestions-->
+        <div class="c4p-related-card c4p-color-a-gradient1">
+            <ul class="c4p-related-card-list">
+        
+
+                <li class="c4p-related-card-header c4p-color-j-dark-iii"
+                    ng-click="setShowGroupSuggestion(!showGroupSuggestion)">
+                    <span class="glyphicon glyphicon-fw glyphicon-ellipsis-h"></span>
+                    <span>Suggestions ...</span>
+                    <span class="c4p-aside-count">3</span>
+                </li>
+                <li ng-show="showGroupSuggestion">
+                    <div class="row c4p-color-j-gradient3">
+                        <ul class="nav nav-pills nav-stacked">
+                            <li>
+                                <ul class="nav nav-pills nav-justified">
+                                    <li>
+                                        <a class="btn" ng-click="takePicture()">
+                                            <span class="glyphicon glyphicon-camera"></span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="btn" ng-click="takeNote()">
+                                            <span class="glyphicon glyphicon-pencil-square-o"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <!--<div ng-show="srvNav.itemRelatedGroupList.length == 0" 
+                                    style="text-align: center; padding: 1em;">
+                                    class="btn c4p-infos-txt"
+                                    -->
+                                <ul class="nav nav-pills nav-justified">
+                                    <li>
+                                        <a class="btn c4p-infos-txt"
+                                         ng-click="setRootMenu()">
+                                        {{translate('htmlViewNlinkItemTextNoRelation')}}
+                                        <span class="c4p-icon-std glyphicon glyphicon-plus"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+
+                            </li>
+                        </ul>
+                        
+                    </div>
+                </li>
+
+
+
         <!-- N+1 object groups -->
-
-        <div ng-show="srvNav.itemRelatedGroupList.length == 0" style="text-align: center; padding: 1em;">
-
-            <div class="btn c4p-infos-txt"
-                 ng-click="setRootMenu()">
-                {{translate('htmlViewNlinkItemTextNoRelation')}}
-
-                <br /><span class="c4p-icon-std glyphicon glyphicon-plus"></span>
-            </div>
-
-        </div>
-
-
         <div class="c4p-related-card c4p-color-a-gradient1" ng-repeat="group in srvNav.itemRelatedGroupList"
             ng-show="group.type != 'Plan' && group.type != 'Facet'">
             <ul class="c4p-related-card-list">
@@ -67,6 +105,7 @@
                 </li>
             </ul>
         </div>
+
     </div>
 </div>
 <!--
