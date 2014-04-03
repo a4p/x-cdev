@@ -4,7 +4,7 @@
     xmlns:cdv   = "http://cordova.apache.org/ns/1.0"
     xmlns:android   = "http://schemas.android.com/apk/res/android"
     id          = "com.apps4pro.c4pdev"
-    version     = "14040318"  
+    version     = "14040323"  
     versionCode = "C4P_BUILD_DATE">
     
     <name>C_d</name>
@@ -46,7 +46,7 @@
             http://docs.build.phonegap.com/en_US/3.3.0/configuring_preferences.md.html#Preferences 
     -->
     <preference name="orientation" value="default" />
-    <preference name="fullscreen" value="true" />
+    <preference name="fullscreen" value="false" />
     <preference name="exit-on-suspend" value="false" />
 
     <preference name="ios-statusbarstyle" value="black-translucent" />
@@ -63,12 +63,12 @@
             http://docs.phonegap.com/en/edge/guide_platforms_ios_config.md.html#iOS%20Configuration) 
             http://docs.phonegap.com/en/edge/guide_platforms_android_config.md.html#Android%20Configuration
     -->
-    <preference name="webviewbounce" value="false" />
-    <preference name="DisallowOverscroll" value="true" />
+    <preference name="webviewbounce" value="true" />
+    <preference name="DisallowOverscroll" value="false" />
     <preference name="HideKeyboardFormAccessoryBar" value="true" />
     <preference name="windowSoftInputMode" value="stateVisible|adjustResize" />
-    <preference name="stay-in-webview" value="true" />
-    <preference name="EnableViewportScale" value="true" />
+    <preference name="stay-in-webview" value="false" />
+    <preference name="EnableViewportScale" value="false" />
     <preference name="KeepRunning" value="true"/>
 
     <preference name="show-splash-screen-spinner" value="true" />
