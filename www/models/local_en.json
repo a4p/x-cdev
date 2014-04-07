@@ -3,7 +3,7 @@
     "htmlGuiderFormStaySignedIn":"Stay signed in",
     "htmlGuiderTextPasswordForgotten":"Please prompt your email. A link will be sent allowing you to reset your password",
     "htmlGuiderTextValidation":"Synchronization is running. Please wait ...",
-    "htmlGuiderTextWaiting":"<blockquote><p>Patience, persistence and perspiration make an unbeatable combination for success.</p><small>Napoleon Hill</small></blockquote>",
+    "htmlGuiderTextWaiting":"<blockquote style='background: none'><p>Patience, persistence and perspiration make an unbeatable combination for success.</p><small>Napoleon Hill</small></blockquote>",
 
     "htmlGuiderNeedHelp":"Question ?",
 
@@ -94,7 +94,7 @@
 
     "htmlViewNrelatedPageTitle":"Related items",
     "htmlViewNrelatedPageTitleNew":"New relations",
-    "htmlViewNlinkItemTextNoRelation": "No relation! Create one using drag & drop",
+    "htmlViewNlinkItemTextNoRelation": "Create one relation with {0}. Use the drag & drop.",
     "htmlViewNlinkItemTextRemoveLink":"Remove link kind:",
 
 

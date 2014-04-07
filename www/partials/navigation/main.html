@@ -27,7 +27,7 @@
         ng-style="{height:(getResizeHeight() - 0)+'px', width:getCentralContainerWidth()+'px'}"
         resize-opts="{name:'navigation_ctrlPanelMove'}"
         sense-opts="{name:'navigation_ctrlPanelMove', axeX:'scroll', init:'setSensePanel($sense);'}"
-        sense-scrollopts="{scrollbarClass:'c4p-scrollbar', hScrollbar : false, x:getPanelX()}"
+        sense-scrollopts="{scrollbarClass:'c4p-scrollbar', hScrollbar : false, x:getPanelX(), momentum: 0}"
         sense-afterscrollend="onPanelAfterScrollEnd($x, $y)"
         style="z-index: 5;">
         <div resize-opts="{name:'navigation_panel_scroller'}"
@@ -83,12 +83,13 @@
                 </div>
             </div>
 
-            <div class="c4p-color-a-gradient2"
+            <div class="c4p-color-a-gradient2 row"
                  sense-opts="{name:'right_toolbar_wrapper', axeY:'scroll', watchRefresh:['srvNav.item', 'srvNav.itemRelatedGroupList']}"
                  sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}"
                  resize-opts="{name:'right_toolbar_wrapper'}"
                  resizecss-height="getResizeHeight() - getResizePathValue('right_toolbar_header', '', 'offsetHeight')">
-                <div resize-opts="{name:'right_toolbar_scroller', watchRefresh:['srvNav.item', 'srvNav.itemRelatedGroupList']}">
+                <div class="col-xxs-12" 
+                    resize-opts="{name:'right_toolbar_scroller', watchRefresh:['srvNav.item', 'srvNav.itemRelatedGroupList']}">
 
 
                     <!-- suggestions -->

@@ -53,10 +53,10 @@ directiveModule.directive('a4pRefresh', function () {
     return {
         restrict: 'A',
         template: "<div class='a4pRefresh'>" +
-            "<span class='glyphicon glyphicon-refresh icon-large' ng-show='a4pSpinnerState == \"done\"'></span>" +
-            "<span class='glyphicon glyphicon-refresh icon-large icon-spin' ng-show='a4pSpinnerState == \"run\"'></span>" +
-            "<span class='glyphicon glyphicon-refresh icon-large alert-error' ng-show='a4pSpinnerState == \"doneWithPb\"'></span>" +
-            "<span class='glyphicon glyphicon-refresh icon-large close' ng-show='a4pSpinnerState == \"offline\"'></span>" +
+            "<span class='glyphicon glyphicon-refresh glyphicon-lg' ng-show='a4pSpinnerState == \"done\"'></span>" +
+            "<span class='glyphicon glyphicon-refresh glyphicon-lg glyphicon-spin' ng-show='a4pSpinnerState == \"run\"'></span>" +
+            "<span class='glyphicon glyphicon-refresh glyphicon-lg alert-error' ng-show='a4pSpinnerState == \"doneWithPb\"'></span>" +
+            "<span class='glyphicon glyphicon-refresh glyphicon-lg close' ng-show='a4pSpinnerState == \"offline\"'></span>" +
             "</div>",
         //scope : '=',
         link: function (scope, element, attrs) {

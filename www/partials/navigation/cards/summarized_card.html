@@ -1,0 +1,11 @@
+
+<div ng-controller="ctrlSummarizedObject" 
+    ng-init="set(item, 'displaySummarizedObjectGroups')"
+    ng-touch="startSpinner()"
+    ng-click="selectItem(item)">
+
+    <div 
+        ng-init="cardItem = item; cardGroups = groups; cardHasThumb = true; cardItemName = itemName; cardIsAboutVideo = isVideo; cardIsAboutFile = isFile;"
+        ng-include ="'partials/navigation/cards/detail_card.html'">
+    </div>
+</div>

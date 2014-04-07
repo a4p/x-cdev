@@ -22,6 +22,7 @@
 
 
     <link href="l4p/css/c4p-theme-apps4pro.min.css" rel="stylesheet" type="text/css" id="c4p-css" >
+
     <!--<link href="l4p/css/jquery.noty.css" rel="stylesheet" type="text/css">
     <link href="l4p/css/noty_theme_default.css" rel="stylesheet" type="text/css">-->
 
@@ -31,7 +32,7 @@
     <script src="http://192.168.0.33:8082/target/target-script-min.js"></script>-->
     <script type="text/javascript">
         console.log('ua: '+navigator.userAgent);
-        if (!navigator.userAgent.match('hrome')) {
+        if (!navigator.userAgent.match('hrome') || navigator.userAgent.match('Mobile')) {
             var newScript = document.createElement("script");
             newScript.type = "text/javascript";
             newScript.setAttribute("src", 'cordova.js');
@@ -44,55 +45,47 @@
         }
     </script>
 
-
 </head>
 <body ng-app="c4p" ontouchmove="blockMove(event)" onscroll="blockMove(event)">
-	
-    <!--<div ng-controller="responsiveCtrl" style="border:3px solid green;">-->
+
 		<div ng-controller="navigationCtrl" ng-init="initNavigationCtrl()"
              resize-opts="{name:'navigation'}" resize-beforewindow="beforeWindowSizeChanged()">
 
-            <div id="a4pBody" ng-switch="page" ng-class="{'c4p-backdrop-blur':isBlurOn}">
-	      		<div class="" ng-switch-when="navigation"><div ng-include="'partials/navigation/main.html'"></div></div>
-	      		<div class="" ng-switch-when="guider"><div ng-include="'partials/guider/main.html'" ></div></div>
-	      		<div class="" ng-switch-when="meeting"><div ng-include="'partials/meeting/main.html'" ></div></div>
-	      		<div class="" ng-switch-when="timeline"><div ng-include="'partials/timeline/main.html'" ></div></div>
-	        	<div ng-switch-default><a ng-click="console.log('click')">...</a></div>
+            <div id="a4pBody"class="container" ng-class="{'c4p-backdrop-blur':isBlurOn}"
+                ng-switch="page">
+	      		<div class="row" ng-switch-when="navigation"><div ng-include="'partials/navigation/main.html'"></div></div>
+	      		<div class="row" ng-switch-when="guider"><div ng-include="'partials/guider/main.html'" ></div></div>
+	      		<div class="row" ng-switch-when="meeting"><div ng-include="'partials/meeting/main.html'" ></div></div>
+	      		<div class="row" ng-switch-when="timeline"><div ng-include="'partials/timeline/main.html'" ></div></div>
+	        	<div ng-switch-default>
+                    <h1 style="color: gray;text-align: center;">
+                        <span ng-click="startSpinner(true)">..</span>
+                        <span ng-click="stopSpinner()">..</span>
+                    </h1>
+                </div>
 	  		</div>
-            <div class="c4p-waiting"  style="display: none;">
-                    <!--<img src="img/loader.gif" style="padding-top: 30%; padding-left: 50%"  />
-                    <i class="glyphicon glyphicon-cog glyphicon-spin glyphicon-4x"></i>-->
-                    <span class="c4p-waiting-icon glyphicon-stack glyphicon-4x">
-                      <i class="glyphicon glyphicon-square glyphicon-stack-2x"></i>
-                      <i class="glyphicon glyphicon-play glyphicon-stack-1x glyphicon-inverse has-to-spin"></i>
+            <div class="c4p-waiting c4p-click-through"  style="display: none;">
+                    <!--<h1 style="color: red;text-align: center;">{{page}}</h1>-->
+                    <span class="c4p-waiting-icon glyphicon-stack glyphicon-2x">
+                      <i class="glyphicon glyphicon-fw glyphicon-square glyphicon-stack-2x"></i>
+                      <!--<i class="glyphicon glyphicon-fw glyphicon-play glyphicon-stack-2x "></i>-->
+                      <i class="glyphicon glyphicon-fw glyphicon-cog glyphicon-stack-1x glyphicon-inverse has-to-spin"></i>
                     </span>
             </div>
-            <!--<div id="a4pResponsiveTester" ng-show="responsiveShowTester">
-                width : {{responsiveWidth}}<br>
-                height : {{responsiveHeight}}<br>
-                pageWidth : {{pageWidth}}<br>
-                pageHeight : {{pageHeight}}<br>
-                <button class="btn btn-warning" ng-click="updateWidth();updateHeight();">refresh</button>
-                <a class="btn btn-link" ng-click="hideTester()">close</a>
-            </div>-->
 		</div>
-	<!--</div>-->
 
 	<!-- Load jQuery BEFORE Angular otherwise Angular loads its own JQuery lite version -->
 	<script type="text/javascript" src="l4p/libs/js/jquery/jquery-2.0.3.min.js"></script>
-    <!--
-	<script type="text/javascript" src="l4p/libs/js/angular/angular-a4p-patched.1.1.4.js"></script>
-	<script type="text/javascript" src="l4p/libs/js/angular/angular-resource.min.1.1.4.js"></script>
-    <script type="text/javascript" src="l4p/libs/js/angular/ui-bootstrap-tpls-0.5.0-c4p.js"></script>
--->
-   
+
     <script type="text/javascript" src="l4p/libs/js/angular/angular.min.js"></script>
     <script type="text/javascript" src="l4p/libs/js/angular/angular-touch.min.js"></script>
-    <!-- <script src="http://code.angularjs.org/1.3.0-beta.3/angular.js"></script>
-    <script src="http://code.angularjs.org/1.3.0-beta.3/angular-animate.js"></script>-->
+    <script type="text/javascript" src="l4p/libs/js/angular/angular-sanitize.min.js"></script>
     <script type="text/javascript" src="l4p/libs/js/angular/angular-resource.min.js"></script>
-
     <script type="text/javascript" src="l4p/libs/js/angular/ui-bootstrap-tpls.min.js"></script>
+
+
+    <script src='textAngular/textAngular-sanitize.min.js'></script>
+    <script src='textAngular/textAngular.min.js'></script>
 
 
     <script type="text/javascript" src="l4p/libs/js/bootstrap/bootstrap.min.js"></script>
@@ -140,6 +133,7 @@
     <script type="text/javascript" src="js/controller/dialog/ctrlDupMeeting.js"></script>
     <script type="text/javascript" src="js/controller/ctrlAction.js"></script>
     <script type="text/javascript" src="js/controller/ctrlAside.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlAsideItem.js"></script>
    	<script type="text/javascript" src="js/controller/ctrlCalendar.js"></script>
    	<script type="text/javascript" src="js/controller/ctrlConfig.js"></script>
    	<script type="text/javascript" src="js/controller/ctrlDetail.js"></script>
@@ -157,7 +151,7 @@
     <script type="text/javascript" src="js/controller/ctrlNavObject.js"></script>
     <script type="text/javascript" src="js/controller/ctrlNamedObject.js"></script>
     <script type="text/javascript" src="js/controller/ctrlResponsive.js"></script>
-    <script type="text/javascript" src="js/controller/ctrlResumedObject.js"></script>
+    <script type="text/javascript" src="js/controller/ctrlSummarizedObject.js"></script>
     <script type="text/javascript" src="js/controller/ctrlSingleTap.js"></script>
     <script type="text/javascript" src="js/controller/ctrlLinkActions.js"></script>
 	<script type="text/javascript" src="js/controller/ctrlViewer.js"></script>

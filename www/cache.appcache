@@ -1,6 +1,6 @@
 CACHE
 MANIFEST
-#2014-04-07 12:07:37
+#2014-04-07 14:05:44
 
 img/dragPointer64.png
 img/dropPointer64.png
@@ -11,6 +11,7 @@ js/a4p/appcache.js
 js/app.js
 js/controller/ctrlAction.js
 js/controller/ctrlAside.js
+js/controller/ctrlAsideItem.js
 js/controller/ctrlCalendar.js
 js/controller/ctrlConfig.js
 js/controller/ctrlDetail.js
@@ -29,8 +30,8 @@ js/controller/ctrlNavObject.js
 js/controller/ctrlNavigation.js
 js/controller/ctrlNetworkTestRunner.js
 js/controller/ctrlResponsive.js
-js/controller/ctrlResumedObject.js
 js/controller/ctrlSingleTap.js
+js/controller/ctrlSummarizedObject.js
 js/controller/ctrlTimeline.js
 js/controller/ctrlTrashObject.js
 js/controller/ctrlViewer.js
@@ -132,6 +133,7 @@ l4p/libs/js/angular/angular-google-maps.js
 l4p/libs/js/angular/angular-google-maps.min.js
 l4p/libs/js/angular/angular-resource.min.1.1.4.js
 l4p/libs/js/angular/angular-resource.min.js
+l4p/libs/js/angular/angular-sanitize.min.js
 l4p/libs/js/angular/angular-touch.min.js
 l4p/libs/js/angular/angular.js
 l4p/libs/js/angular/angular.min.1.1.4.js
@@ -245,6 +247,7 @@ partials/meeting/meeting_viewer_report.html
 partials/navigation/aside_header.html
 partials/navigation/aside_root.html
 partials/navigation/aside_search.html
+partials/navigation/aside_search_list.html
 partials/navigation/calendar.html
 partials/navigation/calendar_day.html
 partials/navigation/calendar_day_events.html
@@ -255,13 +258,19 @@ partials/navigation/calendar_month.html
 partials/navigation/cards/4_rating.html
 partials/navigation/cards/4_rating_ro.html
 partials/navigation/cards/4_rating_ro2.html
-partials/navigation/cards/detailed_item.html
-partials/navigation/cards/draggable_inlined_item.html
-partials/navigation/cards/draggable_resumed_item.html
-partials/navigation/cards/draggable_summarized_item.html
+partials/navigation/cards/detail_card.html
+partials/navigation/cards/detail_field.html
+partials/navigation/cards/detail_synchro.html
+partials/navigation/cards/draggable_card.html
+partials/navigation/cards/draggable_inlined_card.html
+partials/navigation/cards/draggable_inlined_item___deprecated.html
+partials/navigation/cards/draggable_summarized_card.html
+partials/navigation/cards/draggable_summarized_item___deprecated.html
+partials/navigation/cards/inlined_card.html
 partials/navigation/cards/inlined_item.html
-partials/navigation/cards/list_item.html
-partials/navigation/cards/resumed_item.html
+partials/navigation/cards/list_item___deprecated.html
+partials/navigation/cards/summarized_card.html
+partials/navigation/cards/summarized_card___deprecated.html
 partials/navigation/cards/summarized_item.html
 partials/navigation/config.html
 partials/navigation/config_header.html
@@ -270,9 +279,12 @@ partials/navigation/footer_related.html
 partials/navigation/main.html
 partials/navigation/translucent_panel.html
 partials/navigation/view_n.html
-partials/navigation/view_np1_link_editor.html
-partials/navigation/view_np1_links_item.html
-partials/navigation/view_np1_related.html
+partials/navigation/view_n_1.html
+partials/navigation/view_n_1_details___deprecated.html
+partials/navigation/view_n_1_header.html
+partials/navigation/view_n_2.html
+partials/navigation/view_n_2_link_editor.html
+partials/navigation/view_n_2_links_item.html
 http://www.apps4pro.com/samples/c4pGuider1.gif
 http://www.apps4pro.com/samples/c4pGuider2.gif
 http://www.apps4pro.com/samples/c4pGuider3.gif

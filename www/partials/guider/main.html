@@ -5,24 +5,24 @@
             resize-opts="{name:'guider_index_a4pPage_scroll_container'}"
             sense-opts="{name:'guider_index', axeY:'scroll', watchRefresh:'slide'}"
             sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}"
-            > <!--  -->
-            <div ng-switch on="getSlideFromGuider()" class="c4p-animate-switch-container">
+            > <!-- -->
+            <div ng-switch on="getSlideFromGuider()" class="col-xxs-12 c4p-animate-switch-container">
             	<div ng-switch-when="connection" class="c4p-animate-switch" >
             		<div ng-include="'partials/guider/connection.html'"></div>
             	</div>
-            	<div ng-switch-when="validation" class="c4p-animate-switch" >
+            	<div ng-switch-when="validation" class="col-xxs-12 c4p-animate-switch" > 
             		<div ng-include="'partials/guider/validation.html'"></div>
-            	</div>
-            	<div ng-switch-when="requestPassword" class="c4p-animate-switch" >
+           	    </div>
+            	<div ng-switch-when="requestPassword" class="col-xxs-12 c4p-animate-switch" >
             		<div ng-include="'partials/guider/requestPassword.html'"></div>
             	</div>
-            	<div ng-switch-when="validationReceiveRes" class="c4p-animate-switch" >
+            	<div ng-switch-when="validationReceiveRes" class="col-xxs-12 c4p-animate-switch" >
             		<div ng-include="'partials/guider/validationReceiveRes.html'"></div>
             	</div>
-                <div ng-switch-default class="c4p-animate-switch" >
+                <div ng-switch-default class="col-xxs-12 c4p-animate-switch" >
                     <div ng-include="'partials/guider/register.html'"></div>
                 </div>
-            </div>
+            </div> <!--  -->
     </div>
     <footer ng-include="'partials/guider/footer.html'"></footer>
 </div>

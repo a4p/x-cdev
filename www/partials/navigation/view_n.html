@@ -1,7 +1,5 @@
 <!-- controller is ctrlDetail -->
-<div class="row">
-    <!-- row class required to put footer in another line below or else sizes are not good for Resize calculations -->
-    <div resize-opts="{name:'navigation_view_n'}">
+<div class="container" resize-opts="{name:'navigation_view_n'}">
         <!-- Details Content -->
         <div class="c4p-ltr ng-cloak"
              ng-style="{height:getResizeHeight()+'px', width:getDetailWidth()+'px'}"
@@ -14,16 +12,14 @@
                 <span class="c4p-icon-std glyphicon glyphicon-ellipsis-v"></span>
             </div>
 
-            <div ng-include="'partials/navigation/cards/detailed_item.html'"></div>
+            <div ng-include="'partials/navigation/view_n_1.html'"></div>
         </div>
 
-        <!-- N + 1 -->
+        <!-- Related -->
         <div class="c4p-ltr ng-cloak"
              ng-style="{height:getResizeHeight()+'px', width:getRelatedWidth()+'px'}"
              resize-opts="{name:'navigation_view_links'}">
-            <!-- Use automatically srvNav.item to know which links to show
-            <div ng-include="'partials/navigation/view_np1_links_item.html'"></div> -->
-            <div ng-include="'partials/navigation/view_np1_related.html'"></div>
+
+            <div ng-include="'partials/navigation/view_n_2.html'"></div>
         </div>
-    </div>
 </div>

@@ -659,7 +659,7 @@ abbr[data-original-title] {
 blockquote {
   padding: 0.78125em 1.5625em;
   margin: 0 0 1.5625em;
-  font-size: 1.5625em;
+  font-size: 1.25em;
   border-left: 5px solid #e6e6e6;
 }
 blockquote p:last-child,
@@ -673,7 +673,7 @@ blockquote .small {
   display: block;
   font-size: 80%;
   line-height: 1.25;
-  color: #999999;
+  color: #f5f5dc;
 }
 blockquote footer:before,
 blockquote small:before,
@@ -2583,6 +2583,19 @@ input[type="button"].btn-block {
 .form-horizontal .has-feedback .form-control-feedback {
   top: 0.3em;
 }
+.form-control {
+  height: inherit;
+  min-height: 2.3625em;
+}
+.ta-toolbar button[disabled] {
+  display: none;
+}
+.c4p-red {
+  color: #e51400;
+}
+.c4p-yellow-back {
+  background-color: #f0f000;
+}
 /*
 //
 // Forms
@@ -2938,6 +2951,21 @@ input[type="checkbox"],
   }
 }
 */
+blockquote {
+  /* padding: (@line-height-computed / 2) @line-height-computed;
+  margin: 0 0 @line-height-computed;
+  font-size: @blockquote-font-size;
+  border-left: 5px solid @blockquote-border-color;
+  */
+  background-color: #f5f5dc;
+  margin: 0;
+}
+blockquote .form-control {
+  background-color: #f5f5dc;
+  border: none;
+  padding: 0;
+  -webkit-box-shadow: none;
+}
 .fade {
   opacity: 0;
   -webkit-transition: opacity 0.15s linear;
@@ -7937,6 +7965,7 @@ button.close {
 .c4p-waiting {
   z-index: 1050;
   position: absolute;
+  background: rgba(0, 0, 0, 0.3);
   top: 0;
   bottom: 0;
   left: 0;
@@ -7945,8 +7974,8 @@ button.close {
 .c4p-waiting .c4p-waiting-icon {
   position: absolute;
   top: 40%;
-  left: 40%;
-  opacity: 0.5;
+  left: 45%;
+  opacity: 0.3;
 }
 .c4p-link1,
 .c4p-link1 i,
@@ -22569,26 +22598,16 @@ ul.noty_cont.noty_layout_bottomRight {
 content: "\f005";
 color: #e3cf7a;
 }*/
-*,
-body {
-  -webkit-touch-callout: none;
-  /* prevent callout to copy image, etc when tap to hold */
-  -webkit-user-drag: none;
-  /* IMPORTANT : prevent Chrome to drag by itself */
-  -webkit-user-modify: none;
-  -webkit-text-size-adjust: none;
-  /* prevent webkit from resizing text to fit */
-  /* make transparent link selection, adjust last value opacity 0 to 1.0 */
-}
-*:not(input):not(textarea),
+/*
+*:not(input):not(textarea):not(.form-control),
 body,
 html {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-}
+  // prevent touch scroll
+  .c4p-touch-prevent();
+
+  // prevent copy paste, to allow, change 'none' to 'text'
+  .c4p-user-select(none);
+}*/
 html {
   font-size: 80%;
 }

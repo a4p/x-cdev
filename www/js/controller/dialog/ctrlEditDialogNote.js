@@ -1,6 +1,6 @@
 'use strict';
 
-function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, attendees, attachments, event, note, editable, modeEdit, spinner, openDialogFct, $modalInstance) {
+function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, attendees, attachments, event, note, editable, modeEdit, spinner, openDialogFct, $modalInstance, textAngularManager) {
 
     /**
      * Helpers
@@ -265,7 +265,7 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
             function (result) {
                 if (result) {
                     srvData.removeAndSaveObject($scope.note);
-                    dialog.close();
+                    $modalInstance.close();
                 }
             });
     };
@@ -558,6 +558,31 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
             }
         }
         return null;
+    };
+
+
+    $scope.textAngularToolbarInit = function(){
+        var data = [];
+        
+        data["quote"]           = {iconclass: "glyphicon glyphicon-quote-right"};
+        data["bold"]            = {iconclass: "glyphicon glyphicon-bold"};
+        data["italics"]         = {iconclass: "glyphicon glyphicon-italic"};
+        data["underline"]       = {iconclass: "glyphicon glyphicon-underline"};
+        data["ul"]              = {iconclass: "glyphicon glyphicon-list-ul"};
+        data["ol"]              = {iconclass: "glyphicon glyphicon-list-ol"};
+        data["redo"]            = {iconclass: "glyphicon glyphicon-repeat"};
+        data["undo"]            = {iconclass: "glyphicon glyphicon-undo"};
+        data["clear"]           = {iconclass: "glyphicon glyphicon-ban"};
+        data["justifyLeft"]     = {iconclass: "glyphicon glyphicon-align-left"};
+        data["justifyCenter"]   = {iconclass: "glyphicon glyphicon-align-center"};
+        data["justifyRight"]    = {iconclass: "glyphicon glyphicon-align-right"};
+        data["html"]            = {iconclass: "glyphicon glyphicon-repeat",disabled:function(){return true;}};
+        data["insertImage"]     = {iconclass: "glyphicon glyphicon-picture-o",disabled:function(){return true;}};
+        data["insertLink"]      = {iconclass: "glyphicon glyphicon-link",disabled:function(){return true;}};
+        data["insertVideo"]     = {iconclass: "glyphicon glyphicon-youtube-play",disabled:function(){return true;}};
+
+
+        textAngularManager.updateToolsDisplay(data);
     };
 
     /**

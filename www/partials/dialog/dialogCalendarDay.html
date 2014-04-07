@@ -41,7 +41,7 @@
               </li>-->
               <li ng-repeat="item in calendarSelectedDay.eventsAllDay"
                   class="c4p-details  c4p-color-a-gradient2">
-                  <span ng-include="'partials/navigation/cards/summarized_item.html'"
+                  <span ng-include="'partials/navigation/cards/summarized_card.html'"
                         ng-click="setItem(item)"></span>
               </li>
           </ul>
@@ -54,7 +54,7 @@
               </li>-->
               <li ng-repeat="item in calendarSelectedDay.events"
                   class="c4p-details  c4p-color-a-gradient3">
-                  <span ng-include="'partials/navigation/cards/summarized_item.html'"
+                  <span ng-include="'partials/navigation/cards/summarized_card.html'"
                         ng-click="setItem(item)"></span>
               </li>
           </ul>

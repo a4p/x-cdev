@@ -7,7 +7,7 @@ c4p.Locale = {
     "htmlGuiderFormStaySignedIn":"Stay signed in",
     "htmlGuiderTextPasswordForgotten":"Please prompt your email. A link will be sent allowing you to reset your password",
     "htmlGuiderTextValidation":"Synchronization is running. Please wait ...",
-    "htmlGuiderTextWaiting":"<blockquote><p>Patience, persistence and perspiration make an unbeatable combination for success.</p><small>Napoleon Hill</small></blockquote>",
+    "htmlGuiderTextWaiting":"<blockquote style='background: none'><p>Patience, persistence and perspiration make an unbeatable combination for success.</p><small>Napoleon Hill</small></blockquote>",
 
     "htmlGuiderNeedHelp":"Question ?",
 
@@ -98,7 +98,7 @@ c4p.Locale = {
 
     "htmlViewNrelatedPageTitle":"Related items",
     "htmlViewNrelatedPageTitleNew":"New relations",
-    "htmlViewNlinkItemTextNoRelation": "No relation! Create one using drag & drop",
+    "htmlViewNlinkItemTextNoRelation": "Create one relation with {0}. Use the drag & drop.",
     "htmlViewNlinkItemTextRemoveLink":"Remove link kind:",
 
 
@@ -803,7 +803,7 @@ c4p.Locale = {
     "htmlGuiderFormStaySignedIn":"Rester connect\u00E9",
     "htmlGuiderTextPasswordForgotten":"Veuillez saisir votre email. Un lien permettant de reg\u00E9n\u00E9rer votre mot de passe vous sera envoy\u00E9",
     "htmlGuiderTextValidation":"Synchronisation en cours. Veuillez patientez ...",
-    "htmlGuiderTextWaiting":"<blockquote><p>La patience, la persistance et la transpiration sont les cl\u00E9s du succ\u00E8s.</p><small>Napoleon Hill</small></blockquote>",
+    "htmlGuiderTextWaiting":"<blockquote style='background: none'><p>La patience, la persistance et la transpiration sont les cl\u00E9s du succ\u00E8s.</p><small>Napoleon Hill</small></blockquote>",
 
     "htmlGuiderNeedHelp":"Question ?",
 
@@ -894,7 +894,7 @@ c4p.Locale = {
 
     "htmlViewNrelatedPageTitle":"Informations associ\u00E9es",
     "htmlViewNrelatedPageTitleNew":"Nouvelles relations",
-    "htmlViewNlinkItemTextNoRelation": "Pas de relation, cr\u00E9ez-en une avec un glisser-d\u00E9poser",
+    "htmlViewNlinkItemTextNoRelation": "Cr\u00E9ez une relation avec {0}. Faites un glisser-d\u00E9poser.",
     "htmlViewNlinkItemTextRemoveLink":"Supprimer un lien de type :",
 
 

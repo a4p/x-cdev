@@ -1,7 +1,7 @@
 'use strict';
 
 // Declare app level module which depends on filters, and services
-var appModule = angular.module('c4p', ['ngTouch', 'ui.bootstrap', 'c4p.filters', 'c4p.services', 'c4p.directives']);
+var appModule = angular.module('c4p', ['ngTouch', 'ngSanitize','textAngular', 'ui.bootstrap', 'c4p.filters', 'c4p.services', 'c4p.directives']);
 
 appModule.value('version', '14S15'); //TODO cf BUILD_DATE
 
@@ -39,6 +39,59 @@ angular.module('c4p.routes', [], function($routeProvider, $locationProvider) {
 	  //$locationProvider.html5Mode(true);
 });
 */
+
+// TextAngular
+appModule.config(function($provide){
+        // this demonstrates how to register a new tool and add it to the default toolbar
+        $provide.decorator('taOptions', ['taRegisterTool', '$delegate', function(taRegisterTool, taOptions){ // $delegate is the taOptions we are decorating
+            taRegisterTool('colorRed', {
+                iconclass: "glyphicon glyphicon-pencil c4p-red",
+                action: function(){
+                    this.$editor().wrapSelection('forecolor', 'red');
+                }
+            });
+            taRegisterTool('colorYellow', {
+                iconclass: "glyphicon glyphicon-pencil c4p-yellow-back",
+                action: function(){
+                    this.$editor().wrapSelection('styleWithCSS','true');
+                    this.$editor().wrapSelection('hilitecolor','yellow');
+                }
+            });
+            // add the button to the default toolbar definition
+            taOptions.toolbar[1].push('colorRed');
+            //taOptions.toolbar[1].push('colorYellow');
+            return taOptions;
+        }]);
+        // this demonstrates changing the classes of the icons for the tools for font-awesome v3.x
+       
+        $provide.decorator('taTools', ['$delegate', function(taTools){
+            taTools.bold.iconclass = 'glyphicon glyphicon-bold';
+            taTools.italics.iconclass = 'glyphicon glyphicon-italic';
+            taTools.underline.iconclass = 'glyphicon glyphicon-underline';
+            taTools.ul.iconclass = 'glyphicon glyphicon-list-ul';
+            taTools.ol.iconclass = 'glyphicon glyphicon-list-ol';
+            taTools.undo.iconclass = 'glyphicon glyphicon-undo';
+            taTools.redo.iconclass = 'glyphicon glyphicon-repeat';
+            taTools.justifyLeft.iconclass = 'glyphicon glyphicon-align-left';
+            taTools.justifyRight.iconclass = 'glyphicon glyphicon-align-right';
+            taTools.justifyCenter.iconclass = 'glyphicon glyphicon-align-center';
+            taTools.clear.iconclass = 'glyphicon glyphicon-ban';
+            taTools.quote.iconclass = 'glyphicon glyphicon-quote-right';
+            // there is no quote icon in old font-awesome so we change to text as follows
+            //delete taTools.quote.iconclass;
+            //taTools.quote.buttontext = 'quote';
+
+            taTools.html.disabled = function(){return true;};
+            taTools.insertImage.disabled = function(){return true;};
+            taTools.insertLink.disabled = function(){return true;};
+            taTools.insertVideo.disabled = function(){return true;};
+            return taTools;
+        }]);
+
+});
+
+
+
 
 var serviceModule = angular.module('c4p.services', ['ngResource']);
 

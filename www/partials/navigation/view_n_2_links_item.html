@@ -1,0 +1,147 @@
+<!-- controller is ctrlDetail -->
+
+<div
+     sense-opts="{name:'detailed_links_wrapper', axeY:'scroll', watchRefresh:['srvNav.itemRelatedGroupList', 'srvNav.item', 'linksTimestamp'], init: 'setLinksScroller($sense)'}"
+     sense-scrollopts="{scrollbarClass:'c4p-scrollbar', pageSelector: 'div.c4p-related-card'}"
+     sense-afterscrollend="onLinksScrollEnd($event)"
+     resize-opts="{name:'detailed_links_wrapper'}"
+     resizecss-height="getResizeHeight() -getResizePathValue('detailed_links_header', '', 'offsetHeight')">
+    <div resize-opts="{name:'detailed_links_scroller', watchRefresh:['srvNav.itemRelatedGroupList', 'srvNav.item']}">
+
+
+        <!-- Suggestions-->
+        <div class="c4p-related-card c4p-color-a-gradient1" ng-controller="ctrlAction" ng-init="watchSrvNav();">
+            <ul class="c4p-related-card-list">
+
+                <li class="c4p-related-card-header c4p-color-j-dark-iii"
+                    ng-click="setShowGroupSuggestion(!showGroupSuggestion)">
+                    <span class="glyphicon glyphicon-fw glyphicon-ellipsis-h"></span>
+                </li>
+                <li ng-show="showGroupSuggestion">
+                    <div class="row c4p-color-j-gradient3"> 
+
+                        <div class="col-xxs-8 col-xxs-offset-2">
+                            <!-- //todo MLE: refactor in methodList in ctrlAction -->
+                            <div class="btn-group btn-group-justified btn-block">
+                                <a  ng-show="srvData.isMethodPossibleForObject('createNewPicture', srvNav.item)" 
+                                    class="btn close" ng-click="createNewPicture(srvNav.item)">
+                                    <span class="glyphicon glyphicon-camera"></span>
+                                </a>
+                                <a  ng-show="srvData.isMethodPossibleForObject('createNewNote', srvNav.item)" 
+                                    class="btn close" ng-click="createNewNote(srvNav.item)">
+                                    <span class="glyphicon glyphicon-{{getTypeIcon('Note')}}"></span>
+                                </a>
+                            </div>
+                            <div class="btn-block well well-sm" style="border-radius: 1em;"
+                                    ng-show="srvNav.itemRelatedGroupList.length == 0" >
+                                <a  class="btn"
+                                    style="white-space:normal">
+                                    <span>
+                                        {{a4pFormat(srvLocale.translations.htmlViewNlinkItemTextNoRelation, srvNav.itemName)}}
+                                    </span><br><br>
+                                    <span class="c4p-icon-std glyphicon glyphicon-plus"></span>
+                                </a>
+                            </div>
+                        </div>
+
+                        
+
+                        <!--
+                        <ul class="nav nav-pills nav-stacked">
+                            <li>
+                                <ul class="nav nav-pills nav-justified">
+                                    <li>
+                                        <a class="btn" ng-click="takePicture()">
+                                            <span class="glyphicon glyphicon-camera"></span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="btn" ng-click="takeNote()">
+                                            <span class="glyphicon glyphicon-pencil-square-o"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                //<div ng-show="srvNav.itemRelatedGroupList.length == 0" 
+                                //    style="text-align: center; padding: 1em;">
+                                //    class="btn c4p-infos-txt"
+                                <ul class="nav nav-pills nav-justified">
+                                    <li>
+                                        <a class="btn c4p-infos-txt"
+                                         ng-click="setRootMenu()">
+                                        {{translate('htmlViewNlinkItemTextNoRelation')}}
+                                        <span class="c4p-icon-std glyphicon glyphicon-plus"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+
+                            </li>
+                        </ul> -->
+                        
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+
+
+        <!-- N+1 object groups -->
+        <div class="c4p-related-card c4p-color-a-gradient1" ng-repeat="group in srvNav.itemRelatedGroupList"
+            ng-show="group.type != 'Plan' && group.type != 'Facet'">
+            <ul class="c4p-related-card-list">
+                <li class="c4p-related-card-header c4p-color-{{group.colorType}}-dark-iii"
+                    ng-click="toggleShowGroup(group)">
+                    <span class="glyphicon glyphicon-fw glyphicon-{{group.icon}}"></span>
+                    <span>{{group.name}}</span><span class="c4p-aside-count">{{group.size}}</span>
+                    <span c4p-show="isDocumentGroup(group.type) && (srvNav.imageRelatedList.length > 0)"
+                          ng-click="$event.stopPropagation();showGallery();"
+                          class="glyphicon glyphicon-eye-open pull-right"></span>
+                </li>
+                <li ng-repeat="link in srvNav.itemRelatedList[group.type]"
+                    ng-show="group.show">
+                    <div class="row c4p-color-{{group.colorType}}-gradient3 {{{true: 'c4p-related-card-item-1st', false: 'c4p-related-card-item-others'}[$first]}}">
+
+                        <!-- Cards -->
+                        <div class="col-xxs-10 c4p-related-card-holder">
+                            <span ng-include="'partials/navigation/cards/summarized_card.html'" ng-init="item = link.item"></span>
+                        </div>
+                        
+                        <!-- Actions for links between current object and linked object -->
+                        <div class="col-xxs-2" style="text-align: center;">
+                            <div ng-show="link.linkNames.length == 1">
+                                <div id="{{link.item.id.dbid}}-unlink" class="btn c4p-color-action-transparent c4p-padding-w-packed"
+                                     ng-click="unlinkDialog(link.linkNames[0], link.item)">
+                                    <span class="c4p-icon-std close">&times;</span>
+                                </div>
+                            </div>
+                            <div class="dropdown" ng-show="link.linkNames.length > 1">
+                                <div id="{{link.item.id.dbid}}-unlink" class="dropdown-toggle c4p-color-action-transparent c4p-padding-w-packed" data-toggle="dropdown">
+                                    <span class="c4p-icon-std close">&times;</span>
+                                </div>
+                                <ul class="dropdown-menu c4p-dropdown-menu pull-right c4p-dropdown" aria-labelledby="{{link.item.id.dbid}}-unlink">
+                                    <li>{{translate('htmlViewNlinkItemTextRemoveLink')}}</li>
+                                    <li ng-repeat="linkName in getPossibleLinkActionList(srvNav.item.a4p_type, link.item.a4p_type)"
+                                        ng-show="srvData.isObjectOwnedByUser(link.item) && srvData.isObjectOwnedByUser(srvNav.item)">
+                                        <div class="btn" ng-click="unlinkDialog(linkName, link.item)">
+                                            <span style="vertical-align:top">{{srvLocale.translations.htmlShortLinkName[linkName]}}</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+<!--
+<div class="row"
+     style="margin:0;"
+     class="c4p-color-{{getTypeColor(srvNav.item.a4p_type)}}-gradient2">
+    <footer ng-include="'partials/navigation/footer_related.html'"></footer>
+</div>
+-->

@@ -1,3 +1,42 @@
+
+
+
+<section class="row" >
+
+        <div class="c4p-color-a-gradient{{objectGroups.length}}">
+            <div ng-repeat="group in objectGroups">
+                <div class="c4p-color-a-gradient{{$index+1}} c4p-form-group">
+                    <!--<span class="c4p-form-group-title">{{group.title}}</span>-->
+                    <div ng-repeat="field in group.groupFields">
+
+                        <div ng-switch on="field.type">
+                            <div ng-switch-default="text">
+                                <c4p-input warn-var="field.warn"
+                                       title-var="field.title"
+                                       ng-model="note[field.key]"
+                                       type-var="field.type"
+                                       rows=5 cols=20
+                                       ng-change="onFieldChanged(field)"></c4p-input>
+                            </div>
+                            <div ng-switch-when="textarea">
+                                <label class="control-label a4p-dot">&nbsp;</label>
+                                <blockquote text-angular="text-angular" placeholder="{{field.title}}..." ng-model="note[field.key]"></blockquote>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</section>
+
+<!--  // Vertical Filler to let scroll inuts while virtual keyboard is masking almost all te screen -->
+<div class="row">
+    <div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+'px'}"></div>
+</div>
+
+<!--
 <div class="row" ng-show="modeEdit">
     <div class="col-xxs-12">
         <form class="c4p-color-a-gradient{{objectGroups.length}}">
@@ -17,7 +56,7 @@
         </form>
     </div>
     <div class="row">
-        <!-- Vertical Filler to let scroll inuts while virtual keyboard is masking almost all te screen -->
+        // Vertical Filler to let scroll inuts while virtual keyboard is masking almost all te screen
         <div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+'px'}"></div>
     </div>
 </div>
@@ -48,7 +87,6 @@
                                     'glyphicon-spinner'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),
                                     'icon-spin'          : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))
                                   }"></span>
-                  <!--          <span ng-show="group.icon" class="icon-large glyphicon glyphicon-{{itemIcon}}" ng-class="{'c4p-icon-calendar-allday':allDayEvent}"> </span> -->
                             <span ng-show="group.name">{{itemName}} </span>
                             <span ng-show="group.title">{{group.title}} </span>
                         </span>
@@ -119,3 +157,4 @@
         </div>
     </div>
 </div>
+-->

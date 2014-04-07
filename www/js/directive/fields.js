@@ -281,28 +281,6 @@ directiveModule.directive('c4pNoDot', function () {
 });
 
 
-/*
-//Prevent ellipse or wrap
-directiveModule.directive('c4pSynchroStatus', function () {
- return {
-     restrict:'E',
-     require : '^ngModel',
-     scope: {
-         model: '=ngModel'
-     },
-     template: '<div class="icon-stack c4p-synchro">' +
-         '<i class="icon-circle icon-stack-base"></i>' +
-         '<i ng-show="!model.c4p_synchro.deleting       && !model.c4p_synchro.creating       && !model.c4p_synchro.writing       && !model.c4p_synchro.reading" class="icon-ok"></i>' +
-         '<i ng-show="(model.c4p_synchro.deleting > 1)" class="icon-trash"></i>' +
-         '<i ng-show="!model.c4p_synchro.deleting       && (model.c4p_synchro.creating > 1)" class="icon-remove"></i>' +
-         '<i ng-show="!model.c4p_synchro.deleting       && !model.c4p_synchro.creating       && (model.c4p_synchro.writing > 1)" class="icon-upload-alt"></i>' +
-         '<i ng-show="!model.c4p_synchro.deleting       && !model.c4p_synchro.creating       && !model.c4p_synchro.writing       && (model.c4p_synchro.reading > 1)" class="icon-download-alt"></i>' +
-         '<i ng-show="(model.c4p_synchro.deleting == 1) || (model.c4p_synchro.creating == 1) || (model.c4p_synchro.writing == 1) || (model.c4p_synchro.reading == 1)" class="icon-spinner icon-spin"></i>' +
-         '</div>'
- }
-});
-*/
-
 directiveModule.directive('c4pBackImg', function(){
     return function(scope, element, attrs){
         var url = attrs.c4pBackImg;

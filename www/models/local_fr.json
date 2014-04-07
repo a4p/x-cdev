@@ -3,7 +3,7 @@
     "htmlGuiderFormStaySignedIn":"Rester connect\u00E9",
     "htmlGuiderTextPasswordForgotten":"Veuillez saisir votre email. Un lien permettant de reg\u00E9n\u00E9rer votre mot de passe vous sera envoy\u00E9",
     "htmlGuiderTextValidation":"Synchronisation en cours. Veuillez patientez ...",
-    "htmlGuiderTextWaiting":"<blockquote><p>La patience, la persistance et la transpiration sont les cl\u00E9s du succ\u00E8s.</p><small>Napoleon Hill</small></blockquote>",
+    "htmlGuiderTextWaiting":"<blockquote style='background: none'><p>La patience, la persistance et la transpiration sont les cl\u00E9s du succ\u00E8s.</p><small>Napoleon Hill</small></blockquote>",
 
     "htmlGuiderNeedHelp":"Question ?",
 
@@ -94,7 +94,7 @@
 
     "htmlViewNrelatedPageTitle":"Informations associ\u00E9es",
     "htmlViewNrelatedPageTitleNew":"Nouvelles relations",
-    "htmlViewNlinkItemTextNoRelation": "Pas de relation, cr\u00E9ez-en une avec un glisser-d\u00E9poser",
+    "htmlViewNlinkItemTextNoRelation": "Cr\u00E9ez une relation avec {0}. Faites un glisser-d\u00E9poser.",
     "htmlViewNlinkItemTextRemoveLink":"Supprimer un lien de type :",
 
 

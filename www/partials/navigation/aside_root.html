@@ -19,9 +19,9 @@
 <div resize-opts="{name:'aside_root'}"
      resizecss-height="getResizeHeight() -getResizePathValue('aside_root_header', '', 'offsetHeight') -getResizePathValue('aside_root_footer', '', 'offsetHeight')"
      sense-opts="{name:'aside_root', axeY:'scroll'}"
-     sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}"
-     class="c4p-bg-aside">
-    <div class="row">
+     sense-scrollopts="{scrollbarClass:'c4p-scrollbar', momentum: 0}"
+     class="c4p-bg-aside row">
+    <div class="col-xxs-12">
         <!-- use <ul class="list-group"><li class="list-group-item"> for border -->
         <!-- use <a> for finger cursor -->
         <!-- use <ul class="nav nav-pills nav-stacked"> for vertical stacking -->
@@ -108,6 +108,16 @@
                     <div class="btn col-xxs-12">
                         <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon('Document')}}"></span>
                         <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['documents']}}</span>
+                    </div>
+                </li>
+                <li class="c4p-list-item-aside c4p-color-{{getTypeColor('Note')}} " 
+                    ng-class="{active: activeItem == slideNavigationNotes}"
+                    ng-touch="startSpinner()"
+                    ng-click="setSearchMenu('Note')"
+                    ng-show="navAside && rootMenuUp || activeItem == slideNavigationNotes">
+                    <div class="btn col-xxs-12">
+                        <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon('Note')}}"></span>
+                        <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['notes']}}</span>
                     </div>
                 </li>
 
@@ -279,7 +289,7 @@
                         <div class="btn c4p-gray c4p-color-action-aside-transparent" 
                             ng-click="refreshClient();">
                             <span ng-switch="a4pSpinnerState" >
-                                <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh icon-spin" ng-switch-when="run"></span>
+                                <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh glyphicon-spin" ng-switch-when="run"></span>
                                 <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh alert-error" ng-switch-when="doneWithPb"></span>
                                 <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh close" ng-switch-when="offline"></span>
                                 <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh" ng-switch-default></span>

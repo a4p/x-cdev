@@ -1,4 +1,71 @@
+
 <!-- Headers -->
+<div class="row">
+    <div class="c4p-dialog-header">
+
+        <div class="col-xxs-12">
+            <!-- Nav tabs -->
+            <ul class="nav nav-pills">
+                <li class="hidden-xs">
+                  <a class="btn disabled">
+                    <div ng-switch on="note.a4p_type">
+                        <h5 ng-switch-when="Report">{{srvLocale.translations.htmlDialogNotePageTitleReport}}</h5>
+                        <h5 ng-switch-default>{{srvLocale.translations.htmlDialogNotePageTitleNote}}</h5>
+                    </div>
+                  </a>
+                </li>
+
+                <li ng-show="removeEnabled && modeEdit">
+                    <a class="btn c4p-color-cancel-transparent" ng-click="remove()">
+                        <span class="glyphicon glyphicon-trash-o"></span>
+                    </a>
+                </li>
+                <li ng-show="srvData.isMethodPossibleForObject('shareDocumentByEmail', note)">
+                    <a  class="btn" ng-click="submitAndShare()"
+                         ng-class="{'disabled': srvData.isMethodDisabledForObject('shareDocumentByEmail', note)}">
+                        <span class="glyphicon glyphicon-envelope"></span>
+                    </a>
+                </li>
+                <li ng-show="srvData.isMethodPossibleForObject('shareDocumentByEmail', note)">
+                    <a  class="btn" ng-click="submitAndShareByChatter()"
+                         ng-class="{'disabled': srvData.isMethodDisabledForObject('shareDocumentByChatter', note)}">
+                        <span class="glyphicon glyphicon-share"></span>
+                    </a>
+                </li>
+                <li ng-show="editable && !modeEdit" >
+                    <a  class="btn" ng-click="setModeEdit(true)">
+                        <span class="glyphicon glyphicon-edit"></span>
+                    </a>
+                </li>
+                <li ng-show="modeEdit">
+                    <a  class="btn"
+                         ng-repeat="footer in toolboxInEditMode"
+                         ng-click="footer.fn()">
+                        <span class="glyphicon glyphicon-{{footer.icon}}"></span>
+                    </a>
+                </li>
+
+
+
+                <li class="pull-right">
+                    <a class="btn" ng-click="close()">
+                      <span class="">&times;</span>
+                    </a>
+                </li>
+                <li class="pull-right" ng-hide="!modeEdit">
+                    <a class="btn" ng-click="submit()">
+                        <div ng-class="{'c4p-color-ok-transparent' : objectValidated, 'c4p-color-cancel-transparent' : !objectValidated}">
+                          <span class="glyphicon glyphicon-check"></span>
+                        </div>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Headers 
 <div class="row" resize-opts="{}">
     <div class="c4p-dialog-header c4p-color-gradient0" >
         <div class="btn c4p-color-action-transparent "  ng-click="close()" ng-hide="modeEdit">
@@ -36,8 +103,8 @@
              ng-show="modeEdit">
             <span class="glyphicon glyphicon-{{footer.icon}}"></span>
         </div>
-        <!-- ATTENTION: Next line use for vertical align -->
-        <!-- Sync all icon-Xx value in this file to keep alignment -->
+        // ATTENTION: Next line use for vertical align 
+        // Sync all icon-Xx value in this file to keep alignment 
         <div class="btn c4p-padding-w-packed">
             <div class="c4p-icon-std glyphicon">&nbsp;</div>
         </div>
@@ -55,17 +122,19 @@
             </div>
         </div>
     </div>
-</div>
+</div>-->
 
 <div class="row c4p-dialog-edit-container col-xxs-12 c4p-color-a-gradient{{objectGroups.length}}"
-     resizecss-height="getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight')"
-     sense-opts="{name:'dialogNote', axeY:'scroll', watchRefresh:'noteLastUpdate'}"
-     sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}"
-     style="height: 100%;">
+    resizecss-height="getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight')"
+    sense-opts="{name:'dialogNote', axeY:'scroll', watchRefresh:'noteLastUpdate'}"
+    sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}"
+    style="height: 100%;">
     <div ng-switch on="note.a4p_type">
-        <div ng-switch-when="Report"
-             ng-include="'partials/dialog/dialogNote_report.html'"></div>
-        <div ng-switch-default
-             ng-include="'partials/dialog/dialogNote_note.html'"></div>
+        <div ng-switch-when="Report">
+            <div ng-include="'partials/dialog/dialogNote_report.html'"></div>
+        </div>
+        <div ng-switch-default>
+            <div ng-include="'partials/dialog/dialogNote_note.html'"></div>
+        </div>
     </div>
 </div>

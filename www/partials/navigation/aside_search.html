@@ -143,12 +143,12 @@
             <!-- Search result -->
             <li class="c4p-list-item-aside" ng-show="srvFacet.ascendingOrder">
                 <a class="btn c4p-color-action-aside-transparent"  ng-click="$event.stopPropagation(); srvFacet.toggleOrder()">
-                    <span class="c4p-color-z-transparent"><span class="glyphicon glyphicon-sort-alpha-asc"></span></span>
+                    <span class="glyphicon glyphicon-sort-alpha-asc"></span>
                 </a>
             </li>
             <li class="c4p-list-item-aside" ng-hide="srvFacet.ascendingOrder">
                 <a class="btn c4p-color-action-aside-transparent" ng-click="$event.stopPropagation(); srvFacet.toggleOrder()">
-                    <span class="c4p-color-z-transparent"><span class="glyphicon glyphicon-sort-alpha-desc"></span></span>
+                    <span class="glyphicon glyphicon-sort-alpha-desc"></span>
                 </a>
             </li>
 
@@ -166,27 +166,31 @@
             <!-- Search button -->
             <li class="c4p-list-item-aside pull-right">
                 <div class="btn btn-sm" ng-click="$event.stopPropagation(); toggleSearch()">
-                    <span class="c4p-icon-std c4p-color-z-transparent"><span class="glyphicon glyphicon-search"></span></span>
+                    <span class="c4p-icon-std c4p-color-action-aside-transparent"><span class="glyphicon glyphicon-search"></span></span>
                 </div>
             </li>
 
         </ul>
     </div>
 </div>
-<div style="width:100%;"
-     ng-style="{width:getAsideWidth()+'px'}"
+
+
+
+<!-- Listed result -->
+<div ng-style="{width:getAsideWidth()+'px'}"
      resize-opts="{name:'aside_search_result_wrapper', watchRefresh:['srvFacet.filterFacets.length', 'activeSearch', 'srvFacet.lastFacetKey', 'srvConfig.c4pConfig.exposeAllFacets']}"
      resizecss-height="getResizePathValue('navigation_ctrlAside', '', 'offsetHeight') -getResizePathValue('aside_search_header', '', 'offsetHeight') -getResizePathValue('aside_search_search', '', 'offsetHeight') - getResizePathValue('aside_root_footer','','offsetHeight')"
      sense-opts="{name:'aside_search_result_wrapper', axeY:'scroll', watchRefresh:['srvFacet.filterFacets.length', 'activeSearch', 'srvFacet.lastFacetKey', 'srvConfig.c4pConfig.exposeAllFacets']}"
-     sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}"
-     class="c4p-menu-bg c4p-color-z">
+     sense-scrollopts="{scrollbarClass:'c4p-scrollbar', momentum: 0}"
+     class="c4p-menu-bg c4p-color-z row">
     <!-- aside_search_result_scroller -->
-    <nav ng-controller="ctrlSingleTap">
+    <nav class="col-xxs-12" ng-controller="ctrlSingleTap">
+
+
         <!-- Facet Keys and Items -->
         <ul class="list-group c4p-list-aside c4p-search-group-separator c4p-color-z"
             ng-repeat="groupKey in srvFacet.items.keyes">
             <!-- Group {{groupKey.title}} - {{srvFacet.items.lists[groupKey.value].length}} -->
-            <!--     -->
             <li class="list-group-item  c4p-list-item-aside"
                 ng-show="srvConfig.c4pConfig.exposeAllFacets"
                 ng-click="srvFacet.addFacet(srvFacet.lastFacetKey, groupKey.title, groupKey.value)">
@@ -200,100 +204,15 @@
                 <span class="badge">{{srvFacet.items.lists[groupKey.value].length}} </span>
             </li>
 
-            <!---->
-            <li class="list-group-item  c4p-list-item-aside"
-                ng-hide="srvConfig.c4pConfig.exposeAllFacets"
-                style="border-width: 1px;"
-                ng-repeat="facetItem in srvFacet.items.lists[groupKey.value]"
-                ng-init="init(facetItem.object)"
-                ng-controller="ctrlDragObject"
-                ng-class="{
-                'c4p-color-{{getFacetColor(srvFacet.getFirstFacet())}}':srvNav.item && (item.id.dbid == srvNav.item.id.dbid),
-                'active':srvNav.item && (item.id.dbid == srvNav.item.id.dbid),
-                'c4p-color-drag-bg' : srvNav.holdItem && (item.id.dbid == srvNav.holdItem.id.dbid),
-                'c4p-hover-drag':srvNav.item && srvConfig.c4pConfig.exposeDraggableHover,
-                'c4p-border-drag':srvNav.item && srvConfig.c4pConfig.exposeDraggableBorder
-                }" 
-                sense-opts="{name:'search-others-{{$index}}', bubble:true, watchRefresh:['srvNav.item', 'srvNav.holdItem']}"
-                sense-shorttap="selectItem(firstSingleTap(item.id.dbid))"
-                sense-doubletap="firstSingleTap('');selectItemAndCloseAside()"
-
-                sense-longdragoverenter="dragOverEnter($event,$element)"
-                sense-longdragoverleave="dragOverLeave($event,$element)"
-                sense-longdragstart="dragStart($event,$element)"
-                sense-longdragmove="dragMove($event,$element)"
-                sense-longdragend="dragEnd($event,$element)"
-                sense-longdragcancel="dragCancel($event,$element)">
-                <!-- 
-                sense-holdstart="holdStart($event,$element)"
-                sense-holdstop="holdStop($event,$element)" -->
-
-                <div class="row">
-                    <div class="btn col-xxs-12">
-                        <ul class="nav nav-pills">
-                            <!-- -->
-                            <li class="" style="width:90%">
-                                <div style="width:100%" ng-include="'partials/navigation/cards/list_item.html'"></div>
-                            </li>
-                            <li class="pull-right">
-                                <div class="">
-                                    <span ng-show="singleTapFocusId == item.id.dbid" class="glyphicon glyphicon-chevron-right"></span>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-            </li>
+            <div ng-init="asideItems = srvFacet.items.lists[groupKey.value]" 
+                ng-include="'partials/navigation/aside_search_list.html'"></div>
         </ul>
+
         <!-- Others - {{srvFacet.items.others.length}} -->
-        <ul class="list-group c4p-list-aside c4p-color-z" ng-show="srvFacet.items.others.length > 0">
-            <li class="list-group-item  c4p-list-item-aside"
-                style="border-width: 1px;"
-                ng-repeat="facetItem in srvFacet.items.others"
-                ng-init="init(facetItem.object)"
-                ng-controller="ctrlDragObject"
-                ng-class="{
-                'c4p-color-{{getFacetColor(srvFacet.getFirstFacet())}}':srvNav.item && (item.id.dbid == srvNav.item.id.dbid),
-                'active' : srvNav.item && (item.id.dbid == srvNav.item.id.dbid),
-                'c4p-color-drag-bg' : srvNav.holdItem && (item.id.dbid == srvNav.holdItem.id.dbid),
-                'c4p-hover-drag':srvNav.item && srvConfig.c4pConfig.exposeDraggableHover,
-                'c4p-border-drag':srvNav.item && srvConfig.c4pConfig.exposeDraggableBorder
-                }"
-                
-                sense-opts="{name:'search-others-{{$index}}', bubble:true, watchRefresh:['srvNav.item', 'srvNav.holdItem']}"
-                sense-shorttap="selectItem(firstSingleTap(item.id.dbid))"
-                sense-doubletap="firstSingleTap('');selectItemAndCloseAside()"
-
-                sense-longdragoverenter="dragOverEnter($event,$element)"
-                sense-longdragoverleave="dragOverLeave($event,$element)"
-                sense-longdragstart="dragStart($event,$element)"
-                sense-longdragmove="dragMove($event,$element)"
-                sense-longdragend="dragEnd($event,$element)"
-                sense-longdragcancel="dragCancel($event,$element)">
-                <!-- 
-                sense-holdstart="holdStart($event,$element)"
-                sense-holdstop="holdStop($event,$element)" -->
-
-
-                <div class="row">
-                    <div class="btn col-xxs-12">
-                        <ul class="nav nav-pills">
-                            <!-- -->
-                            <li class="" style="width:90%">
-                                <div   style="width:100%"
-                                        ng-include="'partials/navigation/cards/list_item.html'"></div>
-                            </li>
-                            <li class="pull-right">
-                                <div class="">
-                                    <span ng-show="singleTapFocusId == item.id.dbid" class="glyphicon glyphicon-chevron-right"></span>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-            </li>
+        <ul class="list-group c4p-list-aside c4p-color-z" 
+            ng-if="srvFacet.items.others.length > 0">
+            <div ng-init="asideItems = srvFacet.items.others" 
+                ng-include="'partials/navigation/aside_search_list.html'"></div>
         </ul>
 
         <!--

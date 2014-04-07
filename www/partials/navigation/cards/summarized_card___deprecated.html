@@ -1,11 +1,18 @@
 
-<h5>Summarized item</h5>
+<h5>Summarized card</h5>
 <div ng-controller="ctrlSummarizedObject" ng-init="set(item, 'displaySummarizedObjectGroups')">
-    <!-- To have the same starting line as with draggable_summarized_item.html -->
+
+    <div ng-init="cardHasThumb = true; cardItemName = itemName; isVideo ? (cardThumbUrl = item.url) : (cardThumbUrl = item.thumb_url); cardIsAboutVideo = isVideo; cardIsAboutFile = isFile;"
+        ng-include ="'partials/navigation/cards/detail_card.html'"></div>
+
+    <div class="c4p-card-text" 
+        ng-class="{'col-xxs-12': !cardHasThumb,'col-xxs-6' : (cardHasThumb && (cardIsAboutFile || cardIsAboutVideo)),'col-xxs-8' : (cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo)}">
+
+
     <div class="row">
         <div class="col-xxs-4" c4p-show="isFile"
              style="background: url('{{item.thumb_url}}') no-repeat center center;-webkit-background-size: contain;position: absolute;top:0;bottom:0;"
-             ng-click="$event.stopPropagation();test();">
+             ng-click="$event.stopPropagation();">
         </div>
         <div ng-class="{'col-xxs-12':!isFile, 'col-xxs-8 col-xxs-offset-4':isFile}">
             <div ng-repeat="group in groups">

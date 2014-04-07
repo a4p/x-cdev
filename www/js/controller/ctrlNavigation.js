@@ -1,6 +1,6 @@
 'use strict';
 
-function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, version,
+function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, $sce, version,
                         srvLoad, srvLocalStorage, srvFileStorage, srvAnalytics, srvConfig,
                         srvLog, srvLocale, srvData, srvRunning, srvSecurity,
                         srvSynchro, cordovaReady, srvLink, srvNav, srvGuider, srvFacet, srvOpenUrl) {
@@ -574,7 +574,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, version,
 
         $scope.spinnerContainer = spinnerContainer;
     };
-    $scope.startSpinner = function () {
+    $scope.startSpinner = function (bAutoStop) {
 
         console.log('startSpinner !');
         /*if (a4p.isDefined(window.plugins.spinnerDialog)) {
@@ -589,6 +589,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, version,
             $scope.spinnerContainer.style['display'] = '';
             var iconToSpin = $($scope.spinnerContainer).find('.has-to-spin');
             if (iconToSpin) iconToSpin.addClass('glyphicon-spin');
+            if (bAutoStop == true) $timeout(function(){$scope.stopSpinner();},5000);
+
         }
     };
     $scope.stopSpinner = function () {
@@ -1879,7 +1881,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, version,
         };
         $scope.openDialog(
             {
-                windowClass: 'modal c4p-modal-full c4p-dialog',
+                backdrop : false,
+                windowClass: 'modal c4p-modal-large c4p-dialog',
                 controller: 'ctrlEditDialogNote',
                 templateUrl: 'partials/dialog/dialogNote.html',
                 resolve: {
@@ -1981,7 +1984,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, version,
         };
         $scope.openDialog(
             {
-                windowClass: 'modal c4p-modal-full c4p-dialog',
+                backdrop : false,
+                windowClass: 'modal c4p-modal-large c4p-dialog',
                 controller: 'ctrlEditDialogNote',
                 templateUrl: 'partials/dialog/dialogNote.html',
                 resolve: {
@@ -2695,8 +2699,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, version,
         var editable = true;
         $scope.openDialog(
             {
-                windowClass: 'modal c4p-modal-full c4p-dialog',
-                backdrop: false,
+                backdrop : false,
+                windowClass: 'modal c4p-modal-large c4p-dialog',
                 controller: 'ctrlEditDialogNote',
                 templateUrl: 'partials/dialog/dialogNote.html',
                 resolve: {
@@ -2822,7 +2826,6 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, version,
 
     $scope.translate = function(key) {
     	var translation = srvLocale.translations[key];
-
     	return translation ? translation : key;
     };
     // ----------------------------------------------------
@@ -2913,8 +2916,12 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, version,
         return ($scope.inputHasBeenFocused == true); 
     };
 
+    $scope.to_trusted = function(html_code) {
+        return $sce.trustAsHtml(html_code);
+    }
+
 }
-navigationCtrl.$inject = ['$scope', '$q', '$timeout', '$location', '$http', '$modal', 'version',
+navigationCtrl.$inject = ['$scope', '$q', '$timeout', '$location', '$http', '$modal', '$sce' , 'version',
     'srvLoad', 'srvLocalStorage', 'srvFileStorage', 'srvAnalytics', 'srvConfig',
     'srvLog', 'srvLocale', 'srvData', 'srvRunning', 'srvSecurity',
     'srvSynchro', 'cordovaReady', 'srvLink', 'srvNav', 'srvGuider', 'srvFacet', 'srvOpenUrl'];

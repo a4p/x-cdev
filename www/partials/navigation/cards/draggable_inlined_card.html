@@ -1,0 +1,46 @@
+<!--
+     inputs:
+          cardItem
+
+
+<span ng-controller="ctrlDragObject"
+     ng-init="init(item)"
+     sense-opts="{bubble:true, watchRefresh:['srvNav.item', 'srvNav.holdItem']}"
+     sense-shorttap="selectItem()"
+     sense-doubletap="selectItemAndCloseAside()"
+     sense-holdstart="holdStart()"
+     sense-holdstop="holdStop()"
+     sense-longdragoverenter="dragOverEnter($event)"
+     sense-longdragoverleave="dragOverLeave($event)"
+     sense-longdragstart="dragStart($event)"
+     sense-longdragmove="dragMove($event)"
+     sense-longdragend="dragEnd($event)"
+     sense-longdragcancel="dragCancel($event)">
+    <span ng-include="'partials/navigation/cards/inlined_item.html'"
+          ng-class="{'c4p-hover-drag':srvNav.item && srvConfig.c4pConfig.exposeDraggableHover, 'c4p-border-drag':srvNav.item && srvConfig.c4pConfig.exposeDraggableBorder}"
+          style="border-width: 1px;padding:2px;"></span>
+</span>
+-->
+
+<div ng-controller="ctrlDragObject"
+     ng-init="init(cardItem)"
+     ng-class="{
+          'c4p-color-drag-bg' : srvNav.holdItem && (cardItem.id.dbid == srvNav.holdItem.id.dbid),
+          'c4p-hover-drag':srvNav.item && srvConfig.c4pConfig.exposeDraggableHover,
+          'c4p-border-drag':srvNav.item && srvConfig.c4pConfig.exposeDraggableBorder
+          }" 
+
+     sense-opts="{bubble:true, watchRefresh:['srvNav.item', 'srvNav.holdItem']}"
+     sense-longdragoverenter="dragOverEnter($event,$element)"
+     sense-longdragoverleave="dragOverLeave($event,$element)"
+     sense-longdragstart="dragStart($event,$element)"
+     sense-longdragmove="dragMove($event,$element)"
+     sense-longdragend="dragEnd($event,$element)"
+     sense-longdragcancel="dragCancel($event,$element)">
+     <!-- 
+     sense-holdstart="holdStart($event,$element)"
+     sense-holdstop="holdStop($event,$element)" -->
+
+     <div ng-include="'partials/navigation/cards/inlined_card.html'"></div>
+</div>
+

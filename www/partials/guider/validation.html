@@ -5,14 +5,23 @@
 		</div>
 		
 		<div class="row">	
-        	<div a4p-refresh class="pull-left col-sm-offset-3 white" style="padding-right:10px; padding-bottom:20px;"></div>
+			<span class="pull-left col-sm-offset-3 white" ng-switch="a4pSpinnerState" >
+                <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh glyphicon-spin" ng-switch-when="run"></span>
+                <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh alert-error" ng-switch-when="doneWithPb"></span>
+                <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh close" ng-switch-when="offline"></span>
+                <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh" ng-switch-default></span>
+                <span ng-show="(srvData.objectsToDownload.length + srvData.objectsToSave.length)">
+                    {{srvData.objectsToDownload.length + srvData.objectsToSave.length}}
+                </span>
+            </span>
+
 			<span class="col-xxs-11 col-sm-6 white">{{translate('htmlGuiderTextValidation')}}</span>
 		</div>
 		
 		<div class="row">
-			<a4p-carousel class="col-xxs-12 col-sm-offset-3 col-sm-6 white">
+			<a4p-carousel class="col-xxs-12 col-sm-offset-3 col-sm-6">
 				<a4p-slide active="true">
-					<span ng-bind-html-unsafe="translate('htmlGuiderTextWaiting')"></span>
+					<span ng-bind-html="to_trusted(srvLocale.translations.htmlGuiderTextWaiting)"></span>
 				</a4p-slide>
 			</a4p-carousel>
 		</div>
