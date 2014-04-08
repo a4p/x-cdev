@@ -173,12 +173,14 @@ function ctrlDragObject($scope, $modal, srvLocale, srvData, srvNav, srvLink, srv
         if (!$scope.proxy) {
             a4p.safeApply($scope, function() {
                 srvNav.holdStartItem($scope.item);
+                setCursorToMove($scope, event, element);
             });
         }
     };
 
     $scope.holdStop = function () {
         srvNav.holdStopItem();
+        $scope.dragEnd();
    	};
 
 	$scope.dragOverEnter = function (event) {

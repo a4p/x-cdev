@@ -221,10 +221,6 @@ function ctrlAction($scope, $q, $modal, srvData, srvNav, srvFacet, srvConfig, sr
         return deferred.promise;
     };
 
-    $scope.isTaggedFavorite = function(object) {
-        return srvData.isTaggedFavorite(object);
-    };
-
     $scope.toggleFavorite = function(object) {
         if (srvData.toggleFavorite(object)) {
             $scope.update();

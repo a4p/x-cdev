@@ -1,12 +1,11 @@
 
 <!--
  inputs :
- asideItems
+ listItem
  -->
 
 
-    <li class="list-group-item  c4p-list-item-aside"
-        ng-repeat="listItem in asideItems"
+    <div 
         ng-init="init(listItem.object)"
         ng-controller="ctrlAsideItem"
         ng-class="{
@@ -20,7 +19,7 @@
             <div class="btn col-xxs-12">
                 <ul class="nav nav-pills">
 
-                    <li class="" style="width:90%">
+                    <li class="" style="width:85%">
                         <div ng-init="cardItem = listItem.object"
                             ng-include="'partials/navigation/cards/draggable_inlined_card.html'">
                         </div>
@@ -34,4 +33,4 @@
             </div>
         </div>
 
-    </li>
+    </div>

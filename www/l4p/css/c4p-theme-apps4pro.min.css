@@ -8675,6 +8675,14 @@ ul.noty_cont.noty_layout_bottomRight {
   padding: 0.4em 1em;
   font-size: 1.25em;
 }
+.c4p-card .c4p-card-text address {
+  margin: 0 0.2em 0 0;
+  display: inline-block;
+}
+.c4p-card .c4p-card-thumb c4p-thumb canvas {
+  width: 90px;
+  height: 90px;
+}
 .c4p-card .c4p-card-thumb .table-responsive {
   border: 0;
 }
@@ -8696,6 +8704,20 @@ ul.noty_cont.noty_layout_bottomRight {
 .c4p-card .c4p-card-thumb .table > tfoot > tr > td {
   background: transparent;
   border: 0;
+}
+.c4p-card-summarized {
+  font-size: 1em;
+}
+.c4p-card-summarized .c4p-card-thumb .btn {
+  height: 100px;
+}
+.c4p-card-summarized .c4p-card-thumb c4p-thumb canvas {
+  width: 40px;
+  height: 40px;
+}
+.c4p-card-summarized .c4p-card-thumb .c4p-outline-star {
+  font-size: 1em;
+  opacity: 0.6;
 }
 /*
 .c4p-card-side {

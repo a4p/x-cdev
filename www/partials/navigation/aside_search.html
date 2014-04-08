@@ -204,15 +204,20 @@
                 <span class="badge">{{srvFacet.items.lists[groupKey.value].length}} </span>
             </li>
 
-            <div ng-init="asideItems = srvFacet.items.lists[groupKey.value]" 
-                ng-include="'partials/navigation/aside_search_list.html'"></div>
+            <li class="list-group-item  c4p-list-item-aside"
+                ng-repeat="listItem in srvFacet.items.lists[groupKey.value]">
+                <div ng-include="'partials/navigation/aside_search_list.html'"></div>
+            </li>
         </ul>
 
         <!-- Others - {{srvFacet.items.others.length}} -->
         <ul class="list-group c4p-list-aside c4p-color-z" 
             ng-if="srvFacet.items.others.length > 0">
-            <div ng-init="asideItems = srvFacet.items.others" 
-                ng-include="'partials/navigation/aside_search_list.html'"></div>
+
+            <li class="list-group-item  c4p-list-item-aside"
+                ng-repeat="listItem in srvFacet.items.others">
+                <div ng-include="'partials/navigation/aside_search_list.html'"></div>
+            </li>
         </ul>
 
         <!--
