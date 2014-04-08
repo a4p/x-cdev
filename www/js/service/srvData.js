@@ -2455,6 +2455,13 @@ var SrvData = (function() {
             if (self.isDemo) {
                 data = self.adjustDate(data, today_app4pro, today);
                 addFullMap(self, {'sf_id':'005i0000000I8c5AAC', 'c4p_id':'demo@apps4pro.com'}, data, requestTimestamp);
+                /*
+                self.createDemoData().then(function (response) {
+                    deferred.resolve(data);
+                }, function (response) {
+                    deferred.reject(response);
+                });
+                */
                 deferred.resolve(data);
             } else {
                 // In case of Redirect or Error (network or server)
@@ -2640,6 +2647,325 @@ var SrvData = (function() {
         this.dataTransfer.sendData(this.srvConfig.c4pUrlRefreshMap, params, null, 60000)
             .then(fctOnHttpSuccess, fctOnHttpError);
         return deferred.promise;
+    };
+
+    Service.prototype.createDemoData = function () {
+        var deferred = this.q.defer();
+        var self = this;
+        this.demoDataCreation = {
+            deferred: deferred,
+            nbFacet: {ask: 50, done:0},
+            nbContact: {ask: 50, done: 0},
+            nbAccount: {ask: 50, done: 0},
+            nbEvent: {ask: 50, done: 0},
+            nbTask: {ask: 50, done: 0},
+            nbOpportunity: {ask: 50, done: 0},
+            nbLead: {ask: 50, done: 0},
+            nbDocument: {ask: 50, done: 0},
+            nbNote: {ask: 50, done: 0},
+            nbReport: {ask: 50, done: 0},
+            nbPlan: {ask: 50, done: 0},
+            nbAttachee: {ask: 50, done: 0},
+            nbAttendee: {ask: 50, done: 0},
+            nbPlannee: {ask: 50, done: 0}
+        };
+        window.setTimeout(function () {
+            self.createMoreDemoData();
+        }, 10);
+        return deferred.promise;
+    };
+
+    Service.prototype.createMoreDemoData = function (deferred) {
+        var self = this;
+        if (this.demoDataCreation.nbFacet.done < this.demoDataCreation.nbFacet.ask) {
+            var num = (1 + this.demoDataCreation.nbFacet.done);
+            var obj = this.createObject('Facet', {
+                prefix: '',
+                name: 'Demo-' + num,
+                description: 'Description of Demo-' + num
+            });
+            this.addObject(obj);
+            if (this.demoDataCreation.nbFacet.done == 0) {
+                this.demoDataCreation.firstFacet = obj;
+            } else {
+                this.linkToItem(obj.a4p_type, 'parent', [obj], this.demoDataCreation.firstFacet);
+            }
+            this.addObjectToSave(obj.a4p_type, obj.id.dbid);
+            this.demoDataCreation.nbFacet.done = num;
+            window.setTimeout(function () {
+                self.createMoreDemoData();
+            }, 10);
+            return;
+        }
+        if (this.demoDataCreation.nbAccount.done < this.demoDataCreation.nbAccount.ask) {
+            var num = (1 + this.demoDataCreation.nbAccount.done);
+            var obj = this.createObject('Account', {
+                company_name: 'Demo-Company-' + num,
+                phone: '01 23 45 67 ' + num,
+                web_url: 'www.Demo-Company-' + num + '.com',
+                bil_addr_street: 'Bill Avenue-' + num,
+                bil_addr_city: 'Bill City-' + num,
+                bil_addr_postal_code: 'Bill Zip-' + num,
+                bil_addr_state: 'Indre et Loire',
+                bil_addr_country: 'France',
+                description: 'Description of Demo-' + num,
+                annual_revenue: 1000000,
+                nb_employees: 10
+            });
+            this.addObject(obj);
+            if (this.demoDataCreation.nbAccount.done == 0) {
+                this.demoDataCreation.firstAccount = obj;
+            } else {
+                this.linkToItem(obj.a4p_type, 'parent', [obj], this.demoDataCreation.firstAccount);
+            }
+            this.addObjectToSave(obj.a4p_type, obj.id.dbid);
+            this.demoDataCreation.nbAccount.done = num;
+            window.setTimeout(function () {
+                self.createMoreDemoData();
+            }, 10);
+            return;
+        }
+        if (this.demoDataCreation.nbContact.done < this.demoDataCreation.nbContact.ask) {
+            var num = (1 + this.demoDataCreation.nbContact.done);
+            var obj = this.createObject('Contact', {
+                salutation: 'Mr.',
+                first_name: 'Demo-FirstName-' + num,
+                last_name: 'Demo-LastName-' + num,
+                title: 'Demo-Title-' + num,
+                phone_work: '01 23 45 67 ' + num,
+                phone_mobile: '06 78 90 12 ' + num,
+                email: 'Demo-FirstName-' + num + '.Demo-LastName-' + num + '@apps4pro.com',
+                primary_address_street: 'Primary Avenue-' + num,
+                primary_address_city: 'Primary City-' + num,
+                primary_address_zipcode: 'Primary Zip-' + num,
+                primary_address_state: 'Indre et Loire',
+                primary_address_country: 'France',
+                description: 'Description of Demo-' + num,
+                birthday: '1990-01-31',
+                department: 'Informatique',
+                assistant_name: 'Assistant-' + num,
+                assistant_phone: '01 23 45 68 ' + num
+            });
+            this.addObject(obj);
+            if (this.demoDataCreation.nbContact.done == 0) {
+                this.demoDataCreation.firstContact = obj;
+            } else  {
+                this.linkToItem(obj.a4p_type, 'manager', [obj], this.demoDataCreation.firstContact);
+            }
+            if (a4p.isTrueOrNonEmpty(this.demoDataCreation.firstAccount)) {
+                this.linkToItem(obj.a4p_type, 'accounter', [obj], this.demoDataCreation.firstAccount);
+            }
+            this.addObjectToSave(obj.a4p_type, obj.id.dbid);
+            this.demoDataCreation.nbContact.done = num;
+            window.setTimeout(function () {
+                self.createMoreDemoData();
+            }, 10);
+            return;
+        }
+        if (this.demoDataCreation.nbEvent.done < this.demoDataCreation.nbEvent.ask) {
+            var num = (1 + this.demoDataCreation.nbEvent.done);
+            var obj = this.createObject('Event', {
+                name: 'Demo-Name-' + num,
+                location: 'City-' + num,
+                date_start: c4p.Model.nextHour(),
+                date_end: c4p.Model.nextNextHour(),
+                description: 'Description of Demo-' + num
+            });
+            this.addObject(obj);
+            if (this.demoDataCreation.nbEvent.done == 0) {
+                this.demoDataCreation.firstEvent = obj;
+            }
+            if (a4p.isTrueOrNonEmpty(this.demoDataCreation.firstContact)) {
+                this.linkToItem(obj.a4p_type, 'leader', [obj], this.demoDataCreation.firstContact);
+                if (this.demoDataCreation.nbAttendee.done < this.demoDataCreation.nbAttendee.ask) {
+                    this.newAndSaveAttachment('Attendee', this.demoDataCreation.firstContact, obj);
+                }
+            }
+            this.addObjectToSave(obj.a4p_type, obj.id.dbid);
+            this.demoDataCreation.nbEvent.done = num;
+            window.setTimeout(function () {
+                self.createMoreDemoData();
+            }, 10);
+            return;
+        }
+        if (this.demoDataCreation.nbTask.done < this.demoDataCreation.nbTask.ask) {
+            var num = (1 + this.demoDataCreation.nbTask.done);
+            var obj = this.createObject('Task', {
+                name: 'Demo-Name-' + num,
+                date_start: c4p.Model.nextHour(),
+                description: 'Description of Demo-' + num
+            });
+            this.addObject(obj);
+            if (this.demoDataCreation.nbTask.done == 0) {
+                this.demoDataCreation.firstTask = obj;
+            }
+            if (a4p.isTrueOrNonEmpty(this.demoDataCreation.firstContact)) {
+                this.linkToItem(obj.a4p_type, 'leader', [obj], this.demoDataCreation.firstContact);
+            }
+            this.addObjectToSave(obj.a4p_type, obj.id.dbid);
+            this.demoDataCreation.nbTask.done = num;
+            window.setTimeout(function () {
+                self.createMoreDemoData();
+            }, 10);
+            return;
+        }
+        if (this.demoDataCreation.nbOpportunity.done < this.demoDataCreation.nbOpportunity.ask) {
+            var num = (1 + this.demoDataCreation.nbOpportunity.done);
+            var obj = this.createObject('Opportunity', {
+                name: 'Demo-Name-' + num,
+                amount: 1000,
+                probability: 65,
+                description: 'Description of Demo-' + num
+            });
+            this.addObject(obj);
+            if (this.demoDataCreation.nbOpportunity.done == 0) {
+                this.demoDataCreation.firstOpportunity = obj;
+            }
+            if (a4p.isTrueOrNonEmpty(this.demoDataCreation.firstContact)) {
+                this.linkToItem(obj.a4p_type, 'accounter', [obj], this.demoDataCreation.firstContact);
+            }
+            if (a4p.isTrueOrNonEmpty(this.demoDataCreation.firstAccount)) {
+                this.linkToItem(obj.a4p_type, 'accounter', [obj], this.demoDataCreation.firstAccount);
+            }
+            this.addObjectToSave(obj.a4p_type, obj.id.dbid);
+            this.demoDataCreation.nbOpportunity.done = num;
+            window.setTimeout(function () {
+                self.createMoreDemoData();
+            }, 10);
+            return;
+        }
+        if (this.demoDataCreation.nbLead.done < this.demoDataCreation.nbLead.ask) {
+            var num = (1 + this.demoDataCreation.nbLead.done);
+            var obj = this.createObject('Lead', {
+                salutation: 'Mr.',
+                first_name: 'Demo-FirstName-' + num,
+                last_name: 'Demo-LastName-' + num,
+                description: 'Description of Demo-' + num,
+                email: 'Demo-FirstName-' + num + '.Demo-LastName-' + num + '@apps4pro.com',
+            });
+            this.addObject(obj);
+            if (this.demoDataCreation.nbLead.done == 0) {
+                this.demoDataCreation.firstLead = obj;
+            }
+            if (a4p.isTrueOrNonEmpty(this.demoDataCreation.firstContact)) {
+                this.linkToItem(obj.a4p_type, 'accounter', [obj], this.demoDataCreation.firstContact);
+            }
+            if (a4p.isTrueOrNonEmpty(this.demoDataCreation.firstAccount)) {
+                this.linkToItem(obj.a4p_type, 'accounter', [obj], this.demoDataCreation.firstAccount);
+            }
+            this.addObjectToSave(obj.a4p_type, obj.id.dbid);
+            this.demoDataCreation.nbLead.done = num;
+            window.setTimeout(function () {
+                self.createMoreDemoData();
+            }, 10);
+            return;
+        }
+        if (this.demoDataCreation.nbPlan.done < this.demoDataCreation.nbPlan.ask) {
+            var num = (1 + this.demoDataCreation.nbPlan.done);
+            var obj = this.createObject('Plan', {
+                title: 'Demo-Title-' + num,
+                pos: num
+            });
+            this.addObject(obj);
+            if (this.demoDataCreation.nbPlan.done == 0) {
+                this.demoDataCreation.firstPlan = obj;
+                if (a4p.isTrueOrNonEmpty(this.demoDataCreation.firstEvent)) {
+                    this.linkToItem(obj.a4p_type, 'parent', [obj], this.demoDataCreation.firstEvent);
+                }
+            } else {
+                this.linkToItem(obj.a4p_type, 'parent', [obj], this.demoDataCreation.firstPlan);
+            }
+            this.addObjectToSave(obj.a4p_type, obj.id.dbid);
+            this.demoDataCreation.nbPlan.done = num;
+            window.setTimeout(function () {
+                self.createMoreDemoData();
+            }, 10);
+            return;
+        }
+        if (this.demoDataCreation.nbDocument.done < this.demoDataCreation.nbDocument.ask) {
+            if (a4p.isTrueOrNonEmpty(this.demoDataCreation.firstEvent)) {
+                var num = (1 + this.demoDataCreation.nbDocument.done);
+                this.takePicture(this.demoDataCreation.firstEvent, 'pictureName').then(function (document) {
+                    a4p.safeApply($scope, function () {
+                        self.addObject(document);
+                        self.linkToItem(document.a4p_type, 'parent', [document], self.demoDataCreation.firstEvent);
+                        self.addObjectToSave(document.a4p_type, document.id.dbid);
+                        if (self.demoDataCreation.nbAttachee.done < self.demoDataCreation.nbAttachee.ask) {
+                            self.newAndSaveAttachment('Attachee', document, self.demoDataCreation.firstEvent);
+                            self.demoDataCreation.nbAttachee.done = 1 + self.demoDataCreation.nbAttachee.done;
+                        }
+                        self.demoDataCreation.nbDocument.done = num;
+                        self.createMoreDemoData();
+                    });
+                }, function (diag) {
+                    a4p.safeApply($scope, function () {
+                        self.demoDataCreation.deferred.reject(diag);
+                    });
+                });
+            }
+        }
+        if (this.demoDataCreation.nbNote.done < this.demoDataCreation.nbNote.ask) {
+            var num = (1 + this.demoDataCreation.nbNote.done);
+            var obj = this.createObject('Note', {
+                title: 'Demo-Title-' + num,
+                description: 'Description of Demo-' + num
+            });
+            this.addObject(obj);
+            if (this.demoDataCreation.nbNote.done == 0) {
+                this.demoDataCreation.firstNote = obj;
+            }
+            if (a4p.isTrueOrNonEmpty(this.demoDataCreation.firstEvent)) {
+                this.linkToItem(obj.a4p_type, 'parent', [obj], this.demoDataCreation.firstEvent);
+            }
+            if (a4p.isTrueOrNonEmpty(this.demoDataCreation.firstPlan)) {
+                if (this.demoDataCreation.nbPlannee.done < this.demoDataCreation.nbPlannee.ask) {
+                    this.newAndSaveAttachment('Plannee', obj, this.demoDataCreation.firstPlan);
+                }
+            }
+
+            this.addObjectToSave(obj.a4p_type, obj.id.dbid);
+            this.demoDataCreation.nbNote.done = num;
+            window.setTimeout(function () {
+                self.createMoreDemoData();
+            }, 10);
+            return;
+        }
+        if (this.demoDataCreation.nbReport.done < this.demoDataCreation.nbReport.ask) {
+            var num = (1 + this.demoDataCreation.nbReport.done);
+            var obj = this.createObject('Report', {
+                title: 'Demo-Title-' + num,
+                message: 'Message of Demo-' + num,
+                description: 'Description of Demo-' + num
+            });
+            this.addObject(obj);
+            if (this.demoDataCreation.nbReport.done == 0) {
+                this.demoDataCreation.firstReport = obj;
+            }
+            if (a4p.isTrueOrNonEmpty(this.demoDataCreation.firstEvent)) {
+                this.linkToItem(obj.a4p_type, 'parent', [obj], this.demoDataCreation.firstEvent);
+            }
+            this.addObjectToSave(obj.a4p_type, obj.id.dbid);
+            this.demoDataCreation.nbReport.done = num;
+            window.setTimeout(function () {
+                self.createMoreDemoData();
+            }, 10);
+            return;
+        }
+        this.demoDataCreation.deferred.resolve({log: "Created "
+            + this.demoDataCreation.nbFacet + " facets,"
+            + this.demoDataCreation.nbContact + " contacts, "
+            + this.demoDataCreation.nbAccount + " accounts, "
+            + this.demoDataCreation.nbEvent + " events, "
+            + this.demoDataCreation.nbTask + " tasks, "
+            + this.demoDataCreation.nbOpportunity + " opportunities, "
+            + this.demoDataCreation.nbLead + " leads, "
+            + this.demoDataCreation.nbDocument + " documents, "
+            + this.demoDataCreation.nbNote + " notes, "
+            + this.demoDataCreation.nbReport + " reports, "
+            + this.demoDataCreation.nbPlan + " plans, "
+            + this.demoDataCreation.nbAttachee + " attachees, "
+            + this.demoDataCreation.nbAttendee + " attendees, "
+            + this.demoDataCreation.nbPlannee + " plannees"});
     };
 
     Service.prototype.takePicture = function(parentObject, pictureName) {
