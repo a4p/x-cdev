@@ -170,7 +170,6 @@ function ctrlDragObject($scope, $modal, $timeout, srvLocale, srvData, srvNav, sr
     $scope.selectItemAndCloseAside = function () {
         a4p.safeApply($scope, function() {
             $scope.setItemAndGoDetail($scope.item, true);
-            //$scope.setNavAside(false);
         });
     };
     $scope.holdStart = function (event,element) {
@@ -178,6 +177,7 @@ function ctrlDragObject($scope, $modal, $timeout, srvLocale, srvData, srvNav, sr
         if (!$scope.proxy) {
             a4p.safeApply($scope, function() {
                 srvNav.holdStartItem($scope.item);
+                // Render a fluid dragStart
                 setCursorToMove($scope, event, element);
             });
         }
@@ -185,16 +185,15 @@ function ctrlDragObject($scope, $modal, $timeout, srvLocale, srvData, srvNav, sr
 
     $scope.holdStop = function () {
         //console.log('holdStop');
+        a4p.safeApply($scope, function() {srvNav.holdStopItem(); });
+
         if ($scope.proxy) {
+            // Render a fluid dragStart
             $timeout(function() {
-                    console.log('holdStop timeout');
-                    if (!$scope.dragIsActive) {
-                        a4p.safeApply($scope, function() { cancelMoveCursor($scope); srvNav.holdStopItem();});
-                    }
-                }, 1000);
-        }
-        else {
-            a4p.safeApply($scope, function() {srvNav.holdStopItem(); });
+                if (!$scope.dragIsActive) {
+                    a4p.safeApply($scope, function() { cancelMoveCursor($scope);});
+                }
+            }, 1000);
         }
    	};
 
@@ -222,7 +221,6 @@ function ctrlDragObject($scope, $modal, $timeout, srvLocale, srvData, srvNav, sr
         if ($scope.proxy) {
             a4p.safeApply($scope, function() {
                 cancelMoveCursor($scope);
-                srvNav.holdStopItem();
             });
         }
         $scope.dragIsActive = false;
@@ -232,7 +230,6 @@ function ctrlDragObject($scope, $modal, $timeout, srvLocale, srvData, srvNav, sr
         if ($scope.proxy) {
             a4p.safeApply($scope, function() {
                 cancelMoveCursor($scope);
-                srvNav.holdStopItem();
             });
         }
         $scope.dragIsActive = false;

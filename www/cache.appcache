@@ -1,6 +1,6 @@
 CACHE
 MANIFEST
-#2014-04-09 12:05:02
+#2014-04-09 16:06:16
 
 img/guider/c4p-guider-01.png
 img/guider/c4p-guider-02.png
@@ -278,6 +278,7 @@ partials/navigation/config.html
 partials/navigation/config_header.html
 partials/navigation/footer_detail.html
 partials/navigation/footer_related.html
+partials/navigation/header_back.html
 partials/navigation/main.html
 partials/navigation/translucent_panel.html
 partials/navigation/view_n.html

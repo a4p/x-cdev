@@ -1,5 +1,5 @@
 {
-    "htmlGuiderPageTitle":"Sales MobPad",
+    "htmlGuiderPageTitle":"CRM Pad",
     "htmlGuiderFormStaySignedIn":"Stay signed in",
     "htmlGuiderTextPasswordForgotten":"Please prompt your email. A link will be sent allowing you to reset your password",
     "htmlGuiderTextValidation":"Synchronization is running. Please wait ...",
@@ -39,9 +39,9 @@
 
 
 
-    "htmlCalendarDayTextNoEvent": "No event to display. Click on '+' to create one.",
+    "htmlCalendarDayTextNoEvent": "No event scheduled today. Go on your calendar to create one.",
     "htmlCalendarDayTextAllDayEvent":"All day",
-    "htmlCalendarDayTextEvents":"Events",
+    "htmlCalendarDayTextEvents":"Scheduled this day",
 
     "htmlCalendarListPageTitle":"Next events",
 

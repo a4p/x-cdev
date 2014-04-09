@@ -477,7 +477,7 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
 
 
     $scope.sendFeedback = function () {
-        $scope.openDialogSendFeedbackReport('Sales MobPad user feedback');
+        $scope.openDialogSendFeedbackReport('CRM Pad user feedback');
     };
     $scope.openHelpDialog = function () {
         $scope.openDialogMessage(srvLocale.translations.htmlTextNeedHelpDetail);

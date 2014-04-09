@@ -26,7 +26,7 @@ function ctrlDialogCalendarDay($scope, calendarDayCasualName, calendarDayFullNam
     };
 
 
-    $scope.setItem = function (item) {
+    $scope.selectItem = function (item) {
         $modalInstance.close(item);
     };
 

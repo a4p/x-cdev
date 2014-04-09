@@ -5,7 +5,7 @@
         <div class="col-xxs-12">
             <!-- Nav tabs -->
             <ul class="nav nav-pills">
-              <li>
+              <li class="col-xxs-8">
                 <a class="btn disabled">
                     <h5 class="a4p-dot">{{calendarDayCasualName}} {{calendarDayFullName}}</h5>
                 </a>
@@ -32,30 +32,46 @@
 
           <!-- All day Event list -->
           <div class="row c4p-details" ng-show="(calendarSelectedDay.eventsAllDay.length == 0) && (calendarSelectedDay.events.length == 0) ">
-              <div class="c4p-infos-txt">{{srvLocale.translations.htmlCalendarDayTextNoEvent}}</div>
+              <div class="btn-block well well-sm" style="border-radius: 1em;">
+                  <a  class="btn"
+                      style="white-space:normal"
+                      ng-click="close()">
+                      <span class="pull-right close">&times;</span>
+                      <span>
+                      {{srvLocale.translations.htmlCalendarDayTextNoEvent}}
+                      </span>
+                  </a>
+              </div>
           </div>
-          <ul class="nav nav-pills nav-stacked"
-              ng-show="calendarSelectedDay.eventsAllDay.length">
+
+          <!-- multiple days events -->
+          <span class="" ng-show="calendarSelectedDay.eventsAllDay.length">
+            {{srvLocale.translations.htmlCalendarDayTextAllDayEvent}}
+          </span>
+          <ul class="row nav nav-pills" ng-if="calendarSelectedDay.eventsAllDay.length">
               <!--<li class="c4p-details  c4p-color-a-gradient2">
                   <span class="">{{srvLocale.translations.htmlCalendarDayTextAllDayEvent}}</span>
               </li>-->
               <li ng-repeat="item in calendarSelectedDay.eventsAllDay"
-                  class="c4p-details  c4p-color-a-gradient2">
-                  <span ng-include="'partials/navigation/cards/summarized_card.html'"
-                        ng-click="setItem(item)"></span>
+                  class="col-xxs-12 col-sm-6 well c4p-details  c4p-color-b-gradient2">
+                  <a  ng-include="'partials/navigation/cards/summarized_card.html'"
+                      ng-click="setItem(item)"></a>
               </li>
           </ul>
 
 
-          <!-- Event list -->
-          <ul class="nav nav-pills nav-stacked" ng-show="calendarSelectedDay.events.length">
+          <!-- this day events -->
+          <span class="" ng-show="calendarSelectedDay.events.length">
+            <br>{{srvLocale.translations.htmlCalendarDayTextEvents}}
+          </span>
+          <ul class="row nav nav-pills nav-stacked" ng-if="calendarSelectedDay.events.length">
               <!--<li class="c4p-details  c4p-color-a-gradient2">
                   <span class="">{{srvLocale.translations.htmlCalendarDayTextEvents}}</span>
               </li>-->
               <li ng-repeat="item in calendarSelectedDay.events"
-                  class="c4p-details  c4p-color-a-gradient3">
-                  <span ng-include="'partials/navigation/cards/summarized_card.html'"
-                        ng-click="setItem(item)"></span>
+                  class="col-xxs-12 col-sm-6 well c4p-details  c4p-color-b-gradient3">
+                  <a ng-include="'partials/navigation/cards/summarized_card.html'"
+                        ng-click="setItem(item)"></a>
               </li>
           </ul>
 

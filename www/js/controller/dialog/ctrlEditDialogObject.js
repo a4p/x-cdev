@@ -244,7 +244,8 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig,  objectItem
         var validationHasChanged = false;
 
         // Perform fields value initialization (fields value can depend on other fields)
-        //MLE don't resolve bug #172 //calculateFields($scope, field);
+        //MLE doesn't resolve bug #172 but ...
+        calculateFields($scope, field);
 
         // If object "Edit object" structure is defined
         if (a4p.isDefined(c4p.Model.a4p_types[objectItem.a4p_type].editObjectFields)) {

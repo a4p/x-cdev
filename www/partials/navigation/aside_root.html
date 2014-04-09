@@ -29,7 +29,7 @@
         <!-- BEWARE : <ul class="list-group"> has a 20px of margin-bottom not visible in Resize height -->
 
 
-        <!-- Menu always on Top -->
+        <!-- Menu always on Top. cf rootMenuUp-->
         <div class="col-xxs-12">
             <ul class="c4p-list-aside nav nav-pills nav-stacked">
                 <li class="c4p-list-item-aside c4p-color-{{getTypeColor('Event')}} " 
@@ -54,7 +54,7 @@
         </div>
 
         <!-- Organisation menus -->
-        <div class="col-xxs-12" ng-show="navAside && rootMenuUp">&nbsp;</div>
+        <div class="col-xxs-12" ng-show="navAside">&nbsp;</div>
         <div class="col-xxs-12">
             <ul class="c4p-list-aside nav nav-pills nav-stacked">
                 <li class="c4p-list-item-aside c4p-color-{{getTypeColor('Event')}} " 
@@ -73,7 +73,7 @@
                     ng-class="{active: activeItem == slideNavigationContacts}"
                     ng-touch="startSpinner()"
                     ng-click="setSearchMenu('Contact')"
-                    ng-show="navAside && rootMenuUp || activeItem == slideNavigationContacts">
+                    ng-show="navAside || activeItem == slideNavigationContacts">
                     <div class="btn col-xxs-12">
                         <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon('Contact')}}"></span>
                         <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['contacts']}}</span>
@@ -84,7 +84,7 @@
                     ng-class="{active: activeItem == slideNavigationAccounts}"
                     ng-touch="startSpinner()"
                     ng-click="setSearchMenu('Account')"
-                    ng-show="navAside && rootMenuUp || activeItem == slideNavigationAccounts">
+                    ng-show="navAside || activeItem == slideNavigationAccounts">
                     <div class="btn col-xxs-12">
                         <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon('Account')}}"></span>
                         <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['accounts']}}</span>
@@ -94,7 +94,7 @@
                     ng-class="{active: activeItem == slideNavigationOpportunities}"
                     ng-touch="startSpinner()"
                     ng-click="setSearchMenu('Opportunity')"
-                    ng-show="navAside && rootMenuUp || activeItem == slideNavigationOpportunities">
+                    ng-show="navAside || activeItem == slideNavigationOpportunities">
                     <div class="btn col-xxs-12">
                         <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon('Opportunity')}}"></span>
                         <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['opportunities']}}</span>
@@ -104,7 +104,7 @@
                     ng-class="{active: activeItem == slideNavigationDocuments}"
                     ng-touch="startSpinner()"
                     ng-click="setSearchMenu('Document')"
-                    ng-show="navAside && rootMenuUp || activeItem == slideNavigationDocuments">
+                    ng-show="navAside || activeItem == slideNavigationDocuments">
                     <div class="btn col-xxs-12">
                         <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon('Document')}}"></span>
                         <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['documents']}}</span>
@@ -114,7 +114,7 @@
                     ng-class="{active: activeItem == slideNavigationNotes}"
                     ng-touch="startSpinner()"
                     ng-click="setSearchMenu('Note')"
-                    ng-show="navAside && rootMenuUp || activeItem == slideNavigationNotes">
+                    ng-show="navAside || activeItem == slideNavigationNotes">
                     <div class="btn col-xxs-12">
                         <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon('Note')}}"></span>
                         <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName['notes']}}</span>
@@ -132,9 +132,9 @@
 
                 <li class="c4p-list-item-aside" 
                     ng-click="setRootMenu()"
-                    ng-hide="navAside && rootMenuUp">
+                    ng-hide="navAside">
                     <div class="btn c4p-color-action-aside-transparent col-xxs-12">
-                        <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-angle-double-down"></span>
+                        <span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-angle-down"></span>
                     </div>
                 </li>
             </ul>

@@ -3,7 +3,7 @@ var c4p;
 if (!c4p) c4p = {};
 c4p.Locale = {
     en : {
-    "htmlGuiderPageTitle":"Sales MobPad",
+    "htmlGuiderPageTitle":"CRM Pad",
     "htmlGuiderFormStaySignedIn":"Stay signed in",
     "htmlGuiderTextPasswordForgotten":"Please prompt your email. A link will be sent allowing you to reset your password",
     "htmlGuiderTextValidation":"Synchronization is running. Please wait ...",
@@ -43,9 +43,9 @@ c4p.Locale = {
 
 
 
-    "htmlCalendarDayTextNoEvent": "No event to display. Click on '+' to create one.",
+    "htmlCalendarDayTextNoEvent": "No event scheduled today. Go on your calendar to create one.",
     "htmlCalendarDayTextAllDayEvent":"All day",
-    "htmlCalendarDayTextEvents":"Events",
+    "htmlCalendarDayTextEvents":"Scheduled this day",
 
     "htmlCalendarListPageTitle":"Next events",
 
@@ -803,7 +803,7 @@ c4p.Locale = {
 }
 ,
     fr : {
-    "htmlGuiderPageTitle":"Sales MobPad",
+    "htmlGuiderPageTitle":"CRM Pad",
     "htmlGuiderFormStaySignedIn":"Rester connect\u00E9",
     "htmlGuiderTextPasswordForgotten":"Veuillez saisir votre email. Un lien permettant de reg\u00E9n\u00E9rer votre mot de passe vous sera envoy\u00E9",
     "htmlGuiderTextValidation":"Synchronisation en cours. Veuillez patientez ...",
@@ -843,9 +843,9 @@ c4p.Locale = {
 
 
 
-    "htmlCalendarDayTextNoEvent": "Aucun \u00E9v\u00E9nement \u00E0 afficher. Cliquez sur '+' pour en cr\u00E9er.",
+    "htmlCalendarDayTextNoEvent": "Aucun \u00E9v\u00E9nement plannifi\u00E9 ce jour. Allez sur votre calendrier pour en cr\u00E9er un.",
     "htmlCalendarDayTextAllDayEvent":"Toute la journ\u00E9e",
-    "htmlCalendarDayTextEvents":"Ev\u00E9nements",
+    "htmlCalendarDayTextEvents":"Plannifi\u00E9(s) ce jour",
 
     "htmlCalendarListPageTitle":"Prochainement",
 
