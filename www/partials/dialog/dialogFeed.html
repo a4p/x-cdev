@@ -1,0 +1,118 @@
+<!-- Headers -->
+<div class="row">
+    <div class="c4p-dialog-header c4p-color-gradient0">
+
+        <div class="btn c4p-color-action-transparent " ng-click="close()" ng-show="!modeEdit">
+            <span class="glyphicon glyphicon-arrow-left"></span>
+        </div>
+
+        <div class="btn c4p-padding-w-packed c4p-color-action-transparent">
+            <span>{{title}}</span>
+        </div>
+
+        <div ng-show="editable && !modeEdit" class="btn c4p-color-action-transparent" ng-click="setModeEdit(true)">
+            <span class="glyphicon glyphicon-edit"></span>
+        </div>
+
+        <!-- ATTENTION: Next line use for vertical align -->
+        <!-- Sync all icon-Xx value in this file to keep alignment -->
+        <div class="btn c4p-padding-w-packed">
+            <div class="c4p-icon-std glyphicon">&nbsp;</div>
+        </div>
+
+        <div class="pull-right" ng-show="modeEdit">
+            <div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke"
+                 ng-click="createFeed()" style="display: inline-block">
+                <span class="c4p-icon-std glyphicon glyphicon-share"></span>
+            </div>
+
+            &nbsp;
+            <div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke"
+                 ng-click="close()" style="display: inline-block">
+                <span class="c4p-icon-std glyphicon glyphicon-times-circle"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div c4p-show="modeEdit"
+     class="c4p-color-a-gradient3">
+    <div class="row">
+        <div class="col-xxs-12"
+             resizecss-height="getResizeHeight() -getPathValue('parentNode.parentNode.previousElementSibling', 'offsetHeight')"
+             sense-opts="{name:'dialogEmail', axeY:'scroll', watchRefresh:'mailLastUpdate'}"
+             sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}">
+            <div class="container">
+                <div class="row c4p-form-group c4p-color-a-gradient1">
+                    <!-- Title -->
+                    <c4p-input type-var="text"
+                               style="width:100%"
+                               ng-model="feed.title"
+                               title-var="srvLocale.translations.htmlFormTitle"
+                               placeholder="{{srvLocale.translations.htmlFormTitlePlaceHolder}}"></c4p-input>
+                </div>
+                <div class="row c4p-form-group c4p-color-a-gradient2">
+                    <label class="control-label a4p-dot">{{srvLocale.translations.htmlTypeName['Document']}}</label>
+                    <!-- Document shared -->
+                    <div class="col-xxs-12"
+                         style="border-bottom: 1px solid #eeeeee;">
+                        <div ng-controller="ctrlNamedObject"
+                             ng-init="init(feedObject)">
+                            <span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span>
+                            <span>{{itemName}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row c4p-form-group c4p-color-a-gradient3">
+                    <!-- Body -->
+                    <div class="col-xxs-12">
+                        <c4p-input ng-model='feed.body'
+                                   placeholder="{{srvLocale.translations.htmlFormMessagePlaceHolder}}"
+                                   type="textarea"
+                                   rows=5 cols=40>
+                        </c4p-input>
+                    </div>
+                </div>
+                <div class="row">
+                    <!-- Vertical Filler to let scroll inuts while virtual keyboard is masking almost all te screen -->
+                    <div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+'px'}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div ng-show="!modeEdit"
+     class="c4p-color-a-gradient3">
+    <div class="row">
+        <div class="col-xxs-12"
+             resizecss-height="getResizeHeight() -getPathValue('parentNode.parentNode.previousElementSibling', 'offsetHeight')"
+             sense-opts="{name:'dialogEmail', axeY:'scroll', watchRefresh:'mailLastUpdate'}"
+             sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}">
+            <div class="container">
+                <div class="c4p-color-a-gradient1">
+                    <div class="c4p-card">
+                        <span class="c4p-size-bigger">{{feed.title}}</span>
+                    </div>
+                </div>
+                <div class="c4p-color-a-gradient2">
+                    <div class="c4p-card">
+                        <div class="c4p-size-big">
+                            <span>{{srvLocale.translations.htmlTypeName['Document']}}</span>
+                        </div>
+                        <div ng-controller="ctrlNamedObject"
+                             ng-init="init(feedObject)">
+                            <span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span>
+                            <span>{{itemName}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="c4p-color-a-gradient3">
+                    <div class="c4p-card">
+                        <p>{{feed.body}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

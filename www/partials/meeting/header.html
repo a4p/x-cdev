@@ -1,0 +1,69 @@
+<div class="meeting-header row"
+     resize-opts="{name:'meeting_header'}">
+
+
+    <div class="col-xxs-1" style="text-align: left;">
+        <div class="btn c4p-padding-w-packed" ng-click="quitMeetingView()" ng-hide="modeLock">
+            <span class="c4p-icon-std glyphicon glyphicon-chevron-left"></span>
+        </div>
+    </div>
+
+    <div class="col-xxs-10" style="text-align: center;">
+        <div class="btn c4p-padding-w-packed"
+             ng-show="!itemNameEditable"
+             ng-click="eventItemName = srvNav.item.name;editMeetingTitle()">
+            {{srvNav.current.itemName}}
+        </div>
+        <div class="btn"
+             ng-show="itemNameEditable">
+            <input type="text" ng-model="eventItemName"
+                   class="" />
+            <span class="c4p-padding-w-packed"
+                  ng-click="saveItemName(eventItemName)">
+                <span class="c4p-icon-std glyphicon glyphicon-ok"></span>
+            </span>
+        </div>
+
+        <div class="btn dropdown"
+             ng-show="!itemNameEditable">
+            <span role="button"
+                  class="dropdown-toggle c4p-icon-std glyphicon glyphicon-caret-down"></span>
+
+            <ul style="overflow-x:hidden;" class="dropdown-menu c4p-dropdown-menu c4p-details-menu-align" role="menu">
+
+                <li  class="c4p-color-gradient0"
+                     ng-hide="modeLock"
+                     ng-class="{'disabled': actionMap.createNewNote.disabled}"
+                     ng-click="doAction('createNewNote')">
+                    <span class="c4p-icon-std glyphicon glyphicon-{{actionMap.createNewNote.icon}}"></span>
+                    <span>{{srvLocale.translations.htmlActionName.createNewNote}}</span>
+                </li>
+                <li class="c4p-color-gradient0"
+                    ng-hide="modeLock"
+                    ng-class="{'disabled': actionMap.createNewReport.disabled}"
+                    ng-click="doAction('createNewReport')">
+                    <span class="c4p-icon-std glyphicon glyphicon-{{actionMap.createNewReport.icon}}"></span>
+                    <span>{{srvLocale.translations.htmlActionName.createNewReport}}</span>
+                </li>
+                <li class="c4p-color-gradient0"
+                    ng-hide="modeLock"
+                    ng-class="{'disabled': actionMap.createNewEmail.disabled}"
+                    ng-click="doAction('createNewEmail')">
+                    <span class="c4p-icon-std glyphicon glyphicon-{{actionMap.createNewEmail.icon}}"></span>
+                    <span>{{srvLocale.translations.htmlActionName.createNewEmail}}</span>
+                </li>
+            </ul>
+        </div>
+
+
+    </div>
+
+    <div class="col-xxs-1" style="text-align: right;">
+        <div ng-click="togglePresentation();toggleFullScreen()" ng-show="plans.length > 0" class="toggle-mode-button">
+            <span class="c4p-icon-std glyphicon c4p-stroke"
+                  ng-class="{'glyphicon-play':!isFullScreen, 'glyphicon-stop':isFullScreen}"></span>
+        </div>
+    </div>
+</div>
+
+

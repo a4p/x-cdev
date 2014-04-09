@@ -1,0 +1,36 @@
+
+<!--
+ inputs :
+ listItem
+ -->
+
+
+    <div 
+        ng-init="init(listItem.object)"
+        ng-controller="ctrlAsideItem"
+        ng-class="{
+        'c4p-color-{{getFacetColor(srvFacet.getFirstFacet())}}':srvNav.item && (listItem.object.id.dbid == srvNav.item.id.dbid),
+        'active':srvNav.item && (item.id.dbid == srvNav.item.id.dbid)}" 
+        sense-opts="{name:'search-others-{{$index}}', bubble:true, watchRefresh:['srvNav.item', 'srvNav.holdItem']}"
+        sense-shorttap="selectItem(firstSingleTap(listItem.object.id.dbid))"
+        sense-doubletap="firstSingleTap('');selectItemAndCloseAside();">
+
+        <div class="row">
+            <div class="btn col-xxs-12">
+                <ul class="nav nav-pills">
+
+                    <li class="" style="width:85%">
+                        <div ng-init="cardItem = listItem.object"
+                            ng-include="'partials/navigation/cards/draggable_inlined_card.html'">
+                        </div>
+                    </li>
+                    <li class="" style="width:10%">
+                        <div ng-show="singleTapFocusId == item.id.dbid" 
+                            class="glyphicon glyphicon-fw glyphicon-chevron-right c4p-color-action-aside-transparent"></div>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+
+    </div>

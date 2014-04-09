@@ -1,0 +1,97 @@
+
+<h5>Summarized card</h5>
+<div ng-controller="ctrlSummarizedObject" ng-init="set(item, 'displaySummarizedObjectGroups')">
+
+    <div ng-init="cardHasThumb = true; cardItemName = itemName; isVideo ? (cardThumbUrl = item.url) : (cardThumbUrl = item.thumb_url); cardIsAboutVideo = isVideo; cardIsAboutFile = isFile;"
+        ng-include ="'partials/navigation/cards/detail_card.html'"></div>
+
+    <div class="c4p-card-text" 
+        ng-class="{'col-xxs-12': !cardHasThumb,'col-xxs-6' : (cardHasThumb && (cardIsAboutFile || cardIsAboutVideo)),'col-xxs-8' : (cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo)}">
+
+
+    <div class="row">
+        <div class="col-xxs-4" c4p-show="isFile"
+             style="background: url('{{item.thumb_url}}') no-repeat center center;-webkit-background-size: contain;position: absolute;top:0;bottom:0;"
+             ng-click="$event.stopPropagation();">
+        </div>
+        <div ng-class="{'col-xxs-12':!isFile, 'col-xxs-8 col-xxs-offset-4':isFile}">
+            <div ng-repeat="group in groups">
+                <!-- Clear the XS cols if their content doesn't match in height -->
+                <div class="clearfix" ng-show="($index%2)==1"></div>
+                <span ng-show="group.synchro">
+                    <span ng-show="(item.c4p_synchro.creating || item.c4p_synchro.writing || item.c4p_synchro.reading || item.c4p_synchro.deleting)"
+                          class="glyphicon"
+                          ng-class="{
+                        'glyphicon-trash'    : (item.c4p_synchro.deleting > 1),
+                        'glyphicon-times-circle' : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),
+                        'glyphicon-upload'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),
+                        'glyphicon-download' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),
+                        'glyphicon-spinner'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),
+                        'glyphicon-spin'           : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))
+                    }"></span>
+                </span>
+                <span ng-show="group.name">
+                    <span class="item-name"><b>{{itemName}}</b></span>
+                </span>
+                <span ng-show="group.title">{{group.title}}</span>
+                <br ng-show="group.brSeparated && (group.synchro || group.name || group.title)"/>
+                <fieldset>
+                    <span ng-show="group.icon" class="glyphicon glyphicon-{{group.icon}}"></span>
+                    <span ng-repeat="field in group.fields" style=" display: block;
+                                                                    /* -webkit-margin-before: 1.67em; 
+                                                                    -webkit-margin-after: 1.67em; 
+                                                                    -webkit-margin-start: 0px;
+                                                                    -webkit-margin-end: 0px;*/">
+                        <!--<br ng-show="group.brSeparated && ($index > 0)"/>-->
+                        <span ng-show="field.title">{{field.title}} : </span>
+                        <span ng-show="field.prefix">{{field.prefix}} </span>
+                        <span ng-switch="field.isArray">
+                            <span ng-switch-when="true">
+                                <span ng-repeat="item in field.value">
+                                    <span ng-show="$index > 0">, </span>
+                                    <span ng-switch="field.type">
+                                        <span ng-switch-when="tel">{{item}}</span>
+                                        <span ng-switch-when="mail">{{item}}</span>
+                                        <span ng-switch-when="url">{{item}}</span>
+                                        <span ng-switch-when="currency"><span>{{item | c4pCurrency}}</span></span>
+                                        <span ng-switch-when="percent"><span>{{item}}%</span></span>
+                                        <span ng-switch-when="probability"><span>{{item}}%</span></span>
+                                        <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(item, 'short')}}</span></span>
+                                        <span ng-switch-when="dateTIME"><span>{{srvLocale.formatDate(item, 'shortDate')}} <b>{{srvLocale.formatDate(item, 'shortTime')}}</b></span></span>
+                                        <span ng-switch-when="date"><span>{{srvLocale.formatDate(item, 'shortDate')}}</span></span>
+                                        <span ng-switch-when="time"><span>{{srvLocale.formatDate(item, 'shortTime')}}</span></span>
+                                        <span ng-switch-when="TIME"><span><b>{{srvLocale.formatDate(item, 'shortTime')}}</b></span></span>
+                                        <span ng-switch-when="number"><span>{{item | c4pNumber}}</span></span>
+                                        <span ng-switch-when="rating"><span ng-include="'partials/navigation/cards/4_rating_ro2.html'" style="padding:0 10px;"></span></span>
+                                        <span ng-switch-default><span>{{item}}</span></span>
+                                    </span>
+                                </span>
+                            </span>
+                            <span ng-switch-default>
+                                <span ng-switch="field.type">
+                                    <span ng-switch-when="tel">{{field.value}}</span>
+                                    <span ng-switch-when="mail">{{field.value}}</span>
+                                    <span ng-switch-when="url">{{field.value}}</span>
+                                    <span ng-switch-when="currency"><span>{{field.value | c4pCurrency}}</span></span>
+                                    <span ng-switch-when="percent"><span>{{field.value}}%</span></span>
+                                    <span ng-switch-when="probability"><span>{{field.value}}%</span></span>
+                                    <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(field.value, 'short')}}</span></span>
+                                    <span ng-switch-when="dateTIME"><span>{{srvLocale.formatDate(field.value, 'shortDate')}} <b>{{srvLocale.formatDate(field.value, 'shortTime')}}</b></span></span>
+                                    <span ng-switch-when="date"><span>{{srvLocale.formatDate(field.value, 'shortDate')}}</span></span>
+                                    <span ng-switch-when="time"><span>{{srvLocale.formatDate(field.value, 'shortTime')}}</span></span>
+                                    <span ng-switch-when="TIME"><span><b>{{srvLocale.formatDate(field.value, 'shortTime')}}</b></span></span>
+                                    <span ng-switch-when="number"><span>{{field.value | c4pNumber}}</span></span>
+                                    <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="'partials/navigation/cards/4_rating_ro2.html'" style="padding:0 10px;"></span></span>
+                                    <span ng-switch-default><span><i>{{field.value}}</i></span></span>
+                                </span>
+                            </span>
+                        </span>
+                        <span ng-show="field.suffix"> {{field.suffix}}</span>
+                    </span>
+                </fieldset>
+            </div>
+        </div>
+
+
+    </div>
+</div>

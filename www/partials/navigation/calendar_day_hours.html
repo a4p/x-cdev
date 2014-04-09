@@ -1,0 +1,97 @@
+<div class="row hidden-sm hidden-md hidden-lg">
+    <!-- Day title -->
+    <div class="col-xxs-12 well c4p-well2-a">
+        <div class="row">
+            <div class="col-xxs-12">
+                <span>{{calendarDayCasualName}}</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xxs-12">
+                <table class="table c4p-table-layout" style="width:100%;table-layout: fixed;">
+                    <tr>
+                        <td style="vertical-align:middle;text-align:center;" class="c4p-link5" ng-click="gotoPreviousDay()">
+                            <a class="c4p-link5"><span class="glyphicon glyphicon-angle-left"></span></a>
+                        </td>
+                        <td colspan=6 style="vertical-align:middle;text-align:center;">
+                            <h4 class="c4p-n-title a4p-dot">{{calendarDayFullName}}</h4>
+                        </td>
+                        <td style="vertical-align:middle;text-align:center;" class="c4p-link5" ng-click="gotoNextDay()">
+                            <a class="c4p-link5"><span class="glyphicon glyphicon-angle-right"></span></a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <!-- All Day events -->
+    <div ng-repeat="event in calendarSelectedDay.eventsAllDay"
+         class="col-xxs-12 label c4p-label-calendar-all-day pull-left">
+        <div class="pull-left c4p-link5 a4p-dot"
+             style="width:75%;line-height: 15px;height:100%;padding: 2px 15px;"
+             ng-click="onEventClick(event)">
+            <span ng-show="isMultiDayEventWithTimeToShow(event,calendarSelectedDay.date,true)">({{getEventTime(event.date_start)}})</span>
+            <span>{{getItemNameById(event.id.dbid)}}</span>
+            <span ng-show="isMultiDayEventWithTimeToShow(event,calendarSelectedDay.date,false)">({{getEventTime(event.date_end)}})</span>
+        </div>
+        <div ng-show="srvData.isObjectOwnedByUser(event)"
+             ng-click="removeEvent(event)"
+             class="c4p-link5 pull-right"
+             style="width:15%;text-align:center;">
+            <span class="glyphicon glyphicon-times-circle"></span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <!-- Day scroll -->
+    <div class="col-xxs-12" style="margin:0">
+        <div style="height:{{(25*40)}}px;width:100%;position:relative;">
+            <!-- Morning & Evening & Lunch -->
+            <div style="position:absolute;top:0;left:0;width:100%;">
+                <div style="height:40px;" class="c4p-hour-disabled c4p-color-a-gradient1">&nbsp;</div>
+                <div ng-repeat="hour in calendarHoursDay"
+                     class="{{hour.cssClass}}-a-gradient1"
+                     style="height:40px; position:relative;width:100%;"
+                     sense-opts="{bubble:true, callApply:true}"
+                     sense-holdstart="selectHour($event, hour)"
+                     sense-holdstop="cancelHour($event, hour)"
+                     sense-tap="newEventAtHour($event, hour)"
+                     ng-class="{scrollTop: (calendarSelectedDay.events.length == 0 && $index == 8)}">
+                    <span class="c4p-link5" style="font-size:18px;line-height:18px;top:-9px;position: absolute;left: 4px;">{{hour.text}} -</span>
+                    <span style="font-size:12px;line-height:12px;top:14px;position: absolute;left: 10px;">30 -</span>
+                    <div ng-show="hour.selected"
+                         style="height: 80%; width: 85%; border: 3px solid red; margin: 0 2%;"
+                         class="pull-right">&nbsp;</div>
+                </div>
+            </div>
+            <!-- Day events -->
+            <div class="c4p-click-through" style="position:absolute;top:40px;left:0;width:100%;height:{{(24*40)}}px;z-index:-1;">
+                <div style="position:relative;width:100%;height:100%;">
+                    <div ng-repeat="event in calendarSelectedDay.events"
+                         class="label c4p-label-calendar-hour pull-left c4p-color-a-gradient9"
+                         style="position:absolute;width:100%;padding:0;margin:0;pointer-events: all;
+                                top:{{calendarSelectedDay.eventsPosition[$index].posPercent}}%;
+                                height:{{calendarSelectedDay.eventsPosition[$index].lengthPercent}}%;">
+                        <div style="width: 3%;height: 100%;float: left;"></div>
+                        <div class="pull-left c4p-link5 scrollTop a4p-dot"
+                             style="width:87%;line-height: 1em;height:100%;padding: 0 0 0 7%;text-align: left"
+                             ng-click="onEventClick(event)">
+                            {{getItemNameById(event.id.dbid)}}<br>
+
+                        </div>
+                        <div ng-show="srvData.isObjectOwnedByUser(event)"
+                             ng-click="removeEvent(event)"
+                             class="c4p-link5 pull-right"
+                             style="width:10%;text-align:center;">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

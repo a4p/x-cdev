@@ -1,0 +1,139 @@
+<!-- Headers -->
+<div class="row">
+    <div class="c4p-dialog-header c4p-color-gradient0">
+
+        <div class="col-xxs-12">
+            <!-- Nav tabs -->
+            <ul class="nav nav-pills">
+                <li class="hidden-xs" ng-hide="removeEnabled">
+                  <a class="btn disabled">
+                      <h5>{{srvLocale.translations.htmlTitleNewObject[objectTypeLocale]}}</h5>
+                  </a>
+                </li>
+                <li class="hidden-xs" ng-show="removeEnabled">
+                  <a class="btn disabled">
+                      <h5>{{srvLocale.translations.htmlTitleEditObject[objectTypeLocale]}}</h5>
+                  </a>
+                </li>
+                <li ng-show="removeEnabled">
+                    <a  class="btn c4p-color-cancel-transparent" ng-click="remove()">
+                        <span class="glyphicon glyphicon-trash-o"></span>
+                    </a>
+                </li>
+
+        <!-- temporary deactivation : waiting for more infos to import ?
+        <div class="btn c4p-color-action-transparent"
+             ng-show="hasOpenImportAccountDialog"
+             ng-click="openImportAccountDialog()">
+            <span class="c4p-icon-std glyphicon glyphicon-download"></span>
+        </div>
+        <div class="btn c4p-color-action-transparent"
+             ng-show="hasOpenImportEventDialog"
+             ng-click="openImportEventDialog()">
+            <span class="c4p-icon-std glyphicon glyphicon-download"></span>
+        </div>
+        -->
+
+
+                <li class="pull-right">
+                    <a class="btn" ng-click="close()">
+                      <span class="">&times;</span>
+                    </a>
+                </li>
+                <li class="pull-right">
+                    <a class="btn" ng-click="submit()">
+                        <div ng-class="{'c4p-color-ok-transparent' : objectValidated, 'c4p-color-cancel-transparent' : !objectValidated}">
+                          <span class="glyphicon glyphicon-check"></span>
+                        </div>
+                    </a>
+                </li>
+                <li class="pull-right" ng-show="hasOpenImportContactDialog && !removeEnabled">
+                    <a  class="btn btn-link" ng-click="openImportContactDialog()">
+                          <span>{{srvLocale.translations.htmlDialogTextImport}}</span>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Header
+<div class="row" resize-opts="{}">
+    <div class="c4p-dialog-header c4p-color-gradient0" >
+        <div class="btn c4p-padding-w-packed c4p-color-action-transparent">
+            <span>{{srvLocale.translations.htmlTypeName[objectTypeLocale]}}</span>
+        </div>
+        <div class="btn c4p-color-action-transparent"
+             ng-show="hasOpenImportContactDialog"
+             ng-click="openImportContactDialog()">
+            <span class="c4p-icon-std glyphicon glyphicon-download"></span>
+        </div>
+        <div class="btn c4p-color-cancel-transparent" ng-show="removeEnabled" ng-click="remove()">
+            <span class="c4p-icon-std glyphicon glyphicon-trash"></span>
+        </div>
+
+        <div class="btn disabled c4p-padding-w-packed">
+            <div class="c4p-icon-std glyphicon">&nbsp;</div>
+        </div>
+
+        <div class="pull-right" ng-hide="false">
+            <div class="btn c4p-padding-w-packed c4p-stroke"
+                 ng-click="submit()" style="display: inline-block"
+                    ng-class="{'c4p-color-ok-transparent' : objectValidated, 'c4p-color-cancel-transparent' : !objectValidated}">
+                <span class="c4p-icon-std glyphicon glyphicon-ok"></span>
+            </div>
+
+            &nbsp;
+            <div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke"
+                 ng-click="close()" style="display: inline-block">
+                <span class="c4p-icon-std glyphicon glyphicon-times-circle"></span>
+            </div>
+        </div>
+    </div>
+</div>
+ -->
+<div class="row c4p-dialog-bg"
+     resizecss-height="(getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight'))*0.9">
+    <!-- Body -->
+    <div class="col-xs-12 col-sm-8 c4p-dialog-edit-container c4p-color-a-gradient{{objectGroups.length}}"
+         sense-opts="{axeY:'scroll', watchRefresh:'objectLastChange', init: 'setSenseScroller($sense)'}"
+         sense-scrollopts="{scrollbarClass:'c4p-scrollbar', pageSelector: 'marker'}"
+         sense-afterscrollend="onSenseScrollEnd($event)"
+         style="height: 100%">
+        <form class="c4p-color-a-gradient{{objectGroups.length}}">
+            <marker ng-repeat="group in objectGroups">
+                <div class="c4p-color-a-gradient{{$index+1}} c4p-form-group">
+                    <span class="c4p-form-group-title">{{group.title}}</span>
+                    <fieldset ng-repeat="field in group.groupFields">
+                        <c4p-input warn-var="field.warn"
+                                   title-var="field.title"
+                                   ng-model="object[field.key]"
+                                   type-var="field.type"
+                                   options-var="field.optionList"
+                                   rows=5 cols=20
+                                   ng-change="onFieldChanged(field)"></c4p-input><!-- focus-var="field.focus" -->
+                    </fieldset>
+                </div>
+            </marker>
+            <div class="row">
+                <!-- Vertical Filler to let scroll inuts while virtual keyboard is masking almost all te screen -->
+                <div class="col-xs-12" ng-style="{minHeight:getResizeHeight()+'px'}"></div>
+            </div>
+        </form>
+    </div>
+    <!-- Side panel -->
+    <div class="hidden-xs col-sm-4 c4p-color-a-gradient{{objectGroups.length}}"
+         sense-opts="{axeY:'scroll', watchRefresh:'objectLastChange'}"
+         sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}"
+         style="height: 100%">
+        <ul class="col-xxs-12 c4p-dialog-menu c4p-color-a-gradient{{objectGroups.length}}">
+            <li class="c4p-dialog-menu-item c4p-color-a-gradient{{$index+1}}"
+                ng-repeat="group in objectGroups"
+                ng-class="{'active': pageY == $index}"
+                ng-click="setSenseScrollerPageY($index)">
+                <span ng-class="{'c4p-field-error-message': (group.warn.length > 0)}">{{group.title}}</span>
+            </li>
+        </ul>
+    </div>
+</div>

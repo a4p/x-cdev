@@ -1,0 +1,19 @@
+
+<h5>Inlined item</h5>
+
+<span ng-controller="ctrlInlinedObject" ng-init="init(item)">
+    <!-- To show if pb -->
+    <span ng-show="(item.c4p_synchro.creating || item.c4p_synchro.writing || item.c4p_synchro.reading || item.c4p_synchro.deleting)"
+          class="glyphicon"
+          ng-class="{
+        'glyphicon-trash'    : (item.c4p_synchro.deleting > 1),
+        'glyphicon-times-circle' : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),
+        'glyphicon-upload'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),
+        'glyphicon-download' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),
+        'glyphicon-spinner'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),
+        'glyphicon-spin'          : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))
+    }"></span>
+    <span ng-show="srvNav.holdItem && (item.id.dbid == srvNav.holdItem.id.dbid)" class="icon-large glyphicon glyphicon-link"></span>
+    <span ng-hide="srvNav.holdItem && (item.id.dbid == srvNav.holdItem.id.dbid)" class="icon-large glyphicon glyphicon-{{itemIcon}}"></span>
+    <span>{{itemName}}</span>
+</span>

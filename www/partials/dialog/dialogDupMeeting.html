@@ -1,0 +1,90 @@
+<!-- Headers -->
+<div resize-opts="{}" class="c4p-dialog-header c4p-color-a-dark-i">
+    <div class="row">
+        <div class="c4p-dialog-search-header">
+            <div class="btn c4p-padding-w-packed">
+                <span>{{srvLocale.translations.htmlDialogDupMeetingPageTitle}}</span>
+            </div>
+
+            <!-- ATTENTION: Next line use for vertical align -->
+            <!-- Sync all icon-Xx value in this file to keep alignment -->
+            <div class="btn c4p-padding-w-packed">
+                <div class="c4p-icon-std glyphicon">&nbsp;</div>
+            </div>
+
+            <div class="pull-right" ng-hide="false">
+                <div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke"
+                     ng-click="valid()">
+                    <span class="c4p-icon-std glyphicon glyphicon-ok"></span>
+                </div>
+
+                &nbsp;
+                <div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke"
+                     ng-click="cancel()" >
+                    <span class="c4p-icon-std glyphicon glyphicon-times-circle"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row c4p-dialog-container">
+    <form class="c4p-form-group">
+
+        <div><c4p-input
+                type-var="nameField.type"
+                warn-var="nameField.warn"
+                ng-change="onFieldChanged(nameField)"
+                title-var="nameField.title"
+                ng-model="event.name">
+             </c4p-input>
+        </div>
+
+        <div><c4p-input
+                type-var="startField.type"
+                warn-var="startField.warn"
+                ng-change="onFieldChanged(startField)"
+                title-var="startField.title"
+                ng-model="event.date_start"></c4p-input></div>
+
+        <div><c4p-input
+                type-var="endField.type"
+                warn-var="endField.warn"
+                ng-change="onFieldChanged(endField)"
+                title-var="endField.title"
+                ng-model="event.date_end"></c4p-input></div>
+
+        <div class="row" ng-show="hasWhat">
+            <label class="col-xxs-6 control-label">{{srvLocale.translations.htmlDialogDupMeetingTextInitiator}}</label>
+            <div class="col-xxs-6 controls">
+                    <span class='glyphicon glyphicon-check icon-large' ng-show='event.dupWhat' ng-click="dupWhat = false"></span>
+                    <span class='glyphicon glyphicon-unchecked icon-large' ng-hide='event.dupWhat' ng-click="dupWhat = true"></span>
+            </div>
+        </div>
+
+        <div class="row" ng-show="hasAssignedContact">
+            <label class="col-xxs-6 control-label">{{srvLocale.translations.htmlDialogDupMeetingTextLeader}}</label>
+            <div class="col-xxs-6 controls">
+                    <span class='glyphicon glyphicon-check icon-large' ng-show='dupAssignedContact' ng-click="dupAssignedContact = false"></span>
+                    <span class='glyphicon glyphicon-unchecked icon-large' ng-hide='dupAssignedContact' ng-click="dupAssignedContact = true"></span>
+            </div>
+        </div>
+
+        <div class="row" ng-show="(nbAttachment > 0)">
+            <label class="col-xxs-6 control-label">{{srvLocale.translations.htmlDialogDupMeetingTextAttachments}} : {{nbAttachment}}</label>
+            <div class="col-xxs-6 controls">
+                <span class='glyphicon glyphicon-check icon-large' ng-show='dupAttachment' ng-click="dupAttachment = false"></span>
+                <span class='glyphicon glyphicon-unchecked icon-large' ng-hide='dupAttachment' ng-click="dupAttachment = true"></span>
+            </div>
+        </div>
+
+        <div class="row form-group" ng-show="(nbAttendee > 0)">
+            <label class="col-xxs-6 control-label">{{srvLocale.translations.htmlDialogDupMeetingTextAttendees}} : {{nbAttendee}}</label>
+            <div class="col-xxs-6 controls">
+                <span class='glyphicon glyphicon-check icon-large' ng-show='dupAttendee' ng-click="dupAttendee = false"></span>
+                <span class='glyphicon glyphicon-unchecked icon-large' ng-hide='dupAttendee' ng-click="dupAttendee = true"></span>
+            </div>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,22 @@
+
+<ul class="nav nav-pills"  resize-opts="{name:'guider_header'}">
+	<li ng-show="slide != slideGuiderRegister">
+		<a 	class="btn btn-link" ng-click="gotoRegister()" ng-disabled="getInputFocusState()">
+			{{srvLocale.translations.htmlButtonRegister}}
+		</a>
+	</li>
+	<li class="dropdown pull-right">
+		<a class="dropdown-toggle" ng-show="getInputFocusState()">
+			{{srvLocale.lang.title}} <b class="caret"></b>
+		</a>
+		<a class="dropdown-toggle" data-toggle="dropdown" ng-hide="getInputFocusState()">
+			{{srvLocale.lang.title}} <b class="caret"></b>
+		</a>
+
+		<ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
+			<li ng-repeat="link in srvLocale.langs">
+				<a class="white smaller-70" ng-click="srvLocale.setLang(link)">{{link.title}}</a>
+			</li>
+		</ul>
+	</li>
+</ul>

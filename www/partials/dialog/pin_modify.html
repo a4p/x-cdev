@@ -1,0 +1,64 @@
+<div class="modal-body vertical-container">
+    <div class="c4p-dialog vertical-align">
+        <div class="row">
+            <div class="col-xxs-offset-1 col-xxs-10 col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 c4p-modal-confirm-container">
+                <div class="row">
+    				<div class="c4p-dialog-header c4p-color-gradient0">
+				        <div class="btn c4p-padding-w-packed">
+				            <span>{{srvLocale.translations.htmlDialogPINModePageTitle}}</span>
+				        </div>
+		                <div class="pull-right" ng-hide="false">
+			                <div class="row c4p-modal-confirm-btns">
+				            	<div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="submitNewPinCode()"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>
+				            	<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div>
+			                </div>
+		                </div>
+					</div>
+				</div>
+
+                <div class="row">
+                    <div class="col-xxs-12 c4p-modal-confirm-cont"
+                         sense-opts="{axeY:'scroll'}"
+                         sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}" style="height:13em;">
+                         <div class="container">
+	                		<div class="c4p-form-group c4p-color-a-gradient1">
+	        					<form class="form-horizontal c4p-color-a-gradient2" name="pinForm" novalidate>
+			                		<div class="form-group row c4p-color-a-gradient2" ng-class="{'has-error':((pinForm.oldPinCode.$dirty && pinForm.oldPinCode.$invalid) || oldPinCodeError)}">
+										<div class="row">
+		                            		<span ng-hide="(pinForm.oldPinCode.$dirty && pinForm.oldPinCode.$invalid) || oldPinCodeError">{{srvLocale.translations.htmlDialogPINModeOld}}</span>
+											<span ng-show="pinForm.oldPinCode.$dirty && pinForm.oldPinCode.$invalid">
+			                               		<span class="help-inline c4p-field-error-message" ng-show="pinForm.oldPinCode.$error.required">{{srvLocale.translations.htmlDialogPINModeRequired}}</span>
+											</span>
+											<span ng-show="oldPinCodeError">
+												<span class="help-inline c4p-field-error-message">{{srvLocale.translations.htmlDialogPINModeKO}}</span>
+											</span>
+
+		                                    <input id="oldPinCode" name="oldPinCode" class="form-control" type="password" ng-model='oldPinCode' required/>
+										</div>
+									</div>
+
+									<div class="form-group row c4p-color-a-gradient2" ng-class="{'has-error':((pinForm.newPinCode.$dirty && pinForm.newPinCode.$invalid) || newPinCodeError)}">
+										<div class="row">
+		                            		<span ng-hide="(pinForm.newPinCode.$dirty && pinForm.newPinCode.$invalid) || newPinCodeError">{{srvLocale.translations.htmlDialogPINModeNew}}</span>
+											<span ng-show="pinForm.newPinCode.$dirty && pinForm.newPinCode.$invalid">
+			                               		<span class="help-inline c4p-field-error-message" ng-show="pinForm.newPinCode.$error.required">{{srvLocale.translations.htmlDialogPINModeRequired}}</span>
+											</span>
+											<span ng-show="sameAsOldPin()">
+												<span class="help-inline c4p-field-error-message">{{srvLocale.translations.htmlDialogPINModeDifferent}}</span>
+											</span>
+
+		                                    <input id="newPinCode" name="newPinCode" class="form-control" type="password" ng-model='newPinCode' required/>
+		                                </div>
+			                		</div>
+			                	</form>
+			                </div>
+	                	 </div>
+
+                         <!-- Vertical Filler to let scroll inputs while virtual keyboard is masking almost all te screen -->
+                         <div ng-style="{minHeight:getResizeHeight()+'px'}"></div>
+                	</div>
+				</div>
+            </div>
+        </div>
+    </div>
+</div>

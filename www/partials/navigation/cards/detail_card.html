@@ -1,0 +1,114 @@
+
+
+	<!-- 
+		inputs : 
+			cardItem, cardGroups, cardItemName, cardHasThumb, cardIsAboutFile, cardIsAboutVideo
+	-->
+
+	<div class="c4p-card-text" 
+		ng-class="{'col-xxs-12': !cardHasThumb,'col-xxs-11' : (cardHasThumb && (cardIsAboutFile || cardIsAboutVideo)),'col-sm-8 col-xxs-11' : (cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo)}">
+
+
+		<div ng-repeat="group in cardGroups" style="display: block; margin: 0; padding: 0;" class="c4p-size-{{group.size}}">
+
+			<!--{{group.title}} - {{group.name}} - {{$index}}<br>-->
+			<span ng-if="group.name" ng-class="{'a4p-dot': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItemName}}</span>
+			<span ng-if="group.title">{{group.title}}</span>
+			<span ng-if="group.synchro" ng-init="itemSynchro = cardItem.c4p_synchro" ng-include="'partials/navigation/cards/detail_synchro.html'"></span>
+
+			<!-- <span ng-show="group.icon" class="icon-large glyphicon glyphicon-{{group.icon}}" ng-class="{'c4p-icon-calendar-allday':allDayEvent}"> </span> 
+			<span ng-show="group.icon" ng-hide="$first" class="glyphicon glyphicon-{{group.icon}}"></span>-->
+
+			<address ng-if="group.fields.length > 1" ng-repeat="field in group.fields">
+				<div class="c4p-size-{{field.size}}" ng-include="'partials/navigation/cards/detail_field.html'"></div>
+			</address>
+
+			<span ng-if="group.fields.length == 1" ng-init="field = group.fields[0]">
+				<div class="c4p-size-{{field.size}}" ng-include="'partials/navigation/cards/detail_field.html'"></div>
+			</span>
+		</div>
+	</div>
+
+
+
+	<div class="c4p-card-thumb pull-right col-sm-3 hidden-xs" ng-if="cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo">
+        <c4p-thumb
+        	class="pull-right"
+            width="70" height="70"
+            text="{{cardItemName}}" indic="{{itemRelationCount}}"
+            icon="glyphicon-{{itemIcon}}" color="{{itemColor}}"
+            url="{{cardItem.thumb_url}}">
+        </c4p-thumb>
+    </div>
+
+	<div class="c4p-card-thumb pull-right col-xxs-1" ng-if="cardHasThumb">
+		<div class="pull-right c4p-color-action-transparent"
+             ng-click="doAction('toggleFavorite')">
+           <span class="c4p-icon-std glyphicon c4p-outline-star"
+                  ng-class="{'glyphicon-star' : srvData.isTaggedFavorite(cardItem), 'glyphicon-star-o' : !srvData.isTaggedFavorite(cardItem)}">
+           </span>
+        </div>
+    </div>
+
+	<div class="c4p-card-thumb clear col-xxs-12" ng-if="cardHasThumb && cardIsAboutFile"
+		style="text-align: center;">
+		    <div class="btn"
+		         ng-class="{'disabled': actionMap.viewDocument.disabled}"
+		         ng-click="doAction('viewDocument')"
+		         style="background: url('{{cardItem.thumb_url}}') no-repeat center center; width: 100%; height: 250px; -webkit-background-size: contain;">
+		    </div>
+	</div>
+
+	<div class="c4p-card-thumb clear col-xxs-12" ng-if="cardHasThumb && cardIsAboutVideo"
+		style="text-align: center;">
+			<video controls ng-src="{{cardItem.url}}" style="max-width: 100%; height: auto;"></video>
+	</div>
+
+<!--
+	        <div class="table-responsive">
+	            <table class="table">
+	            <tr><td>
+	                <div class="btn btn-sm pull-right c4p-color-action-transparent"
+	                     ng-click="doAction('toggleFavorite')">
+	                   <span class=" c4p-icon-std glyphicon c4p-outline-star"
+	                          ng-class="{'glyphicon-star' : isTaggedFavorite(cardItem), 'glyphicon-star-o' : !isTaggedFavorite(cardItem)}">
+	                   </span>
+	                </div>
+	            </td><td width="70px">
+
+	            	<div ng-if="cardIsAboutFile">
+					    <div class="btn"
+					         ng-class="{'disabled': actionMap.viewDocument.disabled}"
+					         ng-click="doAction('viewDocument')"
+					         style="background: url('{{carItem.thumb_url}}') no-repeat center center; width: 100%; height: 250px; -webkit-background-size: contain;">
+					    </div>
+					</div>
+					<div ng-if="cardIsAboutVideo">
+					    <div style="text-align: center;">
+					        <video controls ng-src="{{carItem.url}}" style="max-width: 100%; height: auto;"></video>
+					    </div>
+					</div>
+					<div ng-if="!cardIsAboutFile && !cardIsAboutVideo">
+		                <c4p-thumb
+		                    width="70" height="70"
+		                    text="{{cardItemName}}" indic="{{itemRelationCount}}"
+		                    icon="glyphicon-{{itemIcon}}" color="{{itemColor}}"
+		                    url="{{carItem.thumb_url}}">
+		                </c4p-thumb>
+	                </div>
+	            </td></tr>
+	            </table>
+	        </div>
+	        -->
+
+
+	<!-- GoogleMap 
+	<div c4p-show="srvConfig.c4pConfig.exposeGoogleMap && srvRunning.online && google">
+		<div class="google-map" center="position.coords"
+			zoom="zoomProperty" markers="markersProperty"
+			latitude="clickedLatitudeProperty"
+			longitude="clickedLongitudeProperty" mark-click="true"
+			draggable="true" fit="false" events="eventsProperty"
+			style="height: 300px; width: 100%">
+		</div>
+	</div>-->

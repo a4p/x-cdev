@@ -1,0 +1,69 @@
+
+
+	<!-- 
+		inputs : 
+			field 
+	-->
+
+
+	<!--<span ng-show="($index > 0)"> </span>
+	fti: {{field.title}} - fp : {{field.prefix}}<br>-->
+	<span ng-show="field.title">{{field.title}} : </span>
+	<span ng-show="field.prefix">{{field.prefix}}</span>
+
+	
+	<span ng-switch="field.isArray">
+		<span ng-switch-when="true">
+			<span ng-repeat="item in field.value">
+				<span ng-show="($index > 0) && (field.separator != 'br')">{{field.separator}}</span>
+				<br ng-show="($index > 0) && (field.separator == 'br')" />
+
+				<span ng-switch="field.type">
+					<a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{item}}" target=_blank>{{item}}</a>
+					<a ng-switch-when="mail" class="c4p-color-lnk" href="mailto:{{item}}" target=_blank>{{item}}</a>
+					<a ng-switch-when="url" class="c4p-color-lnk" href="{{item}}" target=_blank>{{item}}</a>
+					<span ng-switch-when="currency">{{item | c4pCurrency}}</span>
+					<span ng-switch-when="percent">{{item}}%</span>
+					<span ng-switch-when="probability">{{item}}%</span>
+					<span ng-switch-when="datetime">{{srvLocale.formatDate(item, 'short')}}</span>
+					<span ng-switch-when="dateTIME">{{srvLocale.formatDate(item, 'shortDate')}} <b>{{srvLocale.formatDate(item, 'shortTime')}}</b></span>
+					<span ng-switch-when="date">{{srvLocale.formatDate(item, 'shortDate')}}</span>
+					<span ng-switch-when="time">{{srvLocale.formatDate(item, 'shortTime')}}</span>
+					<span ng-switch-when="TIME"><b>{{srvLocale.formatDate(item, 'shortTime')}}</b></span>
+					<span ng-switch-when="number">{{item | c4pNumber}}</span>
+					<span ng-switch-when="rating">
+						<span ng-include="'partials/navigation/cards/4_rating_ro2.html'" style="padding: 0 10px;"></span>
+					</span>
+					<blockquote ng-switch-when="textarea" ng-bind-html="item"></blockquote>
+					<address ng-switch-when="address">{{item}}</address>
+					<span ng-switch-default>{{item}}</span>
+				</span>
+			</span>
+		</span>
+
+		<span ng-switch-default>
+			<span ng-switch="field.type">
+				<a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{field.value}}" target=_blank>{{field.value}}</a>
+				<a ng-switch-when="mail"class="c4p-color-lnk" href="mailto:{{field.value}}" target=_blank>{{field.value}}</a>
+				<a ng-switch-when="url" class="c4p-color-lnk" href="{{field.value}}" target=_blank>{{field.value}}</a>
+				<span ng-switch-when="currency">{{field.value | c4pCurrency}}</span>
+				<span ng-switch-when="percent">{{field.value}}%</span>
+				<span ng-switch-when="probability">{{field.value}}%</span>
+				<span ng-switch-when="datetime">{{srvLocale.formatDate(field.value, 'short')}}</span>
+				<span ng-switch-when="dateTIME">{{srvLocale.formatDate(field.value, 'shortDate')}} <b>{{srvLocale.formatDate(field.value, 'shortTime')}}</b></span>
+				<span ng-switch-when="date">{{srvLocale.formatDate(field.value, 'shortDate')}}</span>
+				<span ng-switch-when="time">{{srvLocale.formatDate(field.value, 'shortTime')}}</span>
+				<span ng-switch-when="TIME"><b>{{srvLocale.formatDate(field.value, 'shortTime')}}</b></span>
+				<span ng-switch-when="number">{{field.value | c4pNumber}}</span>
+				<span ng-switch-when="rating">
+					<span ng-init="item = field.value" ng-include="'partials/navigation/cards/4_rating_ro2.html'" style="padding: 0 10px;"></span>
+				</span>
+				<blockquote ng-switch-when="textarea" ng-bind-html="field.value"></blockquote>
+				<address ng-switch-when="address">{{field.value}}</address>
+				<span ng-switch-default>{{field.value}}</span>
+			</span>
+		</span>
+	</span>
+
+	<span ng-if="field.suffix">{{field.suffix}}</span>
+

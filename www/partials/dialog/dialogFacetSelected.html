@@ -1,0 +1,127 @@
+<!-- Update synchronously this file and dialogSelectObjects.html -->
+<div resize-opts="{}">
+    <!-- Header -->
+    <div class="row">
+        <div class="c4p-dialog-search-header c4p-color-a-dark-i">
+            <div class="btn c4p-padding-w-packed c4p-color-action-transparent c4p-stroke"
+                 ng-show='createPredefinedObjectEnabled'
+                 ng-click='createPredefinedObject()'>
+                <span class="c4p-icon-std glyphicon glyphicon-plus"></span>
+            </div>
+            <div class="btn c4p-padding-w-packed">
+                <span>{{srvLocale.translations.htmlTitleSelection[type]}}</span>
+            </div>
+            <!-- ATTENTION: Next line use for vertical align -->
+            <!-- Sync all icon-Xx value in this file to keep alignment -->
+            <div class="btn c4p-padding-w-packed">
+                <div class="c4p-icon-std glyphicon">&nbsp;</div>
+            </div>
+            <div class="pull-right" ng-hide="false">
+                <div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke"
+                     ng-click="validateDialog()" style="display: inline-block">
+                    <span class="c4p-icon-std glyphicon glyphicon-ok"></span>
+                </div>
+                &nbsp;
+                <div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke"
+                     ng-click="closeDialog()" style="display: inline-block">
+                    <span class="c4p-icon-std glyphicon glyphicon-times-circle"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Search -->
+    <div class="c4p-dialog-search-container c4p-color-a-dark-iii">
+        <div class="row">
+            <div class="col-xxs-12">
+                <span>{{srvLocale.translations.htmlTitleSelection[type]}}</span>
+            </div>
+        </div>
+        <div class="row">
+            <span class="col-xxs-1" ng-click="toggleOrder()">
+                <span ng-show="ascendingOrder" class="glyphicon glyphicon-sort-by-alphabet"></span>
+                <span ng-hide="ascendingOrder" class="glyphicon glyphicon-sort-by-alphabet-alt"></span>
+            </span>
+            <div class="col-xxs-11 btn-group dropdown" ng-show="definedFacetKeyes.length">
+                <button class="btn dropdown-toggle" data-toggle="dropdown" style="text-align: left;">
+                    <span class="c4p-n_1">{{srvLocale.translations.htmlFacetName[lastFacetKey]}} </span><span class="glyphicon glyphicon-caret-down"></span>
+                </button>
+                <ul class="dropdown-menu" style="width:100%">
+                    <li ng-repeat="facetKey in definedFacetKeyes">
+                        <a ng-click='setFacet(facetKey)'>
+                            <span style="vertical-align:top">{{srvLocale.translations.htmlFacetName[facetKey]}} </span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="controls controls-row col-xxs-12" style="position: relative;">
+                <input style="width:90%;"
+                       placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}"
+                       ng-model="searchQuery"
+                       ng-change="setFilterQuery(searchQuery);" />
+                <span style="position: absolute; right: 10px;"
+                      ng-click="searchQuery=''; setFilterQuery('')"><span class="glyphicon glyphicon-times-circle"></span></span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Selection List -->
+<div class="row">
+    <div class="controls controls-row col-xxs-12" style="position: relative;"
+         ng-repeat="filterFacet in filterFacets">
+        <span>{{srvLocale.translations.htmlFacetName[filterFacet.key]}} : {{filterFacet.title}} - {{filterFacet.items.length}}</span>
+        <span style="position: absolute; right: 10px;"
+              ng-click="removeFacet($index)"><span class="glyphicon glyphicon-times-circle"></span></span>
+    </div>
+</div>
+<div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a"
+     resizecss-height="getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight') -getPathValue('previousElementSibling.previousElementSibling', 'offsetHeight')"
+     sense-opts="{axeY:'scroll', watchRefresh:['filterFacet.key', 'items.keyes.length', 'items.others.length']}"
+     sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}">
+    <div class="col-xxs-12">
+        <!-- Keyes - {{items.keyes.length}} -->
+        <ul class='nav nav-stacked' ng-repeat="groupKey in items.keyes">
+            <li>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <a ng-click="addFacet(lastFacetKey, groupKey.title, groupKey.value)">{{groupKey.title}} - {{items.lists[groupKey.value].length}} <span class="glyphicon glyphicon-chevron-right"></span></a>
+                    </li>
+                </ul>
+            </li>
+            <!--
+            <li ng-repeat="item in items.lists[groupKey.value]">
+                <div ng-click="item.selected = !item.selected" class="clearfix c4p-link5 c4p-select-objects-item">
+                    <span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{'c4p-invisible': !item.selected}"></span>
+                    <div class="pull-left" ng-class="{scrollTop:element.scrollTo}">
+                        <span class="glyphicon glyphicon-{{getObjectIcon(item.object)}}"></span>
+                        <span>{{getObjectName(item.object)}}</span>
+                    </div>
+                </div>
+            </li>
+            -->
+        </ul>
+        <!-- Others - {{items.others.length}} -->
+        <ul class='nav nav-stacked'>
+            <!-- Last Facet selected -->
+            <li ng-show="filterFacets.length > 0">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <a class="c4p-link5" ng-click="removeLastFacet()">{{getLastFacet().title}} - {{items.others.length}}<span class="glyphicon glyphicon-chevron-left"></span></a>
+                    </li>
+                </ul>
+            </li>
+            <!-- Others - {{items.others.length}} -->
+            <li ng-repeat="item in items.others">
+                <div ng-click="item.selected = !item.selected" class="clearfix c4p-link5 c4p-select-objects-item">
+                    <span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{'c4p-invisible': !item.selected}"></span>
+                    <div class="pull-left" ng-class="{scrollTop:element.scrollTo}">
+                        <!--<span class="glyphicon glyphicon-{{getObjectIcon(item.object)}}"></span>-->
+                        <span>{{getObjectName(item.object)}}</span>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+

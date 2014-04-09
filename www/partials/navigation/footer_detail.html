@@ -1,0 +1,66 @@
+<div class="c4p-footer-details c4p-color-gradient0"
+     style="position:relative"
+     resize-opts="{name:'navigation_footer_detail', watchRefresh:['srvNav.item', 'srvNav.history']}"
+     resizecss-width="getPathValue('parentNode', 'offsetWidth')"><!-- space collapsing between inline-block element
+
+
+    --><!-- Back button
+    --><div class="btn c4p-color-action-transparent" ng-click="gotoBack()" resize-opts="{name:'navigation_footer_detail_back'}">
+        <span class="c4p-icon-std glyphicon glyphicon-arrow-left"></span>
+    </div><!-- space collapsing between inline-block element
+
+    --><!-- Navigation history
+    --><div class="btn btn-xs"
+         ng-controller="ctrlNavObject"
+         resize-opts="{name:'navigation_footer_detail_history', watchRefresh:['srvNav.item', 'srvNav.history']}"
+         resizecss-width="getResizePathValue('navigation_footer_detail', '', 'offsetWidth') -1 -getResizePathValue('navigation_footer_detail_back', '', 'offsetWidth') -getResizePathValue('navigation_footer_detail_spacer', '', 'offsetWidth') -getResizePathValue('navigation_footer_detail_lock', '', 'offsetWidth') -getResizePathValue('navigation_footer_detail_meeting', '', 'offsetWidth')">
+        <ul style="overflow-x:hidden;" class="c4p-list-footer-details">
+            <li class="c4p-item-list-footer-details"
+                ng-repeat="back in srvNav.history | limitTo:3"
+                ng-class="{'c4p-item-list-ftr-footer-details':$last}" style="opacity: {{1-(0.33*$index)}}">
+                <small>
+                    <span class="glyphicon glyphicon-{{back.itemIcon}}"></span>
+                    <span ng-switch="!back.itemName">
+                        <span ng-switch-when="true"> {{srvLocale.translations.htmlSlideName[back.slide]}} </span>
+                        <span ng-switch-default> {{back.itemName}} </span>
+                    </span>
+                </small>
+            </li>
+        </ul>
+    </div><!-- space collapsing between inline-block element
+
+    --><!-- spacer to have the footer taker the same size as other footer/header
+    --><div class="c4p-hf-spacer" resize-opts="{name:'navigation_footer_detail_spacer'}">
+        <div class="btn c4p-padding-w-packed">
+            <div class="c4p-icon-std glyphicon">&nbsp;</div>
+        </div>
+    </div><!-- space collapsing between inline-block element
+
+    --><!-- Screen Locker
+    --><div class="btn"
+         ng-show="srvSecurity.isSecured()"
+         ng-click="openDialogLocked()"
+         resize-opts="{name:'navigation_footer_detail_lock'}">
+        <a class="c4p-link2">
+            <span class="glyphicon glyphicon-lock"></span>
+        </a>
+    </div><!-- space collapsing between inline-block element
+
+    --><!-- Object trash : modal droppable zone to activate Delete action
+    --><div class="btn btn-danger"
+         ng-class="{'active' : dropOver}"
+         ng-show="dndActive"
+         ng-controller="ctrlTrashObject"
+         sense-opts="{name:'dropObjectTrash'}"
+         sense-dndstart="dndStart($event)"
+         sense-dndend="dndEnd($event)"
+         sense-dndcancel="dndCancel($event)"
+         sense-dropoverenter="dropOverEnter($event)"
+         sense-dropoverleave="dropOverLeave($event)"
+         sense-dropend="dropEnd($event)"
+         style="position:absolute;z-index:1041;top:0;left:0;">
+        <span class="c4p-icon-std glyphicon glyphicon-trash"></span>
+    </div><!-- space collapsing between inline-block element
+--></div>
+
+

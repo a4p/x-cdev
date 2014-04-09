@@ -1,0 +1,16 @@
+
+	<!-- 
+		inputs : 
+			itemSynchro
+	-->
+	<div ng-if="itemSynchro && (itemSynchro.creating || itemSynchro.writing || itemSynchro.reading || itemSynchro.deleting)"
+		class="glyphicon"
+		ng-class="{
+	        'glyphicon-trash'    : (itemSynchro.deleting > 1),
+	        'glyphicon-times-circle' : (!itemSynchro.deleting && (itemSynchro.creating > 1)),
+	        'glyphicon-upload'   : (!itemSynchro.deleting && !itemSynchro.creating && (itemSynchro.writing > 1)),
+	        'glyphicon-download' : (!itemSynchro.deleting && !itemSynchro.creating && !itemSynchro.writing && (itemSynchro.reading > 1)),
+	        'glyphicon-spinner'  : ((itemSynchro.deleting == 1) || (itemSynchro.creating == 1) || (itemSynchro.writing == 1) || (itemSynchro.reading == 1)),
+	        'glyphicon-spin'          : ((itemSynchro.deleting == 1) || (itemSynchro.creating == 1) || (itemSynchro.writing == 1) || (itemSynchro.reading == 1))
+	      }">
+	</div>

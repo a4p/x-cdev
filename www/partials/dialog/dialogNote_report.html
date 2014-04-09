@@ -1,0 +1,163 @@
+<div class="row" ng-show="modeEdit">
+    <div class="col-xxs-12">
+        <form class="c4p-color-a-gradient{{objectGroups.length}}">
+            <marker ng-repeat="group in objectGroups">
+                <div class="c4p-color-a-gradient{{$index+1}} c4p-form-group">
+                    <span class="c4p-form-group-title">{{group.title}}</span>
+                    <fieldset ng-repeat="field in group.groupFields">
+                        <c4p-input warn-var="field.warn"
+                                   title-var="field.title"
+                                   ng-model="note[field.key]"
+                                   type-var="field.type"
+                                   rows=5 cols=20
+                                   ng-change="onFieldChanged(field)"></c4p-input>
+                    </fieldset>
+                </div>
+            </marker>
+        </form>
+        <!-- Contacts -->
+        <div class="col-xxs-12 c4p-form-group">
+            <span class="c4p-form-group-title"><c4p-pluralize count="toolboxContacts.length" when="srvLocale.translations.pluralHtmlTextReportPeople"/></span>
+            <ul class="nav nav-pills" ng-repeat="item in toolboxContacts">
+                <li ng-controller="ctrlNamedObject" ng-init="init(item)">
+                    <span class="c4p-detail-c-bg"><span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> {{itemName}} </span>
+                    <span class="glyphicon glyphicon-times-circle c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeContact($index)"></span>
+                    <!--<span ng-hide="$last">&nbsp;,&nbsp;</span>-->
+                </li>
+            </ul>
+        </div>
+        <!-- Docs -->
+        <div class="col-xxs-12 c4p-form-group">
+            <span class="c4p-form-group-title"><c4p-pluralize count="toolboxDocs.length" when="srvLocale.translations.pluralHtmlTextReportDoc"/></span>
+            <ul class="nav nav-pills" ng-repeat="item in toolboxDocs">
+                <li ng-controller="ctrlNamedObject" ng-init="init(item)">
+                    <span class="c4p-detail-c-bg"><span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> {{itemName}} </span>
+                    <span class="glyphicon glyphicon-remove c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeDoc($index)"></span>
+                    <!--<span ng-hide="$last">&nbsp;,&nbsp;</span>-->
+                </li>
+            </ul>
+        </div>
+        <!-- Observations -->
+        <div class="col-xxs-12 c4p-form-group" >
+            <span class="c4p-form-group-title">{{srvLocale.translations.htmlDialogNoteReportObservation}}</span>
+            <ul class="nav nav-pills" ng-repeat="item in toolboxRatings">
+                <span ng-show="modeEdit" ng-include="'partials/navigation/cards/4_rating.html'" style="padding:0 10px;"></span>
+                <span ng-hide="modeEdit" ng-include="'partials/navigation/cards/4_rating_ro2.html'" style="padding:0 10px;"></span>
+                <span class="glyphicon glyphicon-remove c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeRating($index)"></span>
+            </ul>
+            <!--
+            <span class="well well-small c4p-well-c pull-left"
+                 ng-class="{'c4p-edit': modeEdit, 'c4p-noedit': !modeEdit}"
+                 ng-repeat="item in toolboxRatings">
+                <span ng-show="modeEdit"	ng-include="'partials/navigation/cards/4_rating.html'" style="padding:0 10px;"></span>
+                <span ng-hide="modeEdit"	ng-include="'partials/navigation/cards/4_rating_ro2.html'" style="padding:0 10px;"></span>
+                <span class="c4p-well-c-tool-bar" ng-show="modeEdit">
+                    <a class="close" ng-click="removeRating($index)"><span class="glyphicon glyphicon-remove"></span></a>
+                </span>
+            </span>
+            -->
+        </div>
+    </div>
+    <div class="row">
+        <!-- Vertical Filler to let scroll inuts while virtual keyboard is masking almost all te screen -->
+        <div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+'px'}"></div>
+    </div>
+</div>
+
+<div class="row" ng-controller="ctrlDetailedObject" ng-init="init(note)" c4p-show="!modeEdit">
+    <div class="col-xxs-12">
+        <div class="c4p-color-a-gradient{{$index}}"
+             ng-repeat="card in cards">
+            <div class="c4p-card">
+                <div ng-show="isFile && $first"
+                     class="btn"
+                     ng-class="{'disabled': actionMap.viewDocument.disabled}"
+                     ng-click="doAction('viewDocument')"
+                     style="background: url('{{item.thumb_url}}') no-repeat center center;width:100%;height: 250px;-webkit-background-size: contain;">
+                </div>
+                    <span ng-repeat="group in card.groups"
+                          style="margin:0;padding:0;"
+                          class="c4p-size-{{group.size}}">
+                        <br ng-show="card.brSeparated && ($index > 0)"/>
+                        <span>
+                            <span ng-show="group.synchro && (item.c4p_synchro.creating || item.c4p_synchro.writing || item.c4p_synchro.reading || item.c4p_synchro.deleting)"
+                                  class="glyphicon"
+                                  ng-class="{
+                                    'glyphicon-trash'    : (item.c4p_synchro.deleting > 1),
+                                    'glyphicon-remove'   : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),
+                                    'glyphicon-upload'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),
+                                    'glyphicon-download' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),
+                                    'glyphicon-spinner'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),
+                                    'icon-spin'          : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))
+                                  }"></span>
+                  <!--          <span ng-show="group.icon" class="icon-large glyphicon glyphicon-{{itemIcon}}" ng-class="{'c4p-icon-calendar-allday':allDayEvent}"> </span> -->
+                            <span ng-show="group.name">{{itemName}} </span>
+                            <span ng-show="group.title">{{group.title}} </span>
+                        </span>
+                        <span ng-repeat="field in group.fields"
+                              class="c4p-size-{{field.size}}">
+                            <span ng-show="($index > 0)"> </span>
+                            <span ng-show="field.title">{{field.title}} : </span>
+                            <span ng-show="field.prefix">{{field.prefix}} </span>
+                            <span ng-switch="field.isArray">
+                                <span ng-switch-when="true">
+                                    <span ng-repeat="item in field.value">
+                                        <span ng-show="($index > 0) && (field.separator != 'br')">{{field.separator}}</span>
+                                        <br ng-show="($index > 0) && (field.separator == 'br')"/>
+                                        <span ng-switch="field.type">
+                                            <span ng-switch-when="tel"><a
+                                                    class=" c4p-color-lnk"
+                                                    href="tel:{{item}}"
+                                                    target=_blank><span>{{item}}</span></a></span>
+                                            <span ng-switch-when="mail"><a
+                                                    class="c4p-color-lnk"
+                                                    href="mailto:{{item}}"
+                                                    target=_blank><span>{{item}}</span></a></span>
+                                            <span ng-switch-when="url"><a
+                                                    class="c4p-color-lnk" href="{{item}}"
+                                                    target=_blank><span>{{item}}</span></a></span>
+                                            <span ng-switch-when="currency"><span>{{item | c4pCurrency}}</span></span>
+                                            <span ng-switch-when="percent"><span>{{item}}%</span></span>
+                                            <span ng-switch-when="probability"><span>{{item}}%</span></span>
+                                            <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(item, 'short')}}</span></span>
+                                            <span ng-switch-when="date"><span>{{srvLocale.formatDate(item, 'shortDate')}}</span></span>
+                                            <span ng-switch-when="time"><span>{{srvLocale.formatDate(item, 'shortTime')}}</span></span>
+                                            <span ng-switch-when="number"><span>{{item | c4pNumber}}</span></span>
+                                            <span ng-switch-when="rating"><span
+                                                    ng-include="'partials/navigation/cards/4_rating_ro2.html'"
+                                                    style="padding:0 10px;"></span></span>
+                                            <span ng-switch-default><span>{{item}}</span></span>
+                                        </span>
+                                    </span>
+                                </span>
+                                <span ng-switch-default>
+                                    <span ng-switch="field.type">
+                                        <span ng-switch-when="tel"><a class="c4p-color-lnk"
+                                                                      href="tel:{{field.value}}"
+                                                                      target=_blank><span>{{field.value}}</span></a></span>
+                                        <span ng-switch-when="mail"><a class="c4p-color-lnk"
+                                                                       href="mailto:{{field.value}}"
+                                                                       target=_blank><span>{{field.value}}</span></a></span>
+                                        <span ng-switch-when="url"><a class="c4p-color-lnk"
+                                                                      href="{{field.value}}" target=_blank><span>{{field.value}}</span></a></span>
+                                        <span ng-switch-when="currency"><span>{{field.value | c4pCurrency}}</span></span>
+                                        <span ng-switch-when="percent"><span>{{field.value}}%</span></span>
+                                        <span ng-switch-when="probability"><span>{{field.value}}%</span></span>
+                                        <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(field.value, 'short')}}</span></span>
+                                        <span ng-switch-when="date"><span>{{srvLocale.formatDate(field.value, 'shortDate')}}</span></span>
+                                        <span ng-switch-when="time"><span>{{srvLocale.formatDate(field.value, 'shortTime')}}</span></span>
+                                        <span ng-switch-when="number"><span>{{field.value | c4pNumber}}</span></span>
+                                        <span ng-switch-when="rating"><span ng-init="item = field.value"
+                                                                            ng-include="'partials/navigation/cards/4_rating_ro2.html'"
+                                                                            style="padding:0 10px;"></span></span>
+                                        <span ng-switch-default><span>{{field.value}}</span></span>
+                                    </span>
+                                </span>
+                            </span>
+                            <span ng-show="field.suffix"> {{field.suffix}}</span>
+                        </span>
+                    </span>
+            </div>
+        </div>
+    </div>
+</div>

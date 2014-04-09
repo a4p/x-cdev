@@ -1,0 +1,49 @@
+<!-- Headers -->
+<div resize-opts="{}">
+    <div class="row">
+        <div class="c4p-dialog-search-header c4p-color-a-dark-i">
+            <div class="btn c4p-padding-w-packed">
+                <span>{{srvLocale.translations.htmlDialogAddContactPageTitle}}</span>
+            </div>
+
+
+            <!-- ATTENTION: Next line use for vertical align -->
+            <!-- Sync all icon-Xx value in this file to keep alignment -->
+            <div class="btn c4p-padding-w-packed">
+                <div class="c4p-icon-std glyphicon">&nbsp;</div>
+            </div>
+
+            <div class="pull-right" ng-hide="false">
+                <div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke"
+                     ng-click="add()" style="display: inline-block">
+                    <span class="c4p-icon-std glyphicon glyphicon-ok"></span>
+                </div>
+
+                &nbsp;
+                <div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke"
+                     ng-click="close()" style="display: inline-block">
+                    <span class="c4p-icon-std glyphicon glyphicon-times-circle"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a"
+     resizecss-height="getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight')"
+     sense-opts="{axeY:'scroll', watchRefresh:'visibleElements.length'}"
+     sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}">
+    <div class="col-xxs-12">
+        <ul class='nav nav-stacked'>
+            <li ng-repeat="item in possibleContacts">
+                <div ng-click='toggleItem($index)' class="clearfix c4p-link5">
+                    <span class="glyphicon glyphicon-ok icon-large pull-left"
+                          ng-class="{'c4p-invisible':idxChosen != $index}"
+                          style="padding-top: 5px;"></span>
+                    <span>{{item.salutation}} {{item.first_name}} {{item.last_name}}</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+

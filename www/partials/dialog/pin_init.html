@@ -1,0 +1,45 @@
+<div class="modal-body vertical-container">
+    <div class="c4p-dialog vertical-align">
+        <div class="row">
+            <div class="col-xxs-offset-1 col-xxs-10 col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 c4p-modal-confirm-container">
+                <div class="row">
+    				<div class="c4p-dialog-header c4p-color-gradient0">
+				        <div class="btn c4p-padding-w-packed">
+				            <span>{{srvLocale.translations.htmlDialogPINModePageTitle}}</span>
+				        </div>
+		                <div class="pull-right" ng-hide="false">
+			                <div class="row c4p-modal-confirm-btns">
+				            	<div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="submit()"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>
+				            	<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div>
+			                </div>
+		                </div>
+					</div>
+				</div>
+
+                <div class="row">
+                    <div class="col-xxs-12 c4p-modal-confirm-cont"
+                         sense-opts="{axeY:'scroll'}"
+                         sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}">
+                         <div class="container">
+	                		<div class="c4p-form-group c4p-color-a-gradient1">
+	        					<form class="form-horizontal c4p-color-a-gradient1" name="pinForm" novalidate>
+			                		<div class="form-group row c4p-color-a-gradient1" ng-class="{'has-error':(pinForm.code.$dirty && pinForm.code.$invalid)}">
+			                			<span class="help-inline" ng-show="!pinForm.code.$dirty || !pinForm.code.$invalid">{{srvLocale.translations.htmlDialogPINModeInit}}</span>
+										<span ng-show="pinForm.code.$dirty && pinForm.code.$invalid">
+		                               		<span class="help-inline c4p-field-error-message" ng-show="pinForm.code.$error.required">{{srvLocale.translations.htmlDialogPINModeRequired}}</span>
+										</span>
+
+										<input id="code" name="code" class="form-control" type="password" ng-model="pinCode" required/>
+			                		</div>
+			                	</form>
+			                </div>
+	                	 </div>
+
+                         <!-- Vertical Filler to let scroll inputs while virtual keyboard is masking almost all te screen -->
+                         <div ng-style="{minHeight:getResizeHeight()+'px'}"></div>
+                	</div>
+				</div>
+            </div>
+        </div>
+    </div>
+</div>

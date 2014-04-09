@@ -1,0 +1,33 @@
+<!-- Headers -->
+<div resize-opts="{name:'timeline_header'}">
+    <div class="row">
+        <div class="c4p-dialog-header c4p-color-gradient0">
+            <div class="btn c4p-color-action-transparent " ng-click="close()">
+                <span class="glyphicon glyphicon-arrow-left"></span>
+            </div>
+
+            <div class="btn c4p-padding-w-packed c4p-color-action-transparent">
+                <span>{{objectName}}</span>
+            </div>
+
+            <!-- ATTENTION: Next line use for vertical align -->
+            <!-- Sync all icon-Xx value in this file to keep alignment -->
+            <div class="btn c4p-padding-w-packed">
+                <div class="c4p-icon-std glyphicon">&nbsp;</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row c4p-dialog-bg"
+     resizecss-height="getResizeHeight() -getPathValue('previousElementSibling', 'offsetHeight')">
+    <!-- Body -->
+    <div class="col-xxs-12 c4p-dialog-edit-container c4p-color-gradient0"
+         sense-opts="{axeY:'scroll', init: 'setSenseScroller($sense)'}"
+         sense-scrollopts="{scrollbarClass:'c4p-scrollbar', pageSelector: 'marker'}"
+         sense-afterscrollend="onSenseScrollEnd($event)"
+         style="height: 100%">
+
+        <c4p-timeline data="buildTimelineData()"></c4p-timeline>
+    </div>
+</div>

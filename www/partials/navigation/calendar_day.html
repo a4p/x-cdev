@@ -1,0 +1,43 @@
+<div style="float: left"
+     ng-style="{width:(getMainWidth())+'px'}">
+    <div ng-style="{width:(getMainWidth())+'px'}"
+         sense-opts="{name:'calendar_day_events_wrapper', axeY:'scroll'}"
+         sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}"
+         resize-opts="{name:'calendar_day_events_wrapper', watchRefresh:'navAside'}"
+         resizecss-height="getResizeHeight() -getResizePathValue('calendar_header', '', 'offsetHeight')">
+        <div resize-opts="{name:'calendar_day_event_scroller', watchRefresh:'navAside'}">
+            <div ng-include="'partials/navigation/calendar_day_events.html'"></div>
+        </div>
+    </div>
+
+    <!--
+    <div class="row" style="margin:0;"
+         ng-style="{width:(getMainWidth())+'px'}"
+         resize-opts="{watchRefresh:['srvNav.item', 'srvNav.history']}">
+        <footer ng-include="'partials/navigation/footer_detail.html'"></footer>
+    </div>
+    -->
+</div><!-- space collapsing
+
+
+--><div style="float: left"
+        ng-style="{width:(getAsideWidth())+'px'}">
+    <div ng-style="{width:(getAsideWidth())+'px'}"
+         sense-opts="{name:'calendar_day_hours_wrapper', axeY:'scroll'}"
+         sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}"
+         resize-opts="{name:'calendar_day_hours_wrapper', watchRefresh:'navAside'}"
+         resizecss-height="getResizeHeight() -getResizePathValue('calendar_header', '', 'offsetHeight')">
+        <div resize-opts="{name:'calendar_day_hours_scroller', watchRefresh:'navAside'}">
+            <div ng-include="'partials/navigation/calendar_day_hours.html'"
+                 class="c4p-cal-day-hour"></div>
+        </div>
+    </div>
+
+
+    <!--
+    <div class="row" style="margin:0;"
+         resize-opts="{watchRefresh:['srvNav.item', 'srvNav.history']}">
+        <footer ng-include="'partials/navigation/footer_related.html'"></footer>
+    </div>
+    -->
+</div>

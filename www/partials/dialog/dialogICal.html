@@ -1,0 +1,102 @@
+<!-- Headers -->
+<div class="row">
+    <div class="c4p-dialog-header c4p-color-gradient0">
+
+        <div class="btn c4p-padding-w-packed c4p-color-action-transparent">
+            <span>{{srvLocale.translations.htmlActionName['sendICal']}}</span>
+        </div>
+
+        <div class="btn c4p-color-action-transparent" ng-click="openDialogContacts()">
+            <span class="glyphicon glyphicon-user"></span>
+        </div>
+
+        <!-- ATTENTION: Next line use for vertical align -->
+        <!-- Sync all icon-Xx value in this file to keep alignment -->
+        <div class="btn c4p-padding-w-packed">
+            <div class="c4p-icon-std glyphicon">&nbsp;</div>
+        </div>
+
+        <div class="pull-right">
+            <div class="btn c4p-padding-w-packed c4p-color-action-transparent"
+                 ng-click="sendICal()" style="display: inline-block">
+                <span class="c4p-icon-std glyphicon glyphicon-envelope"></span>
+            </div>
+
+            &nbsp;
+            <div class="btn c4p-padding-w-packed c4p-color-cancel-transparent-transparent c4p-stroke"
+                 ng-click="close()" style="display: inline-block">
+                <span class="c4p-icon-std glyphicon glyphicon-times-circle"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="c4p-color-a-gradient3">
+    <div class="row">
+        <div class="col-xxs-12"
+             resizecss-height="getResizeHeight() -getPathValue('parentNode.parentNode.previousElementSibling', 'offsetHeight')"
+             sense-opts="{name:'dialogICal', axeY:'scroll', watchRefresh:'mailLastUpdate'}"
+             sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}">
+            <div class="container">
+                <div class="c4p-color-a-gradient1">
+                    <div class="c4p-card">
+                        <span class="c4p-size-bigger">{{ical.title}}</span><br />
+                        <span>{{srvLocale.formatDate(ical.startDate, 'short')}}</span> - <span>{{srvLocale.formatDate(ical.endDate, 'short')}}</span><br />
+                        <span>{{ical.location}}</span>
+                    </div>
+                </div>
+                <div class="c4p-form-group c4p-color-a-gradient2">
+                    <div class="row">
+                        <!-- To: new email -->
+                        <div>
+                            <c4p-input title-var="srvLocale.translations.htmlFormTo"
+                                       ng-model="emailInput"
+                                       ng-blur="addEmailToList(emailInput);emailInput='';"
+                                       placeholder="{{srvLocale.translations.htmlFormToPlaceHolder}}"
+                                       style="width: 100%"></c4p-input>
+                        </div>
+                    </div>
+                    <div class="row c4p-mail-attachment-list c4p-color-a-gradient2"
+                         ng-show="(emails.length > 0 || contacts.length > 0)">
+                        <div class="col-xxs-12">
+                            <!-- To: -->
+                            <div>
+                                <div ng-repeat="item in contacts"
+                                     class="row c4p-mail-attachment"
+                                     ng-class="{'c4p-edit': modeEdit, 'c4p-noedit': !modeEdit}">
+
+                                        <span ng-controller="ctrlNamedObject"
+                                              ng-init="init(item)" class="c4p-mail-attachment-name">{{itemName}}</span>
+
+                                    <a ng-click="closeAlert($index,'contact')"><span
+                                            class="glyphicon glyphicon-remove"></span></a>
+                                </div>
+                                <div ng-repeat="item in emails"
+                                     class="c4p-mail-attachment"
+                                     ng-class="{'c4p-edit': modeEdit, 'c4p-noedit': !modeEdit}">
+
+
+                                    <span class="c4p-mail-attachment-name">{{item.email}}</span>
+                                    <a ng-click="closeAlert($index,'email')"><span
+                                            class="glyphicon glyphicon-remove"></span></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-show="errorMap.email.length > 0">
+                        <div class="help-inline c4p-field-error-message" ng-repeat="error in errorMap.email">{{error}}</div>
+                    </div>
+                </div>
+                <div class="c4p-color-a-gradient3">
+                    <div class="c4p-card">
+                        <p>{{ical.description}}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <!-- Vertical Filler to let scroll inuts while virtual keyboard is masking almost all te screen -->
+                    <div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+'px'}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

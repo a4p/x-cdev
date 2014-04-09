@@ -1,0 +1,57 @@
+<!-- Headers -->
+<div class="row">
+    <div class="c4p-dialog-header">
+        <div class="btn c4p-padding-w-packed c4p-guider-action">
+            <span>{{srvLocale.translations.htmlDialogErrRptPageTitle}}</span>
+        </div>
+
+        <!-- ATTENTION: Next line use for vertical align -->
+        <!-- Sync all icon-Xx value in this file to keep alignment -->
+        <div class="btn c4p-padding-w-packed">
+            <div class="c4p-icon-std glyphicon">&nbsp;</div>
+        </div>
+
+        <div class="pull-right">
+            <div class="btn c4p-padding-w-packed c4p-guider-action"
+                 ng-click="close()" style="display: inline-block">
+                <span class="c4p-icon-std glyphicon glyphicon-times-circle"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <div class="row">
+        <div class="col-xxs-12"
+             resizecss-height="getResizeHeight() -getPathValue('parentNode.parentNode.previousElementSibling', 'offsetHeight')"
+             sense-opts="{name:'dialogEmail', axeY:'scroll', watchRefresh:'mailLastUpdate'}"
+             sense-scrollopts="{scrollbarClass:'c4p-scrollbar'}">
+            <div class="c4p-dialog-container">
+                    <div class="row">
+                        <!-- Message -->
+                        <div class="col-xxs-12">
+                            <c4p-input ng-model="feedback.message"
+                                       placeholder="{{srvLocale.translations.htmlFormMessagePlaceHolder}}"
+                                       type="textarea"
+                                       rows=5 cols=40
+                                       style="width:100%">
+                            </c4p-input>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <a class="btn btn-primary col-xxs-4 col-sm-offset-8"
+                           data-dismiss="modal"
+                           ng-class="{disabled : (feedback.emailRequired && !feedback.email) }"
+                           ng-click="submit()">
+                            {{srvLocale.translations.htmlButtonSend}}
+                        </a>
+                    </div>
+                    <div class="row">
+                        <!-- Vertical Filler to let scroll inuts while virtual keyboard is masking almost all te screen -->
+                        <div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+'px'}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

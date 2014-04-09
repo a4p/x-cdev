@@ -1,0 +1,56 @@
+<!-- controller is ctrlDetail -->
+<div class="row c4p-header-related c4p-color-a-gradient2"
+     resize-opts="{name:'detailed_links_header'}">
+
+    <!--
+    <div class="btn c4p-color-action-transparent"
+         ng-click="setNavRelated(false)" ng-show="isOnePageFormat()">
+        <span class="glyphicon glyphicon-chevron-left"></span>
+    </div>
+    -->
+        <div class="col-xxs-12">
+            <ul class="nav nav-pills">
+                <li ng-show="isOnePageFormat()">
+                    <a class="btn" ng-click="setNavRelated(false)">
+                        <span class="pull-left c4p-icon-std glyphicon glyphicon-angle-left"></span>
+                        <c4p-thumb 
+                            width="20" height="20"
+                            text="{{getItemNameById(srvNav.item.id.dbid)}}" indic="##todo" 
+                            icon="##todo" color="##todo"
+                            url="{{srvNav.item.thumb_url}}">
+                        </c4p-thumb>
+                    </a>
+                </li>
+                <li ng-hide="linkStateAdd" style="width:80%">
+                    <a class="btn disabled">
+                        <h5 class="a4p-dot">{{translate('htmlViewNrelatedPageTitle')}}</h5>
+                    </a>
+                </li>
+                <li>
+                    <a class="btn" ng-show="linkStateAdd">
+                        <span class="">{{translate('htmlViewNrelatedPageTitleNew')}}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+<!--
+    <div class="btn c4p-padding-w-packed pull-right" ng-hide="linkStateAdd" ng-click="toggleLinkStateAdd()">
+        <span class="c4p-icon-std glyphicon glyphicon-plus c4p-color-action-transparent"></span>
+    </div>
+-->
+    <div class="btn c4p-padding-w-packed c4p-color-action-transparent pull-right" ng-show="linkStateAdd"
+         ng-click="toggleLinkStateAdd()">
+        <span class="c4p-icon-std glyphicon glyphicon-times-circle"></span>
+    </div>
+</div>
+
+
+<div class="row c4p-color-a-gradient1">
+<!--
+    <article class="col-xxs-12" ng-switch on="linkStateAdd">
+        <div ng-switch-when="true"><div ng-include="'partials/navigation/view_n_2_link_editor.html'"></div></div>
+        <div ng-switch-default><div ng-include="'partials/navigation/view_n_2_links_item.html'"></div></div>
+    </article>
+    -->
+    <article class="col-xxs-12" ng-include="'partials/navigation/view_n_2_links_item.html'"></article>
+</div>

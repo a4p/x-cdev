@@ -1,0 +1,70 @@
+<div class="panel panel-default">
+    <div class="panel-heading" ng-controller="ctrlNavObject">
+        <span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span>
+        <span>{{itemName}}</span>
+    </div><!-- space collapsing between inline-block element
+
+
+    --><div class="panel-body"><!-- space collapsing between inline-block element
+    --><div class="input-group">
+            <input type="text" class="form-control"
+                   placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}"
+                   ng-model="inputs.itemSearchQuery"
+                   ng-change="srvFacet.setFilterQuery(inputs.itemSearchQuery);"/>
+            <!-- input-group-addon : to put buttons in same line of input -->
+            <!-- btn-group-justified : to force buttons in 1 line -->
+            <!-- use <a> (and not <button> because icons are badly aligned) for finger cursor -->
+            <span class="input-group-addon input-sm btn-group btn-group-sm btn-group-justified">
+                <a type="button" class="btn btn-default"
+                   ng-show="srvFacet.ascendingOrder"
+                   ng-click="srvFacet.toggleOrder()"><span class="glyphicon glyphicon-sort-alpha-asc"></span>
+                </a><!-- space collapsing between inline-block element
+                --><a type="button" class="btn btn-default"
+                   ng-hide="srvFacet.ascendingOrder"
+                   ng-click="srvFacet.toggleOrder()"><span class="glyphicon glyphicon-sort-alpha-desc"></span>
+                </a><!-- space collapsing between inline-block element
+                --><a type="button" class="btn btn-default"
+                   ng-show="srvFacet.caseSensitive"
+                   ng-click="srvFacet.toggleCaseSensitive()"><span
+                        class="glyphicon glyphicon-font icon-small"></span>
+                </a><!-- space collapsing between inline-block element
+                --><a type="button" class="btn btn-default"
+                   ng-hide="srvFacet.caseSensitive"
+                   ng-click="srvFacet.toggleCaseSensitive()"><span
+                        class="glyphicon glyphicon-font icon-large"></span></a><!-- space collapsing between inline-block element
+                --><a type="button" class="btn btn-default"
+                   ng-click="srvFacet.clear();removeGlobalSearch();"><span class="glyphicon glyphicon-times-circle"></span>
+                </a>
+            </span>
+        </div><!-- space collapsing between inline-block element
+
+
+        --><!--
+        <form>
+            <input type="text" size="10"
+                   placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}"
+                   ng-model="inputs.itemSearchQuery"
+                   ng-change="srvFacet.setFilterQuery(inputs.itemSearchQuery);"/>
+            <div class="btn-group btn-group-sm">
+              <button type="button" class="btn btn-default" ng-click="srvFacet.toggleOrder()">
+                  <span ng-show="srvFacet.ascendingOrder" class="glyphicon glyphicon-sort-by-alphabet"></span>
+                  <span ng-hide="srvFacet.ascendingOrder" class="glyphicon glyphicon-sort-by-alphabet-alt"></span>
+              </button>
+              <button type="button" class="btn btn-default" ng-click="srvFacet.toggleCaseSensitive()">
+                  <span ng-show="srvFacet.caseSensitive" class="glyphicon glyphicon-font icon-small"></span>
+                  <span ng-hide="srvFacet.caseSensitive" class="glyphicon glyphicon-font icon-large"></span>
+              </button>
+              <button type="button" class="btn btn-default" ng-click="srvFacet.clear();removeGlobalSearch();">
+                  <span class="glyphicon glyphicon-times-circle"></span>
+              </button>
+            </div>
+        </form>
+        --><ul class="list-group">
+            <li class="list-group-item" ng-repeat="filterFacet in srvFacet.filterFacets">
+                <span ng-click="srvFacet.removeFacet($index)" class="pull-left glyphicon glyphicon-times-circle"></span>
+                <span>{{srvLocale.translations.htmlFacetName[filterFacet.key]}} : {{filterFacet.title}} </span>
+                <span class="badge">{{filterFacet.items.length}}</span>
+            </li>
+        </ul>
+    </div>
+</div>
