@@ -1,4 +1,4 @@
-/*! c4p.client 2014-04-11 10:10 */
+/*! c4p.client 2014-04-11 12:06 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -4124,6 +4124,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, $sce, ve
     }, $scope.translate = function(key) {
         var translation = srvLocale.translations[key];
         return translation ? translation : key;
+    }, $scope.to_trusted = function(html_code) {
+        return $sce.trustAsHtml(html_code);
     }, $scope.linksTimestamp = 0, $scope.toggleShowGroup = function(group) {
         group.show = !group.show, $scope.linksTimestamp = new Date().getTime();
     }, $scope.isDocumentGroup = function(groupType) {
@@ -4160,8 +4162,15 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, $sce, ve
         console.log("scrollTop"));
     }, $scope.getInputFocusState = function() {
         return 1 == $scope.inputHasBeenFocused;
-    }, $scope.to_trusted = function(html_code) {
-        return $sce.trustAsHtml(html_code);
+    }, $scope.addMoreDataInDemoMode = function() {
+        if ($scope.isDemo) {
+            var deferred = $q.defer();
+            $scope.srvData.createDemoData().then(function() {
+                deferred.resolve(data);
+            }, function(response) {
+                deferred.reject(response);
+            });
+        }
     };
 }
 
@@ -28931,6 +28940,7 @@ c4p || (c4p = {}), c4p.Locale = {
         htmlTextInitializingLocale: "Initializing Locale ...",
         htmlTextInitializingData: "Initializing Data ...",
         htmlTextDemoModeImpossible: "Some features are unavailable in demo mode.",
+        htmlTextDemoModeMoreData: "More data ?",
         htmlTextHours: "Hours",
         htmlTextMinutes: "Minutes",
         htmlDayOfWeek: {
@@ -29649,6 +29659,7 @@ c4p || (c4p = {}), c4p.Locale = {
         htmlTextInitializingLocale: "Initialisation des paramètres régionaux...",
         htmlTextInitializingData: "Initialisation des données...",
         htmlTextDemoModeImpossible: "Certaines fonctionnalités ne sont pas disponibles en mode démo.",
+        htmlTextDemoModeMoreData: "Plus de data ?",
         htmlTextHours: "Heures",
         htmlTextMinutes: "Minutes",
         htmlDayOfWeek: {
@@ -35390,7 +35401,7 @@ directiveModule.directive("c4pWaitingClick", function() {
 } ]), angular.module("c4pTemplates", []).run([ "$templateCache", function($templateCache) {
     "use strict";
     $templateCache.put("partials/empty.html", ""), $templateCache.put("partials/main.html", '<div ng-controller="navigationCtrl" ng-init="initNavigationCtrl()" resize-opts="{name:\'navigation\'}" resize-beforewindow="beforeWindowSizeChanged()"><div id="a4pBody" class="container" ng-class="{\'c4p-backdrop-blur\':isBlurOn}" ng-switch="page"><div class="row" ng-switch-when="navigation"><div ng-include="\'partials/navigation/main.html\'"></div></div><div class="row" ng-switch-when="guider"><div ng-include="\'partials/guider/main.html\'"></div></div><div class="row" ng-switch-when="meeting"><div ng-include="\'partials/meeting/main.html\'"></div></div><div class="row" ng-switch-when="timeline"><div ng-include="\'partials/timeline/main.html\'"></div></div><div ng-switch-default=""><h5 style="color: gray; text-align: center; opacity:0.2"><span ng-click="startSpinner(true)">.</span> <span ng-click="stopSpinner()">.</span></h5></div></div><div id="c4p-waiting-spinner" class="c4p-waiting c4p-click-through"><span class="c4p-waiting-icon glyphicon-stack glyphicon-2x"><i class="glyphicon glyphicon-fw glyphicon-square glyphicon-stack-2x"></i>  <i class="glyphicon glyphicon-fw glyphicon-cog glyphicon-stack-1x glyphicon-inverse glyphicon-spin"></i></span></div></div>'), 
-    $templateCache.put("partials/dialog/confirm.html", '<div class="row modal-body c4p-vertical-container"><div class="c4p-dialog c4p-vertical-align"><div class="container c4p-modal-confirm-container col-xxs-12 col-sm-4 col-sm-offset-4"><div class="row"><div class="c4p-dialog-header"><div class="col-xxs-12"><ul class="nav nav-pills"><li><a class="btn disabled" data-toggle="tab"><h5 style="white-space:normal">{{text}}</h5></a></li><li class="pull-right"><a class="btn c4p-color-cancel-transparent" ng-click="close()"><span class="c4p-icon-std">&times;</span></a></li><li class="pull-right"><a class="btn c4p-color-ok-transparent c4p-stroke" ng-click="submit()"><span class="c4p-icon-std glyphicon glyphicon-check"></span></a></li></ul></div></div></div><div class="row" ng-show="{{textArray.length}}"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><ul><li ng-repeat="item in textArray"><span>{{item}}</span></li></ul></div></div></div></div></div></div></div>'), 
+    $templateCache.put("partials/dialog/confirm.html", '<div class="row modal-body c4p-vertical-container"><div class="c4p-dialog c4p-vertical-align"><div class="container c4p-modal-confirm-container col-xxs-12 col-sm-6 col-sm-offset-3"><div class="row"><div class="c4p-dialog-header"><div class="col-xxs-12"><ul class="nav nav-pills"><li><a class="btn disabled" data-toggle="tab"><h5 style="white-space:normal">{{text}}</h5></a></li><li class="pull-right"><a class="btn c4p-color-cancel-transparent" ng-click="close()"><span class="c4p-icon-std">&times;</span></a></li><li class="pull-right"><a class="btn c4p-color-ok-transparent c4p-stroke" ng-click="submit()"><span class="c4p-icon-std glyphicon glyphicon-check"></span></a></li></ul></div></div></div><div class="row" ng-show="{{textArray.length}}"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><ul><li ng-repeat="item in textArray"><span>{{item}}</span></li></ul></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogAddAccount.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogAddAccountPageTitle}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="add()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:\'visibleElements.length\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="item in possibleAccounts"><div ng-click="toggleItem($index)" class="clearfix c4p-link5"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':idxChosen != $index}" style="padding-top: 5px"></span> <span>{{item.company_name}}</span></div></li></ul></div></div>'), 
     $templateCache.put("partials/dialog/dialogAddContact.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogAddContactPageTitle}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="add()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:\'visibleElements.length\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="item in possibleContacts"><div ng-click="toggleItem($index)" class="clearfix c4p-link5"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':idxChosen != $index}" style="padding-top: 5px"></span> <span>{{item.salutation}} {{item.first_name}} {{item.last_name}}</span></div></li></ul></div></div>'), 
     $templateCache.put("partials/dialog/dialogAddRatings.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed"><span><c4p-pluralize count="2" when="srvLocale.translations.htmlDialogAddRatingsPluralRating"></span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="add()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{name:\'dialogAddRatings\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="item in possibleRatings | c4pExludeNameFilter:ratingsDone"><div ng-click="toggleItem(item)" class="clearfix c4p-link5"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':!item.selected}" style="padding-top: 5px"></span> <div class="pull-left" ng-include="\'partials/navigation/cards/4_rating_ro.html\'"></div></div></li></ul></div></div>'), 
@@ -35449,7 +35460,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/navigation/calendar_events.html", '<div class="row col-xxs-12"><div ng-style="{width:(getMainWidth() + getAsideWidth())+\'px\'}" resize-opts="{name:\'calendar_events\', watchRefresh:\'navAside\'}" resizecss-height="getResizeHeight() -getResizePathValue(\'calendar_header\', \'\', \'offsetHeight\')" sense-opts="{name:\'calendar_events\', axeY:\'scroll\', watchRefresh:\'calendarEventsGroupsByDaySinceToday\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div id="calendar-cards"><div class="row c4p-color-a-gradient1"><div class="col-xxs-12 c4p-details hidden-xs hidden-sm"><h2>{{translate(\'htmlCalendarListPageTitle\')}}</h2></div><div class="col-xxs-12 c4p-details hidden-md hidden-lg"><h4>{{translate(\'htmlCalendarListPageTitle\')}}</h4></div></div><ul class="nav nav-pills nav-stacked c4p-details-title" ng-repeat="group in calendarEventsGroupsByDaySinceToday" ng-show="group.events.length || group.eventsAllDay.length"><li class="c4p-details c4p-color-a-gradient2"><span class="">{{translateDateDayToFullString(group.date)}}</span></li><li ng-repeat="item in group.eventsAllDay" class="c4p-details c4p-color-a-gradient3"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li><li ng-repeat="item in group.events" class="c4p-details c4p-color-a-gradient4"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/calendar_header.html", '<div class="c4p-header-std" resize-opts="{name:\'calendar_header\', watchRefresh:\'navAside\'}"><div class="row"><div class="col-xxs-12"><ul class="nav nav-pills"><li class=""><a class="btn disabled"><img class="c4p-img-icon" src="l4p/img/logo_meeting_.png"></a></li><li ng-include="\'partials/navigation/header_back.html\'"></li><li class="pull-right"><a class="btn" ng-show="configStateAdd" ng-click="addItemDialog()"><span class="c4p-icon-std glyphicon glyphicon-plus"></span></a></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/calendar_month.html", '<div><table class="table c4p-table-calendar-month" style="width:100%;table-layout: fixed"><thead resize-opts="{name:\'calendar_month_header\'}"><tr><th class="empty" style="width:20px"></th><th class="c4p-link5" ng-click="gotoPreviousYear()"><a class="c4p-link1"><span class="glyphicon glyphicon-angle-double-left"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousYear}}</h5></a></th><th class="c4p-link5" ng-click="gotoPreviousMonth()"><a class="c4p-link1"><span class="glyphicon glyphicon-angle-left"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousMonthName}}</h5></a></th><th class="disabled" colspan="3" style="text-align:center;vertical-align:middle"><h4 ng-hide="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</h4><span ng-show="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</span></th><th class="c4p-link5" ng-click="gotoNextMonth()"><a class="c4p-link1"><span class="glyphicon glyphicon-angle-right"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextMonthName}}</h5></a></th><th class="c4p-link5" ng-click="gotoNextYear()"><a class="c4p-link1"><span class="glyphicon glyphicon-angle-double-right"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextYear}}</h5></a></th></tr><tr ng-init="week = calendarMonthWeeks[0]" style="height:20px;line-height:20px" resize-opts="{name:\'calendar_month_week_header\'}"><th style="height:20px;line-height:20px" class="disabled"><small>{{translate(\'htmlCalendarMonthTextWeekAbrev\')}}</small></th><th class="disabled" style="height:20px;line-height:20px" ng-repeat="day in week.days" style="width:{{(width - 20) / week.days.length}}px"><small>{{day.shortName}}</small></th></tr></thead><tbody resize-opts="{name:\'calendar_month_body\', watchRefresh:\'navAside\'}" resize-vars="{bodyHeight:&quot;getResizeHeight() -getResizePathValue(\'calendar_header\', \'\', \'offsetHeight\') -getResizePathValue(\'calendar_month_header\', \'\', \'offsetHeight\')&quot;}"><tr ng-repeat="week in calendarMonthWeeks"><td class="disabled" style="text-align: center;vertical-align: middle"><small>{{week.id}}</small></td><td ng-repeat="day in week.days" class="c4p-link5 c4p-table-cell" ng-click="onDayClick(day.date)" style="height:{{(bodyHeight / calendarMonthWeeks.length)}}px" ng-class="{	\'c4p-cell-initial\': translateDateDayToString(day.date) == translateDateDayToString(calendarNow),\r\n								\'c4p-cell-selected\': translateDateDayToString(day.date) == translateDateDayToString(sel),\r\n								\'c4p-cell-weekend\': day.isWeekend,\r\n								\'c4p-cell-disabled\': day.date.getMonth() != calendarMonth}"><div style="width:100%;height:100%"><div class="pull-left" style="position:relative; height:100%;width:8%"><div ng-repeat="position in day.group.eventsPosition" class="label c4p-label-calendar-notallday-inverse" style="position:absolute; width:90%; padding:2px 0; border:1px solid gray; top:{{position.posPercent}}%; height:{{position.lengthPercent}}%" ng-class="position.event.id">&nbsp;</div></div><div class="pull-right" style="position:relative; height:100%;width:90%"><div style="height:{{(bodyHeight / calendarMonthWeeks.length) - 20}}px;overflow:hidden;text-overflow:ellipsis;display:block"><span ng-repeat="position in day.group.eventsAllDayPosition" style="width:{{position.lengthPercent}}%; margin-left:{{position.posPercent}}%; margin-top:1px; min-height:2px" class="label c4p-label-calendar-all-day a4p-dot"><span class="hidden-xs hidden-sm">{{position.event.name}}</span></span>  <span ng-repeat="event in day.group.events" style="width:100%; margin-top: 1px" class="label c4p-label-calendar-day a4p-dot hidden-xs hidden-sm">{{event.name}}</span></div><small class="pull-left label c4p-label-calendar-light hidden-xs hidden-sm" style="padding:0" ng-show="(20*(day.group.eventsAllDay.length + day.group.events.length)) > (((bodyHeight -24)/ calendarMonthWeeks.length) - 20)">{{translate(\'htmlCalendarMonthTextMore\')}}</small>  <small class="pull-right label c4p-label-calendar" style="padding:0 3px">{{day.date.getDate()}}</small></div></div></td></tr></tbody></table></div>'), 
-    $templateCache.put("partials/navigation/config.html", '<header class="row c4p-color-gradient0" ng-include="\'partials/navigation/config_header.html\'"></header><div class="row c4p-config-panel"><div sense-opts="{name:\'config_main\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" class="col-xxs-12 col-sm-11 col-sm-offset-1" resize-opts="{name:\'config_main\'}" resizecss-height="getResizeHeight() -getResizePathValue(\'config_header\', \'\', \'offsetHeight\') -getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetHeight\')"><div class="row"><div class="col-xxs-12 hidden-xs hidden-sm"><div class="row navbar"><div class="col-xxs-12"><h2 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{email}}</h2><h2 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h2></div></div></div><div class="col-xxs-12 hidden-md hidden-lg"><div class="row navbar"><div class="col-xxs-12"><h4 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{email}}</h4><h4 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h4></div></div></div><div class="col-xxs-12"><div class="row"><button class="col-xxs-12 col-xs-6 btn btn-primary" ng-click="switchUser()">{{translate(\'htmlButtonChangeUser\')}}</button> </div><div class="row"><div class="col-xxs-12 col-xs-6"><button type="button" class="btn btn-link col-xxs-12" style="padding-top: 20px;padding-bottom: 40px" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'OtherConnector\',srvLocale.translations.htmlMsgFeedbackOtherConnector)"><span style="white-space:normal">{{srvLocale.translations.htmlMsgFeedbackOtherConnectorQuestion}}</span></button></div></div><div class="row"><div class="col-xxs-12 col-xs-6"><button type="button" class="btn btn-info col-xxs-12 dropdown-toggle" data-toggle="dropdown"><span>{{srvLocale.lang.title}}</span></button><ul class="dropdown-menu col-xxs-12" role="menu"><li ng-repeat="lang in srvLocale.langs"><a class="" ng-click="srvLocale.setLang(lang)">{{lang.title}}</a></li></ul></div></div><div class="row"><div class="col-xxs-12"><div class="row"><label class="col-xxs-12 control-label">&nbsp;</label><div class="col-xxs-12 controls">&nbsp;</div></div></div></div><div class="row"><div class="col-xxs-12"><small>{{translate(\'htmlConfigTextAppVersion\')}} v<span id="a4pDeviceDetectorWidth" app-version=""></span> <span id="a4pDeviceDetectorHeight">{{srvConfig.c4pBuildDate}} {{srvConfig.env}}</span> <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span></small></div></div></div></div></div></div>'), 
+    $templateCache.put("partials/navigation/config.html", '<header class="row c4p-color-gradient0" ng-include="\'partials/navigation/config_header.html\'"></header><div class="row c4p-config-panel"><div sense-opts="{name:\'config_main\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" class="col-xxs-12 col-sm-11 col-sm-offset-1" resize-opts="{name:\'config_main\'}" resizecss-height="getResizeHeight() -getResizePathValue(\'config_header\', \'\', \'offsetHeight\') -getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetHeight\')"><div class="col-xxs-12"><div class="row hidden-xs hidden-sm"><div class="col-xxs-12 navbar"><h2 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{email}}</h2><h2 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h2></div></div><div class="row hidden-md hidden-lg"><div class="col-xxs-12 navbar"><h5 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{email}}</h5><h5 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h5></div></div><div class="row"><button class="col-xxs-12 col-xs-6 btn btn-primary" ng-click="switchUser()">{{translate(\'htmlButtonChangeUser\')}}</button> </div><div class="row"><div class="col-xxs-12 col-xs-6"><button type="button" class="btn btn-link col-xxs-12" style="padding-top: 20px;padding-bottom: 40px" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'OtherConnector\',srvLocale.translations.htmlMsgFeedbackOtherConnector)"><span style="white-space:normal">{{srvLocale.translations.htmlMsgFeedbackOtherConnectorQuestion}}</span></button></div></div><div class="row"><div class="col-xxs-12 col-xs-6"><button type="button" class="btn btn-info col-xxs-12 dropdown-toggle" data-toggle="dropdown"><span>{{srvLocale.lang.title}}</span></button><ul class="dropdown-menu col-xxs-12" role="menu"><li ng-repeat="lang in srvLocale.langs"><a class="" ng-click="srvLocale.setLang(lang)">{{lang.title}}</a></li></ul></div></div><div class="row well" ng-show="isDemo"><div class="col-xxs-12 col-xs-6"><a class="btn btn-warning col-xxs-12" ng-click="addMoreDataInDemoMode()">{{srvLocale.translations.htmlTextDemoModeMoreData}}</a></div></div><div class="row"><div class="col-xxs-12"><div class="row"><label class="col-xxs-12 control-label">&nbsp;</label><div class="col-xxs-12 controls">&nbsp;</div></div></div></div><div class="row"><div class="col-xxs-12"><small>{{translate(\'htmlConfigTextAppVersion\')}} v<span id="a4pDeviceDetectorWidth" app-version=""></span> <span id="a4pDeviceDetectorHeight">{{srvConfig.c4pBuildDate}} {{srvConfig.env}}</span> <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span></small></div></div></div></div></div>'), 
     $templateCache.put("partials/navigation/config_header.html", '<div class="c4p-header-std" resize-opts="{name:\'config_header\'}"><div class="row"><div class="col-xxs-12"><ul class="nav nav-pills"><li class=""><a class="btn disabled"><img class="c4p-img-icon" src="l4p/img/logo_meeting_.png"></a></li><li ng-include="\'partials/navigation/header_back.html\'"></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/footer_detail.html", '<div class="c4p-footer-details c4p-color-gradient0" style="position:relative" resize-opts="{name:\'navigation_footer_detail\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}" resizecss-width="getPathValue(\'parentNode\', \'offsetWidth\')"><div class="btn c4p-color-action-transparent" ng-click="gotoBack()" resize-opts="{name:\'navigation_footer_detail_back\'}"><span class="c4p-icon-std glyphicon glyphicon-arrow-left"></span></div><div class="btn btn-xs" ng-controller="ctrlNavObject" resize-opts="{name:\'navigation_footer_detail_history\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}" resizecss-width="getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetWidth\') -1 -getResizePathValue(\'navigation_footer_detail_back\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_detail_spacer\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_detail_lock\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_detail_meeting\', \'\', \'offsetWidth\')"><ul style="overflow-x:hidden" class="c4p-list-footer-details"><li class="c4p-item-list-footer-details" ng-repeat="back in srvNav.history | limitTo:3" ng-class="{\'c4p-item-list-ftr-footer-details\':$last}" style="opacity: {{1-(0.33*$index)}}"><small><span class="glyphicon glyphicon-{{back.itemIcon}}"></span> <span ng-switch="!back.itemName"><span ng-switch-when="true">{{srvLocale.translations.htmlSlideName[back.slide]}}</span> <span ng-switch-default="">{{back.itemName}}</span></span></small></li></ul></div><div class="c4p-hf-spacer" resize-opts="{name:\'navigation_footer_detail_spacer\'}"><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div></div><div class="btn" ng-show="srvSecurity.isSecured()" ng-click="openDialogLocked()" resize-opts="{name:\'navigation_footer_detail_lock\'}"><a class="c4p-link2"><span class="glyphicon glyphicon-lock"></span></a></div><div class="btn btn-danger" ng-class="{\'active\' : dropOver}" ng-show="dndActive" ng-controller="ctrlTrashObject" sense-opts="{name:\'dropObjectTrash\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)" sense-dropend="dropEnd($event)" style="position:absolute;z-index:1041;top:0;left:0"><span class="c4p-icon-std glyphicon glyphicon-trash"></span></div></div>'), 
     $templateCache.put("partials/navigation/footer_related.html", '<div class="c4p-footer-details c4p-color-{{getTypeColor(srvNav.item.a4p_type)}}-gradient2" resize-opts="{name:\'navigation_footer_related\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}"><div class="btn c4p-color-action-transparent" ng-show="isOnePageFormat()" ng-click="gotoBack()" resize-opts="{name:\'navigation_footer_related_back\'}"><span class="c4p-icon-std glyphicon glyphicon-arrow-left"></span></div><div class="btn btn-xs" ng-show="isOnePageFormat()" ng-controller="ctrlNavObject" resize-opts="{name:\'navigation_footer_related_history\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}" resizecss-width="getResizePathValue(\'navigation_footer_related\', \'\', \'offsetWidth\') -1 -getResizePathValue(\'navigation_footer_related_back\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_related_lock\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_related_spacer\', \'\', \'offsetWidth\') - getResizePathValue(\'navigation_footer_related_meeting\', \'\', \'offsetWidth\')"><ul style="overflow-x:hidden" class="c4p-list-footer-details"><li class="c4p-item-list-footer-details" ng-repeat="back in srvNav.history | limitTo:3" ng-class="{\'c4p-item-list-ftr-footer-details\':$last}" style="opacity: {{1-(0.33*$index)}}"><small><span class="glyphicon glyphicon-{{back.itemIcon}}"></span> <span ng-switch="!back.itemName"><span ng-switch-when="true">{{srvLocale.translations.htmlSlideName[back.slide]}}</span> <span ng-switch-default="">{{back.itemName}}</span></span></small></li></ul></div><div class="c4p-hf-spacer" resize-opts="{name:\'navigation_footer_related_spacer\'}"><div class="btn"><div class="c4p-icon-std glyphicon">&nbsp;</div></div></div><div class="btn" ng-show="isOnePageFormat() && srvSecurity.isSecured()" ng-click="openDialogLocked()" resize-opts="{name:\'navigation_footer_related_lock\'}"><a class="c4p-link2"><span class="glyphicon glyphicon-lock"></span></a></div></div>'), 
@@ -37514,64 +37525,64 @@ var SrvData = function() {
         };
         return this.dataTransfer.sendData(this.srvConfig.c4pUrlRefreshMap, params, null, 6e4).then(fctOnHttpSuccess, fctOnHttpError), 
         deferred.promise;
-    }, Service.prototype.createDemoData = function() {
-        var deferred = this.q.defer(), self = this;
+    }, Service.prototype.createDemoData = function(nb) {
+        var deferred = this.q.defer(), howMany = nb || 50, self = this;
         return this.demoDataCreation = {
             deferred: deferred,
             nbFacet: {
-                ask: 50,
+                ask: howMany,
                 done: 0
             },
             nbContact: {
-                ask: 50,
+                ask: howMany,
                 done: 0
             },
             nbAccount: {
-                ask: 50,
+                ask: howMany,
                 done: 0
             },
             nbEvent: {
-                ask: 50,
+                ask: howMany,
                 done: 0
             },
             nbTask: {
-                ask: 50,
+                ask: howMany,
                 done: 0
             },
             nbOpportunity: {
-                ask: 50,
+                ask: howMany,
                 done: 0
             },
             nbLead: {
-                ask: 50,
+                ask: howMany,
                 done: 0
             },
             nbDocument: {
-                ask: 50,
+                ask: howMany,
                 done: 0
             },
             nbNote: {
-                ask: 50,
+                ask: howMany,
                 done: 0
             },
             nbReport: {
-                ask: 50,
+                ask: howMany,
                 done: 0
             },
             nbPlan: {
-                ask: 50,
+                ask: howMany,
                 done: 0
             },
             nbAttachee: {
-                ask: 50,
+                ask: howMany,
                 done: 0
             },
             nbAttendee: {
-                ask: 50,
+                ask: howMany,
                 done: 0
             },
             nbPlannee: {
-                ask: 50,
+                ask: howMany,
                 done: 0
             }
         }, window.setTimeout(function() {
@@ -37713,14 +37724,14 @@ var SrvData = function() {
         if (this.demoDataCreation.nbDocument.done < this.demoDataCreation.nbDocument.ask && a4p.isTrueOrNonEmpty(this.demoDataCreation.firstEvent)) {
             var num = 1 + this.demoDataCreation.nbDocument.done;
             this.takePicture(this.demoDataCreation.firstEvent, "pictureName").then(function(document) {
-                a4p.safeApply($scope, function() {
+                a4p.safeApply(self.rootScope, function() {
                     self.addObject(document), self.linkToItem(document.a4p_type, "parent", [ document ], self.demoDataCreation.firstEvent), 
                     self.addObjectToSave(document.a4p_type, document.id.dbid), self.demoDataCreation.nbAttachee.done < self.demoDataCreation.nbAttachee.ask && (self.newAndSaveAttachment("Attachee", document, self.demoDataCreation.firstEvent), 
                     self.demoDataCreation.nbAttachee.done = 1 + self.demoDataCreation.nbAttachee.done), 
                     self.demoDataCreation.nbDocument.done = num, self.createMoreDemoData();
                 });
             }, function(diag) {
-                a4p.safeApply($scope, function() {
+                a4p.safeApply(self.rootScope, function() {
                     self.demoDataCreation.deferred.reject(diag);
                 });
             });

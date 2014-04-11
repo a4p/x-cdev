@@ -575,6 +575,7 @@
     "htmlTextInitializingData":"Initializing Data ...",
 
     "htmlTextDemoModeImpossible":"Some features are unavailable in demo mode.",
+    "htmlTextDemoModeMoreData":"More data ?", 
 
     "htmlTextHours":"Hours",
     "htmlTextMinutes":"Minutes",
