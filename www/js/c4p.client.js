@@ -1,4 +1,4 @@
-/*! c4p.client 2014-04-11 16:05 */
+/*! c4p.client 2014-04-14 14:06 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -1226,8 +1226,10 @@ function ctrlAction($scope, $q, $modal, srvData, srvNav, srvFacet, srvConfig, sr
 function ctrlAside($scope, srvFacet, srvLocale, srvData, srvAnalytics, srvNav) {
     $scope.srvFacet = srvFacet, $scope.srvLocale = srvLocale, $scope.srvNav = srvNav, 
     $scope.rootMenuUp = !0, $scope.activeSearch = !1, $scope.showGroupSuggestion = !0, 
-    $scope.inputs = {
+    $scope.asideSearchScroller = null, $scope.asideCategoryName = null, $scope.inputs = {
         itemSearchQuery: ""
+    }, $scope.setAsideSearchScroller = function(sense) {
+        $scope.asideSearchScroller = sense;
     }, $scope.toggleSearch = function() {
         $scope.activeSearch = !$scope.activeSearch;
     }, $scope.tabClear = function() {
@@ -1264,10 +1266,18 @@ function ctrlAside($scope, srvFacet, srvLocale, srvData, srvAnalytics, srvNav) {
         srvFacet.addFacet("mine"), srvFacet.setFacet("");
     }, $scope.addFavorites = function() {
         srvFacet.addFacet("favorites"), srvFacet.setFacet("");
-    }, $scope.selectItem = function(item) {
-        a4p.InternalLog.log("ctrlAside - selectItem");
-        var closeAside = !1;
-        $scope.closeAsidePage && $scope.setNavAside ? (closeAside = !0, $scope.setItemAndGoDetail(item, closeAside)) : $scope.updateScroller && $scope.updateScroller();
+    }, $scope.selectItem = function(item, closeAside) {
+        a4p.InternalLog.log("ctrlAside", "selectItem"), $scope.setItemAndGoDetail(item, closeAside);
+    }, $scope.scrollToItem = function(item) {
+        var index = 0;
+        if (null == $scope.asideSearchScroller) return -1;
+        if (null == $scope.asideSearchScroller.scroll) return -1;
+        if (!item) return -1;
+        if (!srvFacet.items.keyes.length) {
+            var i, arrayLength = srvFacet.items.others.length;
+            for (i = 0; arrayLength > i && 0 == index; i++) angular.equals(item, srvFacet.items.others[i].object) && (index = i);
+        }
+        index && $scope.asideSearchScroller.scroll.scrollTo(0, 40 * index);
     }, $scope.selectItemAndCloseAside = function(item) {
         $scope.setItemAndGoDetail(item, !0);
     }, $scope.removeGlobalSearch = function() {
@@ -1293,7 +1303,7 @@ function ctrlAside($scope, srvFacet, srvLocale, srvData, srvAnalytics, srvNav) {
                             var parentObject = srvData.userObject;
                             srvData.linkToItem(type, "parent", [ result ], parentObject);
                         }
-                        $scope.srvData.addObjectToSave(result.a4p_type, result.id.dbid), $scope.selectItemAndCloseAside(result), 
+                        $scope.srvData.addObjectToSave(result.a4p_type, result.id.dbid), $scope.scrollToItem(result), 
                         srvAnalytics.add("Once", "Aside - add " + result.a4p_type);
                     });
                 });
@@ -1302,18 +1312,18 @@ function ctrlAside($scope, srvFacet, srvLocale, srvData, srvAnalytics, srvNav) {
     }, $scope.setShowGroupSuggestion = function(b) {
         $scope.showGroupSuggestion = b;
     }, $scope.activeItem = "", $scope.setSearchMenu = function(name) {
-        a4p.InternalLog.log("setSearchMenu " + name), a4p.safeApply($scope, function() {
+        name && (a4p.InternalLog.log("setSearchMenu " + name), a4p.safeApply($scope, function() {
             $scope.inputs = {
                 itemSearchQuery: ""
-            }, $scope.rootMenuUp = !1, $scope.setNavAside(!0), srvFacet.clear(), srvFacet.addFacet("objects", srvLocale.translations.htmlTitleType[name], name), 
-            $scope.activeItem = $scope.slideNavigationType[name], $scope.stopSpinner();
-        });
+            }, $scope.rootMenuUp = !1, $scope.setNavAside(!0), $scope.activeItem = $scope.slideNavigationType[name], 
+            $scope.asideCategoryName = name, $scope.$broadcast("changeAsideSearchCategory", name);
+        }));
     }, $scope.setCalendar = function() {
         $scope.rootMenuUp = !0, $scope.gotoSlideWithSearchReset($scope.pageNavigation, $scope.slideNavigationCalendar), 
-        $scope.activeItem = $scope.slideNavigationCalendar, $scope.stopSpinner();
+        $scope.activeItem = $scope.slideNavigationCalendar;
     }, $scope.setFavoriteSearchMenu = function() {
         $scope.rootMenuUp = !1, $scope.setNavAside(!0), srvFacet.clear(), $scope.tabFavorites(), 
-        $scope.activeItem = $scope.slideNavigationFavorite, $scope.stopSpinner();
+        $scope.activeItem = $scope.slideNavigationFavorite;
     }, $scope.setRootMenu = function() {
         $scope.rootMenuUp = !0, $scope.setNavAside(!0), srvFacet.clear();
     };
@@ -1332,14 +1342,27 @@ function ctrlAsideItem($scope, srvLocale, srvData, srvNav, srvLink, srvConfig) {
         void ($scope.isOnePageFormat() ? $scope.selectItemAndCloseAside() : a4p.safeApply($scope, function() {
             $scope.setItemAndGoDetail($scope.item), $scope.closeAsidePage && $scope.setNavAside ? $scope.setNavAside(!1) : $scope.updateScroller && $scope.updateScroller();
         })));
-    }, $scope.selectItemAndCloseAside = function() {
-        a4p.safeApply($scope, function() {
-            $scope.setItemAndGoDetail($scope.item, !0);
-        });
     };
 }
 
-function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConfig) {
+function ctrlAsideSearch($scope, $timeout, srvFacet, srvLocale) {
+    $scope.asideSearchSpinner = !0, $scope.afterAsideSpinnerShow = function() {
+        a4p.InternalLog.log("ctrlAsideSearch", "afterAsideSpinnerShow"), $timeout(function() {
+            $scope.computeList();
+        }, 200);
+    }, $scope.afterAsideSpinnerHide = function() {
+        a4p.InternalLog.log("ctrlAsideSearch", "afterAsideSpinnerHide");
+    }, $scope.computeList = function() {
+        a4p.InternalLog.log("ctrlAsideSearch", "computeList : " + $scope.asideCategoryName), 
+        srvFacet.clear(), $scope.asideCategoryName && (srvFacet.addFacet("objects", srvLocale.translations.htmlTitleType[$scope.asideCategoryName], $scope.asideCategoryName), 
+        $scope.asideSearchSpinner = !1);
+    }, $scope.$on("changeAsideSearchCategory", function(event, categoryName) {
+        a4p.InternalLog.log("ctrlAsideSearch", "changeAsideSearchCategory : " + categoryName), 
+        $scope.asideCategoryName = categoryName, $scope.asideSearchSpinner = !0;
+    });
+}
+
+function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTime, srvConfig) {
     function createGroup(date) {
         return {
             date: new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0),
@@ -1515,7 +1538,7 @@ function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConf
         $scope.calendarPreviousYear = $scope.sel.getFullYear() - 1;
         var next = new Date($scope.sel.getFullYear(), $scope.sel.getMonth() + 1, 1, 0, 0, 0, 0);
         $scope.calendarNextMonthName = $scope.calendarMonths[next.getMonth()].name, $scope.calendarNextYear = $scope.sel.getFullYear() + 1, 
-        $scope.calendarSelectedDay = getGroupForSelectedDay(), srvAnalytics.add("Once", "Calendar");
+        $scope.calendarSelectedDay = getGroupForSelectedDay(), $scope.stopSpinner(), srvAnalytics.add("Once", "Calendar");
     }
     function onEventChange() {
         buildEventGroupsByDay(), buildEventsGroupsByDaySinceToday(), $scope.calendarYear = $scope.sel.getFullYear(), 
@@ -1532,34 +1555,38 @@ function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConf
         $scope.calendarSelectedDay = getGroupForSelectedDay();
     }
     $scope.calendarNow = new Date(srvTime.year, srvTime.month - 1, srvTime.day, 0, 0, 0, 0), 
-    $scope.sel = new Date(), $scope.calendarSelectedDay = null, $scope.calendarYear = 0, 
-    $scope.calendarMonth = 0, $scope.calendarMonthName = "", $scope.calendarMonthShortName = "", 
-    $scope.calendarMonthFullName = "", $scope.calendarDayFullName = "", $scope.calendarDayCasualName = "", 
-    $scope.calendarPreviousMonthName = "", $scope.calendarPreviousYear = 0, $scope.calendarNextMonthName = "", 
-    $scope.calendarNextYear = 0, $scope.calendarMonths = [], $scope.calendarMonthWeeks = [], 
-    $scope.calendarHoursDay = [], $scope.calendarEventsGroupsByDay = [], $scope.initCalendarCtrl = function() {
-        $scope.configStateEdit = !1, $scope.configStateAdd = !0, $scope.setNavTitle(srvLocale.translations.htmlTitleCalendar), 
-        $scope.calendarViews = [ {
-            id: "dayView",
-            icon: "clock-o"
-        }, {
-            id: "monthView",
-            icon: "calendar"
-        }, {
-            id: "listView",
-            icon: "list"
-        } ], $scope.filterAscEvent = !1, $scope.filterCriteriaEvent = "date_start", $scope.filterAscEventGroup = !1, 
-        $scope.filterCriteriaEventGroup = "date", $scope.calendarHoursDay = $scope.srvLocale.getHoursDay(), 
-        $scope.calendarMonths = $scope.srvLocale.getMonths();
-        var back = $scope.srvNav.lastInHistoryWithType("Event");
-        if (null != back) {
-            var selEvent = $scope.srvData.getObject(back.id);
-            $scope.sel = a4pDateParse(selEvent.date_start);
-        } else $scope.sel = new Date();
-        onEventChange(), srvTime.addListenerOnDay(function() {
-            $scope.calendarNow = new Date(srvTime.year, srvTime.month - 1, srvTime.day, 0, 0, 0, 0), 
-            onCalendarNowChange();
-        });
+    $scope.ctrlInitialized = !1, $scope.sel = new Date(), $scope.calendarSelectedDay = null, 
+    $scope.calendarYear = 0, $scope.calendarMonth = 0, $scope.calendarMonthName = "", 
+    $scope.calendarMonthShortName = "", $scope.calendarMonthFullName = "", $scope.calendarDayFullName = "", 
+    $scope.calendarDayCasualName = "", $scope.calendarPreviousMonthName = "", $scope.calendarPreviousYear = 0, 
+    $scope.calendarNextMonthName = "", $scope.calendarNextYear = 0, $scope.calendarMonths = [], 
+    $scope.calendarMonthWeeks = [], $scope.calendarHoursDay = [], $scope.calendarEventsGroupsByDay = [], 
+    $scope.initCalendarCtrl = function() {
+        if (!$scope.ctrlInitialized) {
+            $scope.configStateEdit = !1, $scope.configStateAdd = !0, $scope.setNavTitle(srvLocale.translations.htmlTitleCalendar), 
+            $scope.calendarViews = [ {
+                id: "dayView",
+                icon: "clock-o"
+            }, {
+                id: "monthView",
+                icon: "calendar"
+            }, {
+                id: "listView",
+                icon: "list"
+            } ], $scope.filterAscEvent = !1, $scope.filterCriteriaEvent = "date_start", $scope.filterAscEventGroup = !1, 
+            $scope.filterCriteriaEventGroup = "date", $scope.calendarHoursDay = $scope.srvLocale.getHoursDay(), 
+            $scope.calendarMonths = $scope.srvLocale.getMonths();
+            var back = $scope.srvNav.lastInHistoryWithType("Event");
+            if (null != back) {
+                var selEvent = $scope.srvData.getObject(back.id);
+                $scope.sel = a4pDateParse(selEvent.date_start);
+            } else $scope.sel = new Date();
+            srvTime.addListenerOnDay(function() {
+                $scope.calendarNow = new Date(srvTime.year, srvTime.month - 1, srvTime.day, 0, 0, 0, 0), 
+                onCalendarNowChange();
+            });
+        }
+        onEventChange(), $scope.ctrlInitialized = !0;
     }, $scope.checkViewActive = function(id) {
         return $scope.calendarView == id;
     }, $scope.checkViewNp1Active = function(id) {
@@ -1593,20 +1620,20 @@ function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConf
             item && $scope.onEventClick(item);
         });
     }, $scope.gotoPreviousMonth = function() {
-        $scope.sel.setMonth($scope.sel.getMonth() - 1), onSelChange();
+        $scope.sel.setMonth($scope.sel.getMonth() - 1), $scope.calendarLoadingSpinner = !0;
     }, $scope.gotoNextMonth = function() {
-        $scope.sel.setMonth($scope.sel.getMonth() + 1), onSelChange();
+        $scope.sel.setMonth($scope.sel.getMonth() + 1), $scope.calendarLoadingSpinner = !0;
     }, $scope.gotoNow = function() {
         $scope.sel = new Date($scope.calendarNow.getFullYear(), $scope.calendarNow.getMonth(), $scope.calendarNow.getDate(), 0, 0, 0, 0), 
-        onSelChange();
+        $scope.calendarLoadingSpinner = !0;
     }, $scope.gotoPreviousDay = function() {
-        $scope.sel.setDate($scope.sel.getDate() - 1), onSelChange();
+        $scope.sel.setDate($scope.sel.getDate() - 1), $scope.calendarLoadingSpinner = !0;
     }, $scope.gotoNextDay = function() {
-        $scope.sel.setDate($scope.sel.getDate() + 1), onSelChange();
+        $scope.sel.setDate($scope.sel.getDate() + 1), $scope.calendarLoadingSpinner = !0;
     }, $scope.gotoNextYear = function() {
-        $scope.sel.setFullYear($scope.sel.getFullYear() + 1), onSelChange();
+        $scope.sel.setFullYear($scope.sel.getFullYear() + 1), $scope.calendarLoadingSpinner = !0;
     }, $scope.gotoPreviousYear = function() {
-        $scope.sel.setFullYear($scope.sel.getFullYear() - 1), onSelChange();
+        $scope.sel.setFullYear($scope.sel.getFullYear() - 1), $scope.calendarLoadingSpinner = !0;
     }, $scope.translateDateDayToString = function(date) {
         var val = $scope.srvLocale.formatDate(date, "shortDate");
         return val;
@@ -1698,11 +1725,18 @@ function ctrlCalendar($scope, version, srvAnalytics, srvLocale, srvTime, srvConf
         hour.selected = !1;
     }, $scope.newEventAtHour = function(event, hour) {
         hour.selected = !1, $scope.addItemDialog(null, hour.hour);
+    }, $scope.calendarLoadingSpinner = !0, $scope.afterCalendarSpinnerShow = function() {
+        $timeout(function() {
+            $scope.computeCalendar();
+        }, 400);
+    }, $scope.afterCalendarSpinnerHide = function() {}, $scope.computeCalendar = function() {
+        a4p.InternalLog.log("ctrlCalendar", "computeCalendar "), $scope.initCalendarCtrl(), 
+        $scope.calendarLoadingSpinner = !1;
     }, $scope.$on("mindMapUpdated", function() {
-        onEventChange();
+        $scope.calendarLoadingSpinner = !0;
     }), $scope.$on("mindMapLoaded", function() {
-        onEventChange();
-    }), "calendar" == $scope.slide && $scope.initCalendarCtrl();
+        $scope.calendarLoadingSpinner = !0;
+    });
 }
 
 function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, $modal, srvAnalytics) {
@@ -1919,7 +1953,7 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
     }), $scope.initConfigCtrl();
 }
 
-function ctrlDetail($scope, $modal, version, srvData, srvFacet, srvLocale, srvLink, srvNav, srvConfig) {
+function ctrlDetail($scope, $timeout, $modal, version, srvData, srvFacet, srvLocale, srvLink, srvNav, srvConfig) {
     function createSameCompanyFilter(companyId) {
         return function(object) {
             return object.account_id.dbid == companyId;
@@ -1941,7 +1975,7 @@ function ctrlDetail($scope, $modal, version, srvData, srvFacet, srvLocale, srvLi
         "clear" == action ? a4p.safeApply($scope, function() {
             $scope.clear();
         }) : "goto" == action && (srvNav.item ? a4p.safeApply($scope, function() {
-            $scope._initDetail();
+            $scope.detailLoadingSpinner = !0;
         }) : a4p.safeApply($scope, function() {
             $scope.clear();
         }));
@@ -1964,7 +1998,7 @@ function ctrlDetail($scope, $modal, version, srvData, srvFacet, srvLocale, srvLi
     }, $scope.isPossibleLinkAction = function(fromType, toType) {
         return a4p.isDefined(c4p.Model.linkActionMap[fromType]) && a4p.isDefined(c4p.Model.linkActionMap[fromType][toType]) ? c4p.Model.linkActionMap[fromType][toType].length > 0 : !1;
     }, $scope.ctrlDetail = function() {
-        a4p.InternalLog.log("ctrlDetail", "new"), $scope.setNavTitle(""), $scope._initDetail();
+        a4p.InternalLog.log("ctrlDetail", "new"), $scope.setNavTitle("");
     }, $scope._initDetail = function() {
         a4p.InternalLog.log("ctrlDetail - initDetail", "" + version), $scope.srvNav.item && ($scope.itemDetailDBId = $scope.srvNav.item.id.dbid, 
         a4p.InternalLog.log("ctrlDetail - initDetail", "" + $scope.srvNav.item.id.dbid), 
@@ -1992,9 +2026,9 @@ function ctrlDetail($scope, $modal, version, srvData, srvFacet, srvLocale, srvLi
     }, $scope.getHtmlLinkHowto = function() {
         var name = $scope.getItemNameById($scope.srvNav.item.id.dbid);
         return a4pFormat(srvLocale.translations.htmlViewNlinkItemTextNoRelation, name);
-    }, $scope.selectItem = function(item) {
-        a4p.InternalLog.log("ctrlDetail - selectItem", "" + item.a4p_type + item.id.dbid), 
-        $scope.setItemAndGoDetail(item);
+    }, $scope.selectItem = function(item, closeAside) {
+        item && (a4p.InternalLog.log("ctrlDetail", "selectItem", "" + item.a4p_type + item.id.dbid), 
+        $scope.setItemAndGoDetail(item, closeAside === !0));
     }, $scope.getDetailCompanyName = function() {
         if ($scope.companyName = "", !$scope.srvNav.item || !$scope.srvNav.item.account_id) return $scope.companyName;
         for (var j = 0; j < $scope.srvData.currentItems.Account.length; j++) {
@@ -2228,13 +2262,21 @@ function ctrlDetail($scope, $modal, version, srvData, srvFacet, srvLocale, srvLi
                 });
             });
         }
+    }, $scope.detailLoadingSpinner = !0, $scope.afterDetailSpinnerShow = function() {
+        console.log("Fully shown"), $timeout(function() {
+            $scope.computeDetail();
+        }, 400);
+    }, $scope.afterDetailSpinnerHide = function() {}, $scope.computeDetail = function() {
+        a4p.InternalLog.log("ctrlDetail", "computeDetail "), $scope._initDetail(), a4p.safeApply($scope, function() {
+            $scope.detailLoadingSpinner = !1;
+        });
     }, $scope.$on("setItemDetail", function(event, item) {
         a4p.InternalLog.log("ctrlDetail - Broadcast setItemDetail", "" + item.id.dbid), 
-        $scope.itemDetailDBId != item.id.dbid && $scope._initDetail();
+        $scope.itemDetailDBId != item.id.dbid && ($scope.detailLoadingSpinner = !0);
     }), $scope.$on("mindMapUpdated", function() {
-        $scope._refreshData();
+        $scope.detailLoadingSpinner = !0;
     }), $scope.$on("mindMapLoaded", function() {
-        $scope._refreshData();
+        $scope.detailLoadingSpinner = !0;
     }), $scope.ctrlDetail(), $scope.google = !1, "undefined" != typeof google && ($scope.google = !0, 
     google.maps.visualRefresh = !0), angular.extend($scope, {
         position: {
@@ -2916,11 +2958,10 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, $sce, ve
         });
     }
     function beginSynchronization(scope) {
-        srvRunning.setRefresh(!0), scope.setA4pSpinnerState("run"), $scope.startSpinner();
+        srvRunning.setRefresh(!0), scope.setA4pSpinnerState("run");
     }
     function endSynchronization(scope) {
-        srvRunning.setRefresh(!1), scope.setA4pSpinnerState("done"), $scope.stopSpinner(), 
-        srvLog.logSuccess(!0, srvLocale.translations.htmlMsgSynchronizationOK, a4pFormat(srvLocale.translations.htmlMsgNbObjectsInserted, srvData.nbObjects)), 
+        srvRunning.setRefresh(!1), scope.setA4pSpinnerState("done"), srvLog.logSuccess(!0, srvLocale.translations.htmlMsgSynchronizationOK, a4pFormat(srvLocale.translations.htmlMsgNbObjectsInserted, srvData.nbObjects)), 
         scope.gotoWelcome();
     }
     function failSynchronization(scope) {
@@ -3088,8 +3129,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, $sce, ve
     $scope.srvNav = srvNav, $scope.srvGuider = srvGuider, $scope.srvOpenUrl = srvOpenUrl, 
     $scope.fileStorageQuota = 4294967296, $scope.initAlreadyCalled = !1, $scope.initializationFinished = !1, 
     $scope.lastRefresh = null, $scope.isDemo = !1, $scope.firstConfigDone = !1, $scope.rememberPassword = !0, 
-    $scope.keepCrmLogin = !1, $scope.inputHasBeenFocused = !1, $scope.taskTimer = null, 
-    $scope.taskQueue = [], $scope.enqueueTask = function(fct) {
+    $scope.keepCrmLogin = !1, $scope.taskTimer = null, $scope.taskQueue = [], $scope.enqueueTask = function(fct) {
         $scope.taskQueue.push(fct), $scope.initializationFinished && null == $scope.taskTimer && $scope.runNextTask();
     }, $scope.runNextTask = function() {
         if ($scope.taskQueue.length > 0) {
@@ -3210,17 +3250,16 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, $sce, ve
         }, function(result) {
             result && $scope.setItemAndGoMeeting(result);
         }) : $scope.setItemAndGoMeeting(srvNav.item);
-    }, $scope.spinnerContainer = null, $scope.setSpinner = function(spinnerContainer) {
-        $scope.spinnerContainer = spinnerContainer;
+    }, $scope.spinnerContainers = new Array(), $scope.isSpinnerActive = !1, $scope.addSpinner = function(spinnerContainer) {
+        $scope.spinnerContainers.push(spinnerContainer);
     }, $scope.startSpinner = function(bAutoStop) {
-        console.log("startSpinner !"), null != $scope.spinnerContainer && ($scope.spinnerContainer.addClass("onair"), 
-        1 == bAutoStop && $timeout(function() {
-            $scope.stopSpinner();
-        }, 5e3));
+        console.log("startSpinner !"), $scope.isSpinnerActive = !0, 1 == bAutoStop && $timeout(function() {
+            $scope.isSpinnerActive = !1;
+        }, 3e3);
     }, $scope.stopSpinner = function() {
-        console.log("stopSpinner !"), null != $scope.spinnerContainer && $timeout(function() {
-            $scope.spinnerContainer.removeClass("onair");
-        }, 1500);
+        console.log("stopSpinner !"), $timeout(function() {
+            $scope.isSpinnerActive = !1;
+        }, 3e3);
     }, $scope.refreshClient = function() {
         a4p.InternalLog.log("ctrlNavigation", "refreshClient");
         var deferred = $q.defer();
@@ -3246,8 +3285,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, $sce, ve
         a4p.InternalLog.log("ctrlNavigation - gotoSlide", "Begin " + $scope.page + "/" + $scope.slide + " New:" + nextPage + "/" + nextSlide);
         var changePage = nextPage != $scope.page, changeSlide = changePage || $scope.slide != nextSlide;
         changePage && ($scope.slide = "", $scope.page = nextPage), $scope.slide = nextSlide, 
-        $scope.windowSizeChanged(), changeSlide && $scope.$broadcast("changeItemCategory", srvNav.item), 
-        $scope.updateScroller(), $scope.stopSpinner();
+        changeSlide && ($scope.$broadcast("changeItemCategory", srvNav.item), $scope.windowSizeChanged(), 
+        $scope.updateScroller());
     }, $scope.getSlide = function() {
         return $scope.slide;
     }, $scope.getSlideFromNavSidebarNav = function() {
@@ -3396,19 +3435,16 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, $sce, ve
     }, $scope.addItemDialog = function(type) {
         alert("TEST MLE redefine in sub controller ?" + type);
     }, $scope.setItemAndGoDetail = function(item, closeAside) {
-        $scope.startSpinner(), $timeout(function() {
-            item && srvNav.goto($scope.pageNavigation, $scope.slideNavigationType[item.a4p_type], item), 
-            $scope.gotoSlide($scope.pageNavigation, $scope.slideNavigationType[item.a4p_type]), 
-            item && $scope.$broadcast("setItemDetail", item), closeAside && $scope.setNavAside(!1), 
-            $scope.stopSpinner();
-        }, 1);
+        item && (a4p.InternalLog.log("ctrlNavigation", "setItemAndGoDetail " + (item ? item.name : "none") + " " + closeAside), 
+        srvNav.goto($scope.pageNavigation, $scope.slideNavigationType[item.a4p_type], item), 
+        $scope.gotoSlide($scope.pageNavigation, $scope.slideNavigationType[item.a4p_type]), 
+        closeAside && $scope.setNavAside(!1), $scope.$broadcast("setItemDetail", item));
     }, $scope.setItemAndGoMeeting = function(item) {
-        item && srvNav.goto($scope.pageMeeting, $scope.slideMeetingMeeting, item), $scope.gotoSlide($scope.pageMeeting, $scope.slideMeetingMeeting);
-    }, $scope.setItemAndGoTimeline = function(object) {
-        object && srvNav.goto($scope.pageTimeline, $scope.slideTimeline, object), $scope.gotoSlide($scope.pageTimeline, $scope.slideTimeline);
-    }, $scope.setItemAndGoCalendar = function(object) {
-        object && srvNav.goto($scope.pageNavigation, $scope.slideNavigationCalendar, object), 
-        $scope.gotoSlide($scope.pageNavigation, $scope.slideNavigationCalendar);
+        $scope.gotoSlide($scope.pageMeeting, $scope.slideMeetingMeeting), item && srvNav.goto($scope.pageMeeting, $scope.slideMeetingMeeting, item);
+    }, $scope.setItemAndGoTimeline = function(item) {
+        $scope.gotoSlide($scope.pageTimeline, $scope.slideTimeline), item && srvNav.goto($scope.pageTimeline, $scope.slideTimeline, item);
+    }, $scope.setItemAndGoCalendar = function(item) {
+        $scope.gotoSlide($scope.pageNavigation, $scope.slideNavigationCalendar), item && srvNav.goto($scope.pageNavigation, $scope.slideNavigationCalendar, item);
     }, $scope.getTypeIcon = function(type) {
         return c4p.Model.getTypeIcon(type);
     }, $scope.getTypeColor = function(type) {
@@ -3474,9 +3510,9 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, $sce, ve
     }, $scope.openDialog = function(dialogOptions, onSuccess) {
         a4p.safeApply($scope, function() {
             $scope.setBlur(!0), $modal.open(dialogOptions).result.then(function(result) {
-                onSuccess(result), $scope.setBlur(!1);
+                onSuccess(result), $scope.setBlur(!1), $scope.stopSpinner();
             }, function() {
-                $scope.setBlur(!1);
+                $scope.setBlur(!1), $scope.stopSpinner();
             });
         });
     }, $scope.openDialogConfirm = function(text, array, fctConfirm) {
@@ -4157,11 +4193,6 @@ function navigationCtrl($scope, $q, $timeout, $location, $http, $modal, $sce, ve
         });
     }, $scope.setBlur = function(isBlur) {
         $scope.isBlurOn = isBlur;
-    }, $scope.setInputFocusState = function(f) {
-        $scope.inputHasBeenFocused = 1 == f, $scope.inputHasBeenFocused || ($(window).scrollTop(0), 
-        console.log("scrollTop"));
-    }, $scope.getInputFocusState = function() {
-        return 1 == $scope.inputHasBeenFocused;
     }, $scope.addMoreDataInDemoMode = function() {
         if ($scope.isDemo) {
             var deferred = $q.defer();
@@ -4838,9 +4869,19 @@ function responsiveCtrl($scope, $window) {
     });
 }
 
+function ctrlRightToolbar($scope, $timeout) {
+    $scope.detailLoadingSpinner = !0, $scope.$on("setItemDetail", function(event, item) {
+        a4p.InternalLog.log("ctrlRightToolbar - Broadcast setItemDetail", "" + item.id.dbid), 
+        $scope.detailLoadingSpinner = !0, $timeout(function() {
+            $scope.detailLoadingSpinner = !1;
+        }, 2e3);
+    });
+}
+
 function ctrlSingleTap($scope) {
-    $scope.singleTapFocusId = "", $scope.firstSingleTap = function(id) {
-        return $scope.singleTapFocusId == id ? !1 : ($scope.singleTapFocusId = id, !0);
+    $scope.singleTapFocusId = "", $scope.firstSingleTap = function(focusObject, fnDoubleTap, forceDoubleTap) {
+        return focusObject ? forceDoubleTap || $scope.singleTapFocusId == focusObject.id.dbid ? (fnDoubleTap && fnDoubleTap(focusObject, forceDoubleTap), 
+        void ($scope.singleTapFocusId = "")) : void ($scope.singleTapFocusId = focusObject.id.dbid) : void ($scope.singleTapFocusId = "");
     };
 }
 
@@ -5868,7 +5909,7 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
     }, $scope.toggleObjectGroupFilter = function(group) {
         group && ($scope.objectGroupFilter = group, $scope.setLastChange());
     }, $scope.setLastChange = function() {
-        $scope.objectLastChange = new Date();
+        $scope.noteLastUpdate = new Date();
     }, $scope.onFieldChanged = function(field) {
         var validationHasChanged = !1;
         if (a4p.isDefined(c4p.Model.a4p_types[note.a4p_type].editObjectFields)) {
@@ -5934,7 +5975,7 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
             result && (srvData.removeAndSaveObject($scope.note), $modalInstance.close());
         });
     }, $scope.setModeEdit = function(modeEdit) {
-        $scope.modeEdit = modeEdit, $scope.noteLastUpdate = new Date();
+        $scope.modeEdit = modeEdit, $scope.setLastChange();
     }, $scope.openDialogPeople = function() {
         var menus = [], addedOrganizers = [];
         menus.push({
@@ -6027,7 +6068,7 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
             a4p.isDefined(result) && a4p.safeApply($scope, function() {
                 for (var i = 0; i < result.length; i++) $scope.note.contact_ids.push(result[i].id), 
                 $scope.toolboxContacts.push(result[i]);
-                $scope.noteLastUpdate = new Date();
+                $scope.setLastChange();
             });
         });
     }, $scope.openDialogDocs = function() {
@@ -6086,7 +6127,7 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
             a4p.isDefined(result) && a4p.safeApply($scope, function() {
                 for (var i = 0; i < result.length; i++) $scope.note.document_ids.push(result[i].id), 
                 $scope.toolboxDocs.push(result[i]);
-                $scope.noteLastUpdate = new Date();
+                $scope.setLastChange();
             });
         });
     }, $scope.openDialogAddRatings = function() {
@@ -6105,17 +6146,17 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
             }
         }, function(result) {
             a4p.isDefined(result) && ($scope.toolboxRatings = result.slice(0), $scope.note.ratings = $scope.toolboxRatings, 
-            $scope.noteLastUpdate = new Date());
+            $scope.setLastChange());
         });
     }, $scope.removeContact = function(index) {
         $scope.note.contact_ids.splice(index, 1), $scope.toolboxContacts.splice(index, 1), 
-        $scope.noteLastUpdate = new Date();
+        $scope.setLastChange();
     }, $scope.removeDoc = function(index) {
         $scope.note.document_ids.splice(index, 1), $scope.toolboxDocs.splice(index, 1), 
-        $scope.noteLastUpdate = new Date();
+        $scope.setLastChange();
     }, $scope.removeRating = function(index) {
         $scope.note.ratings.splice(index, 1), $scope.toolboxRatings = $scope.note.ratings, 
-        $scope.noteLastUpdate = new Date();
+        $scope.setLastChange();
     }, $scope.textAngularToolbarInit = function() {
         var data = [];
         data.quote = {
@@ -6446,6 +6487,12 @@ function ctrlEditDialogObject($scope, srvData, srvLocale, srvConfig, objectItem,
             cal.findEvent("*", "", "", startDate, endDate, onEventsSuccess, onEventsFailure);
         } else a4p.InternalLog.log("ctrlEditDialogObject", "NO Device to import Events");
     }, initFields($scope);
+}
+
+function ctrlEditFocus($scope) {
+    $scope.inputHasFocus = !1, $scope.setInputFocusState = function(state) {
+        $scope.inputHasFocus = 1 == state, !$scope.inputHasFocus;
+    };
 }
 
 function ctrlFacetSelectedDialog($scope, $modalInstance, srvData, srvFacet, srvLocale, srvConfig, type, initFilter, initSelector, multiple, addedOrganizers, createFct) {
@@ -9693,7 +9740,7 @@ if (function(e, undefined) {
             for (message = prefix + template.replace(/\{\d+\}/g, function(match) {
                 var arg, index = +match.slice(1, -1);
                 return index + 2 < templateArgs.length ? (arg = templateArgs[index + 2], "function" == typeof arg ? arg.toString().replace(/ ?\{[\s\S]*$/, "") : "undefined" == typeof arg ? "undefined" : "string" != typeof arg ? toJson(arg) : arg) : match;
-            }), message = message + "\nhttp://errors.angularjs.org/1.3.0-local+sha.763c327/" + (module ? module + "/" : "") + code, 
+            }), message = message + "\nhttp://errors.angularjs.org/1.3.0-local+sha.dba0162/" + (module ? module + "/" : "") + code, 
             i = 2; i < arguments.length; i++) message = message + (2 == i ? "?" : "&") + "p" + (i - 2) + "=" + encodeURIComponent(stringify(arguments[i]));
             return new Error(message);
         };
@@ -9794,6 +9841,9 @@ if (function(e, undefined) {
     }
     function isFile(obj) {
         return "[object File]" === toString.call(obj);
+    }
+    function isBlob(obj) {
+        return "[object Blob]" === toString.call(obj);
     }
     function isElement(node) {
         return !(!node || !(node.nodeName || node.prop && node.attr && node.find));
@@ -9943,11 +9993,17 @@ if (function(e, undefined) {
     function encodeUriQuery(val, pctEncodeSpaces) {
         return encodeURIComponent(val).replace(/%40/gi, "@").replace(/%3A/gi, ":").replace(/%24/g, "$").replace(/%2C/gi, ",").replace(/%20/g, pctEncodeSpaces ? "%20" : "+");
     }
+    function getNgAttribute(element, ngAttr) {
+        var attr, i, ii = ngAttrPrefixes.length;
+        for (element = jqLite(element), i = 0; ii > i; ++i) if (attr = ngAttrPrefixes[i] + ngAttr, 
+        isString(attr = element.attr(attr))) return attr;
+        return null;
+    }
     function angularInit(element, bootstrap) {
         function append(element) {
             element && elements.push(element);
         }
-        var appElement, module, elements = [ element ], names = [ "ng:app", "ng-app", "x-ng-app", "data-ng-app" ], NG_APP_CLASS_REGEXP = /\sng[:\-]app(:\s*([\w\d_]+);?)?\s/;
+        var appElement, module, elements = [ element ], config = {}, names = [ "ng:app", "ng-app", "x-ng-app", "data-ng-app" ], NG_APP_CLASS_REGEXP = /\sng[:\-]app(:\s*([\w\d_]+);?)?\s/;
         forEach(names, function(name) {
             names[name] = !0, append(document.getElementById(name)), name = name.replace(":", "\\:"), 
             element.querySelectorAll && (forEach(element.querySelectorAll("." + name), append), 
@@ -9959,9 +10015,15 @@ if (function(e, undefined) {
                     !appElement && names[attr.name] && (appElement = element, module = attr.value);
                 });
             }
-        }), appElement && bootstrap(appElement, module ? [ module ] : []);
+        }), appElement && (config.strictDi = null !== getNgAttribute(appElement, "strict-di"), 
+        bootstrap(appElement, module ? [ module ] : [], config));
     }
-    function bootstrap(element, modules) {
+    function bootstrap(element, modules, config) {
+        isObject(config) || (config = {});
+        var defaultConfig = {
+            strictDi: !1
+        };
+        config = extend(defaultConfig, config);
         var doBootstrap = function() {
             if (element = jqLite(element), element.injector()) {
                 var tag = element[0] === document ? "document" : startingTag(element);
@@ -9970,7 +10032,7 @@ if (function(e, undefined) {
             modules = modules || [], modules.unshift([ "$provide", function($provide) {
                 $provide.value("$rootElement", element);
             } ]), modules.unshift("ng");
-            var injector = createInjector(modules);
+            var injector = createInjector(modules, config.strictDi);
             return injector.invoke([ "$rootScope", "$rootElement", "$compile", "$injector", "$animate", function(scope, element, compile, injector) {
                 scope.$apply(function() {
                     element.data("$injector", injector), compile(element)(scope);
@@ -10146,7 +10208,8 @@ if (function(e, undefined) {
                 ngChange: ngChangeDirective,
                 required: requiredDirective,
                 ngRequired: requiredDirective,
-                ngValue: ngValueDirective
+                ngValue: ngValueDirective,
+                ngModelOptions: ngModelOptionsDirective
             }).directive({
                 ngInclude: ngIncludeFillContentDirective
             }).directive(ngAttributeAliasDirectives).directive(ngEventDirectives), $provide.provider({
@@ -10199,19 +10262,33 @@ if (function(e, undefined) {
         originalJqFn = originalJqFn.$original || originalJqFn, removePatch.$original = originalJqFn, 
         jQuery.fn[name] = removePatch;
     }
+    function jqLiteIsTextNode(html) {
+        return !HTML_REGEXP.test(html);
+    }
+    function jqLiteBuildFragment(html, context) {
+        var tmp, tag, wrap, i, fragment = context.createDocumentFragment(), nodes = [];
+        if (jqLiteIsTextNode(html)) nodes.push(context.createTextNode(html)); else {
+            for (tmp = tmp || fragment.appendChild(context.createElement("div")), tag = (TAG_NAME_REGEXP.exec(html) || [ "", "" ])[1].toLowerCase(), 
+            wrap = wrapMap[tag] || wrapMap._default, tmp.innerHTML = wrap[1] + html.replace(XHTML_TAG_REGEXP, "<$1></$2>") + wrap[2], 
+            i = wrap[0]; i--; ) tmp = tmp.lastChild;
+            nodes = concat(nodes, tmp.childNodes), tmp = fragment.firstChild, tmp.textContent = "";
+        }
+        return fragment.textContent = "", fragment.innerHTML = "", forEach(nodes, function(node) {
+            fragment.appendChild(node);
+        }), fragment;
+    }
+    function jqLiteParseHTML(html, context) {
+        context = context || document;
+        var parsed;
+        return (parsed = SINGLE_TAG_REGEXP.exec(html)) ? [ context.createElement(parsed[1]) ] : (parsed = jqLiteBuildFragment(html, context)) ? parsed.childNodes : [];
+    }
     function JQLite(element) {
         if (element instanceof JQLite) return element;
         if (isString(element) && (element = trim(element)), !(this instanceof JQLite)) {
             if (isString(element) && "<" != element.charAt(0)) throw jqLiteMinErr("nosel", "Looking up elements via selectors is not supported by jqLite! See: http://docs.angularjs.org/api/angular.element");
             return new JQLite(element);
         }
-        if (isString(element)) {
-            var div = document.createElement("div");
-            div.innerHTML = "<div>&#160;</div>" + element, div.removeChild(div.firstChild), 
-            jqLiteAddNodes(this, div.childNodes);
-            var fragment = jqLite(document.createDocumentFragment());
-            fragment.append(this);
-        } else jqLiteAddNodes(this, element);
+        isString(element) ? jqLiteAddNodes(this, jqLiteParseHTML(element)) : jqLiteAddNodes(this, element);
     }
     function jqLiteClone(element) {
         return element.cloneNode(!0);
@@ -10278,8 +10355,8 @@ if (function(e, undefined) {
     function jqLiteInheritedData(element, name, value) {
         element = jqLite(element), 9 == element[0].nodeType && (element = element.find("html"));
         for (var names = isArray(name) ? name : [ name ]; element.length; ) {
-            for (var i = 0, ii = names.length; ii > i; i++) if ((value = element.data(names[i])) !== undefined) return value;
-            element = element.parent();
+            for (var node = element[0], i = 0, ii = names.length; ii > i; i++) if ((value = element.data(names[i])) !== undefined) return value;
+            element = jqLite(node.parentNode || 11 === node.nodeType && node.host);
         }
     }
     function jqLiteEmpty(element) {
@@ -10321,17 +10398,29 @@ if (function(e, undefined) {
     function HashMap(array) {
         forEach(array, this.put, this);
     }
-    function annotate(fn) {
-        var $inject, fnText, argDecl, last;
-        return "function" == typeof fn ? ($inject = fn.$inject) || ($inject = [], fn.length && (fnText = fn.toString().replace(STRIP_COMMENTS, ""), 
-        argDecl = fnText.match(FN_ARGS), forEach(argDecl[1].split(FN_ARG_SPLIT), function(arg) {
-            arg.replace(FN_ARG, function(all, underscore, name) {
-                $inject.push(name);
-            });
-        })), fn.$inject = $inject) : isArray(fn) ? (last = fn.length - 1, assertArgFn(fn[last], "fn"), 
-        $inject = fn.slice(0, last)) : assertArgFn(fn, "fn", !0), $inject;
+    function anonFn(fn) {
+        var fnText = fn.toString().replace(STRIP_COMMENTS, ""), args = fnText.match(FN_ARGS);
+        return args ? "function(" + (args[1] || "").replace(/[\s\r\n]+/, " ") + ")" : "fn";
     }
-    function createInjector(modulesToLoad) {
+    function annotate(fn, strictDi, name) {
+        var $inject, fnText, argDecl, last;
+        if ("function" == typeof fn) {
+            if (!($inject = fn.$inject)) {
+                if ($inject = [], fn.length) {
+                    if (strictDi) throw isString(name) && name || (name = fn.name || anonFn(fn)), $injectorMinErr("strictdi", "{0} is not using explicit annotation and cannot be invoked in strict mode", name);
+                    fnText = fn.toString().replace(STRIP_COMMENTS, ""), argDecl = fnText.match(FN_ARGS), 
+                    forEach(argDecl[1].split(FN_ARG_SPLIT), function(arg) {
+                        arg.replace(FN_ARG, function(all, underscore, name) {
+                            $inject.push(name);
+                        });
+                    });
+                }
+                fn.$inject = $inject;
+            }
+        } else isArray(fn) ? (last = fn.length - 1, assertArgFn(fn[last], "fn"), $inject = fn.slice(0, last)) : assertArgFn(fn, "fn", !0);
+        return $inject;
+    }
+    function createInjector(modulesToLoad, strictDi) {
         function supportObject(delegate) {
             return function(key, value) {
                 return isObject(key) ? void forEach(key, reverseParams(delegate)) : delegate(key, value);
@@ -10399,18 +10488,20 @@ if (function(e, undefined) {
                     path.shift();
                 }
             }
-            function invoke(fn, self, locals) {
-                var length, i, key, args = [], $inject = annotate(fn);
+            function invoke(fn, self, locals, serviceName) {
+                "string" == typeof locals && (serviceName = locals, locals = null);
+                var length, i, key, args = [], $inject = annotate(fn, strictDi, serviceName);
                 for (i = 0, length = $inject.length; length > i; i++) {
                     if (key = $inject[i], "string" != typeof key) throw $injectorMinErr("itkn", "Incorrect injection token! Expected service name as string, got {0}", key);
                     args.push(locals && locals.hasOwnProperty(key) ? locals[key] : getService(key));
                 }
                 return fn.$inject || (fn = fn[length]), fn.apply(self, args);
             }
-            function instantiate(Type, locals) {
+            function instantiate(Type, locals, serviceName) {
                 var instance, returnedValue, Constructor = function() {};
                 return Constructor.prototype = (isArray(Type) ? Type[Type.length - 1] : Type).prototype, 
-                instance = new Constructor(), returnedValue = invoke(Type, instance, locals), isObject(returnedValue) || isFunction(returnedValue) ? returnedValue : instance;
+                instance = new Constructor(), returnedValue = invoke(Type, instance, locals, serviceName), 
+                isObject(returnedValue) || isFunction(returnedValue) ? returnedValue : instance;
             }
             return {
                 invoke: invoke,
@@ -10422,6 +10513,7 @@ if (function(e, undefined) {
                 }
             };
         }
+        strictDi = strictDi === !0;
         var INSTANTIATING = {}, providerSuffix = "Provider", path = [], loadedModules = new HashMap(), providerCache = {
             $provide: {
                 provider: supportObject(provider),
@@ -10433,10 +10525,10 @@ if (function(e, undefined) {
             }
         }, providerInjector = providerCache.$injector = createInternalInjector(providerCache, function() {
             throw $injectorMinErr("unpr", "Unknown provider: {0}", path.join(" <- "));
-        }), instanceCache = {}, instanceInjector = instanceCache.$injector = createInternalInjector(instanceCache, function(servicename) {
+        }, strictDi), instanceCache = {}, instanceInjector = instanceCache.$injector = createInternalInjector(instanceCache, function(servicename) {
             var provider = providerInjector.get(servicename + providerSuffix);
-            return instanceInjector.invoke(provider.$get, provider);
-        });
+            return instanceInjector.invoke(provider.$get, provider, undefined, servicename);
+        }, strictDi);
         return forEach(loadModules(modulesToLoad), function(fn) {
             instanceInjector.invoke(fn || noop);
         }), instanceInjector;
@@ -10632,7 +10724,7 @@ if (function(e, undefined) {
         } ];
     }
     function $CompileProvider($provide, $$sanitizeUriProvider) {
-        var hasDirectives = {}, Suffix = "Directive", COMMENT_DIRECTIVE_REGEXP = /^\s*directive\:\s*([\d\w\-_]+)\s+(.*)$/, CLASS_DIRECTIVE_REGEXP = /(([\d\w\-_]+)(?:\:([^;]+))?;?)/, TABLE_CONTENT_REGEXP = /^<\s*(tr|th|td|thead|tbody|tfoot)(\s+[^>]*)?>/i, EVENT_HANDLER_ATTR_REGEXP = /^(on[a-z]+|formaction)$/;
+        var hasDirectives = {}, Suffix = "Directive", COMMENT_DIRECTIVE_REGEXP = /^\s*directive\:\s*([\d\w\-_]+)\s+(.*)$/, CLASS_DIRECTIVE_REGEXP = /(([\d\w\-_]+)(?:\:([^;]+))?;?)/, EVENT_HANDLER_ATTR_REGEXP = /^(on[a-z]+|formaction)$/;
         this.directive = function registerDirective(name, directiveFactory) {
             return assertNotHasOwnProperty(name, "directive"), isString(name) ? (assertArg(directiveFactory, "directiveFactory"), 
             hasDirectives.hasOwnProperty(name) || (hasDirectives[name] = [], $provide.factory(name + Suffix, [ "$injector", "$exceptionHandler", function($injector, $exceptionHandler) {
@@ -10875,7 +10967,7 @@ if (function(e, undefined) {
                     childTranscludeFn = compile($template, transcludeFn))), directive.template) if (assertNoDuplicate("template", templateDirective, directive, $compileNode), 
                     templateDirective = directive, directiveValue = isFunction(directive.template) ? directive.template($compileNode, templateAttrs) : directive.template, 
                     directiveValue = denormalizeTemplate(directiveValue), directive.replace) {
-                        if (replaceDirective = directive, $template = directiveTemplateContents(directiveValue), 
+                        if (replaceDirective = directive, $template = jqLiteIsTextNode(directiveValue) ? [] : jqLite(trim(directiveValue)), 
                         compileNode = $template[0], 1 != $template.length || 1 !== compileNode.nodeType) throw $compileMinErr("tplrt", "Template for directive '{0}' must have exactly one root element. {1}", directiveName, "");
                         replaceWith(jqCollection, $compileNode, compileNode);
                         var newTemplateAttrs = {
@@ -10931,16 +11023,6 @@ if (function(e, undefined) {
                     dstAttr[key] = srcAttr[key]);
                 });
             }
-            function directiveTemplateContents(template) {
-                var type;
-                if (template = trim(template), type = TABLE_CONTENT_REGEXP.exec(template)) {
-                    type = type[1].toLowerCase();
-                    var table = jqLite("<table>" + template + "</table>");
-                    return /(thead|tbody|tfoot)/.test(type) ? table.children(type) : (table = table.children("tbody"), 
-                    "tr" === type ? table.children("tr") : table.children("tr").contents());
-                }
-                return jqLite("<div>" + template + "</div>").contents();
-            }
             function compileTemplateUrl(directives, $compileNode, tAttrs, $rootElement, childTranscludeFn, preLinkFns, postLinkFns, previousCompileContext) {
                 var afterTemplateNodeLinkFn, afterTemplateChildLinkFn, linkQueue = [], beforeTemplateCompileNode = $compileNode[0], origAsyncDirective = directives.shift(), derivedSyncDirective = extend({}, origAsyncDirective, {
                     templateUrl: null,
@@ -10953,7 +11035,7 @@ if (function(e, undefined) {
                 }).success(function(content) {
                     var compileNode, tempTemplateAttrs, $template, childBoundTranscludeFn;
                     if (content = denormalizeTemplate(content), origAsyncDirective.replace) {
-                        if ($template = directiveTemplateContents(content), compileNode = $template[0], 
+                        if ($template = jqLiteIsTextNode(content) ? [] : jqLite(trim(content)), compileNode = $template[0], 
                         1 != $template.length || 1 !== compileNode.nodeType) throw $compileMinErr("tplrt", "Template for directive '{0}' must have exactly one root element. {1}", origAsyncDirective.name, templateUrl);
                         tempTemplateAttrs = {
                             $attr: {}
@@ -11086,7 +11168,9 @@ if (function(e, undefined) {
                     var attrs = this, $$observers = attrs.$$observers || (attrs.$$observers = {}), listeners = $$observers[key] || ($$observers[key] = []);
                     return listeners.push(fn), $rootScope.$evalAsync(function() {
                         listeners.$$inter || fn(attrs[key]);
-                    }), fn;
+                    }), function() {
+                        arrayRemove(listeners, fn);
+                    };
                 }
             };
             var startSymbol = $interpolate.startSymbol(), endSymbol = $interpolate.endSymbol(), denormalizeTemplate = "{{" == startSymbol || "}}" == endSymbol ? identity : function(template) {
@@ -11115,7 +11199,7 @@ if (function(e, undefined) {
                 var instance, match, constructor, identifier;
                 if (isString(expression) && (match = expression.match(CNTRL_REG), constructor = match[1], 
                 identifier = match[3], expression = controllers.hasOwnProperty(constructor) ? controllers[constructor] : getter(locals.$scope, constructor, !0) || getter($window, constructor, !0), 
-                assertArgFn(expression, constructor, !0)), instance = $injector.instantiate(expression, locals), 
+                assertArgFn(expression, constructor, !0)), instance = $injector.instantiate(expression, locals, constructor), 
                 identifier) {
                     if (!locals || "object" != typeof locals.$scope) throw minErr("$controller")("noscp", "Cannot export controller '{0}' as '{1}'! No $scope object provided via `locals`.", constructor || expression.name, identifier);
                     locals.$scope[identifier] = instance;
@@ -11166,7 +11250,7 @@ if (function(e, undefined) {
                 data;
             } ],
             transformRequest: [ function(d) {
-                return isObject(d) && !isFile(d) ? toJson(d) : d;
+                return !isObject(d) || isFile(d) || isBlob(d) ? d : toJson(d);
             } ],
             headers: {
                 common: {
@@ -11259,16 +11343,17 @@ if (function(e, undefined) {
                 });
             }
             function sendReq(config, reqData, reqHeaders) {
-                function done(status, response, headersString) {
-                    cache && (isSuccess(status) ? cache.put(url, [ status, response, parseHeaders(headersString) ]) : cache.remove(url)), 
-                    resolvePromise(response, status, headersString), $rootScope.$$phase || $rootScope.$apply();
+                function done(status, response, headersString, statusText) {
+                    cache && (isSuccess(status) ? cache.put(url, [ status, response, parseHeaders(headersString), statusText ]) : cache.remove(url)), 
+                    resolvePromise(response, status, headersString, statusText), $rootScope.$$phase || $rootScope.$apply();
                 }
-                function resolvePromise(response, status, headers) {
+                function resolvePromise(response, status, headers, statusText) {
                     status = Math.max(status, 0), (isSuccess(status) ? deferred.resolve : deferred.reject)({
                         data: response,
                         status: status,
                         headers: headersGetter(headers),
-                        config: config
+                        config: config,
+                        statusText: statusText
                     });
                 }
                 function removePendingReq() {
@@ -11281,7 +11366,7 @@ if (function(e, undefined) {
                 cache) if (cachedResp = cache.get(url), isDefined(cachedResp)) {
                     if (cachedResp.then) return cachedResp.then(removePendingReq, removePendingReq), 
                     cachedResp;
-                    isArray(cachedResp) ? resolvePromise(cachedResp[1], cachedResp[0], copy(cachedResp[2])) : resolvePromise(cachedResp, 200, {});
+                    isArray(cachedResp) ? resolvePromise(cachedResp[1], cachedResp[0], copy(cachedResp[2]), cachedResp[3]) : resolvePromise(cachedResp, 200, {}, "OK");
                 } else cache.put(url, promise);
                 return isUndefined(cachedResp) && $httpBackend(config.method, url, reqData, done, reqHeaders, config.timeout, config.withCredentials, config.responseType), 
                 promise;
@@ -11325,36 +11410,36 @@ if (function(e, undefined) {
         } ];
     }
     function createHttpBackend($browser, createXhr, $browserDefer, callbacks, rawDocument) {
-        function jsonpReq(url, done) {
-            var script = rawDocument.createElement("script"), doneWrapper = function() {
-                script.onreadystatechange = script.onload = script.onerror = null, rawDocument.body.removeChild(script), 
-                done && done();
-            };
-            return script.type = "text/javascript", script.src = url, msie && 8 >= msie ? script.onreadystatechange = function() {
-                /loaded|complete/.test(script.readyState) && doneWrapper();
-            } : script.onload = script.onerror = function() {
-                doneWrapper();
-            }, rawDocument.body.appendChild(script), doneWrapper;
+        function jsonpReq(url, callbackId, done) {
+            var script = rawDocument.createElement("script"), callback = null;
+            return script.type = "text/javascript", script.src = url, script.async = !0, callback = function(event) {
+                removeEventListenerFn(script, "load", callback), removeEventListenerFn(script, "error", callback), 
+                rawDocument.body.removeChild(script), script = null;
+                var status = -1, text = "unknown";
+                event && ("load" !== event.type || callbacks[callbackId].called || (event = {
+                    type: "error"
+                }), text = event.type, status = "error" === event.type ? 404 : 200), done && done(status, text);
+            }, addEventListenerFn(script, "load", callback), addEventListenerFn(script, "error", callback), 
+            rawDocument.body.appendChild(script), callback;
         }
         var ABORTED = -1;
         return function(method, url, post, callback, headers, timeout, withCredentials, responseType) {
             function timeoutRequest() {
                 status = ABORTED, jsonpDone && jsonpDone(), xhr && xhr.abort();
             }
-            function completeRequest(callback, status, response, headersString) {
-                timeoutId && $browserDefer.cancel(timeoutId), jsonpDone = xhr = null, status = 0 === status ? response ? 200 : 404 : status, 
-                status = 1223 == status ? 204 : status, callback(status, response, headersString), 
+            function completeRequest(callback, status, response, headersString, statusText) {
+                timeoutId && $browserDefer.cancel(timeoutId), jsonpDone = xhr = null, 0 === status && (status = response ? 200 : "file" == urlResolve(url).protocol ? 404 : 0), 
+                status = 1223 === status ? 204 : status, statusText = statusText || "", callback(status, response, headersString, statusText), 
                 $browser.$$completeOutstandingRequest(noop);
             }
             var status;
             if ($browser.$$incOutstandingRequestCount(), url = url || $browser.url(), "jsonp" == lowercase(method)) {
                 var callbackId = "_" + (callbacks.counter++).toString(36);
                 callbacks[callbackId] = function(data) {
-                    callbacks[callbackId].data = data;
+                    callbacks[callbackId].data = data, callbacks[callbackId].called = !0;
                 };
-                var jsonpDone = jsonpReq(url.replace("JSON_CALLBACK", "angular.callbacks." + callbackId), function() {
-                    callbacks[callbackId].data ? completeRequest(callback, 200, callbacks[callbackId].data) : completeRequest(callback, status || -2), 
-                    callbacks[callbackId] = angular.noop;
+                var jsonpDone = jsonpReq(url.replace("JSON_CALLBACK", "angular.callbacks." + callbackId), callbackId, function(status, text) {
+                    completeRequest(callback, status, callbacks[callbackId].data, "", text), callbacks[callbackId] = noop;
                 });
             } else {
                 var xhr = createXhr(method);
@@ -11364,7 +11449,7 @@ if (function(e, undefined) {
                     if (xhr && 4 == xhr.readyState) {
                         var responseHeaders = null, response = null;
                         status !== ABORTED && (responseHeaders = xhr.getAllResponseHeaders(), response = "response" in xhr ? xhr.response : xhr.responseText), 
-                        completeRequest(callback, status || xhr.status, response, responseHeaders);
+                        completeRequest(callback, status || xhr.status, response, responseHeaders, xhr.statusText || "");
                     }
                 }, withCredentials && (xhr.withCredentials = !0), responseType) try {
                     xhr.responseType = responseType;
@@ -11925,14 +12010,19 @@ if (function(e, undefined) {
         };
     }
     function $$RAFProvider() {
-        this.$get = [ "$window", function($window) {
-            var requestAnimationFrame = $window.requestAnimationFrame || $window.webkitRequestAnimationFrame, cancelAnimationFrame = $window.cancelAnimationFrame || $window.webkitCancelAnimationFrame, raf = function(fn) {
+        this.$get = [ "$window", "$timeout", function($window, $timeout) {
+            var requestAnimationFrame = $window.requestAnimationFrame || $window.webkitRequestAnimationFrame || $window.mozRequestAnimationFrame, cancelAnimationFrame = $window.cancelAnimationFrame || $window.webkitCancelAnimationFrame || $window.mozCancelAnimationFrame || $window.webkitCancelRequestAnimationFrame, rafSupported = !!requestAnimationFrame, raf = rafSupported ? function(fn) {
                 var id = requestAnimationFrame(fn);
                 return function() {
                     cancelAnimationFrame(id);
                 };
+            } : function(fn) {
+                var timer = $timeout(fn, 16.66, !1);
+                return function() {
+                    $timeout.cancel(timer);
+                };
             };
-            return raf.supported = !!requestAnimationFrame, raf;
+            return raf.supported = rafSupported, raf;
         } ];
     }
     function $RootScopeProvider() {
@@ -12003,8 +12093,10 @@ if (function(e, undefined) {
                             oldValue !== internalArray && (oldValue = internalArray, oldLength = oldValue.length = 0, 
                             changeDetected++), newLength = newValue.length, oldLength !== newLength && (changeDetected++, 
                             oldValue.length = oldLength = newLength);
-                            for (var i = 0; newLength > i; i++) oldValue[i] !== newValue[i] && (changeDetected++, 
-                            oldValue[i] = newValue[i]);
+                            for (var i = 0; newLength > i; i++) {
+                                var bothNaN = oldValue[i] !== oldValue[i] && newValue[i] !== newValue[i];
+                                bothNaN || oldValue[i] === newValue[i] || (changeDetected++, oldValue[i] = newValue[i]);
+                            }
                         } else {
                             oldValue !== internalObject && (oldValue = internalObject = {}, oldLength = 0, changeDetected++), 
                             newLength = 0;
@@ -12019,9 +12111,16 @@ if (function(e, undefined) {
                         return changeDetected;
                     }
                     function $watchCollectionAction() {
-                        listener(newValue, oldValue, self);
+                        if (initRun ? (initRun = !1, listener(newValue, newValue, self)) : listener(newValue, veryOldValue, self), 
+                        trackVeryOldValue) if (isObject(newValue)) if (isArrayLike(newValue)) {
+                            veryOldValue = new Array(newValue.length);
+                            for (var i = 0; i < newValue.length; i++) veryOldValue[i] = newValue[i];
+                        } else {
+                            veryOldValue = {};
+                            for (var key in newValue) hasOwnProperty.call(newValue, key) && (veryOldValue[key] = newValue[key]);
+                        } else veryOldValue = newValue;
                     }
-                    var oldValue, newValue, self = this, changeDetected = 0, objGetter = $parse(obj), internalArray = [], internalObject = {}, oldLength = 0;
+                    var newValue, oldValue, veryOldValue, self = this, trackVeryOldValue = listener.length > 1, changeDetected = 0, objGetter = $parse(obj), internalArray = [], internalObject = {}, initRun = !0, oldLength = 0;
                     return this.$watch($watchCollectionWatch, $watchCollectionAction);
                 },
                 $digest: function() {
@@ -12066,7 +12165,11 @@ if (function(e, undefined) {
                         this.$broadcast("$destroy"), this.$$destroyed = !0, this !== $rootScope && (forEach(this.$$listenerCount, bind(null, decrementListenerCount, this)), 
                         parent.$$childHead == this && (parent.$$childHead = this.$$nextSibling), parent.$$childTail == this && (parent.$$childTail = this.$$prevSibling), 
                         this.$$prevSibling && (this.$$prevSibling.$$nextSibling = this.$$nextSibling), this.$$nextSibling && (this.$$nextSibling.$$prevSibling = this.$$prevSibling), 
-                        this.$parent = this.$$nextSibling = this.$$prevSibling = this.$$childHead = this.$$childTail = null);
+                        this.$parent = this.$$nextSibling = this.$$prevSibling = this.$$childHead = this.$$childTail = this.$root = null, 
+                        this.$$listeners = {}, this.$$watchers = this.$$asyncQueue = this.$$postDigestQueue = [], 
+                        this.$destroy = this.$digest = this.$apply = noop, this.$on = this.$watch = function() {
+                            return noop;
+                        });
                     }
                 },
                 $eval: function(expr, locals) {
@@ -12598,8 +12701,14 @@ if (function(e, undefined) {
             if (!sortPredicate) return array;
             sortPredicate = isArray(sortPredicate) ? sortPredicate : [ sortPredicate ], sortPredicate = map(sortPredicate, function(predicate) {
                 var descending = !1, get = predicate || identity;
-                return isString(predicate) && (("+" == predicate.charAt(0) || "-" == predicate.charAt(0)) && (descending = "-" == predicate.charAt(0), 
-                predicate = predicate.substring(1)), get = $parse(predicate)), reverseComparator(function(a, b) {
+                if (isString(predicate) && (("+" == predicate.charAt(0) || "-" == predicate.charAt(0)) && (descending = "-" == predicate.charAt(0), 
+                predicate = predicate.substring(1)), get = $parse(predicate), get.constant)) {
+                    var key = get();
+                    return reverseComparator(function(a, b) {
+                        return compare(a[key], b[key]);
+                    }, descending);
+                }
+                return reverseComparator(function(a, b) {
                     return compare(get(a), get(b));
                 }, descending);
             });
@@ -12658,7 +12767,7 @@ if (function(e, undefined) {
             var validator = function(value) {
                 return ctrl.$error[validatorName] || !(validity.badInput || validity.customError || validity.typeMismatch) || validity.valueMissing ? value : void ctrl.$setValidity(validatorName, !1);
             };
-            ctrl.$parsers.push(validator), ctrl.$formatters.push(validator);
+            ctrl.$parsers.push(validator);
         }
     }
     function textInputType(scope, element, attr, ctrl, $sniffer, $browser) {
@@ -12671,26 +12780,30 @@ if (function(e, undefined) {
                 composing = !1, listener();
             });
         }
-        var listener = function() {
+        var listener = function(ev) {
             if (!composing) {
-                var value = element.val();
-                toBoolean(attr.ngTrim || "T") && (value = trim(value)), (ctrl.$viewValue !== value || validity && "" === value && !validity.valueMissing) && (scope.$$phase ? ctrl.$setViewValue(value) : scope.$apply(function() {
-                    ctrl.$setViewValue(value);
+                var value = element.val(), event = ev && ev.type;
+                toBoolean(attr.ngTrim || "T") && (value = trim(value)), (ctrl.$viewValue !== value || validity && "" === value && !validity.valueMissing) && (scope.$$phase ? ctrl.$setViewValue(value, event) : scope.$apply(function() {
+                    ctrl.$setViewValue(value, event);
                 }));
             }
         };
-        if ($sniffer.hasEvent("input")) element.on("input", listener); else {
-            var timeout, deferListener = function() {
-                timeout || (timeout = $browser.defer(function() {
-                    listener(), timeout = null;
-                }));
-            };
-            element.on("keydown", function(event) {
-                var key = event.keyCode;
-                91 === key || key > 15 && 19 > key || key >= 37 && 40 >= key || deferListener();
-            }), $sniffer.hasEvent("paste") && element.on("paste cut", deferListener);
+        if (ctrl.$options && ctrl.$options.updateOn && element.on(ctrl.$options.updateOn, listener), 
+        !ctrl.$options || ctrl.$options.updateOnDefault) {
+            if ($sniffer.hasEvent("input")) element.on("input", listener); else {
+                var timeout, deferListener = function(ev) {
+                    timeout || (timeout = $browser.defer(function() {
+                        listener(ev), timeout = null;
+                    }));
+                };
+                element.on("keydown", function(event) {
+                    var key = event.keyCode;
+                    91 === key || key > 15 && 19 > key || key >= 37 && 40 >= key || deferListener(event);
+                }), $sniffer.hasEvent("paste") && element.on("paste cut", deferListener);
+            }
+            element.on("change", listener);
         }
-        element.on("change", listener), ctrl.$render = function() {
+        ctrl.$render = function() {
             element.val(ctrl.$isEmpty(ctrl.$viewValue) ? "" : ctrl.$viewValue);
         };
         var patternValidator, match, pattern = attr.ngPattern;
@@ -12810,23 +12923,30 @@ if (function(e, undefined) {
         ctrl.$formatters.push(emailValidator), ctrl.$parsers.push(emailValidator);
     }
     function radioInputType(scope, element, attr, ctrl) {
-        isUndefined(attr.name) && element.attr("name", nextUid()), element.on("click", function() {
+        isUndefined(attr.name) && element.attr("name", nextUid());
+        var listener = function(ev) {
             element[0].checked && scope.$apply(function() {
-                ctrl.$setViewValue(attr.value);
+                ctrl.$setViewValue(attr.value, ev && ev.type);
             });
-        }), ctrl.$render = function() {
+        };
+        ctrl.$options && ctrl.$options.updateOn && element.on(ctrl.$options.updateOn, listener), 
+        (!ctrl.$options || ctrl.$options.updateOnDefault) && element.on("click", listener), 
+        ctrl.$render = function() {
             var value = attr.value;
             element[0].checked = value == ctrl.$viewValue;
         }, attr.$observe("value", ctrl.$render);
     }
     function checkboxInputType(scope, element, attr, ctrl) {
         var trueValue = attr.ngTrueValue, falseValue = attr.ngFalseValue;
-        isString(trueValue) || (trueValue = !0), isString(falseValue) || (falseValue = !1), 
-        element.on("click", function() {
+        isString(trueValue) || (trueValue = !0), isString(falseValue) || (falseValue = !1);
+        var listener = function(ev) {
             scope.$apply(function() {
-                ctrl.$setViewValue(element[0].checked);
+                ctrl.$setViewValue(element[0].checked, ev && ev.type);
             });
-        }), ctrl.$render = function() {
+        };
+        ctrl.$options && ctrl.$options.updateOn && element.on(ctrl.$options.updateOn, listener), 
+        (!ctrl.$options || ctrl.$options.updateOnDefault) && element.on("click", listener), 
+        ctrl.$render = function() {
             element[0].checked = ctrl.$viewValue;
         }, ctrl.$isEmpty = function(value) {
             return value !== trueValue;
@@ -12837,26 +12957,60 @@ if (function(e, undefined) {
         });
     }
     function classDirective(name, selector) {
-        return name = "ngClass" + name, function() {
+        return name = "ngClass" + name, [ "$animate", function($animate) {
+            function arrayDifference(tokens1, tokens2) {
+                var values = [];
+                outer: for (var i = 0; i < tokens1.length; i++) {
+                    for (var token = tokens1[i], j = 0; j < tokens2.length; j++) if (token == tokens2[j]) continue outer;
+                    values.push(token);
+                }
+                return values;
+            }
+            function arrayClasses(classVal) {
+                if (isArray(classVal)) return classVal;
+                if (isString(classVal)) return classVal.split(" ");
+                if (isObject(classVal)) {
+                    var classes = [];
+                    return forEach(classVal, function(v, k) {
+                        v && classes.push(k);
+                    }), classes;
+                }
+                return classVal;
+            }
             return {
                 restrict: "AC",
                 link: function(scope, element, attr) {
+                    function addClasses(classes) {
+                        var newClasses = digestClassCounts(classes, 1);
+                        attr.$addClass(newClasses);
+                    }
+                    function removeClasses(classes) {
+                        var newClasses = digestClassCounts(classes, -1);
+                        attr.$removeClass(newClasses);
+                    }
+                    function digestClassCounts(classes, count) {
+                        var classCounts = element.data("$classCounts") || {}, classesToUpdate = [];
+                        return forEach(classes, function(className) {
+                            (count > 0 || classCounts[className]) && (classCounts[className] = (classCounts[className] || 0) + count, 
+                            classCounts[className] === +(count > 0) && classesToUpdate.push(className));
+                        }), element.data("$classCounts", classCounts), classesToUpdate.join(" ");
+                    }
+                    function updateClasses(oldClasses, newClasses) {
+                        var toAdd = arrayDifference(newClasses, oldClasses), toRemove = arrayDifference(oldClasses, newClasses);
+                        toRemove = digestClassCounts(toRemove, -1), toAdd = digestClassCounts(toAdd, 1), 
+                        0 === toAdd.length ? $animate.removeClass(element, toRemove) : 0 === toRemove.length ? $animate.addClass(element, toAdd) : $animate.setClass(element, toAdd, toRemove);
+                    }
                     function ngClassWatchAction(newVal) {
                         if (selector === !0 || scope.$index % 2 === selector) {
-                            var newClasses = flattenClasses(newVal || "");
-                            oldVal ? equals(newVal, oldVal) || attr.$updateClass(newClasses, flattenClasses(oldVal)) : attr.$addClass(newClasses);
+                            var newClasses = arrayClasses(newVal || []);
+                            if (oldVal) {
+                                if (!equals(newVal, oldVal)) {
+                                    var oldClasses = arrayClasses(oldVal);
+                                    updateClasses(oldClasses, newClasses);
+                                }
+                            } else addClasses(newClasses);
                         }
                         oldVal = copy(newVal);
-                    }
-                    function flattenClasses(classVal) {
-                        if (isArray(classVal)) return classVal.join(" ");
-                        if (isObject(classVal)) {
-                            var classes = [];
-                            return forEach(classVal, function(v, k) {
-                                v && classes.push(k);
-                            }), classes.join(" ");
-                        }
-                        return classVal;
                     }
                     var oldVal;
                     scope.$watch(attr[name], ngClassWatchAction, !0), attr.$observe("class", function() {
@@ -12864,13 +13018,13 @@ if (function(e, undefined) {
                     }), "ngClass" !== name && scope.$watch("$index", function($index, old$index) {
                         var mod = 1 & $index;
                         if (mod !== old$index & 1) {
-                            var classes = flattenClasses(scope.$eval(attr[name]));
-                            mod === selector ? attr.$addClass(classes) : attr.$removeClass(classes);
+                            var classes = arrayClasses(scope.$eval(attr[name]));
+                            mod === selector ? addClasses(classes) : removeClasses(classes);
                         }
                     });
                 }
             };
-        };
+        } ];
     }
     var lowercase = function(string) {
         return isString(string) ? string.toLowerCase() : string;
@@ -12902,12 +13056,12 @@ if (function(e, undefined) {
     } : function(element) {
         return element.nodeName ? element.nodeName : element[0].nodeName;
     };
-    var SNAKE_CASE_REGEXP = /[A-Z]/g, version = {
-        full: "1.3.0-local+sha.763c327",
+    var ngAttrPrefixes = [ "ng-", "data-ng-", "ng:", "x-ng-" ], SNAKE_CASE_REGEXP = /[A-Z]/g, version = {
+        full: "1.3.0-local+sha.dba0162",
         major: 1,
         minor: 3,
-        dot: undefined,
-        codeName: "undefined"
+        dot: 0,
+        codeName: "snapshot"
     }, jqCache = JQLite.cache = {}, jqName = JQLite.expando = "ng-" + new Date().getTime(), jqId = 1, addEventListenerFn = window.document.addEventListener ? function(element, type, fn) {
         element.addEventListener(type, fn, !1);
     } : function(element, type, fn) {
@@ -12918,7 +13072,17 @@ if (function(e, undefined) {
         element.detachEvent("on" + type, fn);
     }, SPECIAL_CHARS_REGEXP = (JQLite._data = function(node) {
         return this.cache[node[this.expando]] || {};
-    }, /([\:\-\_]+(.))/g), MOZ_HACK_REGEXP = /^moz([A-Z])/, jqLiteMinErr = minErr("jqLite"), JQLitePrototype = JQLite.prototype = {
+    }, /([\:\-\_]+(.))/g), MOZ_HACK_REGEXP = /^moz([A-Z])/, jqLiteMinErr = minErr("jqLite"), SINGLE_TAG_REGEXP = /^<(\w+)\s*\/?>(?:<\/\1>|)$/, HTML_REGEXP = /<|&#?\w+;/, TAG_NAME_REGEXP = /<([\w:]+)/, XHTML_TAG_REGEXP = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi, wrapMap = {
+        option: [ 1, '<select multiple="multiple">', "</select>" ],
+        thead: [ 1, "<table>", "</table>" ],
+        col: [ 2, "<table><colgroup>", "</colgroup></table>" ],
+        tr: [ 2, "<table><tbody>", "</tbody></table>" ],
+        td: [ 3, "<table><tbody><tr>", "</tr></tbody></table>" ],
+        _default: [ 0, "", "" ]
+    };
+    wrapMap.optgroup = wrapMap.option, wrapMap.tbody = wrapMap.tfoot = wrapMap.colgroup = wrapMap.caption = wrapMap.thead, 
+    wrapMap.th = wrapMap.td;
+    var JQLitePrototype = JQLite.prototype = {
         ready: function(fn) {
             function trigger() {
                 fired || (fired = !0, fn());
@@ -13166,7 +13330,9 @@ if (function(e, undefined) {
             return delete this[key], value;
         }
     };
-    var FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m, FN_ARG_SPLIT = /,/, FN_ARG = /^\s*(_?)(\S+?)\1\s*$/, STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm, $injectorMinErr = minErr("$injector"), $animateMinErr = minErr("$animate"), $AnimateProvider = [ "$provide", function($provide) {
+    var FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m, FN_ARG_SPLIT = /,/, FN_ARG = /^\s*(_?)(\S+?)\1\s*$/, STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm, $injectorMinErr = minErr("$injector");
+    createInjector.$$annotate = annotate;
+    var $animateMinErr = minErr("$animate"), $AnimateProvider = [ "$provide", function($provide) {
         this.$$selectors = {}, this.register = function(name, factory) {
             var key = name + "-animation";
             if (name && "." != name.charAt(0)) throw $animateMinErr("notcsel", "Expecting class selector starting with '.' got '{0}'.", name);
@@ -13180,8 +13346,7 @@ if (function(e, undefined) {
             }
             return {
                 enter: function(element, parent, after, done) {
-                    after ? after.after(element) : (parent && parent[0] || (parent = after.parent()), 
-                    parent.append(element)), async(done);
+                    after ? after.after(element) : parent.prepend(element), async(done);
                 },
                 leave: function(element, done) {
                     element.remove(), async(done);
@@ -13489,9 +13654,11 @@ if (function(e, undefined) {
     var Parser = function(lexer, $filter, options) {
         this.lexer = lexer, this.$filter = $filter, this.options = options;
     };
-    Parser.ZERO = function() {
+    Parser.ZERO = extend(function() {
         return 0;
-    }, Parser.prototype = {
+    }, {
+        constant: !0
+    }), Parser.prototype = {
         constructor: Parser,
         parse: function(text, json) {
             this.text = text, this.json = json, this.tokens = this.lexer.lex(text), json && (this.assignment = this.logicalOR, 
@@ -13831,7 +13998,7 @@ if (function(e, undefined) {
             };
             return formDirective;
         } ];
-    }, formDirective = formDirectiveFactory(), ngFormDirective = formDirectiveFactory(!0), URL_REGEXP = /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/, EMAIL_REGEXP = /^[a-z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-z0-9-]+(\.[a-z0-9-]+)*$/i, NUMBER_REGEXP = /^\s*(\-|\+)?(\d+|(\d*(\.\d*)))\s*$/, DATE_REGEXP = /^(\d{4})-(\d{2})-(\d{2})$/, DATETIMELOCAL_REGEXP = /^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d)$/, WEEK_REGEXP = /^(\d{4})-W(\d\d)$/, MONTH_REGEXP = /^(\d{4})-(\d\d)$/, TIME_REGEXP = /^(\d\d):(\d\d)$/, inputType = {
+    }, formDirective = formDirectiveFactory(), ngFormDirective = formDirectiveFactory(!0), URL_REGEXP = /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/, EMAIL_REGEXP = /^[a-z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-z0-9-]+(\.[a-z0-9-]+)*$/i, NUMBER_REGEXP = /^\s*(\-|\+)?(\d+|(\d*(\.\d*)))\s*$/, DATE_REGEXP = /^(\d{4})-(\d{2})-(\d{2})$/, DATETIMELOCAL_REGEXP = /^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d)$/, WEEK_REGEXP = /^(\d{4})-W(\d\d)$/, MONTH_REGEXP = /^(\d{4})-(\d\d)$/, TIME_REGEXP = /^(\d\d):(\d\d)$/, DEFAULT_REGEXP = /(\b|^)default(\b|$)/, inputType = {
         text: textInputType,
         date: createDateInputType("date", DATE_REGEXP, createDateParser(DATE_REGEXP, [ "yyyy", "MM", "dd" ]), "yyyy-MM-dd"),
         "datetime-local": createDateInputType("datetimelocal", DATETIMELOCAL_REGEXP, createDateParser(DATETIMELOCAL_REGEXP, [ "yyyy", "MM", "dd", "HH", "mm" ]), "yyyy-MM-ddTHH:mm"),
@@ -13851,12 +14018,12 @@ if (function(e, undefined) {
     }, inputDirective = [ "$browser", "$sniffer", "$filter", function($browser, $sniffer, $filter) {
         return {
             restrict: "E",
-            require: "?ngModel",
-            link: function(scope, element, attr, ctrl) {
-                ctrl && (inputType[lowercase(attr.type)] || inputType.text)(scope, element, attr, ctrl, $sniffer, $browser, $filter);
+            require: [ "?ngModel" ],
+            link: function(scope, element, attr, ctrls) {
+                ctrls[0] && (inputType[lowercase(attr.type)] || inputType.text)(scope, element, attr, ctrls[0], $sniffer, $browser, $filter);
             }
         };
-    } ], VALID_CLASS = "ng-valid", INVALID_CLASS = "ng-invalid", PRISTINE_CLASS = "ng-pristine", DIRTY_CLASS = "ng-dirty", NgModelController = [ "$scope", "$exceptionHandler", "$attrs", "$element", "$parse", "$animate", function($scope, $exceptionHandler, $attr, $element, $parse, $animate) {
+    } ], VALID_CLASS = "ng-valid", INVALID_CLASS = "ng-invalid", PRISTINE_CLASS = "ng-pristine", DIRTY_CLASS = "ng-dirty", NgModelController = [ "$scope", "$exceptionHandler", "$attrs", "$element", "$parse", "$animate", "$timeout", function($scope, $exceptionHandler, $attr, $element, $parse, $animate, $timeout) {
         function toggleValidCss(isValid, validationErrorKey) {
             validationErrorKey = validationErrorKey ? "-" + snake_case(validationErrorKey, "-") : "", 
             $animate.removeClass($element, (isValid ? INVALID_CLASS : VALID_CLASS) + validationErrorKey), 
@@ -13865,7 +14032,7 @@ if (function(e, undefined) {
         this.$viewValue = Number.NaN, this.$modelValue = Number.NaN, this.$parsers = [], 
         this.$formatters = [], this.$viewChangeListeners = [], this.$pristine = !0, this.$dirty = !1, 
         this.$valid = !0, this.$invalid = !1, this.$name = $attr.name;
-        var ngModelGet = $parse($attr.ngModel), ngModelSet = ngModelGet.assign;
+        var ngModelGet = $parse($attr.ngModel), ngModelSet = ngModelGet.assign, pendingDebounce = null, ctrl = this;
         if (!ngModelSet) throw minErr("ngModel")("nonassign", "Expression '{0}' is non-assignable. Element: {1}", $attr.ngModel, startingTag($element));
         this.$render = noop, this.$isEmpty = function(value) {
             return isUndefined(value) || "" === value || null === value || value !== value;
@@ -13873,28 +14040,33 @@ if (function(e, undefined) {
         var parentForm = $element.inheritedData("$formController") || nullFormCtrl, invalidCount = 0, $error = this.$error = {};
         $element.addClass(PRISTINE_CLASS), toggleValidCss(!0), this.$setValidity = function(validationErrorKey, isValid) {
             $error[validationErrorKey] !== !isValid && (isValid ? ($error[validationErrorKey] && invalidCount--, 
-            invalidCount || (toggleValidCss(!0), this.$valid = !0, this.$invalid = !1)) : (toggleValidCss(!1), 
-            this.$invalid = !0, this.$valid = !1, invalidCount++), $error[validationErrorKey] = !isValid, 
-            toggleValidCss(isValid, validationErrorKey), parentForm.$setValidity(validationErrorKey, isValid, this));
+            invalidCount || (toggleValidCss(!0), ctrl.$valid = !0, ctrl.$invalid = !1)) : (toggleValidCss(!1), 
+            ctrl.$invalid = !0, ctrl.$valid = !1, invalidCount++), $error[validationErrorKey] = !isValid, 
+            toggleValidCss(isValid, validationErrorKey), parentForm.$setValidity(validationErrorKey, isValid, ctrl));
         }, this.$setPristine = function() {
-            this.$dirty = !1, this.$pristine = !0, $animate.removeClass($element, DIRTY_CLASS), 
+            ctrl.$dirty = !1, ctrl.$pristine = !0, $animate.removeClass($element, DIRTY_CLASS), 
             $animate.addClass($element, PRISTINE_CLASS);
-        }, this.$setViewValue = function(value) {
-            this.$viewValue = value, this.$pristine && (this.$dirty = !0, this.$pristine = !1, 
+        }, this.$cancelUpdate = function() {
+            $timeout.cancel(pendingDebounce), ctrl.$render();
+        }, this.$$realSetViewValue = function(value) {
+            ctrl.$viewValue = value, ctrl.$pristine && (ctrl.$dirty = !0, ctrl.$pristine = !1, 
             $animate.removeClass($element, PRISTINE_CLASS), $animate.addClass($element, DIRTY_CLASS), 
-            parentForm.$setDirty()), forEach(this.$parsers, function(fn) {
+            parentForm.$setDirty()), forEach(ctrl.$parsers, function(fn) {
                 value = fn(value);
-            }), this.$modelValue !== value && (this.$modelValue = value, ngModelSet($scope, value), 
-            forEach(this.$viewChangeListeners, function(listener) {
+            }), ctrl.$modelValue !== value && (ctrl.$modelValue = value, ngModelSet($scope, value), 
+            forEach(ctrl.$viewChangeListeners, function(listener) {
                 try {
                     listener();
                 } catch (e) {
                     $exceptionHandler(e);
                 }
             }));
-        };
-        var ctrl = this;
-        $scope.$watch(function() {
+        }, this.$setViewValue = function(value, trigger) {
+            var debounceDelay = ctrl.$options && (isObject(ctrl.$options.debounce) ? ctrl.$options.debounce[trigger] || ctrl.$options.debounce["default"] || 0 : ctrl.$options.debounce) || 0;
+            $timeout.cancel(pendingDebounce), debounceDelay ? pendingDebounce = $timeout(function() {
+                ctrl.$$realSetViewValue(value);
+            }, debounceDelay) : ctrl.$$realSetViewValue(value);
+        }, $scope.$watch(function() {
             var value = ngModelGet($scope);
             if (ctrl.$modelValue !== value) {
                 var formatters = ctrl.$formatters, idx = formatters.length;
@@ -13905,11 +14077,12 @@ if (function(e, undefined) {
         });
     } ], ngModelDirective = function() {
         return {
-            require: [ "ngModel", "^?form" ],
+            require: [ "ngModel", "^?form", "^?ngModelOptions" ],
             controller: NgModelController,
             link: function(scope, element, attr, ctrls) {
                 var modelCtrl = ctrls[0], formCtrl = ctrls[1] || nullFormCtrl;
-                formCtrl.$addControl(modelCtrl), scope.$on("$destroy", function() {
+                formCtrl.$addControl(modelCtrl), ctrls[2] && (modelCtrl.$options = ctrls[2].$options), 
+                scope.$on("$destroy", function() {
                     formCtrl.$removeControl(modelCtrl);
                 });
             }
@@ -13968,6 +14141,16 @@ if (function(e, undefined) {
                     });
                 };
             }
+        };
+    }, ngModelOptionsDirective = function() {
+        return {
+            controller: [ "$scope", "$attrs", function($scope, $attrs) {
+                var that = this;
+                this.$options = $scope.$eval($attrs.ngModelOptions), this.$options.updateOn ? (this.$options.updateOnDefault = !1, 
+                this.$options.updateOn = this.$options.updateOn.replace(DEFAULT_REGEXP, function() {
+                    return that.$options.updateOnDefault = !0, " ";
+                })) : this.$options.updateOnDefault = !0;
+            } ]
         };
     }, ngBindDirective = ngDirective(function(scope, element, attr) {
         element.addClass("ng-binding").data("$binding", attr.ngBind), scope.$watch(attr.ngBind, function(value) {
@@ -14397,7 +14580,7 @@ if (function(e, undefined) {
                             (existingOption = existingOptions[index + 1]) ? (lastElement = existingOption.element, 
                             existingOption.label !== option.label && lastElement.text(existingOption.label = option.label), 
                             existingOption.id !== option.id && lastElement.val(existingOption.id = option.id), 
-                            lastElement[0].selected !== option.selected && lastElement.prop("selected", existingOption.selected = option.selected)) : ("" === option.id && nullOption ? element = nullOption : (element = optionTemplate.clone()).val(option.id).attr("selected", option.selected).text(option.label), 
+                            existingOption.selected !== option.selected && lastElement.prop("selected", existingOption.selected = option.selected)) : ("" === option.id && nullOption ? element = nullOption : (element = optionTemplate.clone()).val(option.id).attr("selected", option.selected).text(option.label), 
                             existingOptions.push(existingOption = {
                                 element: element,
                                 label: option.label,
@@ -14426,14 +14609,17 @@ if (function(e, undefined) {
                                     trackFn(scope, locals) != key); trackIndex++) ; else locals[valueName] = collection[key];
                                     value.push(valueFn(scope, locals));
                                 }
-                            } else if (key = selectElement.val(), "?" == key) value = undefined; else if ("" === key) value = null; else if (trackFn) {
-                                for (trackIndex = 0; trackIndex < collection.length; trackIndex++) if (locals[valueName] = collection[trackIndex], 
-                                trackFn(scope, locals) == key) {
-                                    value = valueFn(scope, locals);
-                                    break;
-                                }
-                            } else locals[valueName] = collection[key], keyName && (locals[keyName] = key), 
-                            value = valueFn(scope, locals);
+                            } else {
+                                if (key = selectElement.val(), "?" == key) value = undefined; else if ("" === key) value = null; else if (trackFn) {
+                                    for (trackIndex = 0; trackIndex < collection.length; trackIndex++) if (locals[valueName] = collection[trackIndex], 
+                                    trackFn(scope, locals) == key) {
+                                        value = valueFn(scope, locals);
+                                        break;
+                                    }
+                                } else locals[valueName] = collection[key], keyName && (locals[keyName] = key), 
+                                value = valueFn(scope, locals);
+                                optionGroupsCache[0].length > 1 && optionGroupsCache[0][1].id !== key && (optionGroupsCache[0][1].selected = !1);
+                            }
                             ctrl.$setViewValue(value);
                         });
                     }), ctrl.$render = render, scope.$watch(render);
@@ -14478,134 +14664,536 @@ if (function(e, undefined) {
         restrict: "E",
         terminal: !1
     });
-    bindJQuery(), publishExternalAPI(angular), jqLite(document).ready(function() {
+    return window.angular.bootstrap ? void console.log("WARNING: Tried to load angular more than once.") : (bindJQuery(), 
+    publishExternalAPI(angular), void jqLite(document).ready(function() {
         angularInit(document, bootstrap);
-    });
-}(window, document), !angular.$$csp() && angular.element(document).find("head").prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}.ng-animate-block-transitions{transition:0s all!important;-webkit-transition:0s all!important;}</style>'), 
-function(window, angular) {
+    }));
+}(window, document), !angular.$$csp() && angular.element(document).find("head").prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}</style>'), 
+function(window, angular, undefined) {
     "use strict";
-    function makeSwipeDirective(directiveName, direction, eventName) {
-        ngTouch.directive(directiveName, [ "$parse", "$swipe", function($parse, $swipe) {
-            var MAX_VERTICAL_DISTANCE = 75, MAX_VERTICAL_RATIO = .3, MIN_HORIZONTAL_DISTANCE = 30;
-            return function(scope, element, attr) {
-                function validSwipe(coords) {
-                    if (!startCoords) return !1;
-                    var deltaY = Math.abs(coords.y - startCoords.y), deltaX = (coords.x - startCoords.x) * direction;
-                    return valid && MAX_VERTICAL_DISTANCE > deltaY && deltaX > 0 && deltaX > MIN_HORIZONTAL_DISTANCE && MAX_VERTICAL_RATIO > deltaY / deltaX;
-                }
-                var startCoords, valid, swipeHandler = $parse(attr[directiveName]);
-                $swipe.bind(element, {
-                    start: function(coords) {
-                        startCoords = coords, valid = !0;
-                    },
-                    cancel: function() {
-                        valid = !1;
-                    },
-                    end: function(coords, event) {
-                        validSwipe(coords) && scope.$apply(function() {
-                            element.triggerHandler(eventName), swipeHandler(scope, {
-                                $event: event
-                            });
-                        });
-                    }
-                });
-            };
-        } ]);
-    }
-    var ngTouch = angular.module("ngTouch", []);
-    ngTouch.factory("$swipe", [ function() {
-        function getCoordinates(event) {
-            var touches = event.touches && event.touches.length ? event.touches : [ event ], e = event.changedTouches && event.changedTouches[0] || event.originalEvent && event.originalEvent.changedTouches && event.originalEvent.changedTouches[0] || touches[0].originalEvent || touches[0];
-            return {
-                x: e.clientX,
-                y: e.clientY
-            };
-        }
-        var MOVE_BUFFER_RADIUS = 10;
-        return {
-            bind: function(element, eventHandlers) {
-                var totalX, totalY, startCoords, lastPos, active = !1;
-                element.on("touchstart mousedown", function(event) {
-                    startCoords = getCoordinates(event), active = !0, totalX = 0, totalY = 0, lastPos = startCoords, 
-                    eventHandlers.start && eventHandlers.start(startCoords, event);
-                }), element.on("touchcancel", function(event) {
-                    active = !1, eventHandlers.cancel && eventHandlers.cancel(event);
-                }), element.on("touchmove mousemove", function(event) {
-                    if (active && startCoords) {
-                        var coords = getCoordinates(event);
-                        if (totalX += Math.abs(coords.x - lastPos.x), totalY += Math.abs(coords.y - lastPos.y), 
-                        lastPos = coords, !(MOVE_BUFFER_RADIUS > totalX && MOVE_BUFFER_RADIUS > totalY)) return totalY > totalX ? (active = !1, 
-                        void (eventHandlers.cancel && eventHandlers.cancel(event))) : (event.preventDefault(), 
-                        void (eventHandlers.move && eventHandlers.move(coords, event)));
-                    }
-                }), element.on("touchend mouseup", function(event) {
-                    active && (active = !1, eventHandlers.end && eventHandlers.end(getCoordinates(event), event));
-                });
-            }
-        };
-    } ]), ngTouch.config([ "$provide", function($provide) {
-        $provide.decorator("ngClickDirective", [ "$delegate", function($delegate) {
-            return $delegate.shift(), $delegate;
-        } ]);
-    } ]), ngTouch.directive("ngClick", [ "$parse", "$timeout", "$rootElement", function($parse, $timeout, $rootElement) {
-        function hit(x1, y1, x2, y2) {
-            return Math.abs(x1 - x2) < CLICKBUSTER_THRESHOLD && Math.abs(y1 - y2) < CLICKBUSTER_THRESHOLD;
-        }
-        function checkAllowableRegions(touchCoordinates, x, y) {
-            for (var i = 0; i < touchCoordinates.length; i += 2) if (hit(touchCoordinates[i], touchCoordinates[i + 1], x, y)) return touchCoordinates.splice(i, i + 2), 
-            !0;
-            return !1;
-        }
-        function onClick(event) {
-            if (!(Date.now() - lastPreventedTime > PREVENT_DURATION)) {
-                var touches = event.touches && event.touches.length ? event.touches : [ event ], x = touches[0].clientX, y = touches[0].clientY;
-                1 > x && 1 > y || checkAllowableRegions(touchCoordinates, x, y) || (event.stopPropagation(), 
-                event.preventDefault(), event.target && event.target.blur());
-            }
-        }
-        function onTouchStart(event) {
-            var touches = event.touches && event.touches.length ? event.touches : [ event ], x = touches[0].clientX, y = touches[0].clientY;
-            touchCoordinates.push(x, y), $timeout(function() {
-                for (var i = 0; i < touchCoordinates.length; i += 2) if (touchCoordinates[i] == x && touchCoordinates[i + 1] == y) return void touchCoordinates.splice(i, i + 2);
-            }, PREVENT_DURATION, !1);
-        }
-        function preventGhostClick(x, y) {
-            touchCoordinates || ($rootElement[0].addEventListener("click", onClick, !0), $rootElement[0].addEventListener("touchstart", onTouchStart, !0), 
-            touchCoordinates = []), lastPreventedTime = Date.now(), checkAllowableRegions(touchCoordinates, x, y);
-        }
-        var lastPreventedTime, touchCoordinates, TAP_DURATION = 750, MOVE_TOLERANCE = 12, PREVENT_DURATION = 2500, CLICKBUSTER_THRESHOLD = 25, ACTIVE_CLASS_NAME = "ng-click-active";
-        return function(scope, element, attr) {
-            function resetState() {
-                tapping = !1, element.removeClass(ACTIVE_CLASS_NAME);
-            }
-            var tapElement, startTime, touchStartX, touchStartY, clickHandler = $parse(attr.ngClick), tapping = !1;
-            element.on("touchstart", function(event) {
-                tapping = !0, tapElement = event.target ? event.target : event.srcElement, 3 == tapElement.nodeType && (tapElement = tapElement.parentNode), 
-                element.addClass(ACTIVE_CLASS_NAME), startTime = Date.now();
-                var touches = event.touches && event.touches.length ? event.touches : [ event ], e = touches[0].originalEvent || touches[0];
-                touchStartX = e.clientX, touchStartY = e.clientY;
-            }), element.on("touchmove", function() {
-                resetState();
-            }), element.on("touchcancel", function() {
-                resetState();
-            }), element.on("touchend", function(event) {
-                var diff = Date.now() - startTime, touches = event.changedTouches && event.changedTouches.length ? event.changedTouches : event.touches && event.touches.length ? event.touches : [ event ], e = touches[0].originalEvent || touches[0], x = e.clientX, y = e.clientY, dist = Math.sqrt(Math.pow(x - touchStartX, 2) + Math.pow(y - touchStartY, 2));
-                tapping && TAP_DURATION > diff && MOVE_TOLERANCE > dist && (preventGhostClick(x, y), 
-                tapElement && tapElement.blur(), angular.isDefined(attr.disabled) && attr.disabled !== !1 || element.triggerHandler("click", [ event ])), 
-                resetState();
-            }), element.onclick = function() {}, element.on("click", function(event, touchend) {
-                scope.$apply(function() {
-                    clickHandler(scope, {
-                        $event: touchend || event
-                    });
-                });
-            }), element.on("mousedown", function() {
-                element.addClass(ACTIVE_CLASS_NAME);
-            }), element.on("mousemove mouseup", function() {
-                element.removeClass(ACTIVE_CLASS_NAME);
+    angular.module("ngAnimate", [ "ng" ]).factory("$$animateReflow", [ "$$rAF", "$document", function($$rAF, $document) {
+        var bod = $document[0].body;
+        return function(fn) {
+            return $$rAF(function() {
+                bod.offsetWidth + 1;
+                fn();
             });
         };
-    } ]), makeSwipeDirective("ngSwipeLeft", -1, "swipeleft"), makeSwipeDirective("ngSwipeRight", 1, "swiperight");
+    } ]).config([ "$provide", "$animateProvider", function($provide, $animateProvider) {
+        function extractElementNode(element) {
+            for (var i = 0; i < element.length; i++) {
+                var elm = element[i];
+                if (elm.nodeType == ELEMENT_NODE) return elm;
+            }
+        }
+        function stripCommentsFromElement(element) {
+            return angular.element(extractElementNode(element));
+        }
+        function isMatchingElement(elm1, elm2) {
+            return extractElementNode(elm1) == extractElementNode(elm2);
+        }
+        var noop = angular.noop, forEach = angular.forEach, selectors = $animateProvider.$$selectors, ELEMENT_NODE = 1, NG_ANIMATE_STATE = "$$ngAnimateState", NG_ANIMATE_CLASS_NAME = "ng-animate", rootAnimateState = {
+            running: !0
+        };
+        $provide.decorator("$animate", [ "$delegate", "$injector", "$sniffer", "$rootElement", "$$asyncCallback", "$rootScope", "$document", function($delegate, $injector, $sniffer, $rootElement, $$asyncCallback, $rootScope) {
+            function lookup(name) {
+                if (name) {
+                    var matches = [], flagMap = {}, classes = name.substr(1).split(".");
+                    ($sniffer.transitions || $sniffer.animations) && matches.push($injector.get(selectors[""]));
+                    for (var i = 0; i < classes.length; i++) {
+                        var klass = classes[i], selectorFactoryName = selectors[klass];
+                        selectorFactoryName && !flagMap[klass] && (matches.push($injector.get(selectorFactoryName)), 
+                        flagMap[klass] = !0);
+                    }
+                    return matches;
+                }
+            }
+            function animationRunner(element, animationEvent, className) {
+                function registerAnimation(animationFactory, event) {
+                    var afterFn = animationFactory[event], beforeFn = animationFactory["before" + event.charAt(0).toUpperCase() + event.substr(1)];
+                    return afterFn || beforeFn ? ("leave" == event && (beforeFn = afterFn, afterFn = null), 
+                    after.push({
+                        event: event,
+                        fn: afterFn
+                    }), before.push({
+                        event: event,
+                        fn: beforeFn
+                    }), !0) : void 0;
+                }
+                function run(fns, cancellations, allCompleteFn) {
+                    function afterAnimationComplete(index) {
+                        if (cancellations) {
+                            if ((cancellations[index] || noop)(), ++count < animations.length) return;
+                            cancellations = null;
+                        }
+                        allCompleteFn();
+                    }
+                    var animations = [];
+                    forEach(fns, function(animation) {
+                        animation.fn && animations.push(animation);
+                    });
+                    var count = 0;
+                    forEach(animations, function(animation, index) {
+                        var progress = function() {
+                            afterAnimationComplete(index);
+                        };
+                        switch (animation.event) {
+                          case "setClass":
+                            cancellations.push(animation.fn(element, classNameAdd, classNameRemove, progress));
+                            break;
+
+                          case "addClass":
+                            cancellations.push(animation.fn(element, classNameAdd || className, progress));
+                            break;
+
+                          case "removeClass":
+                            cancellations.push(animation.fn(element, classNameRemove || className, progress));
+                            break;
+
+                          default:
+                            cancellations.push(animation.fn(element, progress));
+                        }
+                    }), cancellations && 0 === cancellations.length && allCompleteFn();
+                }
+                var node = element[0];
+                if (node) {
+                    var classNameAdd, classNameRemove, isSetClassOperation = "setClass" == animationEvent, isClassBased = isSetClassOperation || "addClass" == animationEvent || "removeClass" == animationEvent;
+                    angular.isArray(className) && (classNameAdd = className[0], classNameRemove = className[1], 
+                    className = classNameAdd + " " + classNameRemove);
+                    var currentClassName = element.attr("class"), classes = currentClassName + " " + className;
+                    if (isAnimatableClassName(classes)) {
+                        var beforeComplete = noop, beforeCancel = [], before = [], afterComplete = noop, afterCancel = [], after = [], animationLookup = (" " + classes).replace(/\s+/g, ".");
+                        return forEach(lookup(animationLookup), function(animationFactory) {
+                            var created = registerAnimation(animationFactory, animationEvent);
+                            !created && isSetClassOperation && (registerAnimation(animationFactory, "addClass"), 
+                            registerAnimation(animationFactory, "removeClass"));
+                        }), {
+                            node: node,
+                            event: animationEvent,
+                            className: className,
+                            isClassBased: isClassBased,
+                            isSetClassOperation: isSetClassOperation,
+                            before: function(allCompleteFn) {
+                                beforeComplete = allCompleteFn, run(before, beforeCancel, function() {
+                                    beforeComplete = noop, allCompleteFn();
+                                });
+                            },
+                            after: function(allCompleteFn) {
+                                afterComplete = allCompleteFn, run(after, afterCancel, function() {
+                                    afterComplete = noop, allCompleteFn();
+                                });
+                            },
+                            cancel: function() {
+                                beforeCancel && (forEach(beforeCancel, function(cancelFn) {
+                                    (cancelFn || noop)(!0);
+                                }), beforeComplete(!0)), afterCancel && (forEach(afterCancel, function(cancelFn) {
+                                    (cancelFn || noop)(!0);
+                                }), afterComplete(!0));
+                            }
+                        };
+                    }
+                }
+            }
+            function performAnimation(animationEvent, className, element, parentElement, afterElement, domOperation, doneCallback) {
+                function fireDOMCallback(animationPhase) {
+                    var eventName = "$animate:" + animationPhase;
+                    elementEvents && elementEvents[eventName] && elementEvents[eventName].length > 0 && $$asyncCallback(function() {
+                        element.triggerHandler(eventName, {
+                            event: animationEvent,
+                            className: className
+                        });
+                    });
+                }
+                function fireBeforeCallbackAsync() {
+                    fireDOMCallback("before");
+                }
+                function fireAfterCallbackAsync() {
+                    fireDOMCallback("after");
+                }
+                function fireDoneCallbackAsync() {
+                    fireDOMCallback("close"), doneCallback && $$asyncCallback(function() {
+                        doneCallback();
+                    });
+                }
+                function fireDOMOperation() {
+                    fireDOMOperation.hasBeenRun || (fireDOMOperation.hasBeenRun = !0, domOperation());
+                }
+                function closeAnimation() {
+                    if (!closeAnimation.hasBeenRun) {
+                        closeAnimation.hasBeenRun = !0;
+                        var data = element.data(NG_ANIMATE_STATE);
+                        data && (runner && runner.isClassBased ? cleanup(element, className) : ($$asyncCallback(function() {
+                            var data = element.data(NG_ANIMATE_STATE) || {};
+                            localAnimationCount == data.index && cleanup(element, className, animationEvent);
+                        }), element.data(NG_ANIMATE_STATE, data))), fireDoneCallbackAsync();
+                    }
+                }
+                var runner = animationRunner(element, animationEvent, className);
+                if (!runner) return fireDOMOperation(), fireBeforeCallbackAsync(), fireAfterCallbackAsync(), 
+                void closeAnimation();
+                className = runner.className;
+                var elementEvents = angular.element._data(runner.node);
+                elementEvents = elementEvents && elementEvents.events, parentElement || (parentElement = afterElement ? afterElement.parent() : element.parent());
+                var ngAnimateState = element.data(NG_ANIMATE_STATE) || {}, runningAnimations = ngAnimateState.active || {}, totalActiveAnimations = ngAnimateState.totalActive || 0, lastAnimation = ngAnimateState.last, skipAnimations = runner.isClassBased ? ngAnimateState.disabled || lastAnimation && !lastAnimation.isClassBased : !1;
+                if (skipAnimations || animationsDisabled(element, parentElement)) return fireDOMOperation(), 
+                fireBeforeCallbackAsync(), fireAfterCallbackAsync(), void closeAnimation();
+                var skipAnimation = !1;
+                if (totalActiveAnimations > 0) {
+                    var animationsToCancel = [];
+                    if (runner.isClassBased) {
+                        if ("setClass" == lastAnimation.event) animationsToCancel.push(lastAnimation), cleanup(element, className); else if (runningAnimations[className]) {
+                            var current = runningAnimations[className];
+                            current.event == animationEvent ? skipAnimation = !0 : (animationsToCancel.push(current), 
+                            cleanup(element, className));
+                        }
+                    } else if ("leave" == animationEvent && runningAnimations["ng-leave"]) skipAnimation = !0; else {
+                        for (var klass in runningAnimations) animationsToCancel.push(runningAnimations[klass]), 
+                        cleanup(element, klass);
+                        runningAnimations = {}, totalActiveAnimations = 0;
+                    }
+                    animationsToCancel.length > 0 && forEach(animationsToCancel, function(operation) {
+                        operation.cancel();
+                    });
+                }
+                if (!runner.isClassBased || runner.isSetClassOperation || skipAnimation || (skipAnimation = "addClass" == animationEvent == element.hasClass(className)), 
+                skipAnimation) return fireDOMOperation(), fireBeforeCallbackAsync(), fireAfterCallbackAsync(), 
+                void fireDoneCallbackAsync();
+                "leave" == animationEvent && element.one("$destroy", function() {
+                    var element = angular.element(this), state = element.data(NG_ANIMATE_STATE);
+                    if (state) {
+                        var activeLeaveAnimation = state.active["ng-leave"];
+                        activeLeaveAnimation && (activeLeaveAnimation.cancel(), cleanup(element, "ng-leave"));
+                    }
+                }), element.addClass(NG_ANIMATE_CLASS_NAME);
+                var localAnimationCount = globalAnimationCounter++;
+                totalActiveAnimations++, runningAnimations[className] = runner, element.data(NG_ANIMATE_STATE, {
+                    last: runner,
+                    active: runningAnimations,
+                    index: localAnimationCount,
+                    totalActive: totalActiveAnimations
+                }), fireBeforeCallbackAsync(), runner.before(function(cancelled) {
+                    var data = element.data(NG_ANIMATE_STATE);
+                    cancelled = cancelled || !data || !data.active[className] || runner.isClassBased && data.active[className].event != animationEvent, 
+                    fireDOMOperation(), cancelled === !0 ? closeAnimation() : (fireAfterCallbackAsync(), 
+                    runner.after(closeAnimation));
+                });
+            }
+            function cancelChildAnimations(element) {
+                var node = extractElementNode(element);
+                if (node) {
+                    var nodes = angular.isFunction(node.getElementsByClassName) ? node.getElementsByClassName(NG_ANIMATE_CLASS_NAME) : node.querySelectorAll("." + NG_ANIMATE_CLASS_NAME);
+                    forEach(nodes, function(element) {
+                        element = angular.element(element);
+                        var data = element.data(NG_ANIMATE_STATE);
+                        data && data.active && forEach(data.active, function(runner) {
+                            runner.cancel();
+                        });
+                    });
+                }
+            }
+            function cleanup(element, className) {
+                if (isMatchingElement(element, $rootElement)) rootAnimateState.disabled || (rootAnimateState.running = !1, 
+                rootAnimateState.structural = !1); else if (className) {
+                    var data = element.data(NG_ANIMATE_STATE) || {}, removeAnimations = className === !0;
+                    !removeAnimations && data.active && data.active[className] && (data.totalActive--, 
+                    delete data.active[className]), (removeAnimations || !data.totalActive) && (element.removeClass(NG_ANIMATE_CLASS_NAME), 
+                    element.removeData(NG_ANIMATE_STATE));
+                }
+            }
+            function animationsDisabled(element, parentElement) {
+                if (rootAnimateState.disabled) return !0;
+                if (isMatchingElement(element, $rootElement)) return rootAnimateState.disabled || rootAnimateState.running;
+                do {
+                    if (0 === parentElement.length) break;
+                    var isRoot = isMatchingElement(parentElement, $rootElement), state = isRoot ? rootAnimateState : parentElement.data(NG_ANIMATE_STATE) || {}, result = state.disabled || state.running ? !0 : state.last && !state.last.isClassBased;
+                    if (isRoot || result) return result;
+                    if (isRoot) return !0;
+                } while (parentElement = parentElement.parent());
+                return !0;
+            }
+            var globalAnimationCounter = 0;
+            $rootElement.data(NG_ANIMATE_STATE, rootAnimateState), $rootScope.$$postDigest(function() {
+                $rootScope.$$postDigest(function() {
+                    rootAnimateState.running = !1;
+                });
+            });
+            var classNameFilter = $animateProvider.classNameFilter(), isAnimatableClassName = classNameFilter ? function(className) {
+                return classNameFilter.test(className);
+            } : function() {
+                return !0;
+            };
+            return {
+                enter: function(element, parentElement, afterElement, doneCallback) {
+                    this.enabled(!1, element), $delegate.enter(element, parentElement, afterElement), 
+                    $rootScope.$$postDigest(function() {
+                        element = stripCommentsFromElement(element), performAnimation("enter", "ng-enter", element, parentElement, afterElement, noop, doneCallback);
+                    });
+                },
+                leave: function(element, doneCallback) {
+                    cancelChildAnimations(element), this.enabled(!1, element), $rootScope.$$postDigest(function() {
+                        performAnimation("leave", "ng-leave", stripCommentsFromElement(element), null, null, function() {
+                            $delegate.leave(element);
+                        }, doneCallback);
+                    });
+                },
+                move: function(element, parentElement, afterElement, doneCallback) {
+                    cancelChildAnimations(element), this.enabled(!1, element), $delegate.move(element, parentElement, afterElement), 
+                    $rootScope.$$postDigest(function() {
+                        element = stripCommentsFromElement(element), performAnimation("move", "ng-move", element, parentElement, afterElement, noop, doneCallback);
+                    });
+                },
+                addClass: function(element, className, doneCallback) {
+                    element = stripCommentsFromElement(element), performAnimation("addClass", className, element, null, null, function() {
+                        $delegate.addClass(element, className);
+                    }, doneCallback);
+                },
+                removeClass: function(element, className, doneCallback) {
+                    element = stripCommentsFromElement(element), performAnimation("removeClass", className, element, null, null, function() {
+                        $delegate.removeClass(element, className);
+                    }, doneCallback);
+                },
+                setClass: function(element, add, remove, doneCallback) {
+                    element = stripCommentsFromElement(element), performAnimation("setClass", [ add, remove ], element, null, null, function() {
+                        $delegate.setClass(element, add, remove);
+                    }, doneCallback);
+                },
+                enabled: function(value, element) {
+                    switch (arguments.length) {
+                      case 2:
+                        if (value) cleanup(element); else {
+                            var data = element.data(NG_ANIMATE_STATE) || {};
+                            data.disabled = !0, element.data(NG_ANIMATE_STATE, data);
+                        }
+                        break;
+
+                      case 1:
+                        rootAnimateState.disabled = !value;
+                        break;
+
+                      default:
+                        value = !rootAnimateState.disabled;
+                    }
+                    return !!value;
+                }
+            };
+        } ]), $animateProvider.register("", [ "$window", "$sniffer", "$timeout", "$$animateReflow", function($window, $sniffer, $timeout, $$animateReflow) {
+            function afterReflow(element, callback) {
+                cancelAnimationReflow && cancelAnimationReflow(), animationReflowQueue.push(callback), 
+                cancelAnimationReflow = $$animateReflow(function() {
+                    forEach(animationReflowQueue, function(fn) {
+                        fn();
+                    }), animationReflowQueue = [], cancelAnimationReflow = null, lookupCache = {};
+                });
+            }
+            function animationCloseHandler(element, totalTime) {
+                var node = extractElementNode(element);
+                element = angular.element(node), animationElementQueue.push(element);
+                var futureTimestamp = Date.now() + totalTime;
+                closingTimestamp >= futureTimestamp || ($timeout.cancel(closingTimer), closingTimestamp = futureTimestamp, 
+                closingTimer = $timeout(function() {
+                    closeAllAnimations(animationElementQueue), animationElementQueue = [];
+                }, totalTime, !1));
+            }
+            function closeAllAnimations(elements) {
+                forEach(elements, function(element) {
+                    var elementData = element.data(NG_ANIMATE_CSS_DATA_KEY);
+                    elementData && (elementData.closeAnimationFn || noop)();
+                });
+            }
+            function getElementAnimationDetails(element, cacheKey) {
+                var data = cacheKey ? lookupCache[cacheKey] : null;
+                if (!data) {
+                    var transitionDelayStyle, animationDelayStyle, transitionDurationStyle, transitionPropertyStyle, transitionDuration = 0, transitionDelay = 0, animationDuration = 0, animationDelay = 0;
+                    forEach(element, function(element) {
+                        if (element.nodeType == ELEMENT_NODE) {
+                            var elementStyles = $window.getComputedStyle(element) || {};
+                            transitionDurationStyle = elementStyles[TRANSITION_PROP + DURATION_KEY], transitionDuration = Math.max(parseMaxTime(transitionDurationStyle), transitionDuration), 
+                            transitionPropertyStyle = elementStyles[TRANSITION_PROP + PROPERTY_KEY], transitionDelayStyle = elementStyles[TRANSITION_PROP + DELAY_KEY], 
+                            transitionDelay = Math.max(parseMaxTime(transitionDelayStyle), transitionDelay), 
+                            animationDelayStyle = elementStyles[ANIMATION_PROP + DELAY_KEY], animationDelay = Math.max(parseMaxTime(animationDelayStyle), animationDelay);
+                            var aDuration = parseMaxTime(elementStyles[ANIMATION_PROP + DURATION_KEY]);
+                            aDuration > 0 && (aDuration *= parseInt(elementStyles[ANIMATION_PROP + ANIMATION_ITERATION_COUNT_KEY], 10) || 1), 
+                            animationDuration = Math.max(aDuration, animationDuration);
+                        }
+                    }), data = {
+                        total: 0,
+                        transitionPropertyStyle: transitionPropertyStyle,
+                        transitionDurationStyle: transitionDurationStyle,
+                        transitionDelayStyle: transitionDelayStyle,
+                        transitionDelay: transitionDelay,
+                        transitionDuration: transitionDuration,
+                        animationDelayStyle: animationDelayStyle,
+                        animationDelay: animationDelay,
+                        animationDuration: animationDuration
+                    }, cacheKey && (lookupCache[cacheKey] = data);
+                }
+                return data;
+            }
+            function parseMaxTime(str) {
+                var maxValue = 0, values = angular.isString(str) ? str.split(/\s*,\s*/) : [];
+                return forEach(values, function(value) {
+                    maxValue = Math.max(parseFloat(value) || 0, maxValue);
+                }), maxValue;
+            }
+            function getCacheKey(element) {
+                var parentElement = element.parent(), parentID = parentElement.data(NG_ANIMATE_PARENT_KEY);
+                return parentID || (parentElement.data(NG_ANIMATE_PARENT_KEY, ++parentCounter), 
+                parentID = parentCounter), parentID + "-" + extractElementNode(element).getAttribute("class");
+            }
+            function animateSetup(animationEvent, element, className) {
+                var structural = [ "ng-enter", "ng-leave", "ng-move" ].indexOf(className) >= 0, cacheKey = getCacheKey(element), eventCacheKey = cacheKey + " " + className, itemIndex = lookupCache[eventCacheKey] ? ++lookupCache[eventCacheKey].total : 0, stagger = {};
+                if (itemIndex > 0) {
+                    var staggerClassName = className + "-stagger", staggerCacheKey = cacheKey + " " + staggerClassName, applyClasses = !lookupCache[staggerCacheKey];
+                    applyClasses && element.addClass(staggerClassName), stagger = getElementAnimationDetails(element, staggerCacheKey), 
+                    applyClasses && element.removeClass(staggerClassName);
+                }
+                element.addClass(className);
+                var formerData = element.data(NG_ANIMATE_CSS_DATA_KEY) || {}, timings = getElementAnimationDetails(element, eventCacheKey), transitionDuration = timings.transitionDuration, animationDuration = timings.animationDuration;
+                if (structural && 0 === transitionDuration && 0 === animationDuration) return element.removeClass(className), 
+                !1;
+                var blockTransition = structural && transitionDuration > 0, blockAnimation = animationDuration > 0 && stagger.animationDelay > 0 && 0 === stagger.animationDuration;
+                element.data(NG_ANIMATE_CSS_DATA_KEY, {
+                    stagger: stagger,
+                    cacheKey: eventCacheKey,
+                    running: formerData.running || 0,
+                    itemIndex: itemIndex,
+                    blockTransition: blockTransition,
+                    blockAnimation: blockAnimation,
+                    closeAnimationFn: noop
+                });
+                var node = extractElementNode(element);
+                return blockTransition && (node.style[TRANSITION_PROP + PROPERTY_KEY] = "none"), 
+                blockAnimation && (node.style[ANIMATION_PROP] = "none 0s"), !0;
+            }
+            function animateRun(animationEvent, element, className, activeAnimationComplete) {
+                function onEnd() {
+                    element.off(css3AnimationEvents, onAnimationProgress), element.removeClass(activeClassName), 
+                    animateClose(element, className);
+                    var node = extractElementNode(element);
+                    for (var i in appliedStyles) node.style.removeProperty(appliedStyles[i]);
+                }
+                function onAnimationProgress(event) {
+                    event.stopPropagation();
+                    var ev = event.originalEvent || event, timeStamp = ev.$manualTimeStamp || ev.timeStamp || Date.now(), elapsedTime = parseFloat(ev.elapsedTime.toFixed(ELAPSED_TIME_MAX_DECIMAL_PLACES));
+                    Math.max(timeStamp - startTime, 0) >= maxDelayTime && elapsedTime >= maxDuration && activeAnimationComplete();
+                }
+                var node = extractElementNode(element), elementData = element.data(NG_ANIMATE_CSS_DATA_KEY);
+                if (-1 == node.getAttribute("class").indexOf(className) || !elementData) return void activeAnimationComplete();
+                elementData.blockTransition && (node.style[TRANSITION_PROP + PROPERTY_KEY] = ""), 
+                elementData.blockAnimation && (node.style[ANIMATION_PROP] = "");
+                var activeClassName = "";
+                forEach(className.split(" "), function(klass, i) {
+                    activeClassName += (i > 0 ? " " : "") + klass + "-active";
+                }), element.addClass(activeClassName);
+                var eventCacheKey = elementData.eventCacheKey + " " + activeClassName, timings = getElementAnimationDetails(element, eventCacheKey), maxDuration = Math.max(timings.transitionDuration, timings.animationDuration);
+                if (0 === maxDuration) return element.removeClass(activeClassName), animateClose(element, className), 
+                void activeAnimationComplete();
+                var maxDelay = Math.max(timings.transitionDelay, timings.animationDelay), stagger = elementData.stagger, itemIndex = elementData.itemIndex, maxDelayTime = maxDelay * ONE_SECOND, style = "", appliedStyles = [];
+                if (timings.transitionDuration > 0) {
+                    var propertyStyle = timings.transitionPropertyStyle;
+                    -1 == propertyStyle.indexOf("all") && (style += CSS_PREFIX + "transition-property: " + propertyStyle + ";", 
+                    style += CSS_PREFIX + "transition-duration: " + timings.transitionDurationStyle + ";", 
+                    appliedStyles.push(CSS_PREFIX + "transition-property"), appliedStyles.push(CSS_PREFIX + "transition-duration"));
+                }
+                if (itemIndex > 0) {
+                    if (stagger.transitionDelay > 0 && 0 === stagger.transitionDuration) {
+                        var delayStyle = timings.transitionDelayStyle;
+                        style += CSS_PREFIX + "transition-delay: " + prepareStaggerDelay(delayStyle, stagger.transitionDelay, itemIndex) + "; ", 
+                        appliedStyles.push(CSS_PREFIX + "transition-delay");
+                    }
+                    stagger.animationDelay > 0 && 0 === stagger.animationDuration && (style += CSS_PREFIX + "animation-delay: " + prepareStaggerDelay(timings.animationDelayStyle, stagger.animationDelay, itemIndex) + "; ", 
+                    appliedStyles.push(CSS_PREFIX + "animation-delay"));
+                }
+                if (appliedStyles.length > 0) {
+                    var oldStyle = node.getAttribute("style") || "";
+                    node.setAttribute("style", oldStyle + " " + style);
+                }
+                var startTime = Date.now(), css3AnimationEvents = ANIMATIONEND_EVENT + " " + TRANSITIONEND_EVENT;
+                element.on(css3AnimationEvents, onAnimationProgress), elementData.closeAnimationFn = function() {
+                    onEnd(), activeAnimationComplete();
+                };
+                var staggerTime = itemIndex * (Math.max(stagger.animationDelay, stagger.transitionDelay) || 0), animationTime = (maxDelay + maxDuration) * CLOSING_TIME_BUFFER, totalTime = (staggerTime + animationTime) * ONE_SECOND;
+                return elementData.running++, animationCloseHandler(element, totalTime), onEnd;
+            }
+            function prepareStaggerDelay(delayStyle, staggerDelay, index) {
+                var style = "";
+                return forEach(delayStyle.split(","), function(val, i) {
+                    style += (i > 0 ? "," : "") + (index * staggerDelay + parseInt(val, 10)) + "s";
+                }), style;
+            }
+            function animateBefore(animationEvent, element, className, calculationDecorator) {
+                return animateSetup(animationEvent, element, className, calculationDecorator) ? function(cancelled) {
+                    cancelled && animateClose(element, className);
+                } : void 0;
+            }
+            function animateAfter(animationEvent, element, className, afterAnimationComplete) {
+                return element.data(NG_ANIMATE_CSS_DATA_KEY) ? animateRun(animationEvent, element, className, afterAnimationComplete) : (animateClose(element, className), 
+                void afterAnimationComplete());
+            }
+            function animate(animationEvent, element, className, animationComplete) {
+                var preReflowCancellation = animateBefore(animationEvent, element, className);
+                if (!preReflowCancellation) return void animationComplete();
+                var cancel = preReflowCancellation;
+                return afterReflow(element, function() {
+                    cancel = animateAfter(animationEvent, element, className, animationComplete);
+                }), function(cancelled) {
+                    (cancel || noop)(cancelled);
+                };
+            }
+            function animateClose(element, className) {
+                element.removeClass(className);
+                var data = element.data(NG_ANIMATE_CSS_DATA_KEY);
+                data && (data.running && data.running--, data.running && 0 !== data.running || element.removeData(NG_ANIMATE_CSS_DATA_KEY));
+            }
+            function suffixClasses(classes, suffix) {
+                var className = "";
+                return classes = angular.isArray(classes) ? classes : classes.split(/\s+/), forEach(classes, function(klass, i) {
+                    klass && klass.length > 0 && (className += (i > 0 ? " " : "") + klass + suffix);
+                }), className;
+            }
+            var TRANSITION_PROP, TRANSITIONEND_EVENT, ANIMATION_PROP, ANIMATIONEND_EVENT, CSS_PREFIX = "";
+            window.ontransitionend === undefined && window.onwebkittransitionend !== undefined ? (CSS_PREFIX = "-webkit-", 
+            TRANSITION_PROP = "WebkitTransition", TRANSITIONEND_EVENT = "webkitTransitionEnd transitionend") : (TRANSITION_PROP = "transition", 
+            TRANSITIONEND_EVENT = "transitionend"), window.onanimationend === undefined && window.onwebkitanimationend !== undefined ? (CSS_PREFIX = "-webkit-", 
+            ANIMATION_PROP = "WebkitAnimation", ANIMATIONEND_EVENT = "webkitAnimationEnd animationend") : (ANIMATION_PROP = "animation", 
+            ANIMATIONEND_EVENT = "animationend");
+            var cancelAnimationReflow, DURATION_KEY = "Duration", PROPERTY_KEY = "Property", DELAY_KEY = "Delay", ANIMATION_ITERATION_COUNT_KEY = "IterationCount", NG_ANIMATE_PARENT_KEY = "$$ngAnimateKey", NG_ANIMATE_CSS_DATA_KEY = "$$ngAnimateCSS3Data", ELAPSED_TIME_MAX_DECIMAL_PLACES = 3, CLOSING_TIME_BUFFER = 1.5, ONE_SECOND = 1e3, lookupCache = {}, parentCounter = 0, animationReflowQueue = [], closingTimer = null, closingTimestamp = 0, animationElementQueue = [];
+            return {
+                enter: function(element, animationCompleted) {
+                    return animate("enter", element, "ng-enter", animationCompleted);
+                },
+                leave: function(element, animationCompleted) {
+                    return animate("leave", element, "ng-leave", animationCompleted);
+                },
+                move: function(element, animationCompleted) {
+                    return animate("move", element, "ng-move", animationCompleted);
+                },
+                beforeSetClass: function(element, add, remove, animationCompleted) {
+                    var className = suffixClasses(remove, "-remove") + " " + suffixClasses(add, "-add"), cancellationMethod = animateBefore("setClass", element, className);
+                    return cancellationMethod ? (afterReflow(element, animationCompleted), cancellationMethod) : void animationCompleted();
+                },
+                beforeAddClass: function(element, className, animationCompleted) {
+                    var cancellationMethod = animateBefore("addClass", element, suffixClasses(className, "-add"));
+                    return cancellationMethod ? (afterReflow(element, animationCompleted), cancellationMethod) : void animationCompleted();
+                },
+                beforeRemoveClass: function(element, className, animationCompleted) {
+                    var cancellationMethod = animateBefore("removeClass", element, suffixClasses(className, "-remove"));
+                    return cancellationMethod ? (afterReflow(element, animationCompleted), cancellationMethod) : void animationCompleted();
+                },
+                setClass: function(element, add, remove, animationCompleted) {
+                    remove = suffixClasses(remove, "-remove"), add = suffixClasses(add, "-add");
+                    var className = remove + " " + add;
+                    return animateAfter("setClass", element, className, animationCompleted);
+                },
+                addClass: function(element, className, animationCompleted) {
+                    return animateAfter("addClass", element, suffixClasses(className, "-add"), animationCompleted);
+                },
+                removeClass: function(element, className, animationCompleted) {
+                    return animateAfter("removeClass", element, suffixClasses(className, "-remove"), animationCompleted);
+                }
+            };
+        } ]);
+    } ]);
 }(window, window.angular), function(window, angular) {
     "use strict";
     function $SanitizeProvider() {
@@ -14741,128 +15329,136 @@ function(window, angular) {
         return dst;
     }
     var $resourceMinErr = angular.$$minErr("$resource"), MEMBER_NAME_REGEX = /^(\.[a-zA-Z_$][0-9a-zA-Z_$]*)+$/;
-    angular.module("ngResource", [ "ng" ]).factory("$resource", [ "$http", "$q", function($http, $q) {
-        function encodeUriSegment(val) {
-            return encodeUriQuery(val, !0).replace(/%26/gi, "&").replace(/%3D/gi, "=").replace(/%2B/gi, "+");
-        }
-        function encodeUriQuery(val, pctEncodeSpaces) {
-            return encodeURIComponent(val).replace(/%40/gi, "@").replace(/%3A/gi, ":").replace(/%24/g, "$").replace(/%2C/gi, ",").replace(/%20/g, pctEncodeSpaces ? "%20" : "+");
-        }
-        function Route(template, defaults) {
-            this.template = template, this.defaults = defaults || {}, this.urlParams = {};
-        }
-        function resourceFactory(url, paramDefaults, actions) {
-            function extractParams(data, actionParams) {
-                var ids = {};
-                return actionParams = extend({}, paramDefaults, actionParams), forEach(actionParams, function(value, key) {
-                    isFunction(value) && (value = value()), ids[key] = value && value.charAt && "@" == value.charAt(0) ? lookupDottedPath(data, value.substr(1)) : value;
-                }), ids;
+    angular.module("ngResource", [ "ng" ]).provider("$resource", function() {
+        var provider = this;
+        this.defaults = {
+            stripTrailingSlashes: !0,
+            actions: {
+                get: {
+                    method: "GET"
+                },
+                save: {
+                    method: "POST"
+                },
+                query: {
+                    method: "GET",
+                    isArray: !0
+                },
+                remove: {
+                    method: "DELETE"
+                },
+                "delete": {
+                    method: "DELETE"
+                }
             }
-            function defaultResponseInterceptor(response) {
-                return response.resource;
+        }, this.$get = [ "$http", "$q", function($http, $q) {
+            function encodeUriSegment(val) {
+                return encodeUriQuery(val, !0).replace(/%26/gi, "&").replace(/%3D/gi, "=").replace(/%2B/gi, "+");
             }
-            function Resource(value) {
-                shallowClearAndCopy(value || {}, this);
+            function encodeUriQuery(val, pctEncodeSpaces) {
+                return encodeURIComponent(val).replace(/%40/gi, "@").replace(/%3A/gi, ":").replace(/%24/g, "$").replace(/%2C/gi, ",").replace(/%20/g, pctEncodeSpaces ? "%20" : "+");
             }
-            var route = new Route(url);
-            return actions = extend({}, DEFAULT_ACTIONS, actions), forEach(actions, function(action, name) {
-                var hasBody = /^(POST|PUT|PATCH)$/i.test(action.method);
-                Resource[name] = function(a1, a2, a3, a4) {
-                    var data, success, error, params = {};
-                    switch (arguments.length) {
-                      case 4:
-                        error = a4, success = a3;
+            function Route(template, defaults) {
+                this.template = template, this.defaults = extend({}, provider.defaults, defaults), 
+                this.urlParams = {};
+            }
+            function resourceFactory(url, paramDefaults, actions, options) {
+                function extractParams(data, actionParams) {
+                    var ids = {};
+                    return actionParams = extend({}, paramDefaults, actionParams), forEach(actionParams, function(value, key) {
+                        isFunction(value) && (value = value()), ids[key] = value && value.charAt && "@" == value.charAt(0) ? lookupDottedPath(data, value.substr(1)) : value;
+                    }), ids;
+                }
+                function defaultResponseInterceptor(response) {
+                    return response.resource;
+                }
+                function Resource(value) {
+                    shallowClearAndCopy(value || {}, this);
+                }
+                var route = new Route(url, options);
+                return actions = extend({}, provider.defaults.actions, actions), forEach(actions, function(action, name) {
+                    var hasBody = /^(POST|PUT|PATCH)$/i.test(action.method);
+                    Resource[name] = function(a1, a2, a3, a4) {
+                        var data, success, error, params = {};
+                        switch (arguments.length) {
+                          case 4:
+                            error = a4, success = a3;
 
-                      case 3:
-                      case 2:
-                        if (!isFunction(a2)) {
-                            params = a1, data = a2, success = a3;
+                          case 3:
+                          case 2:
+                            if (!isFunction(a2)) {
+                                params = a1, data = a2, success = a3;
+                                break;
+                            }
+                            if (isFunction(a1)) {
+                                success = a1, error = a2;
+                                break;
+                            }
+                            success = a2, error = a3;
+
+                          case 1:
+                            isFunction(a1) ? success = a1 : hasBody ? data = a1 : params = a1;
                             break;
-                        }
-                        if (isFunction(a1)) {
-                            success = a1, error = a2;
+
+                          case 0:
                             break;
+
+                          default:
+                            throw $resourceMinErr("badargs", "Expected up to 4 arguments [params, data, success, error], got {0} arguments", arguments.length);
                         }
-                        success = a2, error = a3;
-
-                      case 1:
-                        isFunction(a1) ? success = a1 : hasBody ? data = a1 : params = a1;
-                        break;
-
-                      case 0:
-                        break;
-
-                      default:
-                        throw $resourceMinErr("badargs", "Expected up to 4 arguments [params, data, success, error], got {0} arguments", arguments.length);
-                    }
-                    var isInstanceCall = this instanceof Resource, value = isInstanceCall ? data : action.isArray ? [] : new Resource(data), httpConfig = {}, responseInterceptor = action.interceptor && action.interceptor.response || defaultResponseInterceptor, responseErrorInterceptor = action.interceptor && action.interceptor.responseError || undefined;
-                    forEach(action, function(value, key) {
-                        "params" != key && "isArray" != key && "interceptor" != key && (httpConfig[key] = copy(value));
-                    }), hasBody && (httpConfig.data = data), route.setUrlParams(httpConfig, extend({}, extractParams(data, action.params || {}), params), action.url);
-                    var promise = $http(httpConfig).then(function(response) {
-                        var data = response.data, promise = value.$promise;
-                        if (data) {
-                            if (angular.isArray(data) !== !!action.isArray) throw $resourceMinErr("badcfg", "Error in resource configuration. Expected response to contain an {0} but got an {1}", action.isArray ? "array" : "object", angular.isArray(data) ? "array" : "object");
-                            action.isArray ? (value.length = 0, forEach(data, function(item) {
-                                value.push(new Resource(item));
-                            })) : (shallowClearAndCopy(data, value), value.$promise = promise);
-                        }
-                        return value.$resolved = !0, response.resource = value, response;
-                    }, function(response) {
-                        return value.$resolved = !0, (error || noop)(response), $q.reject(response);
-                    });
-                    return promise = promise.then(function(response) {
-                        var value = responseInterceptor(response);
-                        return (success || noop)(value, response.headers), value;
-                    }, responseErrorInterceptor), isInstanceCall ? promise : (value.$promise = promise, 
-                    value.$resolved = !1, value);
-                }, Resource.prototype["$" + name] = function(params, success, error) {
-                    isFunction(params) && (error = success, success = params, params = {});
-                    var result = Resource[name].call(this, params, this, success, error);
-                    return result.$promise || result;
-                };
-            }), Resource.bind = function(additionalParamDefaults) {
-                return resourceFactory(url, extend({}, paramDefaults, additionalParamDefaults), actions);
-            }, Resource;
-        }
-        var DEFAULT_ACTIONS = {
-            get: {
-                method: "GET"
-            },
-            save: {
-                method: "POST"
-            },
-            query: {
-                method: "GET",
-                isArray: !0
-            },
-            remove: {
-                method: "DELETE"
-            },
-            "delete": {
-                method: "DELETE"
+                        var isInstanceCall = this instanceof Resource, value = isInstanceCall ? data : action.isArray ? [] : new Resource(data), httpConfig = {}, responseInterceptor = action.interceptor && action.interceptor.response || defaultResponseInterceptor, responseErrorInterceptor = action.interceptor && action.interceptor.responseError || undefined;
+                        forEach(action, function(value, key) {
+                            "params" != key && "isArray" != key && "interceptor" != key && (httpConfig[key] = copy(value));
+                        }), hasBody && (httpConfig.data = data), route.setUrlParams(httpConfig, extend({}, extractParams(data, action.params || {}), params), action.url);
+                        var promise = $http(httpConfig).then(function(response) {
+                            var data = response.data, promise = value.$promise;
+                            if (data) {
+                                if (angular.isArray(data) !== !!action.isArray) throw $resourceMinErr("badcfg", "Error in resource configuration. Expected response to contain an {0} but got an {1}", action.isArray ? "array" : "object", angular.isArray(data) ? "array" : "object");
+                                action.isArray ? (value.length = 0, forEach(data, function(item) {
+                                    value.push(new Resource(item));
+                                })) : (shallowClearAndCopy(data, value), value.$promise = promise);
+                            }
+                            return value.$resolved = !0, response.resource = value, response;
+                        }, function(response) {
+                            return value.$resolved = !0, (error || noop)(response), $q.reject(response);
+                        });
+                        return promise = promise.then(function(response) {
+                            var value = responseInterceptor(response);
+                            return (success || noop)(value, response.headers), value;
+                        }, responseErrorInterceptor), isInstanceCall ? promise : (value.$promise = promise, 
+                        value.$resolved = !1, value);
+                    }, Resource.prototype["$" + name] = function(params, success, error) {
+                        isFunction(params) && (error = success, success = params, params = {});
+                        var result = Resource[name].call(this, params, this, success, error);
+                        return result.$promise || result;
+                    };
+                }), Resource.bind = function(additionalParamDefaults) {
+                    return resourceFactory(url, extend({}, paramDefaults, additionalParamDefaults), actions);
+                }, Resource;
             }
-        }, noop = angular.noop, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, isFunction = angular.isFunction;
-        return Route.prototype = {
-            setUrlParams: function(config, params, actionUrl) {
-                var val, encodedVal, self = this, url = actionUrl || self.template, urlParams = self.urlParams = {};
-                forEach(url.split(/\W/), function(param) {
-                    if ("hasOwnProperty" === param) throw $resourceMinErr("badname", "hasOwnProperty is not a valid parameter name.");
-                    !new RegExp("^\\d+$").test(param) && param && new RegExp("(^|[^\\\\]):" + param + "(\\W|$)").test(url) && (urlParams[param] = !0);
-                }), url = url.replace(/\\:/g, ":"), params = params || {}, forEach(self.urlParams, function(_, urlParam) {
-                    val = params.hasOwnProperty(urlParam) ? params[urlParam] : self.defaults[urlParam], 
-                    angular.isDefined(val) && null !== val ? (encodedVal = encodeUriSegment(val), url = url.replace(new RegExp(":" + urlParam + "(\\W|$)", "g"), function(match, p1) {
-                        return encodedVal + p1;
-                    })) : url = url.replace(new RegExp("(/?):" + urlParam + "(\\W|$)", "g"), function(match, leadingSlashes, tail) {
-                        return "/" == tail.charAt(0) ? tail : leadingSlashes + tail;
+            var noop = angular.noop, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, isFunction = angular.isFunction;
+            return Route.prototype = {
+                setUrlParams: function(config, params, actionUrl) {
+                    var val, encodedVal, self = this, url = actionUrl || self.template, urlParams = self.urlParams = {};
+                    forEach(url.split(/\W/), function(param) {
+                        if ("hasOwnProperty" === param) throw $resourceMinErr("badname", "hasOwnProperty is not a valid parameter name.");
+                        !new RegExp("^\\d+$").test(param) && param && new RegExp("(^|[^\\\\]):" + param + "(\\W|$)").test(url) && (urlParams[param] = !0);
+                    }), url = url.replace(/\\:/g, ":"), params = params || {}, forEach(self.urlParams, function(_, urlParam) {
+                        val = params.hasOwnProperty(urlParam) ? params[urlParam] : self.defaults[urlParam], 
+                        angular.isDefined(val) && null !== val ? (encodedVal = encodeUriSegment(val), url = url.replace(new RegExp(":" + urlParam + "(\\W|$)", "g"), function(match, p1) {
+                            return encodedVal + p1;
+                        })) : url = url.replace(new RegExp("(/?):" + urlParam + "(\\W|$)", "g"), function(match, leadingSlashes, tail) {
+                            return "/" == tail.charAt(0) ? tail : leadingSlashes + tail;
+                        });
+                    }), self.defaults.stripTrailingSlashes && (url = url.replace(/\/+$/, "") || "/"), 
+                    url = url.replace(/\/\.(?=\w+($|\?))/, "."), config.url = url.replace(/\/\\\./, "/."), 
+                    forEach(params, function(value, key) {
+                        self.urlParams[key] || (config.params = config.params || {}, config.params[key] = value);
                     });
-                }), url = url.replace(/\/+$/, "") || "/", url = url.replace(/\/\.(?=\w+($|\?))/, "."), 
-                config.url = url.replace(/\/\\\./, "/."), forEach(params, function(value, key) {
-                    self.urlParams[key] || (config.params = config.params || {}, config.params[key] = value);
-                });
-            }
-        }, resourceFactory;
-    } ]);
+                }
+            }, resourceFactory;
+        } ];
+    });
 }(window, window.angular), angular.module("ui.bootstrap", [ "ui.bootstrap.tpls", "ui.bootstrap.transition", "ui.bootstrap.collapse", "ui.bootstrap.accordion", "ui.bootstrap.alert", "ui.bootstrap.bindHtml", "ui.bootstrap.buttons", "ui.bootstrap.carousel", "ui.bootstrap.position", "ui.bootstrap.datepicker", "ui.bootstrap.dropdown", "ui.bootstrap.modal", "ui.bootstrap.pagination", "ui.bootstrap.tooltip", "ui.bootstrap.popover", "ui.bootstrap.progressbar", "ui.bootstrap.rating", "ui.bootstrap.tabs", "ui.bootstrap.timepicker", "ui.bootstrap.typeahead" ]), 
 angular.module("ui.bootstrap.tpls", [ "template/accordion/accordion-group.html", "template/accordion/accordion.html", "template/alert/alert.html", "template/carousel/carousel.html", "template/carousel/slide.html", "template/datepicker/datepicker.html", "template/datepicker/day.html", "template/datepicker/month.html", "template/datepicker/popup.html", "template/datepicker/year.html", "template/modal/backdrop.html", "template/modal/window.html", "template/pagination/pager.html", "template/pagination/pagination.html", "template/tooltip/tooltip-html-unsafe-popup.html", "template/tooltip/tooltip-popup.html", "template/popover/popover.html", "template/progressbar/bar.html", "template/progressbar/progress.html", "template/progressbar/progressbar.html", "template/rating/rating.html", "template/tabs/tab.html", "template/tabs/tabset.html", "template/timepicker/timepicker.html", "template/typeahead/typeahead-match.html", "template/typeahead/typeahead-popup.html" ]), 
 angular.module("ui.bootstrap.transition", []).factory("$transition", [ "$q", "$timeout", "$rootScope", function($q, $timeout, $rootScope) {
@@ -17598,7 +18194,7 @@ a4p.idNext = {
     }
     return !!obj;
 }, a4p.safeApply = function(scope, expr, beforeFct, afterFct) {
-    beforeFct && a4p.safeApply(scope, beforeFct), scope.$root.$$phase ? scope.$root.$evalAsync(function() {
+    beforeFct && a4p.safeApply(scope, beforeFct), scope.$root && scope.$root.$$phase ? scope.$root.$evalAsync(function() {
         scope.$eval(expr);
     }) : scope.$apply(expr), afterFct && a4p.safeApply(scope, afterFct);
 }, a4p.promiseWakeupNb = 0, a4p.promiseWakeupTimeout = null, a4p.promiseWakeup = function(scope, httpPromise, fctOnHttpSuccess, fctOnHttpError) {
@@ -19521,7 +20117,8 @@ a4p || (a4p = {}), a4p.Scroll = function(navigator, window, document) {
     }, Scroll.prototype.scrollTo = function(x, y, time, relative, reset) {
         this.stop(), relative && (x = this.x - x, y = this.y - y);
         var deltaX = x - this.x, deltaY = y - this.y;
-        (deltaX || deltaY) && (this.steps.push({
+        (deltaX || deltaY) && (console.log("Scroll : scrollTo() steps.push : deltaX=" + deltaX + " deltaY=" + deltaY + " x=" + x + " y=" + y + " this.x=" + this.x + " this.y=" + this.y), 
+        this.steps.push({
             deltaX: deltaX,
             deltaY: deltaY,
             time: time || 0,
@@ -21964,18 +22561,22 @@ a4p || (a4p = {}), a4p.Thumb = function() {
     function Thumb(element) {
         this.element = element;
     }
-    return Thumb.prototype.add = function(texte, number, color, width, height) {
+    var textInitials = function(text) {
+        var textInitials = "  ";
+        if (!text || "string" != typeof text) return textInitials;
+        textInitials += text[0] ? text[0] : "?", textInitials += text[1] ? text[1] : " ";
+        var textArr = text.split(" ");
+        if (textArr.length > 1) {
+            textInitials = "";
+            for (var x = 0; 2 > x; x++) textInitials += textArr[x].charAt(0);
+        }
+        return textInitials;
+    };
+    return Thumb.prototype.addCanvas = function(text, number, color, width, height) {
         if (this.element) {
             var canvas = document.createElement("canvas");
-            canvas.width = width, canvas.height = height;
-            var context = canvas.getContext("2d"), textLetters = "";
-            textLetters += texte[0] ? texte[0] : "?", textLetters += texte[1] ? texte[1] : " ";
-            var textArr = texte.split(" ");
-            if (textArr.length > 1) {
-                textLetters = "";
-                for (var x = 0; 2 > x; x++) textLetters += textArr[x].charAt(0);
-            }
-            var textSize = Math.round(height / 2), numberTextSize = Math.round(height / 5);
+            canvas.id = "canvas", canvas.width = width, canvas.height = height;
+            var context = canvas.getContext("2d"), initials = textInitials(text), textSize = Math.round(height / 2), numberTextSize = Math.round(height / 5);
             Math.round(number).toString();
             var textPosx = width > 2 * textSize ? Math.round(width / 2 - textSize) : 0, textPosy = height > textSize ? Math.round(height / 2 + textSize / 2) : height;
             Math.round(width / 2);
@@ -21984,10 +22585,24 @@ a4p || (a4p = {}), a4p.Thumb = function() {
             context.fillStyle = my_gradient, context.fillRect(0, 0, width, height), context.fillStyle = "white";
             var realTextSize = Math.round(1.2 * textSize);
             context.font = "normal " + realTextSize + "px a4pHelveticaNeueLight,Helvetica,sans-serif", 
-            context.fillText(textLetters.toUpperCase(), textPosx, textPosy), context.fillStyle = "black";
+            context.fillText(initials.toUpperCase(), textPosx, textPosy), context.fillStyle = "black";
             var realNumberTextSize = Math.round(1.5 * numberTextSize);
             context.font = "normal " + realNumberTextSize + "px a4pHelveticaNeueLight,Helvetica,sans-serif", 
             this.element.appendChild(canvas);
+        }
+    }, Thumb.prototype.addDiv = function(text, number, color, width, height) {
+        if (this.element) {
+            var initials = textInitials(text), textSize = Math.round(height / 2), numberTextSize = Math.round(height / 5);
+            Math.round(number).toString();
+            var divBack = document.createElement("div");
+            divBack.id = "canvas", color ? divBack.className += color : divBack.style.background = "red";
+            var divText = document.createElement("div");
+            divText.style.color = "white", divText.style.textAlign = "center", Math.round(1.2 * textSize), 
+            divText.style.font = "normal a4pHelveticaNeueLight,Helvetica,sans-serif", divText.textContent = initials.toUpperCase();
+            var divTextNumber = document.createElement("div");
+            divTextNumber.style.color = "black", divTextNumber.style.textAlign = "center", Math.round(1.5 * numberTextSize), 
+            divTextNumber.style.font = "normal a4pHelveticaNeueLight,Helvetica,sans-serif", 
+            divBack.appendChild(divText), divBack.appendChild(divTextNumber), this.element.appendChild(divBack);
         }
     }, Thumb;
 }(), function() {
@@ -34333,9 +34948,10 @@ $("html").attr("manifest")) {
 ctrlAction.$inject = [ "$scope", "$q", "$modal", "srvData", "srvNav", "srvFacet", "srvConfig", "srvLocale" ], 
 ctrlAside.$inject = [ "$scope", "srvFacet", "srvLocale", "srvData", "srvAnalytics", "srvNav", "version" ], 
 ctrlAsideItem.$inject = [ "$scope", "srvLocale", "srvData", "srvNav", "srvLink", "srvConfig" ], 
-ctrlCalendar.$inject = [ "$scope", "version", "srvAnalytics", "srvLocale", "srvTime", "srvConfig" ], 
+ctrlAsideSearch.$inject = [ "$scope", "$timeout", "srvFacet", "srvLocale", "srvData", "srvNav", "version" ], 
+ctrlCalendar.$inject = [ "$scope", "$timeout", "version", "srvAnalytics", "srvLocale", "srvTime", "srvConfig" ], 
 ctrlConfig.$inject = [ "$scope", "srvConfig", "srvLog", "srvLocale", "srvSecurity", "srvDataTransfer", "$modal", "srvAnalytics", "version" ], 
-ctrlDetail.$inject = [ "$scope", "$modal", "version", "srvData", "srvFacet", "srvLocale", "srvLink", "srvNav", "srvConfig" ], 
+ctrlDetail.$inject = [ "$scope", "$timeout", "$modal", "version", "srvData", "srvFacet", "srvLocale", "srvLink", "srvNav", "srvConfig" ], 
 ctrlDetailLink.$inject = [ "$scope", "srvData", "srvLocale", "srvNav" ], ctrlDetailedObject.$inject = [ "$scope", "srvLocale", "srvData", "srvNav", "srvLink", "srvConfig", "srvAnalytics" ], 
 ctrlDragObject.$inject = [ "$scope", "$modal", "$timeout", "srvLocale", "srvData", "srvNav", "srvLink", "srvConfig" ], 
 ctrlInlinedObject.$inject = [ "$scope", "srvData", "srvConfig" ], ctrlLinkActions.$inject = [ "$scope", "srvData", "srvNav", "srvLink", "srvConfig", "srvLog" ], 
@@ -34346,10 +34962,11 @@ ctrlMeetingRemoveDrop.$inject = [ "$scope", "srvLocale", "srvData", "srvNav", "s
 ctrlNamedObject.$inject = [ "$scope", "srvConfig" ], ctrlNavObject.$inject = [ "$scope", "srvNav", "srvConfig" ], 
 navigationCtrl.$inject = [ "$scope", "$q", "$timeout", "$location", "$http", "$modal", "$sce", "version", "srvLoad", "srvLocalStorage", "srvFileStorage", "srvAnalytics", "srvConfig", "srvLog", "srvLocale", "srvData", "srvRunning", "srvSecurity", "srvSynchro", "cordovaReady", "srvLink", "srvNav", "srvGuider", "srvFacet", "srvOpenUrl" ], 
 networkTestRunnerCtrl.$inject = [ "$scope", "$q", "$location", "$http", "$modal", "version", "srvLoad", "srvLocalStorage", "srvFileStorage", "srvAnalytics", "srvConfig", "srvLog", "srvLocale", "srvData", "srvRunning", "srvSecurity", "srvSynchro", "cordovaReady", "srvLink", "srvNav", "srvGuider", "srvFacet" ], 
+ctrlRightToolbar.$inject = [ "$scope", "$timeout", "srvFacet", "srvLocale", "srvData", "srvNav", "version" ], 
 ctrlSingleTap.$inject = [ "$scope" ], ctrlSummarizedObject.$inject = [ "$scope", "srvLocale", "srvData", "srvLink", "srvConfig" ], 
 ctrlTimeline.$inject = [ "$scope", "srvData", "version" ], ctrlTrashObject.$inject = [ "$scope" ], 
-ctrlViewer.$inject = [ "$scope", "srvData", "srvNav", "srvLocale" ], ctrlGuiderDialog.$inject = [ "$scope", "$sce", "srvLocale" ], 
-angular.module("template/c4p-accordion/accordion-group.html", []).run([ "$templateCache", function($templateCache) {
+ctrlViewer.$inject = [ "$scope", "srvData", "srvNav", "srvLocale" ], ctrlEditFocus.$inject = [ "$scope", "$window" ], 
+ctrlGuiderDialog.$inject = [ "$scope", "$sce", "srvLocale" ], angular.module("template/c4p-accordion/accordion-group.html", []).run([ "$templateCache", function($templateCache) {
     $templateCache.put("template/c4p-accordion/accordion-group.html", '<div class="c4p-accordion-group">  <div class="pull-right c4p-accordion-heading" >	<a class="c4p-accordion-toggle" ng-click="isOpen = !isOpen" c4p-accordion-transclude-heading="heading">{{heading}}</a>  </div>  <div ng-transclude></div>  <div class="c4p-accordion-item" collapse="!isOpen">    <div class="c4p-accordion-inner clearfix" c4p-accordion-transclude-item="item">{{item}}</div>	 <a class="pull-right c4p-accordion-toggle" ng-click="isOpen = !isOpen"><span class="glyphicon glyphicon-chevron-up"></span></a>   </div></div>');
 } ]), angular.module("template/c4p-accordion/accordion.html", []).run([ "$templateCache", function($templateCache) {
     $templateCache.put("template/c4p-accordion/accordion.html", '<div class="c4p-accordion" ng-transclude></div>');
@@ -34478,7 +35095,7 @@ angular.module("template/c4p-accordion/accordion-group.html", []).run([ "$templa
     };
 });
 
-var directiveModule = angular.module("c4p.directives", [ "c4p.filters", "ui.bootstrap", "a4p.bootstrap.carousel", "a4p.bootstrap.accordion", "c4p.input", "c4p.ratings", "c4p.viewer" ]).config(function($compileProvider) {
+var directiveModule = angular.module("c4pDirectives", [ "c4pFilters", "ui.bootstrap", "a4p.bootstrap.carousel", "a4p.bootstrap.accordion", "c4p.input", "c4p.ratings", "c4p.viewer" ]).config(function($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|tel):/);
 });
 
@@ -34761,6 +35378,7 @@ var c4pInputCompile = function(element, attrs, transclude, $compile) {
         var inputAttrs = 'class="form-control has-feedback" onfocus="this.select();" ' + autofocus + " ", inputDateAttrs = 'class="form-control" onfocus="this.select();" ' + autofocus + " ", inputTimeAttrs = 'class="form-control" onfocus="this.select();" ' + autofocus + " ", inputSelectAttrs = 'class="form-control" ' + autofocus + " ";
         if (a4p.isDefined(attrs.ngModel) && (inputAttrs = inputAttrs + 'ng-model="' + attrs.ngModel + '" name="' + attrs.ngModel + '"', 
         inputSelectAttrs = inputSelectAttrs + 'ng-model="' + attrs.ngModel + '" '), a4p.isDefined(attrs.ngChange) && (inputAttrs = inputAttrs + 'ng-change="' + attrs.ngChange + '" '), 
+        a4p.isDefined(attrs.ngFocus) && (inputAttrs = inputAttrs + 'ng-focus="' + attrs.ngFocus + '" '), 
         a4p.isDefined(attrs.ngBlur) && (inputAttrs = inputAttrs + 'ng-blur="' + attrs.ngBlur + '" '), 
         a4p.isDefined(attrs.placeholder) && (inputAttrs = inputAttrs + 'placeholder="' + attrs.placeholder + '" '), 
         "tel" == inputType) controlsTemplate += addClearButton('<input type="tel" ' + inputAttrs + "/>"); else if ("mail" == inputType) controlsTemplate += addClearButton('<input type="email" ' + inputAttrs + "/>"); else if ("url" == inputType) controlsTemplate += addClearButton('<input type="url" ' + inputAttrs + "/>"); else if ("password" == inputType) controlsTemplate += addClearButton('<input type="password" ' + inputAttrs + "/>"); else if ("number" == inputType || "currency" == inputType) controlsTemplate += addClearButton('<input type="number" min="0" ' + inputAttrs + "/>"); else if ("probability" == inputType) controlsTemplate += addClearButton('<input type="number" min="0" max="100" ' + inputAttrs + "/>"); else if ("boolean" == inputType) controlsTemplate += addClearButton('<input type="checkbox" ' + inputAttrs + "/>"); else if ("date" == inputType) inputDateAttrs += 'ng-model="currentDatePart" ', 
@@ -34787,11 +35405,7 @@ var c4pInputCompile = function(element, attrs, transclude, $compile) {
         controlsTemplate = $compile(controlsTemplate)(scope);
         var controlsElement = angular.element(controlsTemplate);
         if (controlsElt.append(controlsElement), scope.initInputCtrl(ngModelCtrl, inputType), 
-        element.find("input").bind("blur", function() {
-            $(window).scrollTop(0), $(document.body).scrollTop(0);
-        }), element.find("textarea").bind("blur", function() {
-            $(window).scrollTop(0), $(document.body).scrollTop(0);
-        }), "tel" == inputType) a4p.isDefined(attrs.ngModel) && a4p.isDefined(attrs.icon) && attrs.icon.length > 0 && scope.$watch(attrs.ngModel, function(value) {
+        "tel" == inputType) a4p.isDefined(attrs.ngModel) && a4p.isDefined(attrs.icon) && attrs.icon.length > 0 && scope.$watch(attrs.ngModel, function(value) {
             element.find("a").attr("href", "tel:" + encodeURIComponent(value));
         }); else if ("mail" == inputType) a4p.isDefined(attrs.ngModel) && a4p.isDefined(attrs.icon) && attrs.icon.length > 0 && scope.$watch(attrs.ngModel, function(value) {
             element.find("a").attr("href", "mailto:" + encodeURIComponent(value));
@@ -35025,12 +35639,12 @@ angular.module("c4p.input", [ "c4p/input.html" ]).controller("c4pInputCtrl", [ "
             });
         }
     };
-}), directiveModule.directive("c4pWaiting", function() {
+}), directiveModule.directive("c4pSpinner", function() {
     return {
-        restrict: "CE",
+        restrict: "E",
         replace: !1,
         link: function(scope, element) {
-            scope.setSpinner && scope.setSpinner(element);
+            scope.addSpinner && scope.addSpinner(element);
         }
     };
 }), directiveModule.directive("a4pRefresh", function() {
@@ -35076,9 +35690,9 @@ var startSpinnerDirective = function(scope, element) {
         window.setTimeout(function() {
             var myRegexp = /((\s|\d|[a-z]|-)*)( onair)/i, classWithoutOnair = spinnerEl.className.match(myRegexp);
             classWithoutOnair && classWithoutOnair[1] && (spinnerEl.className = classWithoutOnair[1]);
-        }, 1e3));
+        }, 500));
     };
-    a4p.BrowserCapabilities.hasTouch ? element.bind("touchstart", function() {
+    a4p.BrowserCapabilities.hasTouch ? element.bind("touchend", function() {
         launch();
     }) : element.bind("click", function() {
         launch();
@@ -35094,11 +35708,26 @@ directiveModule.directive("c4pWaitingClick", function() {
 }), directiveModule.directive("c4pThumb", function() {
     return {
         restrict: "E",
-        template: "<div></div>",
+        replace: !0,
         link: function(scope, element, attrs) {
             console.log(" c4pThumb ");
-            var text = attrs.text, indic = (attrs.icon, attrs.indic), width = attrs.width, height = attrs.height, color = attrs.color, thumb = new a4p.Thumb(element[0]);
-            thumb.add(text, indic, color, width, height);
+            var text = attrs.text, icon = attrs.icon, indic = attrs.indic, width = attrs.width, height = attrs.height, color = attrs.color;
+            console.log(" c4pThumb " + text + " " + icon + " " + indic + " " + color + " " + width + " " + height);
+            var thumb = new a4p.Thumb(element[0]);
+            thumb.addDiv(text, indic, color, width, height);
+        }
+    };
+}), directiveModule.directive("c4pAnimateshow", function($animate) {
+    return {
+        scope: {
+            c4pAnimateshow: "=",
+            afterShow: "&",
+            afterHide: "&"
+        },
+        link: function(scope, element) {
+            scope.$watch("c4pAnimateshow", function(show) {
+                show && $animate.removeClass(element, "ng-hide", scope.afterShow), show || $animate.addClass(element, "ng-hide", scope.afterHide);
+            });
         }
     };
 }), angular.module("c4p/datePicker.html", []).run([ "$templateCache", function($templateCache) {
@@ -35400,12 +36029,13 @@ directiveModule.directive("c4pWaitingClick", function() {
     };
 } ]), angular.module("c4pTemplates", []).run([ "$templateCache", function($templateCache) {
     "use strict";
-    $templateCache.put("partials/empty.html", ""), $templateCache.put("partials/main.html", '<div ng-controller="navigationCtrl" ng-init="initNavigationCtrl()" resize-opts="{name:\'navigation\'}" resize-beforewindow="beforeWindowSizeChanged()"><div id="a4pBody" class="container" ng-class="{\'c4p-backdrop-blur\':isBlurOn}" ng-switch="page"><div class="row" ng-switch-when="navigation"><div ng-include="\'partials/navigation/main.html\'"></div></div><div class="row" ng-switch-when="guider"><div ng-include="\'partials/guider/main.html\'"></div></div><div class="row" ng-switch-when="meeting"><div ng-include="\'partials/meeting/main.html\'"></div></div><div class="row" ng-switch-when="timeline"><div ng-include="\'partials/timeline/main.html\'"></div></div><div ng-switch-default=""><h5 style="color: gray; text-align: center; opacity:0.2"><span ng-click="startSpinner(true)">.</span> <span ng-click="stopSpinner()">.</span></h5></div></div><div id="c4p-waiting-spinner" class="c4p-waiting c4p-click-through"><span class="c4p-waiting-icon glyphicon-stack glyphicon-2x"><i class="glyphicon glyphicon-fw glyphicon-square glyphicon-stack-2x"></i>  <i class="glyphicon glyphicon-fw glyphicon-cog glyphicon-stack-1x glyphicon-inverse glyphicon-spin"></i></span></div></div>'), 
-    $templateCache.put("partials/dialog/confirm.html", '<div class="row modal-body c4p-vertical-container"><div class="c4p-dialog c4p-vertical-align"><div class="container c4p-modal-confirm-container col-xxs-12 col-sm-6 col-sm-offset-3"><div class="row"><div class="c4p-dialog-header"><div class="col-xxs-12"><ul class="nav nav-pills"><li><a class="btn disabled" data-toggle="tab"><h5 style="white-space:normal">{{text}}</h5></a></li><li class="pull-right"><a class="btn c4p-color-cancel-transparent" ng-click="close()"><span class="c4p-icon-std">&times;</span></a></li><li class="pull-right"><a class="btn c4p-color-ok-transparent c4p-stroke" ng-click="submit()"><span class="c4p-icon-std glyphicon glyphicon-check"></span></a></li></ul></div></div></div><div class="row" ng-show="{{textArray.length}}"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><ul><li ng-repeat="item in textArray"><span>{{item}}</span></li></ul></div></div></div></div></div></div></div>'), 
+    $templateCache.put("partials/empty.html", ""), $templateCache.put("partials/main.html", '<div ng-controller="navigationCtrl" ng-init="initNavigationCtrl()" resize-opts="{name:\'navigation\'}" resize-beforewindow="beforeWindowSizeChanged()"><div id="a4pBody" class="container" ng-class="{\'c4p-backdrop-blur\':isBlurOn}" ng-switch="page"><div class="row" ng-switch-when="navigation"><div ng-include="\'partials/navigation/main.html\'"></div></div><div class="row" ng-switch-when="guider"><div ng-include="\'partials/guider/main.html\'"></div></div><div class="row" ng-switch-when="meeting"><div ng-include="\'partials/meeting/main.html\'"></div></div><div class="row" ng-switch-when="timeline"><div ng-include="\'partials/timeline/main.html\'"></div></div><div ng-switch-default=""><h5 style="color: gray; text-align: center; opacity:0.2"><span ng-click="startSpinner(true)">.</span> <span ng-click="stopSpinner()">.</span></h5></div></div><c4p-spinner ng-show="isSpinnerActive" id="c4p-waiting-spinner" class="c4p-waiting c4p-click-intercepted"><div ng-include="\'partials/spinner.html\'"></div></c4p-spinner></div>'), 
+    $templateCache.put("partials/spinner.html", '<div class="c4p-waiting-icon glyphicon-stack glyphicon-2x center-block"><i class="glyphicon glyphicon-fw glyphicon-square glyphicon-stack-2x"></i> <i class="glyphicon glyphicon-fw glyphicon-cog glyphicon-stack-1x glyphicon-inverse glyphicon-spin"></i></div>'), 
+    $templateCache.put("partials/dialog/confirm.html", '<div class="row modal-body c4p-vertical-container"><div class="c4p-dialog c4p-vertical-align"><div class="container c4p-modal-confirm-container col-xxs-12 col-sm-6 col-sm-offset-3"><div class="row"><div class="c4p-dialog-header"><div class="col-xxs-12"><ul class="nav nav-pills"><li><a class="btn disabled" data-toggle="tab"><h5 style="white-space:normal">{{text}}</h5></a></li><li class="pull-right"><a class="btn c4p-color-cancel-transparent" ng-click="startSpinner();close()"><span class="c4p-icon-std">&times;</span></a></li><li class="pull-right"><a class="btn c4p-color-ok-transparent c4p-stroke" ng-click="startSpinner();submit()"><span class="c4p-icon-std glyphicon glyphicon-check"></span></a></li></ul></div></div></div><div class="row" ng-show="{{textArray.length}}"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><ul><li ng-repeat="item in textArray"><span>{{item}}</span></li></ul></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogAddAccount.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogAddAccountPageTitle}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="add()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:\'visibleElements.length\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="item in possibleAccounts"><div ng-click="toggleItem($index)" class="clearfix c4p-link5"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':idxChosen != $index}" style="padding-top: 5px"></span> <span>{{item.company_name}}</span></div></li></ul></div></div>'), 
     $templateCache.put("partials/dialog/dialogAddContact.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogAddContactPageTitle}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="add()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:\'visibleElements.length\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="item in possibleContacts"><div ng-click="toggleItem($index)" class="clearfix c4p-link5"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':idxChosen != $index}" style="padding-top: 5px"></span> <span>{{item.salutation}} {{item.first_name}} {{item.last_name}}</span></div></li></ul></div></div>'), 
     $templateCache.put("partials/dialog/dialogAddRatings.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed"><span><c4p-pluralize count="2" when="srvLocale.translations.htmlDialogAddRatingsPluralRating"></span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="add()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{name:\'dialogAddRatings\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="item in possibleRatings | c4pExludeNameFilter:ratingsDone"><div ng-click="toggleItem(item)" class="clearfix c4p-link5"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':!item.selected}" style="padding-top: 5px"></span> <div class="pull-left" ng-include="\'partials/navigation/cards/4_rating_ro.html\'"></div></div></li></ul></div></div>'), 
-    $templateCache.put("partials/dialog/dialogCalendarDay.html", '<div class="row" resize-opts="{}"><div class="c4p-dialog-header"><div class="col-xxs-12"><ul class="nav nav-pills"><li class="col-xxs-8"><a class="btn disabled"><h5 class="a4p-dot">{{calendarDayCasualName}} {{calendarDayFullName}}</h5></a></li><li class="pull-right"><a class="btn" ng-click="close()"><span class="c4p-icon-std">&times;</span></a></li></ul></div></div></div><div class="row"><div class="c4p-dialog-container"><div class="col-xxs-12" resizecss-height="getResizeHeight() *0.7" sense-opts="{name:\'dialogFeedback\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="row c4p-details" ng-show="(calendarSelectedDay.eventsAllDay.length == 0) && (calendarSelectedDay.events.length == 0) "><div class="btn-block well well-sm" style="border-radius: 1em"><a class="btn" style="white-space:normal" ng-click="close()"><span class="pull-right close">&times;</span> <span>{{srvLocale.translations.htmlCalendarDayTextNoEvent}}</span></a></div></div><span class="" ng-show="calendarSelectedDay.eventsAllDay.length">{{srvLocale.translations.htmlCalendarDayTextAllDayEvent}}</span><ul class="row nav nav-pills" ng-if="calendarSelectedDay.eventsAllDay.length"><li ng-repeat="item in calendarSelectedDay.eventsAllDay" class="col-xxs-12 col-sm-6 well c4p-details c4p-color-b-gradient2"><a ng-include="\'partials/navigation/cards/summarized_card.html\'" ng-click="setItem(item)"></a></li></ul><span class="" ng-show="calendarSelectedDay.events.length"><br>{{srvLocale.translations.htmlCalendarDayTextEvents}}</span><ul class="row nav nav-pills nav-stacked" ng-if="calendarSelectedDay.events.length"><li ng-repeat="item in calendarSelectedDay.events" class="col-xxs-12 col-sm-6 well c4p-details c4p-color-b-gradient3"><a ng-include="\'partials/navigation/cards/summarized_card.html\'" ng-click="setItem(item)"></a></li></ul></div></div></div>'), 
+    $templateCache.put("partials/dialog/dialogCalendarDay.html", '<div class="row" resize-opts="{}"><div class="c4p-dialog-header"><div class="col-xxs-12"><ul class="nav nav-pills"><li class="col-xxs-8"><a class="btn disabled"><h5 class="a4p-dot">{{calendarDayCasualName}} {{calendarDayFullName}}</h5></a></li><li class="pull-right"><a class="btn" ng-click="close()"><span class="c4p-icon-std">&times;</span></a></li></ul></div></div></div><div class="row"><div class="c4p-dialog-container"><div class="col-xxs-12 col-sm-6 col-sm-offset-3" resizecss-height="getResizeHeight() *0.7" sense-opts="{name:\'dialogFeedback\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><div class="row c4p-details" ng-show="(calendarSelectedDay.eventsAllDay.length == 0) && (calendarSelectedDay.events.length == 0) "><div class="btn-block well well-sm" style="border-radius: 1em"><a class="btn" style="white-space:normal" ng-click="close()"><span class="pull-right close">&times;</span> <span>{{srvLocale.translations.htmlCalendarDayTextNoEvent}}</span></a></div></div><span class="" ng-show="calendarSelectedDay.eventsAllDay.length">{{srvLocale.translations.htmlCalendarDayTextAllDayEvent}}</span><ul class="row nav nav-pills nav-stacked" ng-if="calendarSelectedDay.eventsAllDay.length"><li ng-repeat="item in calendarSelectedDay.eventsAllDay" class="col-xxs-12 well c4p-details c4p-color-b-gradient2"><div ng-include="\'partials/navigation/cards/summarized_card.html\'"></div></li></ul><span class="" ng-show="calendarSelectedDay.events.length"><br>{{srvLocale.translations.htmlCalendarDayTextEvents}}</span><ul class="row nav nav-pills nav-stacked" ng-if="calendarSelectedDay.events.length"><li ng-repeat="item in calendarSelectedDay.events" class="col-xxs-12 well c4p-details c4p-color-b-gradient3"><div ng-include="\'partials/navigation/cards/summarized_card.html\'"></div></li></ul></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogDupMeeting.html", '<div resize-opts="{}" class="c4p-dialog-header c4p-color-a-dark-i"><div class="row"><div class="c4p-dialog-search-header"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogDupMeetingPageTitle}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="valid()"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="cancel()"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row c4p-dialog-container"><form class="c4p-form-group"><div><c4p-input type-var="nameField.type" warn-var="nameField.warn" ng-change="onFieldChanged(nameField)" title-var="nameField.title" ng-model="event.name"></c4p-input></div><div><c4p-input type-var="startField.type" warn-var="startField.warn" ng-change="onFieldChanged(startField)" title-var="startField.title" ng-model="event.date_start"></c4p-input></div><div><c4p-input type-var="endField.type" warn-var="endField.warn" ng-change="onFieldChanged(endField)" title-var="endField.title" ng-model="event.date_end"></c4p-input></div><div class="row" ng-show="hasWhat"><label class="col-xxs-6 control-label">{{srvLocale.translations.htmlDialogDupMeetingTextInitiator}}</label><div class="col-xxs-6 controls"><span class="glyphicon glyphicon-check icon-large" ng-show="event.dupWhat" ng-click="dupWhat = false"></span> <span class="glyphicon glyphicon-unchecked icon-large" ng-hide="event.dupWhat" ng-click="dupWhat = true"></span></div></div><div class="row" ng-show="hasAssignedContact"><label class="col-xxs-6 control-label">{{srvLocale.translations.htmlDialogDupMeetingTextLeader}}</label><div class="col-xxs-6 controls"><span class="glyphicon glyphicon-check icon-large" ng-show="dupAssignedContact" ng-click="dupAssignedContact = false"></span> <span class="glyphicon glyphicon-unchecked icon-large" ng-hide="dupAssignedContact" ng-click="dupAssignedContact = true"></span></div></div><div class="row" ng-show="(nbAttachment > 0)"><label class="col-xxs-6 control-label">{{srvLocale.translations.htmlDialogDupMeetingTextAttachments}} : {{nbAttachment}}</label><div class="col-xxs-6 controls"><span class="glyphicon glyphicon-check icon-large" ng-show="dupAttachment" ng-click="dupAttachment = false"></span> <span class="glyphicon glyphicon-unchecked icon-large" ng-hide="dupAttachment" ng-click="dupAttachment = true"></span></div></div><div class="row form-group" ng-show="(nbAttendee > 0)"><label class="col-xxs-6 control-label">{{srvLocale.translations.htmlDialogDupMeetingTextAttendees}} : {{nbAttendee}}</label><div class="col-xxs-6 controls"><span class="glyphicon glyphicon-check icon-large" ng-show="dupAttendee" ng-click="dupAttendee = false"></span> <span class="glyphicon glyphicon-unchecked icon-large" ng-hide="dupAttendee" ng-click="dupAttendee = true"></span></div></div></form></div>'), 
     $templateCache.put("partials/dialog/dialogEmail.html", '<div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-color-action-transparent" ng-click="close()" ng-show="!modeEdit"><span class="glyphicon glyphicon-arrow-left"></span></div><div class="btn c4p-padding-w-packed c4p-color-action-transparent"><span>{{title}}</span></div><div ng-show="modeEdit" class="btn c4p-color-action-transparent" ng-click="openDialogContacts()"><span class="glyphicon glyphicon-user"></span></div><div ng-show="modeEdit" class="btn c4p-color-action-transparent" ng-click="openDialogAttachments()"><span class="glyphicon glyphicon-paper-clip"></span></div><div ng-show="modeEdit" class="btn c4p-color-action-transparent" ng-click="openDialogPasteNote()"><span class="glyphicon glyphicon-file"></span></div><div ng-show="modeEdit" class="btn c4p-color-action-transparent" ng-click="openDialogPasteReport()"><span class="glyphicon glyphicon-file-text"></span></div><div ng-show="editable && !modeEdit" class="btn c4p-color-action-transparent" ng-click="setModeEdit(true)"><span class="glyphicon glyphicon-edit"></span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-show="modeEdit"><div class="btn c4p-padding-w-packed c4p-color-action-transparent" ng-click="createEmail()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-envelope"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent-transparent c4p-stroke" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div c4p-show="modeEdit" ng-class="{\'c4p-color-a-gradient4\': documents.length > 0, \'c4p-color-{{getTypeColor(object.a4p_type)}}-gradient3\': documents.length == 0}"><div class="row"><div class="col-xxs-12" resizecss-height="getResizeHeight() -getPathValue(\'parentNode.parentNode.previousElementSibling\', \'offsetHeight\')" sense-opts="{name:\'dialogEmail\', axeY:\'scroll\', watchRefresh:\'mailLastUpdate\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><div class="row"><div><c4p-input title-var="srvLocale.translations.htmlFormTo" ng-model="emailInput" ng-blur="addEmailToList(emailInput);emailInput=\'\';" placeholder="{{srvLocale.translations.htmlFormToPlaceHolder}}" style="width: 100%"></c4p-input></div></div><div class="row c4p-mail-attachment-list c4p-color-a-gradient1" ng-show="(emails.length > 0 || contacts.length > 0)"><div class="col-xxs-12"><div><div ng-repeat="item in contacts" class="row c4p-mail-attachment" ng-class="{\'c4p-edit\': modeEdit, \'c4p-noedit\': !modeEdit}"><span ng-controller="ctrlNamedObject" ng-init="init(item)" class="c4p-mail-attachment-name">{{itemName}}</span> <a ng-click="closeAlert($index,\'contact\')"><span class="glyphicon glyphicon-times-circle"></span></a></div><div ng-repeat="item in emails" class="c4p-mail-attachment" ng-class="{\'c4p-edit\': modeEdit, \'c4p-noedit\': !modeEdit}"><span class="c4p-mail-attachment-name">{{item.email}}</span> <a ng-click="closeAlert($index,\'email\')"><span class="glyphicon glyphicon-times-circle"></span></a></div></div></div></div><div ng-show="errorMap.email.length > 0"><div class="help-inline c4p-field-error-message" ng-repeat="error in errorMap.email">{{error}}</div></div></div><div class="row c4p-form-group c4p-color-a-gradient2"><div><c4p-input type-var="text" style="width:100%" ng-model="email.subject" title-var="srvLocale.translations.htmlFormSubject" placeholder="{{srvLocale.translations.htmlFormSubjectPlaceHolder}}"></c4p-input></div><span class="help-inline c4p-field-error-message" ng-show="errorMap.subject">{{errorMap.subject}}</span></div><div class="row c4p-form-group c4p-color-a-gradient3"><div class="col-xxs-12"><c4p-input ng-model="email.body" placeholder="{{srvLocale.translations.htmlFormMessagePlaceholder}}" type="textarea" rows="5" cols="40"></c4p-input></div><span class="help-inline c4p-field-error-message" ng-show="errorMap.message">{{errorMap.message}}</span></div><div class="row c4p-form-group c4p-color-a-gradient4" ng-show="documents.length > 0"><label class="control-label a4p-dot">{{srvLocale.translations.htmlDialogEmailAttachment}}</label><div class="col-xxs-12"><div ng-repeat="item in documents" class="c4p-mail-attachment"><span ng-controller="ctrlNamedObject" ng-init="init(item)" class="c4p-mail-attachment-name">{{itemName}}</span> <a ng-click="closeAlert($index,\'attachment\')"><span class="glyphicon glyphicon-times-circle"></span></a></div></div></div><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div></div></div></div><div c4p-show="!modeEdit" ng-class="{\'c4p-color-a-gradient4\': documents.length > 0, \'c4p-color-{{getTypeColor(object.a4p_type)}}-gradient3\': documents.length == 0}"><div class="row"><div class="col-xxs-12" resizecss-height="getResizeHeight() -getPathValue(\'parentNode.parentNode.previousElementSibling\', \'offsetHeight\')" sense-opts="{name:\'dialogEmail\', axeY:\'scroll\', watchRefresh:\'mailLastUpdate\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-color-a-gradient1"><div class="c4p-card"><span class="c4p-size-bigger">{{email.subject}}</span></div></div><div class="c4p-color-a-gradient2"><div class="c4p-card"><div class="c4p-size-big"><span>{{srvLocale.translations.htmlDialogEmailMailedPeople}}</span></div><div><span ng-repeat="item in contacts"><span ng-show="$index > 0">,</span> <span ng-controller="ctrlNamedObject" ng-init="init(item)">{{itemName}}</span></span></div><div><span ng-repeat="item in emails"><span ng-show="$index > 0">,</span> <span>{{item.email}}</span></span></div></div></div><div class="c4p-color-a-gradient3"><div class="c4p-card"><p>{{email.body}}</p></div></div><div class="c4p-color-a-gradient4" ng-show="documents.length > 0"><div class="c4p-card"><div class="c4p-size-big"><span>{{srvLocale.translations.htmlDialogEmailJoinedDoc}}</span></div><span><span ng-repeat="item in documents"><span ng-show="$index > 0">,</span> <span ng-controller="ctrlNamedObject" ng-init="init(item)">{{itemName}}</span></span></span></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogErrorReport.html", '<div class="row"><div class="c4p-dialog-header"><div class="btn c4p-padding-w-packed c4p-guider-action"><span>{{srvLocale.translations.htmlDialogErrRptPageTitle}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right"><div class="btn c4p-padding-w-packed c4p-guider-action" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div><div class="row"><div class="col-xxs-12" resizecss-height="getResizeHeight() -getPathValue(\'parentNode.parentNode.previousElementSibling\', \'offsetHeight\')" sense-opts="{name:\'dialogEmail\', axeY:\'scroll\', watchRefresh:\'mailLastUpdate\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="c4p-dialog-container"><div class="row"><div class="col-xxs-12"><c4p-input ng-model="feedback.message" placeholder="{{srvLocale.translations.htmlFormMessagePlaceHolder}}" type="textarea" rows="5" cols="40" style="width:100%"></c4p-input></div></div><div class="row"><a class="btn btn-primary col-xxs-4 col-sm-offset-8" data-dismiss="modal" ng-class="{disabled : (feedback.emailRequired && !feedback.email) }" ng-click="submit()">{{srvLocale.translations.htmlButtonSend}}</a></div><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div></div></div></div>'), 
@@ -35414,26 +36044,26 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/dialog/dialogFeedback.html", '<div class="row" resize-opts="{}"><div class="c4p-dialog-header"><div class="col-xxs-12"><ul class="nav nav-pills"><li ng-class="{active:onlyFeedback}"><a class="btn" data-toggle="tab" ng-click="onlyFeedback = true;"><h5>{{srvLocale.translations.htmlGuiderNeedHelp}}</h5></a></li><li class="pull-right"><a ng-click="close()" class="btn"><span class="">&times;</span></a></li></ul></div></div></div><div class="row"><div class="c4p-dialog-container"><div class="col-xxs-12"><div class="tab-content"><div class="tab-pane fade in" id="home" ng-class="{active:!onlyFeedback}" ng-controller="ctrlGuiderDialog"><div class="row"><a4p-carousel class="col-xxs-12" interval="guider_interval" ng-style="{height:(getResizeHeight() - 200)+\'px\'}"><a4p-slide ng-repeat="slide in guider_slides" active="slide.active" ng-style="{height:(getResizeHeight() - 180)+\'px\'}"><div ng-style="{\'margin-top\':(getResizeHeight()/5 - 100)+\'px\'}" class="center-block" style="position:relative;height:350px"><img class="center-block" ng-src="{{slide.image}}"><div class="center-block carousel-caption" ng-bind-html="to_trusted(slide.text)"></div></div></a4p-slide></a4p-carousel></div></div><div class="tab-pane fade in" id="question" ng-class="{active:onlyFeedback}" resizecss-height="getResizeHeight() *0.7" sense-opts="{name:\'dialogFeedback\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="row"><h5 class="col-xxs-12 col-sm-6 col-sm-offset-3">{{srvLocale.translations.htmlMsgFeedbackEmail}}</h5><div class="col-xxs-12 col-sm-6 col-sm-offset-3" ng-show="feedback.emailRequired"><c4p-input title-var="srvLocale.translations.htmlMsgFeedbackContactEmpty" ng-model="feedback.email" placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}" type="mail" style="width:100%" warn-var="feedback.email" required></c4p-input></div></div><div class="row"><div class="col-xxs-12 col-sm-6 col-sm-offset-3" ng-show="feedback.emailRequired"><c4p-input title-var="srvLocale.translations.htmlMsgFeedbackPhone" ng-model="feedback.phone" placeholder="{{srvLocale.translations.htmlFormPhonePlaceHolder}}" type="tel" style="width:100%"></c4p-input></div></div><div class="row"><div class="col-xxs-12 col-sm-6 col-sm-offset-3"><c4p-input ng-model="feedback.message" placeholder="{{srvLocale.translations.htmlFormMessagePlaceHolder}}" type="textarea" rows="5" cols="40" style="width:100%"></c4p-input></div></div><div class="row"><a class="btn btn-success col-xxs-12 col-sm-3 col-sm-offset-6" data-dismiss="modal" ng-class="{disabled : (feedback.emailRequired && !feedback.email) }" ng-click="submit()">{{srvLocale.translations.htmlButtonSend}}</a></div><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogGoToMeeting.html", '<div class="modal-body c4p-vertical-container"><div class="c4p-dialog c4p-vertical-align"><div class="row"><div class="col-xxs-offset-1 col-xxs-10 col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 c4p-modal-goto-meeting-container"><div class="row c4p-dialog-header c4p-color-gradient0"><div class="col-xxs-11"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlGotoMeeting}}</span></div></div><div class="col-xxs-1"><div class="btn c4p-padding-w-packed c4p-modal-confirm-btns" ng-click="close()"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div><div class="row"><div class="col-xxs-12" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group vertical-container"><div class="vertical-align">{{srvLocale.translations.htmlCreateEmptyMeeting}}</div><div class="btn c4p-padding-w-packed c4p-stroke pull-right" ng-click="createNewMeeting()"><span class="c4p-icon-std glyphicon glyphicon-arrow-right"></span></div></div><div class="c4p-form-group vertical-container"><div class="vertical-align">{{srvLocale.translations.htmlGotoMeetingWith}} {{itemName}}</div><div class="btn c4p-padding-w-packed c4p-stroke pull-right" ng-click="createNewMeeting(item)"><span class="c4p-icon-std glyphicon glyphicon-arrow-right"></span></div></div><div class="c4p-form-group row" c4p-show="relatedEvents.length > 0"><div class="row"><div class="col-xxs-10 control-label">{{srvLocale.translations.htmlUseExistingMeeting}}</div></div><div class="col-xxs-10"><select class="form-control" ng-model="selectedEvent" ng-options="e.name for e in relatedEvents"></select></div><div class="col-xxs-2"><div class="btn c4p-padding-w-packed c4p-stroke pull-right" ng-click="gotoMeeting()"><span class="c4p-icon-std glyphicon glyphicon-arrow-right"></span></div></div></div></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogICal.html", '<div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-padding-w-packed c4p-color-action-transparent"><span>{{srvLocale.translations.htmlActionName[\'sendICal\']}}</span></div><div class="btn c4p-color-action-transparent" ng-click="openDialogContacts()"><span class="glyphicon glyphicon-user"></span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right"><div class="btn c4p-padding-w-packed c4p-color-action-transparent" ng-click="sendICal()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-envelope"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent-transparent c4p-stroke" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div class="c4p-color-a-gradient3"><div class="row"><div class="col-xxs-12" resizecss-height="getResizeHeight() -getPathValue(\'parentNode.parentNode.previousElementSibling\', \'offsetHeight\')" sense-opts="{name:\'dialogICal\', axeY:\'scroll\', watchRefresh:\'mailLastUpdate\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-color-a-gradient1"><div class="c4p-card"><span class="c4p-size-bigger">{{ical.title}}</span><br><span>{{srvLocale.formatDate(ical.startDate, \'short\')}}</span> - <span>{{srvLocale.formatDate(ical.endDate, \'short\')}}</span><br><span>{{ical.location}}</span></div></div><div class="c4p-form-group c4p-color-a-gradient2"><div class="row"><div><c4p-input title-var="srvLocale.translations.htmlFormTo" ng-model="emailInput" ng-blur="addEmailToList(emailInput);emailInput=\'\';" placeholder="{{srvLocale.translations.htmlFormToPlaceHolder}}" style="width: 100%"></c4p-input></div></div><div class="row c4p-mail-attachment-list c4p-color-a-gradient2" ng-show="(emails.length > 0 || contacts.length > 0)"><div class="col-xxs-12"><div><div ng-repeat="item in contacts" class="row c4p-mail-attachment" ng-class="{\'c4p-edit\': modeEdit, \'c4p-noedit\': !modeEdit}"><span ng-controller="ctrlNamedObject" ng-init="init(item)" class="c4p-mail-attachment-name">{{itemName}}</span> <a ng-click="closeAlert($index,\'contact\')"><span class="glyphicon glyphicon-remove"></span></a></div><div ng-repeat="item in emails" class="c4p-mail-attachment" ng-class="{\'c4p-edit\': modeEdit, \'c4p-noedit\': !modeEdit}"><span class="c4p-mail-attachment-name">{{item.email}}</span> <a ng-click="closeAlert($index,\'email\')"><span class="glyphicon glyphicon-remove"></span></a></div></div></div></div><div ng-show="errorMap.email.length > 0"><div class="help-inline c4p-field-error-message" ng-repeat="error in errorMap.email">{{error}}</div></div></div><div class="c4p-color-a-gradient3"><div class="c4p-card"><p>{{ical.description}}</p></div></div><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div></div></div></div>'), 
-    $templateCache.put("partials/dialog/dialogNote.html", '<div class="row"><div class="c4p-dialog-header"><div class="col-xxs-12"><ul class="nav nav-pills"><li class="hidden-xs"><a class="btn disabled"><div ng-switch="" on="note.a4p_type"><h5 ng-switch-when="Report">{{srvLocale.translations.htmlDialogNotePageTitleReport}}</h5><h5 ng-switch-default="">{{srvLocale.translations.htmlDialogNotePageTitleNote}}</h5></div></a></li><li ng-show="removeEnabled && modeEdit"><a class="btn c4p-color-cancel-transparent" ng-click="remove()"><span class="glyphicon glyphicon-trash-o"></span></a></li><li ng-show="srvData.isMethodPossibleForObject(\'shareDocumentByEmail\', note)"><a class="btn" ng-click="submitAndShare()" ng-class="{\'disabled\': srvData.isMethodDisabledForObject(\'shareDocumentByEmail\', note)}"><span class="glyphicon glyphicon-envelope"></span></a></li><li ng-show="srvData.isMethodPossibleForObject(\'shareDocumentByEmail\', note)"><a class="btn" ng-click="submitAndShareByChatter()" ng-class="{\'disabled\': srvData.isMethodDisabledForObject(\'shareDocumentByChatter\', note)}"><span class="glyphicon glyphicon-share"></span></a></li><li ng-show="editable && !modeEdit"><a class="btn" ng-click="setModeEdit(true)"><span class="glyphicon glyphicon-edit"></span></a></li><li ng-show="modeEdit"><a class="btn" ng-repeat="footer in toolboxInEditMode" ng-click="footer.fn()"><span class="glyphicon glyphicon-{{footer.icon}}"></span></a></li><li class="pull-right"><a class="btn" ng-click="close()"><span class="">&times;</span></a></li><li class="pull-right" ng-hide="!modeEdit"><a class="btn" ng-click="submit()"><div ng-class="{\'c4p-color-ok-transparent\' : objectValidated, \'c4p-color-cancel-transparent\' : !objectValidated}"><span class="glyphicon glyphicon-check"></span></div></a></li></ul></div></div></div><div class="row c4p-dialog-edit-container col-xxs-12 c4p-color-a-gradient{{objectGroups.length}}" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{name:\'dialogNote\', axeY:\'scroll\', watchRefresh:\'noteLastUpdate\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" style="height: 100%"><div ng-switch="" on="note.a4p_type"><div ng-switch-when="Report"><div ng-include="\'partials/dialog/dialogNote_report.html\'"></div></div><div ng-switch-default=""><div ng-include="\'partials/dialog/dialogNote_note.html\'"></div></div></div></div>'), 
-    $templateCache.put("partials/dialog/dialogNote_note.html", '<section class="row"><div class="c4p-color-a-gradient{{objectGroups.length}}"><div ng-repeat="group in objectGroups"><div class="c4p-color-a-gradient{{$index+1}} c4p-form-group"><div ng-repeat="field in group.groupFields"><div ng-switch="" on="field.type"><div ng-switch-default="text"><c4p-input warn-var="field.warn" title-var="field.title" ng-model="note[field.key]" type-var="field.type" rows="5" cols="20" ng-change="onFieldChanged(field)"></c4p-input></div><div ng-switch-when="textarea"><label class="control-label a4p-dot">&nbsp;</label><blockquote text-angular="text-angular" placeholder="{{field.title}}..." ng-model="note[field.key]"></blockquote></div></div></div></div></div></div></section><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div>'), 
+    $templateCache.put("partials/dialog/dialogNote.html", '<div ng-controller="ctrlEditFocus"><div class="row"><div class="c4p-dialog-header"><div class="col-xxs-12"><ul class="nav nav-pills"><li class="hidden-xs"><a class="btn disabled"><div ng-switch="" on="note.a4p_type"><h5 ng-switch-when="Report">{{srvLocale.translations.htmlDialogNotePageTitleReport}}</h5><h5 ng-switch-default="">{{srvLocale.translations.htmlDialogNotePageTitleNote}}</h5></div></a></li><li ng-show="removeEnabled && modeEdit"><a class="btn c4p-color-cancel-transparent" ng-click="startSpinner();remove()" ng-disabled="inputHasFocus"><span class="glyphicon glyphicon-trash-o"></span></a></li><li ng-show="srvData.isMethodPossibleForObject(\'shareDocumentByEmail\', note)"><a class="btn" ng-click="startSpinner();submitAndShare()" ng-disabled="inputHasFocus" ng-class="{\'disabled\': srvData.isMethodDisabledForObject(\'shareDocumentByEmail\', note)}"><span class="glyphicon glyphicon-envelope"></span></a></li><li ng-show="srvData.isMethodPossibleForObject(\'shareDocumentByEmail\', note)"><a class="btn" ng-click="startSpinner();submitAndShareByChatter()" ng-disabled="inputHasFocus" ng-class="{\'disabled\': srvData.isMethodDisabledForObject(\'shareDocumentByChatter\', note)}"><span class="glyphicon glyphicon-share"></span></a></li><li ng-show="editable && !modeEdit"><a class="btn" ng-click="startSpinner();setModeEdit(true)" ng-disabled="inputHasFocus"><span class="glyphicon glyphicon-edit"></span></a></li><li ng-show="modeEdit"><a class="btn" ng-disabled="inputHasFocus" ng-repeat="footer in toolboxInEditMode" ng-click="startSpinner();footer.fn()"><span class="glyphicon glyphicon-{{footer.icon}}"></span></a></li><li class="pull-right"><a class="btn" ng-click="startSpinner();close()" ng-disabled="inputHasFocus"><span class="">&times;</span></a></li><li class="pull-right" ng-hide="!modeEdit"><a class="btn" ng-click="startSpinner();submit()" ng-disabled="inputHasFocus"><div ng-class="{\'c4p-color-ok-transparent\' : objectValidated, \'c4p-color-cancel-transparent\' : !objectValidated}"><span class="glyphicon glyphicon-check"></span></div></a></li></ul></div></div></div><div class="row c4p-dialog-edit-container col-xxs-12 c4p-color-a-gradient{{objectGroups.length}}" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{name:\'dialogNote\', axeY:\'scroll\', watchRefresh:\'noteLastUpdate\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" style="height: 100%"><div ng-switch="" on="note.a4p_type"><div ng-switch-when="Report"><div ng-include="\'partials/dialog/dialogNote_report.html\'"></div></div><div ng-switch-default=""><div ng-include="\'partials/dialog/dialogNote_note.html\'"></div></div></div></div></div>'), 
+    $templateCache.put("partials/dialog/dialogNote_note.html", '<section class="row"><div class="c4p-color-a-gradient{{objectGroups.length}}"><div ng-repeat="group in objectGroups"><div class="c4p-color-a-gradient{{$index+1}} c4p-form-group"><div ng-repeat="field in group.groupFields"><div ng-switch="" on="field.type"><div ng-switch-default="text"><c4p-input warn-var="field.warn" title-var="field.title" ng-model="note[field.key]" type-var="field.type" rows="5" cols="20" ng-focus="setInputFocusState(true)" ng-blur="setInputFocusState(false)" ng-change="onFieldChanged(field)"></c4p-input></div><div ng-switch-when="textarea"><label class="control-label a4p-dot">&nbsp;</label><blockquote text-angular="text-angular" placeholder="..." ng-model="note[field.key]" ng-focus="setInputFocusState(true)" ng-blur="setInputFocusState(false);onFieldChanged(field);" ng-change="onFieldChanged(field)"></blockquote></div></div></div></div></div></div></section><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div>'), 
     $templateCache.put("partials/dialog/dialogNote_report.html", '<div class="row" ng-show="modeEdit"><div class="col-xxs-12"><form class="c4p-color-a-gradient{{objectGroups.length}}"><marker ng-repeat="group in objectGroups"><div class="c4p-color-a-gradient{{$index+1}} c4p-form-group"><span class="c4p-form-group-title">{{group.title}}</span><fieldset ng-repeat="field in group.groupFields"><c4p-input warn-var="field.warn" title-var="field.title" ng-model="note[field.key]" type-var="field.type" rows="5" cols="20" ng-change="onFieldChanged(field)"></c4p-input></fieldset></div></marker></form><div class="col-xxs-12 c4p-form-group"><span class="c4p-form-group-title"><c4p-pluralize count="toolboxContacts.length" when="srvLocale.translations.pluralHtmlTextReportPeople"></span><ul class="nav nav-pills" ng-repeat="item in toolboxContacts"><li ng-controller="ctrlNamedObject" ng-init="init(item)"><span class="c4p-detail-c-bg"><span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> {{itemName}}</span> <span class="glyphicon glyphicon-times-circle c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeContact($index)"></span> </li></ul></div><div class="col-xxs-12 c4p-form-group"><span class="c4p-form-group-title"><c4p-pluralize count="toolboxDocs.length" when="srvLocale.translations.pluralHtmlTextReportDoc"></span><ul class="nav nav-pills" ng-repeat="item in toolboxDocs"><li ng-controller="ctrlNamedObject" ng-init="init(item)"><span class="c4p-detail-c-bg"><span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> {{itemName}}</span> <span class="glyphicon glyphicon-remove c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeDoc($index)"></span> </li></ul></div><div class="col-xxs-12 c4p-form-group"><span class="c4p-form-group-title">{{srvLocale.translations.htmlDialogNoteReportObservation}}</span><ul class="nav nav-pills" ng-repeat="item in toolboxRatings"><span ng-show="modeEdit" ng-include="\'partials/navigation/cards/4_rating.html\'" style="padding:0 10px"></span> <span ng-hide="modeEdit" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span> <span class="glyphicon glyphicon-remove c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeRating($index)"></span></ul></div></div><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div><div class="row" ng-controller="ctrlDetailedObject" ng-init="init(note)" c4p-show="!modeEdit"><div class="col-xxs-12"><div class="c4p-color-a-gradient{{$index}}" ng-repeat="card in cards"><div class="c4p-card"><div ng-show="isFile && $first" class="btn" ng-class="{\'disabled\': actionMap.viewDocument.disabled}" ng-click="doAction(\'viewDocument\')" style="background: url(\'{{item.thumb_url}}\') no-repeat center center;width:100%;height: 250px;-webkit-background-size: contain"></div><span ng-repeat="group in card.groups" style="margin:0;padding:0" class="c4p-size-{{group.size}}"><br ng-show="card.brSeparated && ($index > 0)"><span><span ng-show="group.synchro && (item.c4p_synchro.creating || item.c4p_synchro.writing || item.c4p_synchro.reading || item.c4p_synchro.deleting)" class="glyphicon" ng-class="{\r\n                                    \'glyphicon-trash\'    : (item.c4p_synchro.deleting > 1),\r\n                                    \'glyphicon-remove\'   : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),\r\n                                    \'glyphicon-upload\'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),\r\n                                    \'glyphicon-download\' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),\r\n                                    \'glyphicon-spinner\'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),\r\n                                    \'icon-spin\'          : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))\r\n                                  }"></span>  <span ng-show="group.name">{{itemName}}</span> <span ng-show="group.title">{{group.title}}</span></span> <span ng-repeat="field in group.fields" class="c4p-size-{{field.size}}"><span ng-show="($index > 0)"></span> <span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="currency"><span>{{item | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{item}}%</span></span> <span ng-switch-when="probability"><span>{{item}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(item, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(item, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(item, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{item | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{item}}</span></span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="currency"><span>{{field.value | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{field.value}}%</span></span> <span ng-switch-when="probability"><span>{{field.value}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(field.value, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(field.value, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(field.value, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{field.value | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{field.value}}</span></span></span></span></span> <span ng-show="field.suffix">{{field.suffix}}</span></span></span></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogSelectCrms.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogSelectCrmUse}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="validateDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:\'visibleElements.length\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="crm in possibleCrms"><div ng-click="toggleItem(crm)" class="clearfix c4p-link5"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':!selectedCrms[crm]}"></span><label class="pull-left" ng-class="{scrollTop:element.scrollTo}"><span>{{srvLocale.translations.htmlConfigCrmList[crm]}}</span></label></div></li></ul></div></div>'), 
     $templateCache.put("partials/dialog/dialogSelectObjects.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed c4p-color-action-transparent c4p-stroke" ng-show="createButton" ng-click="createObject()"><span class="c4p-icon-std glyphicon glyphicon-plus"></span></div><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlTitleSelection[type]}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="validateDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div class="c4p-dialog-search-container c4p-color-a-dark-iii"><div class="row"><div class="col-xxs-12"><span>{{srvLocale.translations.htmlTitleSelection[type]}}</span></div></div><div class="row" ng-show="suggestedOptions.length"><div class="col-xxs-12 btn-group dropdown"><button class="btn dropdown-toggle" data-toggle="dropdown" style="text-align: left"><span class="c4p-n_1">{{srvLocale.translations.htmlTypeName[type]}}</span><span class="glyphicon glyphicon-caret-down"></span></button><ul class="dropdown-menu" style="width:100%"><li ng-repeat="suggestedOption in suggestedOptions"><a ng-click="toggleSuggestion($index)"><span class="glyphicon glyphicon-ok" ng-show="suggestedOption.selected"></span> <span style="vertical-align:top">{{srvLocale.translations.htmlSuggestionName[suggestedOption.name]}}</span> <span class="badge glyphicon glyphicon-{{suggestedOption.icon}}" style="vertical-align:bottom" ng-show="suggestedOption.icon"></span></a></li></ul></div></div><div class="row"><div class="controls controls-row col-xxs-12" style="position: relative"><input style="width:90%" placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}" ng-model="showFilter"><span style="position: absolute; right: 10px" ng-show="forceSearch" ng-click="search()"><span class="glyphicon glyphicon-search"></span></span></div></div><div class="row"><div class="col-xxs-12" ng-show="(suggestedOptions | filter:{selected:true}).length">{{srvLocale.translations.htmlDialogSelectObjectsSugestionFilterIn}} <span ng-repeat="suggestedOption in suggestedOptions | filter:{selected:true}"><a class="active">{{srvLocale.translations.htmlSuggestionName[suggestedOption.name]}}</a> <span ng-hide="$last">,</span></span></div></div><div class="row"><div class="col-xxs-12" ng-show="(suggestedOptions | filter:{selected:true}).length == 0">{{srvLocale.translations.htmlDialogSelectObjectsSugestionFilterIn}} <a>{{srvLocale.translations.htmlSuggestionName[\'all\']}}</a></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:\'visibleElements.length\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="element in (visibleElements = ( elements | listFilter:showFilter:false:\'selected\' | orderBy:\'showName\':false ))"><div ng-click="toggleItem(element.id)" class="clearfix c4p-link5 c4p-select-objects-item"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':!selectedIndex[element.id].selected}"></span> <div class="pull-left" ng-controller="ctrlNamedObject" ng-init="init(element.object)" ng-class="{scrollTop:element.scrollTo}"><span>{{itemName}}</span></div><span ng-repeat="suggestedOption in suggestedOptions" class="badge glyphicon glyphicon-{{suggestedOption.icon}}" ng-show="selectedIndex[element.id][suggestedOption.name]"></span></div></li></ul></div></div>'), 
     $templateCache.put("partials/dialog/dialogShowImage.html", '<div class="c4p-modal-img" ng-style="{width:getResizeWidth()+\'px\', height:getResizeHeight()+\'px\'}" resize-opts="{name:\'dialog_ctrlShowImage\'}" sense-opts="{name:\'dialog_ctrlShowImage\', axeX:\'swipe\', axeY:\'\', init:\'setSensePanel($sense);\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', wheelAction:\'zoom\', zoom: true, momentum: 0, zoomMin: 1, zoomMax: 10}" sense-swipeend="onImageSwipe($event)"><img ng-src="{{imageObject.fileUrl}}"><div class="c4p-modal-close" ng-click="close()"><span class="icon-3x glyphicon glyphicon-times-circle c4p-stroke"></span></div></div>'), 
-    $templateCache.put("partials/dialog/edit_object.html", '<div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="col-xxs-12"><ul class="nav nav-pills"><li class="hidden-xs" ng-hide="removeEnabled"><a class="btn disabled"><h5>{{srvLocale.translations.htmlTitleNewObject[objectTypeLocale]}}</h5></a></li><li class="hidden-xs" ng-show="removeEnabled"><a class="btn disabled"><h5>{{srvLocale.translations.htmlTitleEditObject[objectTypeLocale]}}</h5></a></li><li ng-show="removeEnabled"><a class="btn c4p-color-cancel-transparent" ng-click="remove()"><span class="glyphicon glyphicon-trash-o"></span></a></li><li class="pull-right"><a class="btn" ng-click="close()"><span class="">&times;</span></a></li><li class="pull-right"><a class="btn" ng-click="submit()"><div ng-class="{\'c4p-color-ok-transparent\' : objectValidated, \'c4p-color-cancel-transparent\' : !objectValidated}"><span class="glyphicon glyphicon-check"></span></div></a></li><li class="pull-right" ng-show="hasOpenImportContactDialog && !removeEnabled"><a class="btn btn-link" ng-click="openImportContactDialog()"><span>{{srvLocale.translations.htmlDialogTextImport}}</span></a></li></ul></div></div></div><div class="row c4p-dialog-bg" resizecss-height="(getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\'))*0.9"><div class="col-xs-12 col-sm-8 c4p-dialog-edit-container c4p-color-a-gradient{{objectGroups.length}}" sense-opts="{axeY:\'scroll\', watchRefresh:\'objectLastChange\', init: \'setSenseScroller($sense)\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', pageSelector: \'marker\', momentum:0}" sense-afterscrollend="onSenseScrollEnd($event)" style="height: 100%"><form class="c4p-color-a-gradient{{objectGroups.length}}"><marker ng-repeat="group in objectGroups"><div class="c4p-color-a-gradient{{$index+1}} c4p-form-group"><span class="c4p-form-group-title">{{group.title}}</span><fieldset ng-repeat="field in group.groupFields"><c4p-input warn-var="field.warn" title-var="field.title" ng-model="object[field.key]" type-var="field.type" options-var="field.optionList" rows="5" cols="20" ng-change="onFieldChanged(field)"></c4p-input></fieldset></div></marker><div class="row"><div class="col-xs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></form></div><div class="hidden-xs col-sm-4 c4p-color-a-gradient{{objectGroups.length}}" sense-opts="{axeY:\'scroll\', watchRefresh:\'objectLastChange\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" style="height: 100%"><ul class="col-xxs-12 c4p-dialog-menu c4p-color-a-gradient{{objectGroups.length}}"><li class="c4p-dialog-menu-item c4p-color-a-gradient{{$index+1}}" ng-repeat="group in objectGroups" ng-class="{\'active\': pageY == $index}" ng-click="setSenseScrollerPageY($index)"><span ng-class="{\'c4p-field-error-message\': (group.warn.length > 0)}">{{group.title}}</span></li></ul></div></div>'), 
-    $templateCache.put("partials/dialog/message.html", '<div class="modal-body c4p-vertical-container"><div class="c4p-dialog c4p-vertical-align"><div class="row"><div class="col-xxs-offset-1 col-xxs-10 col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 c4p-modal-confirm-container"><div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-padding-w-packed"><span>{{text}}</span></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div class="row"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><ul><li ng-repeat="item in textArray"><span>{{item}}</span></li></ul></div></div></div></div></div></div></div></div>'), 
+    $templateCache.put("partials/dialog/edit_object.html", '<div ng-controller="ctrlEditFocus"><div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="col-xxs-12"><ul class="nav nav-pills"><li class="hidden-xs" ng-hide="removeEnabled"><a class="btn disabled"><h5>{{srvLocale.translations.htmlTitleNewObject[objectTypeLocale]}}</h5></a></li><li class="hidden-xs" ng-show="removeEnabled"><a class="btn disabled"><h5>{{srvLocale.translations.htmlTitleEditObject[objectTypeLocale]}}</h5></a></li><li ng-show="removeEnabled"><a class="btn c4p-color-cancel-transparent" ng-click="remove()" ng-disabled="inputHasFocus"><span class="glyphicon glyphicon-trash-o"></span></a></li><li class="pull-right"><a class="btn" ng-click="startSpinner();close()" ng-disabled="inputHasFocus"><span class="">&times;</span></a></li><li class="pull-right"><a class="btn" ng-click="startSpinner();submit()" ng-disabled="inputHasFocus"><div ng-class="{\'c4p-color-ok-transparent\' : objectValidated, \'c4p-color-cancel-transparent\' : !objectValidated}"><span class="glyphicon glyphicon-check"></span></div></a></li><li class="pull-right" ng-show="hasOpenImportContactDialog && !removeEnabled"><a class="btn btn-link" ng-click="openImportContactDialog()"><span>{{srvLocale.translations.htmlDialogTextImport}}</span></a></li></ul></div></div></div><div class="row c4p-dialog-bg" resizecss-height="(getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\'))*0.9"><div class="col-xs-12 col-sm-8 c4p-dialog-edit-container c4p-color-a-gradient{{objectGroups.length}}" sense-opts="{axeY:\'scroll\', watchRefresh:\'objectLastChange\', init: \'setSenseScroller($sense)\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', pageSelector: \'marker\', momentum:0}" sense-afterscrollend="onSenseScrollEnd($event)" style="height: 100%"><form class="c4p-color-a-gradient{{objectGroups.length}}"><marker ng-repeat="group in objectGroups"><div class="c4p-color-a-gradient{{$index+1}} c4p-form-group"><span class="c4p-form-group-title">{{group.title}}</span><fieldset ng-repeat="field in group.groupFields"><c4p-input warn-var="field.warn" title-var="field.title" ng-model="object[field.key]" type-var="field.type" options-var="field.optionList" rows="5" cols="20" ng-focus="setInputFocusState(true)" ng-blur="setInputFocusState(false)" ng-change="onFieldChanged(field)"></c4p-input></fieldset></div></marker><div class="row"><div class="col-xs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></form></div><div class="hidden-xs col-sm-4 c4p-color-a-gradient{{objectGroups.length}}" sense-opts="{axeY:\'scroll\', watchRefresh:\'objectLastChange\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" style="height: 100%"><ul class="col-xxs-12 c4p-dialog-menu c4p-color-a-gradient{{objectGroups.length}}"><li class="c4p-dialog-menu-item c4p-color-a-gradient{{$index+1}}" ng-repeat="group in objectGroups" ng-class="{\'active\': pageY == $index}" ng-click="setSenseScrollerPageY($index)"><span ng-class="{\'c4p-field-error-message\': (group.warn.length > 0)}">{{group.title}}</span></li></ul></div></div></div>'), 
+    $templateCache.put("partials/dialog/message.html", '<div class="modal-body c4p-vertical-container"><div class="c4p-dialog c4p-vertical-align"><div class="row"><div class="col-xxs-offset-1 col-xxs-10 col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 c4p-modal-confirm-container"><div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-padding-w-packed"><span>{{text}}</span></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="startSpinner();close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div class="row"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><ul><li ng-repeat="item in textArray"><span>{{item}}</span></li></ul></div></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/pin_init.html", '<div class="modal-body vertical-container"><div class="c4p-dialog vertical-align"><div class="row"><div class="col-xxs-offset-1 col-xxs-10 col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 c4p-modal-confirm-container"><div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogPINModePageTitle}}</span></div><div class="pull-right" ng-hide="false"><div class="row c4p-modal-confirm-btns"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="submit()"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div><div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><form class="form-horizontal c4p-color-a-gradient1" name="pinForm" novalidate><div class="form-group row c4p-color-a-gradient1" ng-class="{\'has-error\':(pinForm.code.$dirty && pinForm.code.$invalid)}"><span class="help-inline" ng-show="!pinForm.code.$dirty || !pinForm.code.$invalid">{{srvLocale.translations.htmlDialogPINModeInit}}</span> <span ng-show="pinForm.code.$dirty && pinForm.code.$invalid"><span class="help-inline c4p-field-error-message" ng-show="pinForm.code.$error.required">{{srvLocale.translations.htmlDialogPINModeRequired}}</span></span><input id="code" name="code" class="form-control" type="password" ng-model="pinCode" required></div></form></div></div><div ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/pin_locked.html", '<div class="modal-body vertical-container"><div class="c4p-dialog vertical-align"><div class="row"><div class="col-xxs-offset-1 col-xxs-10 col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 c4p-modal-confirm-container"><div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogPINModePageTitle}}</span></div><div class="pull-right" ng-hide="false"><div class="row c4p-modal-confirm-btns"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="submit()"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div><div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><form class="form-horizontal c4p-color-a-gradient1" name="pinForm" novalidate><div class="form-group row c4p-color-a-gradient1" ng-class="{\'has-error\':(pinForm.code.$dirty && pinForm.code.$invalid)}"><span class="help-inline" ng-hide="(pinForm.code.$dirty && pinForm.code.$invalid) || oldPinCodeError">{{srvLocale.translations.htmlDialogPINModeLocked}}</span> <span ng-show="pinForm.code.$dirty && pinForm.code.$invalid"><span class="help-inline c4p-field-error-message" ng-show="pinForm.code.$error.required">{{srvLocale.translations.htmlDialogPINModeRequired}}</span></span> <span ng-show="oldPinCodeError"><span class="help-inline c4p-field-error-message">{{srvLocale.translations.htmlDialogPINModeKO}}</span></span><input id="code" name="code" class="form-control" type="password" ng-model="pinCode" required></div></form></div></div><div ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/pin_modify.html", '<div class="modal-body vertical-container"><div class="c4p-dialog vertical-align"><div class="row"><div class="col-xxs-offset-1 col-xxs-10 col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 c4p-modal-confirm-container"><div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogPINModePageTitle}}</span></div><div class="pull-right" ng-hide="false"><div class="row c4p-modal-confirm-btns"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="submitNewPinCode()"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div><div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" style="height:13em"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><form class="form-horizontal c4p-color-a-gradient2" name="pinForm" novalidate><div class="form-group row c4p-color-a-gradient2" ng-class="{\'has-error\':((pinForm.oldPinCode.$dirty && pinForm.oldPinCode.$invalid) || oldPinCodeError)}"><div class="row"><span ng-hide="(pinForm.oldPinCode.$dirty && pinForm.oldPinCode.$invalid) || oldPinCodeError">{{srvLocale.translations.htmlDialogPINModeOld}}</span> <span ng-show="pinForm.oldPinCode.$dirty && pinForm.oldPinCode.$invalid"><span class="help-inline c4p-field-error-message" ng-show="pinForm.oldPinCode.$error.required">{{srvLocale.translations.htmlDialogPINModeRequired}}</span></span> <span ng-show="oldPinCodeError"><span class="help-inline c4p-field-error-message">{{srvLocale.translations.htmlDialogPINModeKO}}</span></span><input id="oldPinCode" name="oldPinCode" class="form-control" type="password" ng-model="oldPinCode" required></div></div><div class="form-group row c4p-color-a-gradient2" ng-class="{\'has-error\':((pinForm.newPinCode.$dirty && pinForm.newPinCode.$invalid) || newPinCodeError)}"><div class="row"><span ng-hide="(pinForm.newPinCode.$dirty && pinForm.newPinCode.$invalid) || newPinCodeError">{{srvLocale.translations.htmlDialogPINModeNew}}</span> <span ng-show="pinForm.newPinCode.$dirty && pinForm.newPinCode.$invalid"><span class="help-inline c4p-field-error-message" ng-show="pinForm.newPinCode.$error.required">{{srvLocale.translations.htmlDialogPINModeRequired}}</span></span> <span ng-show="sameAsOldPin()"><span class="help-inline c4p-field-error-message">{{srvLocale.translations.htmlDialogPINModeDifferent}}</span></span><input id="newPinCode" name="newPinCode" class="form-control" type="password" ng-model="newPinCode" required></div></div></form></div></div><div ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/timeline.html", '<div resize-opts="{name:\'timeline_header\'}"><div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-color-action-transparent" ng-click="close()"><span class="glyphicon glyphicon-arrow-left"></span></div><div class="btn c4p-padding-w-packed c4p-color-action-transparent"><span>{{objectName}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div></div></div></div><div class="row c4p-dialog-bg" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')"><div class="col-xxs-12 c4p-dialog-edit-container c4p-color-gradient0" sense-opts="{axeY:\'scroll\', init: \'setSenseScroller($sense)\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', pageSelector: \'marker\'}" sense-afterscrollend="onSenseScrollEnd($event)" style="height: 100%"><c4p-timeline data="buildTimelineData()"></c4p-timeline></div></div>'), 
-    $templateCache.put("partials/guider/connection.html", '<div ng-controller="ctrlConfig" class="c4p-vertical-container"><div class="c4p-vertical-align"><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3></div><form class="form-horizontal" name="loginForm"><div class="form-group row"><div class="col-xxs-12 col-sm-offset-3 col-sm-6"><input type="mail" class="form-control" ng-model="configEmail" ng-focus="setInputFocusState(true)" ng-blur="setInputFocusState(false)" placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}" required></div></div><div class="form-group row"><div class="col-xxs-12 col-sm-offset-3 col-sm-6"><input class="form-control" ng-model="configPassword" ng-focus="setInputFocusState(true)" ng-blur="setInputFocusState(false)" placeholder="{{srvLocale.translations.htmlFormPasswordPlaceHolder}}" type="password" required></div></div><div class="row"><button class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-3" ng-click="c4pConnection()" ng-disabled="getInputFocusState()">{{srvLocale.translations.htmlButtonLogin}}</button> <button class="btn btn-link white col-xxs-12 col-sm-3" ng-click="gotoSlide(pageGuider, slideGuiderRequestPassword)" ng-disabled="getInputFocusState()">{{srvLocale.translations.htmlButtonPasswordForgotten}}</button></div><div class="form-group row"><button class="btn btn-link pull-left white col-xxs-12 col-sm-offset-6 col-sm-3"><c4p-check ng-model="rememberPassword" readonly></c4p-check><label>{{translate(\'htmlGuiderFormStaySignedIn\')}}</label></button></div></form></div></div>'), 
-    $templateCache.put("partials/guider/footer.html", '<ul class="nav nav-pills" resize-opts="{name:\'guider_footer\'}"><li ng-click="doubleSetDemo(true)"><div class="btn btn-link"><span style="color: grey;font-size: 50%"><span app-version=""></span><span>{{srvConfig.c4pBuildDate}} {{srvConfig.env}}</span> <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span></span></div></li><li class="pull-right"><a class="btn pull-right" ng-click="openDialogSendFeedbackReport(\'Login Feedback\')" ng-hide="getInputFocusState()" c4p-waiting-click=""><span class="c4p-icon-std glyphicon glyphicon-question"></span></a></li></ul>'), 
-    $templateCache.put("partials/guider/header.html", '<ul class="nav nav-pills" resize-opts="{name:\'guider_header\'}"><li ng-show="slide != slideGuiderRegister"><a class="btn btn-link" ng-click="gotoRegister()" ng-disabled="getInputFocusState()">{{srvLocale.translations.htmlButtonRegister}}</a></li><li class="dropdown pull-right"><a class="dropdown-toggle" ng-show="getInputFocusState()">{{srvLocale.lang.title}} <b class="caret"></b></a> <a class="dropdown-toggle" data-toggle="dropdown" ng-hide="getInputFocusState()">{{srvLocale.lang.title}} <b class="caret"></b></a><ul class="dropdown-menu" role="menu" aria-labelledby="drop3"><li ng-repeat="link in srvLocale.langs"><a class="white smaller-70" ng-click="srvLocale.setLang(link)">{{link.title}}</a></li></ul></li></ul>'), 
-    $templateCache.put("partials/guider/main.html", '<div class="c4p-login-body" resize-opts="{name:\'guider_body\'}"><header ng-include="\'partials/guider/header.html\'"></header><div id="a4pPage" resizecss-height="getResizePathValue(\'guider_body\', \'\', \'offsetHeight\') -getResizePathValue(\'guider_header\', \'\', \'offsetHeight\') -getResizePathValue(\'guider_footer\', \'\', \'offsetHeight\')" resize-opts="{name:\'guider_index_a4pPage_scroll_container\'}" sense-opts="{name:\'guider_index\', axeY:\'scroll\', watchRefresh:\'slide\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div ng-switch="" on="getSlideFromGuider()" class="col-xxs-12 c4p-animate-switch-container"><div ng-switch-when="connection" class="c4p-animate-switch"><div ng-include="\'partials/guider/connection.html\'"></div></div><div ng-switch-when="validation" class="col-xxs-12 c4p-animate-switch"><div ng-include="\'partials/guider/validation.html\'"></div></div><div ng-switch-when="requestPassword" class="col-xxs-12 c4p-animate-switch"><div ng-include="\'partials/guider/requestPassword.html\'"></div></div><div ng-switch-when="validationReceiveRes" class="col-xxs-12 c4p-animate-switch"><div ng-include="\'partials/guider/validationReceiveRes.html\'"></div></div><div ng-switch-default="" class="col-xxs-12 c4p-animate-switch"><div ng-include="\'partials/guider/register.html\'"></div></div></div></div><footer ng-include="\'partials/guider/footer.html\'"></footer></div>'), 
-    $templateCache.put("partials/guider/register.html", '<div ng-controller="ctrlConfig" class="c4p-vertical-container"><div class="c4p-vertical-align"><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3></div><form class="form-horizontal" name="loginForm" novalidate><div class="form-group row"><div class="col-xxs-12 col-sm-offset-3 col-sm-6"><input type="mail" class="form-control" ng-model="configEmail" ng-focus="setInputFocusState(true)" ng-blur="setInputFocusState(false)" placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}" required></div></div><div class="row"><a class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-3" ng-click="createAccount()" ng-disabled="getInputFocusState()">{{srvLocale.translations.htmlButtonRegister}}</a> <a class="btn btn-link white col-xxs-12 col-sm-3" ng-click="gotoLogin()" ng-disabled="getInputFocusState()">{{srvLocale.translations.htmlTextAlreadyRegistered}}</a></div></form></div></div>'), 
-    $templateCache.put("partials/guider/requestPassword.html", '<div ng-controller="ctrlConfig" class="c4p-vertical-container"><div class="c4p-vertical-align"><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3><h7 class="col-xxs-12 col-sm-offset-3 col-sm-6 white bigger">{{translate(\'htmlGuiderTextPasswordForgotten\')}}</h7></div><form class="form-horizontal" name="forgottenPwdForm" novalidate><div class="form-group row" ng-class="{\'has-error\':forgottenPwdForm.$invalid}"><div class="col-xxs-12 col-sm-offset-3 col-sm-6"><input class="form-control" ng-model="configEmail" placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}" type="mail" required></div></div><div class="row"><button ng-click="requestPassword()" class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-3" ng-disabled="forgottenPwdForm.$invalid">{{translate(\'htmlButtonRequestPassword\')}}</button> <button class="btn btn-link white col-xxs-12 col-sm-3" ng-click="gotoLogin()">{{srvLocale.translations.htmlButtonLogin}}</button></div></form></div></div>'), 
+    $templateCache.put("partials/guider/connection.html", '<div ng-controller="ctrlConfig" class="c4p-vertical-container"><div class="c4p-vertical-align"><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3></div><form class="form-horizontal" name="loginForm" style="min-height: 300px"><div class="form-group row"><div class="col-xxs-12 col-sm-offset-3 col-sm-6"><input type="mail" class="form-control" ng-model="configEmail" ng-focus="setInputFocusState(true)" ng-blur="setInputFocusState(false)" placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}" required></div></div><div class="form-group row"><div class="col-xxs-12 col-sm-offset-3 col-sm-6"><input class="form-control" ng-model="configPassword" ng-focus="setInputFocusState(true)" ng-blur="setInputFocusState(false)" placeholder="{{srvLocale.translations.htmlFormPasswordPlaceHolder}}" type="password" required></div></div><div class="row"><button class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-3" ng-click="c4pConnection()" ng-disabled="getInputFocusState()">{{srvLocale.translations.htmlButtonLogin}}</button> <button class="btn btn-link white col-xxs-12 col-sm-3" ng-click="gotoSlide(pageGuider, slideGuiderRequestPassword)" ng-disabled="getInputFocusState()">{{srvLocale.translations.htmlButtonPasswordForgotten}}</button></div><div class="form-group row"><button class="btn btn-link pull-left white col-xxs-12 col-sm-offset-6 col-sm-3"><c4p-check ng-model="rememberPassword" readonly></c4p-check><label>{{translate(\'htmlGuiderFormStaySignedIn\')}}</label></button></div></form></div></div>'), 
+    $templateCache.put("partials/guider/footer.html", '<ul class="nav nav-pills" resize-opts="{name:\'guider_footer\'}"><li ng-click="doubleSetDemo(true)"><div class="btn btn-link"><span style="color: grey;font-size: 50%"><span app-version=""></span><span>{{srvConfig.c4pBuildDate}} {{srvConfig.env}}</span> <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span></span></div></li><li class="pull-right"><a class="btn pull-right" ng-click="openDialogSendFeedbackReport(\'Login Feedback\')" ng-hide="inputHasFocus" c4p-waiting-click=""><span class="c4p-icon-std glyphicon glyphicon-question"></span></a></li></ul>'), 
+    $templateCache.put("partials/guider/header.html", '<ul class="nav nav-pills" resize-opts="{name:\'guider_header\'}"><li ng-show="slide != slideGuiderRegister"><a class="btn btn-link" ng-click="gotoRegister()" ng-disabled="inputHasFocus">{{srvLocale.translations.htmlButtonRegister}}</a></li><li class="dropdown pull-right"><a class="dropdown-toggle" ng-show="inputHasFocus">{{srvLocale.lang.title}} <b class="caret"></b></a> <a class="dropdown-toggle" data-toggle="dropdown" ng-hide="inputHasFocus">{{srvLocale.lang.title}} <b class="caret"></b></a><ul class="dropdown-menu" role="menu" aria-labelledby="drop3"><li ng-repeat="link in srvLocale.langs"><a class="white smaller-70" ng-click="srvLocale.setLang(link)">{{link.title}}</a></li></ul></li></ul>'), 
+    $templateCache.put("partials/guider/main.html", '<div class="c4p-login-body" resize-opts="{name:\'guider_body\'}" ng-controller="ctrlEditFocus"><header ng-include="\'partials/guider/header.html\'"></header><div id="a4pPage" resizecss-height="getResizePathValue(\'guider_body\', \'\', \'offsetHeight\') -getResizePathValue(\'guider_header\', \'\', \'offsetHeight\') -getResizePathValue(\'guider_footer\', \'\', \'offsetHeight\')" resize-opts="{name:\'guider_index_a4pPage_scroll_container\'}" sense-opts="{name:\'guider_index\', axeY:\'scroll\', watchRefresh:\'slide\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12" style="height:100%"><div ng-switch="" on="getSlideFromGuider()" class="col-xxs-12 c4p-animate-switch-container"><div ng-switch-when="connection" class="c4p-animate-switch"><div ng-include="\'partials/guider/connection.html\'"></div></div><div ng-switch-when="validation" class="col-xxs-12 c4p-animate-switch"><div ng-include="\'partials/guider/validation.html\'"></div></div><div ng-switch-when="requestPassword" class="col-xxs-12 c4p-animate-switch"><div ng-include="\'partials/guider/requestPassword.html\'"></div></div><div ng-switch-when="validationReceiveRes" class="col-xxs-12 c4p-animate-switch"><div ng-include="\'partials/guider/validationReceiveRes.html\'"></div></div><div ng-switch-default="" class="col-xxs-12 c4p-animate-switch"><div ng-include="\'partials/guider/register.html\'"></div></div></div></div></div><footer ng-include="\'partials/guider/footer.html\'"></footer></div>'), 
+    $templateCache.put("partials/guider/register.html", '<div ng-controller="ctrlConfig" class="c4p-vertical-container"><div class="c4p-vertical-align"><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3></div><form class="form-horizontal" name="loginForm" novalidate style="min-height: 300px"><div class="form-group row"><div class="col-xxs-12 col-sm-offset-3 col-sm-6"><input type="mail" class="form-control" ng-model="configEmail" ng-focus="setInputFocusState(true)" ng-blur="setInputFocusState(false)" placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}" required></div></div><div class="row"><a class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-3" ng-click="createAccount()" ng-disabled="inputHasFocus">{{srvLocale.translations.htmlButtonRegister}}</a> <a class="btn btn-link white col-xxs-12 col-sm-3" ng-click="gotoLogin()" ng-disabled="inputHasFocus">{{srvLocale.translations.htmlTextAlreadyRegistered}}</a></div></form></div></div>'), 
+    $templateCache.put("partials/guider/requestPassword.html", '<div ng-controller="ctrlConfig" class="c4p-vertical-container"><div class="c4p-vertical-align"><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3><h7 class="col-xxs-12 col-sm-offset-3 col-sm-6 white bigger">{{translate(\'htmlGuiderTextPasswordForgotten\')}}</h7></div><form class="form-horizontal" name="forgottenPwdForm" novalidate style="min-height: 300px"><div class="form-group row" ng-class="{\'has-error\':forgottenPwdForm.$invalid}"><div class="col-xxs-12 col-sm-offset-3 col-sm-6"><input class="form-control" ng-model="configEmail" placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}" type="mail" required></div></div><div class="row"><button ng-click="requestPassword()" class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-3" ng-disabled="forgottenPwdForm.$invalid">{{translate(\'htmlButtonRequestPassword\')}}</button> <button class="btn btn-link white col-xxs-12 col-sm-3" ng-click="gotoLogin()">{{srvLocale.translations.htmlButtonLogin}}</button></div></form></div></div>'), 
     $templateCache.put("partials/guider/validation.html", '<div class="c4p-vertical-container"><div class="c4p-vertical-align"><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3></div><div class="row"><span class="pull-left col-sm-offset-3 white" ng-switch="a4pSpinnerState"><span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh glyphicon-spin" ng-switch-when="run"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh alert-error" ng-switch-when="doneWithPb"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh close" ng-switch-when="offline"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh" ng-switch-default=""></span> <span ng-show="(srvData.objectsToDownload.length + srvData.objectsToSave.length)">{{srvData.objectsToDownload.length + srvData.objectsToSave.length}}</span></span> <span class="col-xxs-11 col-sm-6 white">{{translate(\'htmlGuiderTextValidation\')}}</span></div><div class="row"><a4p-carousel class="col-xxs-12 col-sm-offset-3 col-sm-6"><a4p-slide active="true"><span ng-bind-html="to_trusted(srvLocale.translations.htmlGuiderTextWaiting)"></span></a4p-slide></a4p-carousel></div></div></div>'), 
-    $templateCache.put("partials/guider/validationReceiveRes.html", '<div class="c4p-vertical-container"><div class="c4p-vertical-align"><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3></div><div class="row"><div class="form-group error col-xxs-12 col-sm-offset-3 col-sm-6 white"><label class="control-label">{{translate(messageGuider)}}</label></div></div><div class="row"><button class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-4" ng-click="gotoLogin()">{{translate(\'htmlButtonLogin\')}}</button> <a class="btn btn-link white col-xxs-12 text-center col-sm-2" ng-click="gotoSlide(pageGuider, slideGuiderRequestPassword)">{{translate(\'htmlButtonPasswordForgotten\')}}</a></div></div></div>'), 
+    $templateCache.put("partials/guider/validationReceiveRes.html", '<div class="c4p-vertical-container"><div class="c4p-vertical-align"><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3></div><div class="row"><div class="form-group error col-xxs-12 col-sm-offset-3 col-sm-6 white"><label class="control-label">{{translate(messageGuider)}}</label></div></div><div class="row" style="min-height: 300px"><button class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-4" ng-click="gotoLogin()">{{translate(\'htmlButtonLogin\')}}</button> <a class="btn btn-link white col-xxs-12 text-center col-sm-2" ng-click="gotoSlide(pageGuider, slideGuiderRequestPassword)">{{translate(\'htmlButtonPasswordForgotten\')}}</a></div></div></div>'), 
     $templateCache.put("partials/meeting/header.html", '<div class="meeting-header row" resize-opts="{name:\'meeting_header\'}"><div class="col-xxs-1" style="text-align: left"><div class="btn c4p-padding-w-packed" ng-click="quitMeetingView()" ng-hide="modeLock"><span class="c4p-icon-std glyphicon glyphicon-chevron-left"></span></div></div><div class="col-xxs-10" style="text-align: center"><div class="btn c4p-padding-w-packed" ng-show="!itemNameEditable" ng-click="eventItemName = srvNav.item.name;editMeetingTitle()">{{srvNav.current.itemName}}</div><div class="btn" ng-show="itemNameEditable"><input type="text" ng-model="eventItemName" class=""><span class="c4p-padding-w-packed" ng-click="saveItemName(eventItemName)"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></span></div><div class="btn dropdown" ng-show="!itemNameEditable"><span role="button" class="dropdown-toggle c4p-icon-std glyphicon glyphicon-caret-down"></span><ul style="overflow-x:hidden" class="dropdown-menu c4p-dropdown-menu c4p-details-menu-align" role="menu"><li class="c4p-color-gradient0" ng-hide="modeLock" ng-class="{\'disabled\': actionMap.createNewNote.disabled}" ng-click="doAction(\'createNewNote\')"><span class="c4p-icon-std glyphicon glyphicon-{{actionMap.createNewNote.icon}}"></span> <span>{{srvLocale.translations.htmlActionName.createNewNote}}</span></li><li class="c4p-color-gradient0" ng-hide="modeLock" ng-class="{\'disabled\': actionMap.createNewReport.disabled}" ng-click="doAction(\'createNewReport\')"><span class="c4p-icon-std glyphicon glyphicon-{{actionMap.createNewReport.icon}}"></span> <span>{{srvLocale.translations.htmlActionName.createNewReport}}</span></li><li class="c4p-color-gradient0" ng-hide="modeLock" ng-class="{\'disabled\': actionMap.createNewEmail.disabled}" ng-click="doAction(\'createNewEmail\')"><span class="c4p-icon-std glyphicon glyphicon-{{actionMap.createNewEmail.icon}}"></span> <span>{{srvLocale.translations.htmlActionName.createNewEmail}}</span></li></ul></div></div><div class="col-xxs-1" style="text-align: right"><div ng-click="togglePresentation();toggleFullScreen()" ng-show="plans.length > 0" class="toggle-mode-button"><span class="c4p-icon-std glyphicon c4p-stroke" ng-class="{\'glyphicon-play\':!isFullScreen, \'glyphicon-stop\':isFullScreen}"></span></div></div></div>'), 
     $templateCache.put("partials/meeting/main.html", '<div ng-controller="ctrlAction" ng-init="watchSrvNav()"><div ng-controller="ctrlViewer"><div ng-controller="ctrlMeeting" resize-before-window="beforeWindowSizeChanged()" class="meeting-body"><div ng-include="\'partials/meeting/header.html\'"></div><div id="a4pMeetingSide" class="" style="display: inline-block; vertical-align: top" ng-include="\'partials/meeting/meeting_aside.html\'" ng-style="{width:getToolbarWidth()+\'px\', height:(getResizeHeight() -getResizePathValue(\'meeting_header\', \'\', \'offsetHeight\'))+\'px\'}"></div><div class="meeting-container" ng-show="showMenu" resizecss-height="getResizeHeight() - getResizePathValue(\'meeting_header\', \'\', \'offsetHeight\')" ng-style="{width:getAsideWidth()+\'px\'}" ng-include="\'\'+sidePanel" ng-click="hideMenuMeeting"></div><div id="a4pMeetingPage" ng-include="\'\'+mainPanel" c4p-show="!isOnePageFormat()" resizecss-height="getResizeHeight() - getResizePathValue(\'meeting_header\', \'\', \'offsetHeight\')" ng-style="{width:(getResizeWidth() - getAsideWidth() - getToolbarWidth())+\'px\'}" style="display: inline-block; vertical-align: top; background-color: rgba(255,255,255, 0.10 )"></div></div></div></div>'), 
     $templateCache.put("partials/meeting/meeting_aside.html", '<ul class="c4p-icon-list meeting-plan" resize-opts="{name:\'plan_section\'}" ng-class="{\'inactive\': (selectedActionItem != \'plan\')}"><li class="c4p-icon-list-item" ng-click="setActionItem(\'plan\', \'side\')"><span class="c4p-icon-std glyphicon glyphicon-{{actionItems[\'plan\'].icon}}"></span></li></ul><ul class="c4p-icon-list meeting-link-obj" resize-opts="{name:\'link_obj_section\'}" ng-class="{\'inactive\': (selectedActionItem == \'plan\')}"><li class="c4p-icon-list-item" ng-click="setObjectLinkNav()"><span class="c4p-icon-std glyphicon glyphicon-{{actionItems[\'others\'].icon}}"></span></li></ul><div ng-style="{width:getToolbarWidth()+\'px\', height:(getResizeHeight() -getResizePathValue(\'plan_section\', \'\', \'offsetHeight\')- getResizePathValue(\'link_obj_section\', \'\', \'offsetHeight\') - getResizePathValue(\'meeting_header\', \'\', \'offsetHeight\') )+\'px\'}" style="text-align: center" class="meeting-aside">&nbsp;</div><div class="btn btn-danger" ng-class="{\'active\' : dropOver}" ng-show="dndActive" ng-controller="ctrlMeetingRemoveDrop" sense-opts="{name:\'dropObjectTrash\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)" sense-dropend="dropEnd($event)" style="position:absolute;z-index:1041;bottom:0;left:0;text-align: center" ng-style="{width:(getToolbarWidth()+ getAsideWidth()) +\'px\'}"><span class="c4p-icon-std glyphicon glyphicon-trash"></span></div>'), 
@@ -35450,47 +36080,40 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/meeting/meeting_viewer_note.html", '<div class="row" ng-show="modeEdit"><div class="col-xxs-12"><form class="c4p-color-a-gradient{{objectGroups.length}}"><marker ng-repeat="group in objectGroups"><div class="c4p-color-a-gradient{{$index+1}} c4p-form-group"><span class="c4p-form-group-title">{{group.title}}</span><fieldset ng-repeat="field in group.groupFields"><c4p-input warn-var="field.warn" title-var="field.title" ng-model="note[field.key]" type-var="field.type" rows="5" cols="20" ng-change="onFieldChanged(field)"></c4p-input></fieldset></div></marker></form></div><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div><div class="row" ng-controller="ctrlDetailedObject" ng-init="init(documentObject)" c4p-show="!modeEdit"><div class="col-xxs-12"><div class="c4p-color-a-gradient{{$index}}" ng-repeat="card in cards"><div class="c4p-card"><div ng-show="isFile && $first" class="btn" ng-class="{\'disabled\': actionMap.viewDocument.disabled}" ng-click="doAction(\'viewDocument\')" style="background: url(\'{{item.thumb_url}}\') no-repeat center center;width:100%;height: 250px;-webkit-background-size: contain"></div><span ng-repeat="group in card.groups" style="margin:0;padding:0" class="c4p-size-{{group.size}}"><br ng-show="card.brSeparated && ($index > 0)"><span><span ng-show="group.synchro && (item.c4p_synchro.creating || item.c4p_synchro.writing || item.c4p_synchro.reading || item.c4p_synchro.deleting)" class="glyphicon" ng-class="{\n                                    \'glyphicon-trash\'    : (item.c4p_synchro.deleting > 1),\n                                    \'glyphicon-times-circle\' : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),\n                                    \'glyphicon-upload\'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),\n                                    \'glyphicon-download\' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),\n                                    \'glyphicon-spinner\'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),\n                                    \'icon-spin\'          : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))\n                                  }"></span>  <span ng-show="group.name">{{itemName}}</span> <span ng-show="group.title">{{group.title}}</span></span> <span ng-repeat="field in group.fields" class="c4p-size-{{field.size}}"><span ng-show="($index > 0)"></span> <span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="currency"><span>{{item | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{item}}%</span></span> <span ng-switch-when="probability"><span>{{item}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(item, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(item, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(item, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{item | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{item}}</span></span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="currency"><span>{{field.value | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{field.value}}%</span></span> <span ng-switch-when="probability"><span>{{field.value}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(field.value, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(field.value, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(field.value, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{field.value | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{field.value}}</span></span></span></span></span> <span ng-show="field.suffix">{{field.suffix}}</span></span></span></div></div></div></div>'), 
     $templateCache.put("partials/meeting/meeting_viewer_report.html", '<div class="row" ng-controller="ctrlDetailedObject" ng-init="init(documentObject)" c4p-show="!modeEdit"><div class="col-xxs-12"><div class="c4p-color-a-gradient{{$index}}" ng-repeat="card in cards"><div class="c4p-card"><div ng-show="isFile && $first" class="btn" ng-class="{\'disabled\': actionMap.viewDocument.disabled}" ng-click="doAction(\'viewDocument\')" style="background: url(\'{{item.thumb_url}}\') no-repeat center center;width:100%;height: 250px;-webkit-background-size: contain"></div><span ng-repeat="group in card.groups" style="margin:0;padding:0" class="c4p-size-{{group.size}}"><br ng-show="card.brSeparated && ($index > 0)"><span><span ng-show="group.synchro && (item.c4p_synchro.creating || item.c4p_synchro.writing || item.c4p_synchro.reading || item.c4p_synchro.deleting)" class="glyphicon" ng-class="{\n                                    \'glyphicon-trash\'    : (item.c4p_synchro.deleting > 1),\n                                    \'glyphicon-times-circle\' : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),\n                                    \'glyphicon-upload\'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),\n                                    \'glyphicon-download\' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),\n                                    \'glyphicon-spinner\'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),\n                                    \'icon-spin\'          : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))\n                                  }"></span>  <span ng-show="group.name">{{itemName}}</span> <span ng-show="group.title">{{group.title}}</span></span> <span ng-repeat="field in group.fields" class="c4p-size-{{field.size}}"><span ng-show="($index > 0)"></span> <span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="currency"><span>{{item | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{item}}%</span></span> <span ng-switch-when="probability"><span>{{item}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(item, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(item, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(item, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{item | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{item}}</span></span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="currency"><span>{{field.value | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{field.value}}%</span></span> <span ng-switch-when="probability"><span>{{field.value}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(field.value, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(field.value, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(field.value, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{field.value | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{field.value}}</span></span></span></span></span> <span ng-show="field.suffix">{{field.suffix}}</span></span></span></div></div></div></div>'), 
     $templateCache.put("partials/navigation/aside_header.html", '<div class="panel panel-default"><div class="panel-heading" ng-controller="ctrlNavObject"><span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> <span>{{itemName}}</span></div><div class="panel-body"><div class="input-group"><input type="text" class="form-control" placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}" ng-model="inputs.itemSearchQuery" ng-change="srvFacet.setFilterQuery(inputs.itemSearchQuery);"><span class="input-group-addon input-sm btn-group btn-group-sm btn-group-justified"><a type="button" class="btn btn-default" ng-show="srvFacet.ascendingOrder" ng-click="srvFacet.toggleOrder()"><span class="glyphicon glyphicon-sort-alpha-asc"></span></a><a type="button" class="btn btn-default" ng-hide="srvFacet.ascendingOrder" ng-click="srvFacet.toggleOrder()"><span class="glyphicon glyphicon-sort-alpha-desc"></span></a><a type="button" class="btn btn-default" ng-show="srvFacet.caseSensitive" ng-click="srvFacet.toggleCaseSensitive()"><span class="glyphicon glyphicon-font icon-small"></span></a><a type="button" class="btn btn-default" ng-hide="srvFacet.caseSensitive" ng-click="srvFacet.toggleCaseSensitive()"><span class="glyphicon glyphicon-font icon-large"></span></a><a type="button" class="btn btn-default" ng-click="srvFacet.clear();removeGlobalSearch();"><span class="glyphicon glyphicon-times-circle"></span></a></span></div><ul class="list-group"><li class="list-group-item" ng-repeat="filterFacet in srvFacet.filterFacets"><span ng-click="srvFacet.removeFacet($index)" class="pull-left glyphicon glyphicon-times-circle"></span> <span>{{srvLocale.translations.htmlFacetName[filterFacet.key]}} : {{filterFacet.title}}</span> <span class="badge">{{filterFacet.items.length}}</span></li></ul></div></div>'), 
-    $templateCache.put("partials/navigation/aside_root.html", '<div class="row c4p-aside-header c4p-header-std" resize-opts="{name:\'aside_root_header\'}"><div class="col-xxs-12"><ul class="c4p-list-aside nav nav-pills"><li class="c4p-list-item-aside"><div class="btn c4p-color-action-aside-transparent" ng-click="setRootMenu()"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-bars"></span><h5 class="pull-left c4p-item-root-txt">{{translate(\'htmlGuiderPageTitle\')}}</h5></div></li></ul></div></div><div resize-opts="{name:\'aside_root\'}" resizecss-height="getResizeHeight() -getResizePathValue(\'aside_root_header\', \'\', \'offsetHeight\') -getResizePathValue(\'aside_root_footer\', \'\', \'offsetHeight\')" sense-opts="{name:\'aside_root\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', momentum: 0}" class="c4p-bg-aside row"><div class="col-xxs-12"><div class="col-xxs-12"><ul class="c4p-list-aside nav nav-pills nav-stacked"><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Event\')}}" ng-class="{active: activeItem == slideNavigationCalendar}" ng-click="srvFacet.clearOrRemoveFacet($first, $index);setCalendar()" c4p-waiting-click=""><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-calendar"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'calendar\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Event\')}}" ng-class="{active: activeItem == slideNavigationFavorites}" ng-click="setFavoriteSearchMenu()" c4p-waiting-click=""><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-star"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'favorites\']}}</span></div></li></ul></div><div class="col-xxs-12" ng-show="navAside">&nbsp;</div><div class="col-xxs-12"><ul class="c4p-list-aside nav nav-pills nav-stacked"><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Event\')}}" ng-class="{active: activeItem == slideNavigationEvents}" ng-click="setSearchMenu(\'Event\')" ng-show="navAside && rootMenuUp || activeItem == slideNavigationEvents" c4p-waiting-click=""><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Event\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'events\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Contact\')}}" ng-class="{active: activeItem == slideNavigationContacts}" ng-click="setSearchMenu(\'Contact\')" ng-show="navAside || activeItem == slideNavigationContacts" c4p-waiting-click=""><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Contact\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'contacts\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Account\')}}" ng-class="{active: activeItem == slideNavigationAccounts}" ng-click="setSearchMenu(\'Account\')" ng-show="navAside || activeItem == slideNavigationAccounts" c4p-waiting-click=""><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Account\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'accounts\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Opportunity\')}}" ng-class="{active: activeItem == slideNavigationOpportunities}" ng-click="setSearchMenu(\'Opportunity\')" ng-show="navAside || activeItem == slideNavigationOpportunities" c4p-waiting-click=""><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Opportunity\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'opportunities\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Document\')}}" ng-class="{active: activeItem == slideNavigationDocuments}" ng-click="setSearchMenu(\'Document\')" ng-show="navAside || activeItem == slideNavigationDocuments" c4p-waiting-click=""><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Document\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'documents\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Note\')}}" ng-class="{active: activeItem == slideNavigationNotes}" ng-click="setSearchMenu(\'Note\')" ng-show="navAside || activeItem == slideNavigationNotes" c4p-waiting-click=""><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Note\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'notes\']}}</span></div></li><li class="c4p-list-item-aside" ng-click="setRootMenu()" ng-hide="navAside"><div class="btn c4p-color-action-aside-transparent col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-angle-down"></span></div></li></ul></div></div></div><div class="c4p-aside-footer" resize-opts="{name:\'aside_root_footer\'}"><div class="row" ng-controller="ctrlTrashObject"><div class="col-xxs-12" ng-show="dndActive"><div class="c4p-aside-trash"><div class="btn btn-danger col-xxs-12" ng-class="{\'active\' : dropOver}" sense-opts="{name:\'dropObjectTrash\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)" sense-dropend="dropEnd($event)"><span class="c4p-icon-std glyphicon glyphicon-trash-o"></span></div></div></div><div class="col-xxs-12" ng-hide="dndActive"><ul class="c4p-list-aside nav nav-pills"><li class="c4p-list-item-aside"><div class="btn c4p-gray c4p-color-action-aside-transparent" ng-click="openDialogSendFeedbackReport(\'Menu Feedback\')"><div class="c4p-icon-std glyphicon glyphicon-fw glyphicon-question"></div></div></li><li class="c4p-list-item-aside"><div class="btn c4p-gray c4p-color-action-aside-transparent" ng-click="gotoSlideWithSearchReset(pageNavigation, slideNavigationConfig);" c4p-waiting-click=""><span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-cog"></span></div></li><li class="c4p-list-item-aside pull-right"><div class="btn c4p-gray c4p-color-action-aside-transparent" ng-click="refreshClient();"><span ng-switch="a4pSpinnerState"><span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh glyphicon-spin" ng-switch-when="run"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh alert-error" ng-switch-when="doneWithPb"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh close" ng-switch-when="offline"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh" ng-switch-default=""></span> <span ng-show="(srvData.objectsToDownload.length + srvData.objectsToSave.length)">{{srvData.objectsToDownload.length + srvData.objectsToSave.length}}</span></span></div></li></ul></div></div></div>'), 
-    $templateCache.put("partials/navigation/aside_search.html", '<div ng-style="{width:getAsideWidth()+\'px\'}" resize-opts="{name:\'aside_search_header\', watchRefresh:[\'srvFacet.filterFacets.length\', \'srvFacet.lastFacetKey\', \'srvConfig.c4pConfig.exposeAllFacets\']}" class="c4p-color-z-dark-i"><div class="row c4p-aside-header c4p-header-std"><ul class="nav nav-pills c4p-list-aside" ng-repeat="filterFacet in srvFacet.filterFacets" ng-show="$first || srvConfig.c4pConfig.exposeAllFacets"><li class="c4p-list-item-aside c4p-search-header-aside"><div class="btn"><span ng-hide="srvFacet.isFacetAnObjectType(filterFacet.value)">{{srvLocale.translations.htmlFacetName[filterFacet.key]}}</span><h5 class="c4p-search-header-txt-aside pull-left">{{filterFacet.title}}</h5><span class="c4p-aside-count c4p-gray">{{srvData.getObjectCount(filterFacet.value)}}</span> </div></li><li class="pull-right" ng-hide="$first && !srvConfig.c4pConfig.exposeAllFacets"><a class="btn" ng-click="srvFacet.removeFacet($index)"><span class="c4p-color-action-aside-transparent c4p-stroke c4p-padding-w-packed"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></span></a></li><li class="pull-right" ng-switch="filterFacet.value"><a class="btn c4p-color-action-aside-transparent" ng-click="addItemDialog(filterFacet.value)" ng-switch-when="Document" ng-show="objectCreatable(filterFacet.value)"><span class="c4p-icon-std glyphicon glyphicon-camera"></span></a> <a class="btn c4p-color-action-aside-transparent" ng-switch-default="" ng-show="objectCreatable(filterFacet.value)" ng-click="addItemDialog(filterFacet.value)"><span class="c4p-icon-std glyphicon glyphicon-plus"></span></a></li></ul></div></div><div ng-style="{width:getAsideWidth()+\'px\'}" resize-opts="{name:\'aside_search_search\', watchRefresh:[\'srvFacet.filterFacets.length\', \'activeSearch\']}"><div class="row" ng-show="activeSearch"><form class="form-horizontal"><div class="has-feedback"><input type="text" class="form-control" id="inputSearch" placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}" ng-model="inputs.itemSearchQuery" ng-change="srvFacet.setFilterQuery(inputs.itemSearchQuery);"><span class="c4p-icon-std glyphicon glyphicon-search form-control-feedback" ng-click="toggleSearch()"></span></div></form></div><div class="row" ng-hide="activeSearch"><ul class="nav nav-pills c4p-list-aside c4p-color-z-dark-ii" ng-click="toggleSearch()"><li class="c4p-list-item-aside" ng-show="srvFacet.ascendingOrder"><a class="btn c4p-color-action-aside-transparent" ng-click="$event.stopPropagation(); srvFacet.toggleOrder()"><span class="glyphicon glyphicon-sort-alpha-asc"></span></a></li><li class="c4p-list-item-aside" ng-hide="srvFacet.ascendingOrder"><a class="btn c4p-color-action-aside-transparent" ng-click="$event.stopPropagation(); srvFacet.toggleOrder()"><span class="glyphicon glyphicon-sort-alpha-desc"></span></a></li><li class="c4p-list-item-aside"><div ng-show="inputs.itemSearchQuery.length > 0" class="btn btn-info"><div class="pull-left" style="padding-right: 10px">{{inputs.itemSearchQuery}}</div><a type="" class="pull-right" ng-click="removeGlobalSearch()">&times;</a></div></li><li class="c4p-list-item-aside pull-right"><div class="btn btn-sm" ng-click="$event.stopPropagation(); toggleSearch()"><span class="c4p-icon-std c4p-color-action-aside-transparent"><span class="glyphicon glyphicon-search"></span></span></div></li></ul></div></div><div ng-style="{width:getAsideWidth()+\'px\'}" resize-opts="{name:\'aside_search_result_wrapper\', watchRefresh:[\'srvFacet.filterFacets.length\', \'activeSearch\', \'srvFacet.lastFacetKey\', \'srvConfig.c4pConfig.exposeAllFacets\']}" resizecss-height="getResizePathValue(\'navigation_ctrlAside\', \'\', \'offsetHeight\') -getResizePathValue(\'aside_search_header\', \'\', \'offsetHeight\') -getResizePathValue(\'aside_search_search\', \'\', \'offsetHeight\') - getResizePathValue(\'aside_root_footer\',\'\',\'offsetHeight\')" sense-opts="{name:\'aside_search_result_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvFacet.filterFacets.length\', \'activeSearch\', \'srvFacet.lastFacetKey\', \'srvConfig.c4pConfig.exposeAllFacets\']}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', momentum: 0}" class="c4p-menu-bg c4p-color-z row"><nav class="col-xxs-12" ng-controller="ctrlSingleTap"><ul class="list-group c4p-list-aside c4p-search-group-separator c4p-color-z" ng-repeat="groupKey in srvFacet.items.keyes"><li class="list-group-item c4p-list-item-aside" ng-show="srvConfig.c4pConfig.exposeAllFacets" ng-click="srvFacet.addFacet(srvFacet.lastFacetKey, groupKey.title, groupKey.value)"><a class="btn btn-sm"><span ng-show="srvFacet.isFacetAnObjectType(groupKey.value)" class="icon-large glyphicon glyphicon-{{getTypeIcon(groupKey.value)}}"></span> <span>{{groupKey.title}}</span></a> <a ng-show="srvFacet.isFacetAnObjectType(groupKey.value)" ng-click="addItemDialog(groupKey.value)"><span class="pull-right icon-large glyphicon glyphicon-plus"></span></a> <span class="badge">{{srvFacet.items.lists[groupKey.value].length}}</span></li><li class="list-group-item c4p-list-item-aside" ng-repeat="listItem in srvFacet.items.lists[groupKey.value]"><div ng-include="\'partials/navigation/aside_search_list.html\'"></div></li></ul><ul class="list-group c4p-list-aside c4p-color-z" ng-if="srvFacet.items.others.length > 0"><li class="list-group-item c4p-list-item-aside" ng-repeat="listItem in srvFacet.items.others"><div ng-include="\'partials/navigation/aside_search_list.html\'"></div></li></ul></nav></div>'), 
-    $templateCache.put("partials/navigation/aside_search_list.html", '<div ng-init="init(listItem.object)" ng-controller="ctrlAsideItem" ng-class="{\n        \'c4p-color-{{getFacetColor(srvFacet.getFirstFacet())}}\':srvNav.item && (listItem.object.id.dbid == srvNav.item.id.dbid),\n        \'active\':srvNav.item && (item.id.dbid == srvNav.item.id.dbid)}" sense-opts="{name:\'search-others-{{$index}}\', bubble:true, watchRefresh:[\'srvNav.item\', \'srvNav.holdItem\']}" sense-shorttap="selectItem(firstSingleTap(listItem.object.id.dbid))" sense-doubletap="firstSingleTap(\'\');selectItemAndCloseAside();"><div class="row"><div class="btn col-xxs-12"><ul class="nav nav-pills"><li class="" style="width:85%"><div ng-init="cardItem = listItem.object" ng-include="\'partials/navigation/cards/draggable_inlined_card.html\'"></div></li><li class="" style="width:10%"><div ng-show="singleTapFocusId == item.id.dbid" class="glyphicon glyphicon-fw glyphicon-chevron-right c4p-color-action-aside-transparent"></div></li></ul></div></div></div>'), 
-    $templateCache.put("partials/navigation/calendar.html", '<header class="row c4p-color-gradient0" ng-include="\'partials/navigation/calendar_header.html\'"></header><div class="row c4p-color-a-gradient4"><article class="col-xxs-12" ng-switch="" on="calendarView"><div ng-switch-when="dayView"><div ng-include="\'partials/navigation/calendar_day.html\'"></div></div><div ng-switch-when="listView"><div ng-include="\'partials/navigation/calendar_events.html\'"></div></div><div ng-switch-default=""><div ng-include="\'partials/navigation/calendar_month.html\'"></div></div></article></div>'), 
+    $templateCache.put("partials/navigation/aside_root.html", '<div class="row c4p-aside-header c4p-header-std" resize-opts="{name:\'aside_root_header\'}"><div class="col-xxs-12"><ul class="c4p-list-aside nav nav-pills"><li class="c4p-list-item-aside"><div class="btn c4p-color-action-aside-transparent" ng-click="setRootMenu()"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-bars"></span><h5 class="pull-left c4p-item-root-txt">{{translate(\'htmlGuiderPageTitle\')}}</h5></div></li></ul></div></div><div resize-opts="{name:\'aside_root\'}" resizecss-height="getResizeHeight() -getResizePathValue(\'aside_root_header\', \'\', \'offsetHeight\') -getResizePathValue(\'aside_root_footer\', \'\', \'offsetHeight\')" sense-opts="{name:\'aside_root\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', momentum: 0}" class="c4p-bg-aside row"><div class="col-xxs-12"><div class="col-xxs-12"><ul class="c4p-list-aside nav nav-pills nav-stacked"><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Event\')}}" ng-class="{active: activeItem == slideNavigationCalendar}" ng-click="srvFacet.clearOrRemoveFacet($first, $index);setCalendar()"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-calendar"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'calendar\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Event\')}}" ng-class="{active: activeItem == slideNavigationFavorites}" ng-click="setFavoriteSearchMenu()"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-star"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'favorites\']}}</span></div></li></ul></div><div class="col-xxs-12" ng-show="navAside">&nbsp;</div><div class="col-xxs-12"><ul class="c4p-list-aside nav nav-pills nav-stacked"><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Event\')}}" ng-class="{active: activeItem == slideNavigationEvents}" ng-click="setSearchMenu(\'Event\')" ng-show="navAside || activeItem == slideNavigationEvents"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Event\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'events\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Contact\')}}" ng-class="{active: activeItem == slideNavigationContacts}" ng-click="setSearchMenu(\'Contact\')" ng-show="navAside || activeItem == slideNavigationContacts"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Contact\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'contacts\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Account\')}}" ng-class="{active: activeItem == slideNavigationAccounts}" ng-click="setSearchMenu(\'Account\')" ng-show="navAside || activeItem == slideNavigationAccounts"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Account\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'accounts\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Opportunity\')}}" ng-class="{active: activeItem == slideNavigationOpportunities}" ng-click="setSearchMenu(\'Opportunity\')" ng-show="navAside || activeItem == slideNavigationOpportunities"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Opportunity\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'opportunities\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Document\')}}" ng-class="{active: activeItem == slideNavigationDocuments}" ng-click="setSearchMenu(\'Document\')" ng-show="navAside || activeItem == slideNavigationDocuments"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Document\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'documents\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Note\')}}" ng-class="{active: activeItem == slideNavigationNotes}" ng-click="setSearchMenu(\'Note\')" ng-show="navAside || activeItem == slideNavigationNotes"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Note\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'notes\']}}</span></div></li><li class="c4p-list-item-aside" ng-click="setRootMenu()" ng-hide="navAside"><div class="btn c4p-color-action-aside-transparent col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-angle-down"></span></div></li></ul></div></div></div><div class="c4p-aside-footer" resize-opts="{name:\'aside_root_footer\'}"><div class="row" ng-controller="ctrlTrashObject"><div class="col-xxs-12" ng-show="dndActive"><div class="c4p-aside-trash"><div class="btn btn-danger col-xxs-12" ng-class="{\'active\' : dropOver}" sense-opts="{name:\'dropObjectTrash\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)" sense-dropend="dropEnd($event)"><span class="c4p-icon-std glyphicon glyphicon-trash-o"></span></div></div></div><div class="col-xxs-12" ng-hide="dndActive"><ul class="c4p-list-aside nav nav-pills"><li class="c4p-list-item-aside"><div class="btn c4p-gray c4p-color-action-aside-transparent" ng-click="openDialogSendFeedbackReport(\'Menu Feedback\')"><div class="c4p-icon-std glyphicon glyphicon-fw glyphicon-question"></div></div></li><li class="c4p-list-item-aside"><div class="btn c4p-gray c4p-color-action-aside-transparent" ng-click="gotoSlideWithSearchReset(pageNavigation, slideNavigationConfig);"><span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-cog"></span></div></li><li class="c4p-list-item-aside pull-right"><div class="btn c4p-gray c4p-color-action-aside-transparent" ng-click="refreshClient();"><span ng-switch="a4pSpinnerState"><span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh glyphicon-spin" ng-switch-when="run"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh alert-error" ng-switch-when="doneWithPb"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh close" ng-switch-when="offline"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh" ng-switch-default=""></span> <span ng-show="(srvData.objectsToDownload.length + srvData.objectsToSave.length)">{{srvData.objectsToDownload.length + srvData.objectsToSave.length}}</span></span></div></li></ul></div></div></div>'), 
+    $templateCache.put("partials/navigation/aside_search.html", '<div ng-controller="ctrlAsideSearch" class="c4p-container c4p-color-z-dark-i"><div class="c4p-waiting" ng-show="asideSearchSpinner" c4p-animateshow="asideSearchSpinner" after-hide="afterAsideSpinnerHide()" after-show="afterAsideSpinnerShow()"><div ng-include="\'partials/spinner.html\'"></div></div><div ng-if="!asideSearchSpinner"><div resize-opts="{name:\'aside_search_header\', watchRefresh:[\'srvFacet.filterFacets.length\', \'srvFacet.lastFacetKey\', \'srvConfig.c4pConfig.exposeAllFacets\']}" class="c4p-color-z-dark-i"><div class="col-xxs-12 c4p-aside-header c4p-header-std"><ul class="nav nav-pills c4p-list-aside" ng-repeat="filterFacet in srvFacet.filterFacets" ng-show="$first || srvConfig.c4pConfig.exposeAllFacets"><li class="c4p-list-item-aside c4p-search-header-aside"><div class="btn"><span ng-hide="srvFacet.isFacetAnObjectType(filterFacet.value)">{{srvLocale.translations.htmlFacetName[filterFacet.key]}}</span><h5 class="c4p-search-header-txt-aside pull-left">{{filterFacet.title}}</h5><span class="c4p-aside-count c4p-gray">{{srvData.getObjectCount(filterFacet.value)}}</span> </div></li><li class="pull-right" ng-hide="$first && !srvConfig.c4pConfig.exposeAllFacets"><a class="btn" ng-click="srvFacet.removeFacet($index)"><span class="c4p-color-action-aside-transparent c4p-stroke c4p-padding-w-packed"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></span></a></li><li class="pull-right" ng-switch="filterFacet.value"><a class="btn c4p-color-action-aside-transparent" ng-click="addItemDialog(filterFacet.value)" ng-switch-when="Document" ng-show="objectCreatable(filterFacet.value)"><span class="c4p-icon-std glyphicon glyphicon-camera"></span></a> <a class="btn c4p-color-action-aside-transparent" ng-switch-default="" ng-show="objectCreatable(filterFacet.value)" ng-click="addItemDialog(filterFacet.value)"><span class="c4p-icon-std glyphicon glyphicon-plus"></span></a></li></ul></div></div><div resize-opts="{name:\'aside_search_search\', watchRefresh:[\'srvFacet.filterFacets.length\', \'activeSearch\']}"><div class="col-xxs-12" ng-show="activeSearch"><form class="form-horizontal"><div class="has-feedback"><input type="text" class="form-control" id="inputSearch" placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}" ng-model="inputs.itemSearchQuery" ng-change="srvFacet.setFilterQuery(inputs.itemSearchQuery);"><span class="c4p-icon-std glyphicon glyphicon-search form-control-feedback" ng-click="toggleSearch()"></span></div></form></div><div class="col-xxs-12" ng-hide="activeSearch"><ul class="nav nav-pills c4p-list-aside c4p-color-z-dark-ii" ng-click="toggleSearch()"><li class="c4p-list-item-aside" ng-show="srvFacet.ascendingOrder"><a class="btn c4p-color-action-aside-transparent" ng-click="$event.stopPropagation(); srvFacet.toggleOrder()"><span class="glyphicon glyphicon-sort-alpha-asc"></span></a></li><li class="c4p-list-item-aside" ng-hide="srvFacet.ascendingOrder"><a class="btn c4p-color-action-aside-transparent" ng-click="$event.stopPropagation(); srvFacet.toggleOrder()"><span class="glyphicon glyphicon-sort-alpha-desc"></span></a></li><li class="c4p-list-item-aside"><div ng-show="inputs.itemSearchQuery.length > 0" class="btn btn-info"><div class="pull-left" style="padding-right: 10px">{{inputs.itemSearchQuery}}</div><a type="" class="pull-right" ng-click="removeGlobalSearch()">&times;</a></div></li><li class="c4p-list-item-aside pull-right"><div class="btn btn-sm" ng-click="$event.stopPropagation(); toggleSearch()"><span class="c4p-icon-std c4p-color-action-aside-transparent"><span class="glyphicon glyphicon-search"></span></span></div></li></ul></div></div><div resize-opts="{name:\'aside_search_result_wrapper\', watchRefresh:[\'srvFacet.filterFacets.length\', \'activeSearch\', \'srvFacet.lastFacetKey\', \'srvConfig.c4pConfig.exposeAllFacets\']}" resizecss-height="getResizePathValue(\'navigation_ctrlAside\', \'\', \'offsetHeight\') -getResizePathValue(\'aside_search_header\', \'\', \'offsetHeight\') -getResizePathValue(\'aside_search_search\', \'\', \'offsetHeight\') - getResizePathValue(\'aside_root_footer\',\'\',\'offsetHeight\')" sense-opts="{name:\'aside_search_result_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvFacet.filterFacets.length\', \'activeSearch\', \'srvFacet.lastFacetKey\', \'srvConfig.c4pConfig.exposeAllFacets\'], init: \'setAsideSearchScroller($sense)\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', momentum: 0}" class="c4p-menu-bg c4p-color-z row"><nav class="col-xxs-12" ng-controller="ctrlSingleTap"><ul class="list-group c4p-list-aside c4p-search-group-separator c4p-color-z" ng-repeat="groupKey in srvFacet.items.keyes"><li class="list-group-item c4p-list-item-aside" ng-show="srvConfig.c4pConfig.exposeAllFacets" ng-click="srvFacet.addFacet(srvFacet.lastFacetKey, groupKey.title, groupKey.value)"><a class="btn btn-sm"><span ng-show="srvFacet.isFacetAnObjectType(groupKey.value)" class="icon-large glyphicon glyphicon-{{getTypeIcon(groupKey.value)}}"></span> <span>{{groupKey.title}}</span></a> <a ng-show="srvFacet.isFacetAnObjectType(groupKey.value)" ng-click="addItemDialog(groupKey.value)"><span class="pull-right icon-large glyphicon glyphicon-plus"></span></a> <span class="badge">{{srvFacet.items.lists[groupKey.value].length}}</span></li><li class="list-group-item c4p-list-item-aside" ng-repeat="listItem in srvFacet.items.lists[groupKey.value]"><div ng-include="\'partials/navigation/aside_search_list.html\'"></div></li></ul><ul class="list-group c4p-list-aside c4p-color-z" ng-if="srvFacet.items.others.length > 0"><li class="list-group-item c4p-list-item-aside" ng-repeat="listItem in srvFacet.items.others"><div ng-include="\'partials/navigation/aside_search_list.html\'"></div></li></ul></nav></div></div></div>'), 
+    $templateCache.put("partials/navigation/aside_search_list.html", '<div ng-class="{\n        \'c4p-color-{{getFacetColor(srvFacet.getFirstFacet())}}\':srvNav.item && (listItem.object.id.dbid == srvNav.item.id.dbid),\n        \'active\':srvNav.item && (listItem.object.id.dbid == srvNav.item.id.dbid)}" sense-opts="{name:\'search-others-{{$index}}\', bubble:true, watchRefresh:[\'srvNav.item\', \'srvNav.holdItem\']}" ng-click="firstSingleTap(listItem.object, selectItem, onePageFormat)" sense-doubletap="firstSingleTap(listItem.object, selectItem, true)"><div class="row"><div class="btn col-xxs-12" ng-class="{active: singleTapFocusId == listItem.object.id.dbid}"><ul class="nav nav-pills"><li class="" style="width:85%"><div ng-init="cardItem = listItem.object" ng-include="\'partials/navigation/cards/draggable_inlined_card.html\'"></div></li><li class="" style="width:10%"><div ng-show="singleTapFocusId == listItem.object.id.dbid" class="glyphicon glyphicon-fw glyphicon-chevron-right c4p-color-action-aside-transparent"></div></li></ul></div></div></div>'), 
+    $templateCache.put("partials/navigation/calendar.html", '<div class="c4p-container c4p-color-gradient0"><header class="row c4p-color-gradient0" ng-include="\'partials/navigation/calendar_header.html\'"></header><div class="c4p-waiting" ng-show="calendarLoadingSpinner" c4p-animateshow="calendarLoadingSpinner" after-hide="afterCalendarSpinnerHide()" after-show="afterCalendarSpinnerShow()"><div ng-include="\'partials/spinner.html\'"></div></div><div ng-if="!calendarLoadingSpinner" class="row c4p-color-a-gradient4"><article class="col-xxs-12" ng-switch="" on="calendarView"><div ng-switch-when="dayView"><div ng-include="\'partials/navigation/calendar_day.html\'"></div></div><div ng-switch-when="listView"><div ng-include="\'partials/navigation/calendar_events.html\'"></div></div><div ng-switch-default=""><div ng-include="\'partials/navigation/calendar_month.html\'"></div></div></article></div></div>'), 
     $templateCache.put("partials/navigation/calendar_day.html", "<div style=\"float: left\" ng-style=\"{width:(getMainWidth())+'px'}\"><div ng-style=\"{width:(getMainWidth())+'px'}\" sense-opts=\"{name:'calendar_day_events_wrapper', axeY:'scroll'}\" sense-scrollopts=\"{scrollbarClass:'c4p-scrollbar'}\" resize-opts=\"{name:'calendar_day_events_wrapper', watchRefresh:'navAside'}\" resizecss-height=\"getResizeHeight() -getResizePathValue('calendar_header', '', 'offsetHeight')\"><div resize-opts=\"{name:'calendar_day_event_scroller', watchRefresh:'navAside'}\"><div ng-include=\"'partials/navigation/calendar_day_events.html'\"></div></div></div></div><div style=\"float: left\" ng-style=\"{width:(getAsideWidth())+'px'}\"><div ng-style=\"{width:(getAsideWidth())+'px'}\" sense-opts=\"{name:'calendar_day_hours_wrapper', axeY:'scroll'}\" sense-scrollopts=\"{scrollbarClass:'c4p-scrollbar'}\" resize-opts=\"{name:'calendar_day_hours_wrapper', watchRefresh:'navAside'}\" resizecss-height=\"getResizeHeight() -getResizePathValue('calendar_header', '', 'offsetHeight')\"><div resize-opts=\"{name:'calendar_day_hours_scroller', watchRefresh:'navAside'}\"><div ng-include=\"'partials/navigation/calendar_day_hours.html'\" class=\"c4p-cal-day-hour\"></div></div></div></div>"), 
     $templateCache.put("partials/navigation/calendar_day_events.html", '<div class="row c4p-details c4p-color-a-gradient1"><div class="col-xxs-12"><span class="glyphicon glyphicon-angle-left c4p-icon-std" ng-click="gotoPreviousDay()" style="padding-right: 2em"></span> <span class="c4p-cal-big c4p-gray">{{calendarDayCasualName}}</span> <span class="c4p-cal-big">{{calendarDayFullName}}</span> <span class="glyphicon glyphicon-angle-right c4p-icon-std" ng-click="gotoNextDay()" style="padding-left: 2em"></span></div></div><div class="row c4p-details" ng-show="(calendarSelectedDay.eventsAllDay.length == 0) && (calendarSelectedDay.events.length == 0) "><div class="c4p-infos-txt">{{translate(\'htmlCalendarDayTextNoEvent\')}}</div></div><ul class="nav nav-pills nav-stacked" ng-show="calendarSelectedDay.eventsAllDay.length"><li class="c4p-details c4p-color-a-gradient2"><span class="">{{translate(\'htmlCalendarDayTextAllDayEvent\')}}</span></li><li ng-repeat="item in calendarSelectedDay.eventsAllDay" class="c4p-details c4p-color-a-gradient3"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li></ul><ul class="nav nav-pills nav-stacked" ng-show="calendarSelectedDay.events.length"><li class="c4p-details c4p-color-a-gradient2"><span class="">{{translate(\'htmlCalendarDayTextEvents\')}}</span></li><li ng-repeat="item in calendarSelectedDay.events" class="c4p-details c4p-color-a-gradient3"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li></ul>'), 
     $templateCache.put("partials/navigation/calendar_day_hours.html", '<div class="row hidden-sm hidden-md hidden-lg"><div class="col-xxs-12 well c4p-well2-a"><div class="row"><div class="col-xxs-12"><span>{{calendarDayCasualName}}</span></div></div><div class="row"><div class="col-xxs-12"><table class="table c4p-table-layout" style="width:100%;table-layout: fixed"><tr><td style="vertical-align:middle;text-align:center" class="c4p-link5" ng-click="gotoPreviousDay()"><a class="c4p-link5"><span class="glyphicon glyphicon-angle-left"></span></a></td><td colspan="6" style="vertical-align:middle;text-align:center"><h4 class="c4p-n-title a4p-dot">{{calendarDayFullName}}</h4></td><td style="vertical-align:middle;text-align:center" class="c4p-link5" ng-click="gotoNextDay()"><a class="c4p-link5"><span class="glyphicon glyphicon-angle-right"></span></a></td></tr></table></div></div></div></div><div class="row"><div ng-repeat="event in calendarSelectedDay.eventsAllDay" class="col-xxs-12 label c4p-label-calendar-all-day pull-left"><div class="pull-left c4p-link5 a4p-dot" style="width:75%;line-height: 15px;height:100%;padding: 2px 15px" ng-click="onEventClick(event)"><span ng-show="isMultiDayEventWithTimeToShow(event,calendarSelectedDay.date,true)">({{getEventTime(event.date_start)}})</span> <span>{{getItemNameById(event.id.dbid)}}</span> <span ng-show="isMultiDayEventWithTimeToShow(event,calendarSelectedDay.date,false)">({{getEventTime(event.date_end)}})</span></div><div ng-show="srvData.isObjectOwnedByUser(event)" ng-click="removeEvent(event)" class="c4p-link5 pull-right" style="width:15%;text-align:center"><span class="glyphicon glyphicon-times-circle"></span></div></div></div><div class="row"><div class="col-xxs-12" style="margin:0"><div style="height:{{(25*40)}}px;width:100%;position:relative"><div style="position:absolute;top:0;left:0;width:100%"><div style="height:40px" class="c4p-hour-disabled c4p-color-a-gradient1">&nbsp;</div><div ng-repeat="hour in calendarHoursDay" class="{{hour.cssClass}}-a-gradient1" style="height:40px; position:relative;width:100%" sense-opts="{bubble:true, callApply:true}" sense-holdstart="selectHour($event, hour)" sense-holdstop="cancelHour($event, hour)" sense-tap="newEventAtHour($event, hour)" ng-class="{scrollTop: (calendarSelectedDay.events.length == 0 && $index == 8)}"><span class="c4p-link5" style="font-size:18px;line-height:18px;top:-9px;position: absolute;left: 4px">{{hour.text}} -</span> <span style="font-size:12px;line-height:12px;top:14px;position: absolute;left: 10px">30 -</span><div ng-show="hour.selected" style="height: 80%; width: 85%; border: 3px solid red; margin: 0 2%" class="pull-right">&nbsp;</div></div></div><div class="c4p-click-through" style="position:absolute;top:40px;left:0;width:100%;height:{{(24*40)}}px;z-index:-1"><div style="position:relative;width:100%;height:100%"><div ng-repeat="event in calendarSelectedDay.events" class="label c4p-label-calendar-hour pull-left c4p-color-a-gradient9" style="position:absolute;width:100%;padding:0;margin:0;pointer-events: all;\n                                top:{{calendarSelectedDay.eventsPosition[$index].posPercent}}%;\n                                height:{{calendarSelectedDay.eventsPosition[$index].lengthPercent}}%"><div style="width: 3%;height: 100%;float: left"></div><div class="pull-left c4p-link5 scrollTop a4p-dot" style="width:87%;line-height: 1em;height:100%;padding: 0 0 0 7%;text-align: left" ng-click="onEventClick(event)">{{getItemNameById(event.id.dbid)}}<br></div><div ng-show="srvData.isObjectOwnedByUser(event)" ng-click="removeEvent(event)" class="c4p-link5 pull-right" style="width:10%;text-align:center"><span class="glyphicon glyphicon-remove"></span></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/navigation/calendar_events.html", '<div class="row col-xxs-12"><div ng-style="{width:(getMainWidth() + getAsideWidth())+\'px\'}" resize-opts="{name:\'calendar_events\', watchRefresh:\'navAside\'}" resizecss-height="getResizeHeight() -getResizePathValue(\'calendar_header\', \'\', \'offsetHeight\')" sense-opts="{name:\'calendar_events\', axeY:\'scroll\', watchRefresh:\'calendarEventsGroupsByDaySinceToday\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div id="calendar-cards"><div class="row c4p-color-a-gradient1"><div class="col-xxs-12 c4p-details hidden-xs hidden-sm"><h2>{{translate(\'htmlCalendarListPageTitle\')}}</h2></div><div class="col-xxs-12 c4p-details hidden-md hidden-lg"><h4>{{translate(\'htmlCalendarListPageTitle\')}}</h4></div></div><ul class="nav nav-pills nav-stacked c4p-details-title" ng-repeat="group in calendarEventsGroupsByDaySinceToday" ng-show="group.events.length || group.eventsAllDay.length"><li class="c4p-details c4p-color-a-gradient2"><span class="">{{translateDateDayToFullString(group.date)}}</span></li><li ng-repeat="item in group.eventsAllDay" class="c4p-details c4p-color-a-gradient3"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li><li ng-repeat="item in group.events" class="c4p-details c4p-color-a-gradient4"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li></ul></div></div></div>'), 
-    $templateCache.put("partials/navigation/calendar_header.html", '<div class="c4p-header-std" resize-opts="{name:\'calendar_header\', watchRefresh:\'navAside\'}"><div class="row"><div class="col-xxs-12"><ul class="nav nav-pills"><li class=""><a class="btn disabled"><img class="c4p-img-icon" src="l4p/img/logo_meeting_.png"></a></li><li ng-include="\'partials/navigation/header_back.html\'"></li><li class="pull-right"><a class="btn" ng-show="configStateAdd" ng-click="addItemDialog()"><span class="c4p-icon-std glyphicon glyphicon-plus"></span></a></li></ul></div></div></div>'), 
-    $templateCache.put("partials/navigation/calendar_month.html", '<div><table class="table c4p-table-calendar-month" style="width:100%;table-layout: fixed"><thead resize-opts="{name:\'calendar_month_header\'}"><tr><th class="empty" style="width:20px"></th><th class="c4p-link5" ng-click="gotoPreviousYear()"><a class="c4p-link1"><span class="glyphicon glyphicon-angle-double-left"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousYear}}</h5></a></th><th class="c4p-link5" ng-click="gotoPreviousMonth()"><a class="c4p-link1"><span class="glyphicon glyphicon-angle-left"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousMonthName}}</h5></a></th><th class="disabled" colspan="3" style="text-align:center;vertical-align:middle"><h4 ng-hide="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</h4><span ng-show="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</span></th><th class="c4p-link5" ng-click="gotoNextMonth()"><a class="c4p-link1"><span class="glyphicon glyphicon-angle-right"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextMonthName}}</h5></a></th><th class="c4p-link5" ng-click="gotoNextYear()"><a class="c4p-link1"><span class="glyphicon glyphicon-angle-double-right"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextYear}}</h5></a></th></tr><tr ng-init="week = calendarMonthWeeks[0]" style="height:20px;line-height:20px" resize-opts="{name:\'calendar_month_week_header\'}"><th style="height:20px;line-height:20px" class="disabled"><small>{{translate(\'htmlCalendarMonthTextWeekAbrev\')}}</small></th><th class="disabled" style="height:20px;line-height:20px" ng-repeat="day in week.days" style="width:{{(width - 20) / week.days.length}}px"><small>{{day.shortName}}</small></th></tr></thead><tbody resize-opts="{name:\'calendar_month_body\', watchRefresh:\'navAside\'}" resize-vars="{bodyHeight:&quot;getResizeHeight() -getResizePathValue(\'calendar_header\', \'\', \'offsetHeight\') -getResizePathValue(\'calendar_month_header\', \'\', \'offsetHeight\')&quot;}"><tr ng-repeat="week in calendarMonthWeeks"><td class="disabled" style="text-align: center;vertical-align: middle"><small>{{week.id}}</small></td><td ng-repeat="day in week.days" class="c4p-link5 c4p-table-cell" ng-click="onDayClick(day.date)" style="height:{{(bodyHeight / calendarMonthWeeks.length)}}px" ng-class="{	\'c4p-cell-initial\': translateDateDayToString(day.date) == translateDateDayToString(calendarNow),\r\n								\'c4p-cell-selected\': translateDateDayToString(day.date) == translateDateDayToString(sel),\r\n								\'c4p-cell-weekend\': day.isWeekend,\r\n								\'c4p-cell-disabled\': day.date.getMonth() != calendarMonth}"><div style="width:100%;height:100%"><div class="pull-left" style="position:relative; height:100%;width:8%"><div ng-repeat="position in day.group.eventsPosition" class="label c4p-label-calendar-notallday-inverse" style="position:absolute; width:90%; padding:2px 0; border:1px solid gray; top:{{position.posPercent}}%; height:{{position.lengthPercent}}%" ng-class="position.event.id">&nbsp;</div></div><div class="pull-right" style="position:relative; height:100%;width:90%"><div style="height:{{(bodyHeight / calendarMonthWeeks.length) - 20}}px;overflow:hidden;text-overflow:ellipsis;display:block"><span ng-repeat="position in day.group.eventsAllDayPosition" style="width:{{position.lengthPercent}}%; margin-left:{{position.posPercent}}%; margin-top:1px; min-height:2px" class="label c4p-label-calendar-all-day a4p-dot"><span class="hidden-xs hidden-sm">{{position.event.name}}</span></span>  <span ng-repeat="event in day.group.events" style="width:100%; margin-top: 1px" class="label c4p-label-calendar-day a4p-dot hidden-xs hidden-sm">{{event.name}}</span></div><small class="pull-left label c4p-label-calendar-light hidden-xs hidden-sm" style="padding:0" ng-show="(20*(day.group.eventsAllDay.length + day.group.events.length)) > (((bodyHeight -24)/ calendarMonthWeeks.length) - 20)">{{translate(\'htmlCalendarMonthTextMore\')}}</small>  <small class="pull-right label c4p-label-calendar" style="padding:0 3px">{{day.date.getDate()}}</small></div></div></td></tr></tbody></table></div>'), 
-    $templateCache.put("partials/navigation/config.html", '<header class="row c4p-color-gradient0" ng-include="\'partials/navigation/config_header.html\'"></header><div class="row c4p-config-panel"><div sense-opts="{name:\'config_main\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" class="col-xxs-12 col-sm-11 col-sm-offset-1" resize-opts="{name:\'config_main\'}" resizecss-height="getResizeHeight() -getResizePathValue(\'config_header\', \'\', \'offsetHeight\') -getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetHeight\')"><div class="col-xxs-12"><div class="row hidden-xs hidden-sm"><div class="col-xxs-12 navbar"><h2 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{email}}</h2><h2 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h2></div></div><div class="row hidden-md hidden-lg"><div class="col-xxs-12 navbar"><h5 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{email}}</h5><h5 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h5></div></div><div class="row"><button class="col-xxs-12 col-xs-6 btn btn-primary" ng-click="switchUser()">{{translate(\'htmlButtonChangeUser\')}}</button> </div><div class="row"><div class="col-xxs-12 col-xs-6"><button type="button" class="btn btn-link col-xxs-12" style="padding-top: 20px;padding-bottom: 40px" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'OtherConnector\',srvLocale.translations.htmlMsgFeedbackOtherConnector)"><span style="white-space:normal">{{srvLocale.translations.htmlMsgFeedbackOtherConnectorQuestion}}</span></button></div></div><div class="row"><div class="col-xxs-12 col-xs-6"><button type="button" class="btn btn-info col-xxs-12 dropdown-toggle" data-toggle="dropdown"><span>{{srvLocale.lang.title}}</span></button><ul class="dropdown-menu col-xxs-12" role="menu"><li ng-repeat="lang in srvLocale.langs"><a class="" ng-click="srvLocale.setLang(lang)">{{lang.title}}</a></li></ul></div></div><div class="row well" ng-show="isDemo"><div class="col-xxs-12 col-xs-6"><a class="btn btn-warning col-xxs-12" ng-click="addMoreDataInDemoMode()">{{srvLocale.translations.htmlTextDemoModeMoreData}}</a></div></div><div class="row"><div class="col-xxs-12"><div class="row"><label class="col-xxs-12 control-label">&nbsp;</label><div class="col-xxs-12 controls">&nbsp;</div></div></div></div><div class="row"><div class="col-xxs-12"><small>{{translate(\'htmlConfigTextAppVersion\')}} v<span id="a4pDeviceDetectorWidth" app-version=""></span> <span id="a4pDeviceDetectorHeight">{{srvConfig.c4pBuildDate}} {{srvConfig.env}}</span> <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span></small></div></div></div></div></div>'), 
+    $templateCache.put("partials/navigation/calendar_header.html", '<div class="c4p-header-std" resize-opts="{name:\'calendar_header\', watchRefresh:\'navAside\'}"><div class="row"><div class="col-xxs-12"><ul class="nav nav-pills"><li class=""><a class="btn disabled"><img class="c4p-img-icon" src="l4p/img/logo_meeting_.png"></a></li><li ng-include="\'partials/navigation/header_back.html\'"></li><li class="pull-right" ng-show="configStateAdd"><a class="btn" ng-click="addItemDialog()"><span class="c4p-icon-std glyphicon glyphicon-plus"></span></a></li></ul></div></div></div>'), 
+    $templateCache.put("partials/navigation/calendar_month.html", '<div class="ng-cloak"><table class="table c4p-table-calendar-month" style="width:100%;table-layout: fixed"><thead resize-opts="{name:\'calendar_month_header\'}"><tr style="color:whitesmoke"><th class="empty" style="width:20px"></th><th class="c4p-link5" ng-click="gotoPreviousYear()"><span class="glyphicon glyphicon-angle-double-left"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousYear}}</h5></th><th class="c4p-link5" ng-click="gotoPreviousMonth()"><span class="glyphicon glyphicon-angle-left"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousMonthName}}</h5></th><th class="disabled" colspan="3" style="text-align:center;vertical-align:middle"><h4 ng-hide="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</h4><span ng-show="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</span></th><th class="c4p-link5" ng-click="gotoNextMonth()"><span class="glyphicon glyphicon-angle-right"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextMonthName}}</h5></th><th class="c4p-link5" ng-click="gotoNextYear()"><span class="glyphicon glyphicon-angle-double-right"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextYear}}</h5></th></tr><tr ng-init="week = calendarMonthWeeks[0]" style="height:20px;line-height:20px" resize-opts="{name:\'calendar_month_week_header\'}"><th style="height:20px;line-height:20px" class="disabled"><small>{{translate(\'htmlCalendarMonthTextWeekAbrev\')}}</small></th><th class="disabled" style="height:20px;line-height:20px" ng-repeat="day in week.days" style="width:{{(width - 20) / week.days.length}}px"><small>{{day.shortName}}</small></th></tr></thead><tbody resize-opts="{name:\'calendar_month_body\', watchRefresh:\'navAside\'}" resize-vars="{bodyHeight:&quot;getResizeHeight() -getResizePathValue(\'calendar_header\', \'\', \'offsetHeight\') -getResizePathValue(\'calendar_month_header\', \'\', \'offsetHeight\')&quot;}"><tr ng-repeat="week in calendarMonthWeeks"><td class="disabled" style="text-align: center;vertical-align: middle"><small>{{week.id}}</small></td><td ng-repeat="day in week.days" class="c4p-link5 c4p-table-cell" ng-click="onDayClick(day.date)" style="height:{{(bodyHeight / calendarMonthWeeks.length)}}px" ng-class="{	\'c4p-cell-initial\': translateDateDayToString(day.date) == translateDateDayToString(calendarNow),\r\n								\'c4p-cell-selected\': translateDateDayToString(day.date) == translateDateDayToString(sel),\r\n								\'c4p-cell-weekend\': day.isWeekend,\r\n								\'c4p-cell-disabled\': day.date.getMonth() != calendarMonth}"><div style="width:100%;height:100%"><div class="pull-left" style="position:relative; height:100%;width:8%"><div ng-repeat="position in day.group.eventsPosition" class="label c4p-label-calendar-notallday-inverse" style="position:absolute; width:90%; padding:2px 0; border:1px solid gray; top:{{position.posPercent}}%; height:{{position.lengthPercent}}%" ng-class="position.event.id">&nbsp;</div></div><div class="pull-right" style="position:relative; height:100%;width:90%"><div style="height:{{(bodyHeight / calendarMonthWeeks.length) - 20}}px;overflow:hidden;text-overflow:ellipsis;display:block"><span ng-repeat="position in day.group.eventsAllDayPosition" style="width:{{position.lengthPercent}}%; margin-left:{{position.posPercent}}%; margin-top:1px; min-height:2px" class="label c4p-label-calendar-all-day a4p-dot"><span class="hidden-xs hidden-sm">{{position.event.name}}</span></span>  <span ng-repeat="event in day.group.events" style="width:100%; margin-top: 1px" class="label c4p-label-calendar-day a4p-dot hidden-xs hidden-sm">{{event.name}}</span></div><small class="pull-left label c4p-label-calendar-light hidden-xs hidden-sm" style="padding:0" ng-show="(20*(day.group.eventsAllDay.length + day.group.events.length)) > (((bodyHeight -24)/ calendarMonthWeeks.length) - 20)">{{translate(\'htmlCalendarMonthTextMore\')}}</small>  <small class="pull-right label c4p-label-calendar" style="padding:0 3px">{{day.date.getDate()}}</small></div></div></td></tr></tbody></table></div>'), 
+    $templateCache.put("partials/navigation/config.html", '<header class="row c4p-color-gradient0" ng-include="\'partials/navigation/config_header.html\'"></header><div class="row c4p-config-panel"><div sense-opts="{name:\'config_main\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" class="col-xxs-12 col-sm-11 col-sm-offset-1" resize-opts="{name:\'config_main\'}" resizecss-height="getResizeHeight() -getResizePathValue(\'config_header\', \'\', \'offsetHeight\') -getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetHeight\')"><div class="col-xxs-12"><div class="row hidden-xs hidden-sm"><div class="col-xxs-12 navbar"><h2 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{email}}</h2><h2 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h2></div></div><div class="row hidden-md hidden-lg"><div class="col-xxs-12 navbar"><h5 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{email}}</h5><h5 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h5></div></div><div class="row"><button class="col-xxs-12 col-xs-6 btn btn-primary" ng-click="switchUser()">{{translate(\'htmlButtonChangeUser\')}}</button> </div><div class="row"><div class="col-xxs-12 col-xs-6"><button type="button" class="btn btn-link col-xxs-12" style="padding-top: 20px;padding-bottom: 40px" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'OtherConnector\',srvLocale.translations.htmlMsgFeedbackOtherConnector)"><span style="white-space:normal">{{srvLocale.translations.htmlMsgFeedbackOtherConnectorQuestion}}</span></button></div></div><div class="row"><div class="col-xxs-12 col-xs-6"><button type="button" class="btn btn-info col-xxs-12 dropdown-toggle" data-toggle="dropdown"><span>{{srvLocale.lang.title}}</span></button><ul class="dropdown-menu col-xxs-12" role="menu"><li ng-repeat="lang in srvLocale.langs"><a class="" ng-click="srvLocale.setLang(lang)">{{lang.title}}</a></li></ul></div></div><div class="row" ng-show="isDemo"><div class="col-xxs-12 col-xs-6 well"><a class="btn btn-warning col-xxs-12" ng-click="addMoreDataInDemoMode()">{{srvLocale.translations.htmlTextDemoModeMoreData}}</a></div></div><div class="row"><div class="col-xxs-12"><div class="row"><label class="col-xxs-12 control-label">&nbsp;</label><div class="col-xxs-12 controls">&nbsp;</div></div></div></div><div class="row"><div class="col-xxs-12"><small>{{translate(\'htmlConfigTextAppVersion\')}} v<span id="a4pDeviceDetectorWidth" app-version=""></span> <span id="a4pDeviceDetectorHeight">{{srvConfig.c4pBuildDate}} {{srvConfig.env}}</span> <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span></small></div></div></div></div></div>'), 
     $templateCache.put("partials/navigation/config_header.html", '<div class="c4p-header-std" resize-opts="{name:\'config_header\'}"><div class="row"><div class="col-xxs-12"><ul class="nav nav-pills"><li class=""><a class="btn disabled"><img class="c4p-img-icon" src="l4p/img/logo_meeting_.png"></a></li><li ng-include="\'partials/navigation/header_back.html\'"></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/footer_detail.html", '<div class="c4p-footer-details c4p-color-gradient0" style="position:relative" resize-opts="{name:\'navigation_footer_detail\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}" resizecss-width="getPathValue(\'parentNode\', \'offsetWidth\')"><div class="btn c4p-color-action-transparent" ng-click="gotoBack()" resize-opts="{name:\'navigation_footer_detail_back\'}"><span class="c4p-icon-std glyphicon glyphicon-arrow-left"></span></div><div class="btn btn-xs" ng-controller="ctrlNavObject" resize-opts="{name:\'navigation_footer_detail_history\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}" resizecss-width="getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetWidth\') -1 -getResizePathValue(\'navigation_footer_detail_back\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_detail_spacer\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_detail_lock\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_detail_meeting\', \'\', \'offsetWidth\')"><ul style="overflow-x:hidden" class="c4p-list-footer-details"><li class="c4p-item-list-footer-details" ng-repeat="back in srvNav.history | limitTo:3" ng-class="{\'c4p-item-list-ftr-footer-details\':$last}" style="opacity: {{1-(0.33*$index)}}"><small><span class="glyphicon glyphicon-{{back.itemIcon}}"></span> <span ng-switch="!back.itemName"><span ng-switch-when="true">{{srvLocale.translations.htmlSlideName[back.slide]}}</span> <span ng-switch-default="">{{back.itemName}}</span></span></small></li></ul></div><div class="c4p-hf-spacer" resize-opts="{name:\'navigation_footer_detail_spacer\'}"><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div></div><div class="btn" ng-show="srvSecurity.isSecured()" ng-click="openDialogLocked()" resize-opts="{name:\'navigation_footer_detail_lock\'}"><a class="c4p-link2"><span class="glyphicon glyphicon-lock"></span></a></div><div class="btn btn-danger" ng-class="{\'active\' : dropOver}" ng-show="dndActive" ng-controller="ctrlTrashObject" sense-opts="{name:\'dropObjectTrash\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)" sense-dropend="dropEnd($event)" style="position:absolute;z-index:1041;top:0;left:0"><span class="c4p-icon-std glyphicon glyphicon-trash"></span></div></div>'), 
     $templateCache.put("partials/navigation/footer_related.html", '<div class="c4p-footer-details c4p-color-{{getTypeColor(srvNav.item.a4p_type)}}-gradient2" resize-opts="{name:\'navigation_footer_related\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}"><div class="btn c4p-color-action-transparent" ng-show="isOnePageFormat()" ng-click="gotoBack()" resize-opts="{name:\'navigation_footer_related_back\'}"><span class="c4p-icon-std glyphicon glyphicon-arrow-left"></span></div><div class="btn btn-xs" ng-show="isOnePageFormat()" ng-controller="ctrlNavObject" resize-opts="{name:\'navigation_footer_related_history\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}" resizecss-width="getResizePathValue(\'navigation_footer_related\', \'\', \'offsetWidth\') -1 -getResizePathValue(\'navigation_footer_related_back\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_related_lock\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_related_spacer\', \'\', \'offsetWidth\') - getResizePathValue(\'navigation_footer_related_meeting\', \'\', \'offsetWidth\')"><ul style="overflow-x:hidden" class="c4p-list-footer-details"><li class="c4p-item-list-footer-details" ng-repeat="back in srvNav.history | limitTo:3" ng-class="{\'c4p-item-list-ftr-footer-details\':$last}" style="opacity: {{1-(0.33*$index)}}"><small><span class="glyphicon glyphicon-{{back.itemIcon}}"></span> <span ng-switch="!back.itemName"><span ng-switch-when="true">{{srvLocale.translations.htmlSlideName[back.slide]}}</span> <span ng-switch-default="">{{back.itemName}}</span></span></small></li></ul></div><div class="c4p-hf-spacer" resize-opts="{name:\'navigation_footer_related_spacer\'}"><div class="btn"><div class="c4p-icon-std glyphicon">&nbsp;</div></div></div><div class="btn" ng-show="isOnePageFormat() && srvSecurity.isSecured()" ng-click="openDialogLocked()" resize-opts="{name:\'navigation_footer_related_lock\'}"><a class="c4p-link2"><span class="glyphicon glyphicon-lock"></span></a></div></div>'), 
-    $templateCache.put("partials/navigation/header_back.html", '<div class="dropdown" ng-controller="ctrlNavObject"><a class="btn dropdown-toggle" ng-disabled="srvNav.history.length == 0" style="border: 0"><h5 class="a4p-dot"><i class="glyphicon glyphicon-angle-down" ng-hide="srvNav.history.length == 0"></i> {{navTitle}}</h5></a><ul class="dropdown-menu c4p-dropdown-menu c4p-details-menu-align" role="menu"><li ng-repeat="back in srvNav.history | limitTo:5" ng-style="{opacity:(1/($index + 1))}"><a class="btn" ng-click="gotoIndex($index)"><i class="pull-left glyphicon glyphicon-fw glyphicon-{{back.itemIcon}}"></i><div class="a4p-dot" style="text-align: left" ng-switch="!back.itemName"><span ng-switch-when="true">{{srvLocale.translations.htmlSlideName[back.slide]}}</span> <span ng-switch-default="">{{back.itemName}}</span></div></a></li></ul></div>'), 
-    $templateCache.put("partials/navigation/main.html", '<div ng-controller="ctrlAside"><div class="c4p-ltr" ng-style="{height:getResizeHeight()+\'px\', width:(getToolbarWidth())+\'px\'}"><div id="" ng-style="{height:getResizeHeight()+\'px\', width:(getAsideWidth()+ getToolbarWidth())+\'px\'}" resize-opts="{name:\'navigation_ctrlAside\'}" ng-include="\'partials/navigation/aside_root.html\'"></div></div><div class="c4p-ltr c4p-click-through c4p-animate-switch-slide-container" ng-style="{height:(getResizeHeight() - 40)+\'px\'}" style="z-index: 3; width: 0px" ng-switch="" on="rootMenuUp"><div ng-switch-when="false" class="c4p-click-intercepted c4p-animate-switch-slide" ng-style="{height:(getResizeHeight() - 40)+\'px\', width:getAsideWidth()+\'px\'}"><div ng-include="\'partials/navigation/aside_search.html\'"></div></div></div><div class="c4p-ltr c4p-click-through" ng-style="{height:(getResizeHeight() - 0)+\'px\', width:getCentralContainerWidth()+\'px\'}" resize-opts="{name:\'navigation_ctrlPanelMove\'}" sense-opts="{name:\'navigation_ctrlPanelMove\', axeX:\'scroll\', init:\'setSensePanel($sense);\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', hScrollbar : false, x:getPanelX(), momentum: 0}" sense-afterscrollend="onPanelAfterScrollEnd($x, $y)" style="z-index: 5"><div resize-opts="{name:\'navigation_panel_scroller\'}" ng-style="{height:(getResizeHeight() - 0)+\'px\', width:(getAsideWidth() + getDetailWidth() + getRelatedWidth())+\'px\'}"><div id="a4pAside" class="c4p-ltr c4p-click-through" ng-style="{height:(getResizeHeight() - 40)+\'px\', width:getAsideWidth()+\'px\'}" resize-opts="{name:\'navigation_translucent\'}"><div ng-include="\'partials/navigation/translucent_panel.html\'"></div></div><div id="a4pPage" class="c4p-ltr c4p-click-intercepted"><div ng-switch="" on="getSlideFromNavIndex()" class="c4p-animate-switch-container"><div ng-switch-when="config" class="c4p-animate-switch"><div ng-controller="ctrlConfig" ng-include="\'partials/navigation/config.html\'" ng-style="{height:getResizeHeight()+\'px\', width:(getMainWidth() + getAsideWidth())+\'px\'}"></div></div><div ng-switch-when="calendar" class="c4p-animate-switch"><div ng-controller="ctrlCalendar" ng-include="\'partials/navigation/calendar.html\'" ng-style="{height:getResizeHeight()+\'px\', width:(getMainWidth() + getAsideWidth())+\'px\'}"></div></div><div ng-switch-default="" class="c4p-animate-switch"><div ng-controller="ctrlDetail" ng-include="\'partials/navigation/view_n.html\'" ng-style="{height:getResizeHeight()+\'px\', width:(getDetailWidth() + getRelatedWidth())+\'px\'}"></div></div></div></div></div></div><div class="c4p-ltr c4p-toolbar" ng-hide="isOnePageFormat()" ng-style="{height:getResizeHeight()+\'px\', width:(getToolbarWidth())+\'px\'}" resize-opts="{name:\'right_toolbar\'}" style="box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.2);z-index: 6"><div class="c4p-toolbar-header c4p-color-a-gradient1" resize-opts="{name:\'right_toolbar_header\'}" ng-show="(getSlideFromNavIndex() != \'calendar\')"><div class="btn c4p-color-action-transparent c4p-padding-w-packed" ng-click="toggleNavRelated()"><span class="c4p-icon-std glyphicon glyphicon-link"></span></div></div><div class="c4p-color-a-gradient2 row" sense-opts="{name:\'right_toolbar_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedGroupList\']}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" resize-opts="{name:\'right_toolbar_wrapper\'}" resizecss-height="getResizeHeight() - getResizePathValue(\'right_toolbar_header\', \'\', \'offsetHeight\')"><div class="col-xxs-12" resize-opts="{name:\'right_toolbar_scroller\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedGroupList\']}"><div ng-click="setNavRelated(true);setShowGroupSuggestion(true);setLinksScrollerPageY(0); " ng-show="(getSlideFromNavIndex() != \'calendar\')"><div class="c4p-color-j-dark-iii" ng-style="{width:getSliderWidth()+\'px\'}"><div class="c4p-related-square-icon"><span class="c4p-icon-std glyphicon glyphicon-ellipsis-h"></span></div><div class="c4p-related-square-text"><span>&nbsp;</span></div></div></div><div ng-repeat="group in srvNav.itemRelatedGroupList" ng-show="group.type != \'Plan\' && group.type != \'Facet\'" ng-class="{\'active\': linksPageY == $index}" ng-click="setNavRelated(true);setShowGroup(group, true);setLinksScrollerPageY($index); "><div class="c4p-color-{{group.colorType}}-dark-iii" ng-style="{width:getSliderWidth()+\'px\'}"><div class="c4p-related-square-icon"><span class="c4p-icon-std glyphicon glyphicon-{{group.icon}}"></span></div><div class="c4p-related-square-text"><span>{{group.size}}</span></div></div></div></div></div></div></div>'), 
+    $templateCache.put("partials/navigation/header_back.html", '<div class="dropdown" ng-controller="ctrlNavObject"><a class="btn dropdown-toggle" ng-disabled="srvNav.history.length == 0" style="border: 0"><h5 class="a4p-dot c4p-gray"><i class="glyphicon glyphicon-angle-down" ng-hide="srvNav.history.length == 0"></i> {{navTitle}}</h5></a><ul class="dropdown-menu c4p-dropdown-menu c4p-details-menu-align" role="menu"><li ng-repeat="back in srvNav.history | limitTo:5" ng-style="{opacity:(1/($index + 1))}"><a class="btn" ng-click="gotoIndex($index)"><i class="pull-left glyphicon glyphicon-fw glyphicon-{{back.itemIcon}}"></i><div class="a4p-dot" style="text-align: left" ng-switch="!back.itemName"><span ng-switch-when="true">{{srvLocale.translations.htmlSlideName[back.slide]}}</span> <span ng-switch-default="">{{back.itemName}}</span></div></a></li></ul></div>'), 
+    $templateCache.put("partials/navigation/main.html", '<div ng-controller="ctrlAside"><div class="c4p-ltr" ng-style="{height:getResizeHeight()+\'px\', width:(getToolbarWidth())+\'px\'}"><div id="" ng-style="{height:getResizeHeight()+\'px\', width:(getAsideWidth()+ getToolbarWidth())+\'px\'}" resize-opts="{name:\'navigation_ctrlAside\'}" ng-include="\'partials/navigation/aside_root.html\'"></div></div><div class="c4p-ltr c4p-click-through" ng-style="{height:(getResizeHeight() - 44)+\'px\'}" style="z-index: 3; width: 0px" ng-switch="" on="rootMenuUp"><div ng-switch-when="false" class="c4p-click-intercepted" ng-style="{height:(getResizeHeight() - 44)+\'px\', width:getAsideWidth()+\'px\'}" style="position: relative"><div ng-include="\'partials/navigation/aside_search.html\'"></div></div></div><div class="c4p-ltr c4p-click-through" ng-style="{height:(getResizeHeight() - 0)+\'px\', width:getCentralContainerWidth()+\'px\'}" resize-opts="{name:\'navigation_ctrlPanelMove\'}" sense-opts="{name:\'navigation_ctrlPanelMove\', axeX:\'scroll\', init:\'setSensePanel($sense);\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', hScrollbar : false, x:getPanelX(), momentum: 0}" sense-afterscrollend="onPanelAfterScrollEnd($x, $y)" style="z-index: 5"><div resize-opts="{name:\'navigation_panel_scroller\'}" ng-style="{height:(getResizeHeight() - 0)+\'px\', width:(getAsideWidth() + getDetailWidth() + getRelatedWidth())+\'px\'}"><div id="a4pAside" class="c4p-ltr c4p-click-through" ng-style="{height:(getResizeHeight() - 44)+\'px\', width:getAsideWidth()+\'px\'}" resize-opts="{name:\'navigation_translucent\'}"><div ng-include="\'partials/navigation/translucent_panel.html\'"></div></div><div id="a4pPage" class="c4p-ltr c4p-click-intercepted"><div ng-switch="" on="getSlideFromNavIndex()"><div ng-switch-when="config"><div ng-controller="ctrlConfig" ng-include="\'partials/navigation/config.html\'" ng-style="{height:getResizeHeight()+\'px\', width:(getMainWidth() + getAsideWidth())+\'px\'}"></div></div><div ng-switch-when="calendar"><div ng-controller="ctrlCalendar" ng-include="\'partials/navigation/calendar.html\'" ng-style="{height:getResizeHeight()+\'px\', width:(getMainWidth() + getAsideWidth())+\'px\'}"></div></div><div ng-switch-default=""><div ng-controller="ctrlDetail" ng-include="\'partials/navigation/view_n.html\'" ng-style="{height:getResizeHeight()+\'px\', width:(getDetailWidth() + getRelatedWidth())+\'px\'}"></div></div></div></div></div></div><div ng-controller="ctrlRightToolbar" class="c4p-ltr c4p-toolbar" ng-if="!isOnePageFormat()" ng-style="{height:getResizeHeight()+\'px\', width:(getToolbarWidth())+\'px\'}" resize-opts="{name:\'right_toolbar\'}" style="box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.2);z-index: 6"><div class="c4p-toolbar-header c4p-color-a-gradient1" resize-opts="{name:\'right_toolbar_header\'}" ng-show="(getSlideFromNavIndex() != \'calendar\')"><div class="btn c4p-color-action-transparent c4p-padding-w-packed" ng-click="toggleNavRelated()"><span class="c4p-icon-std glyphicon glyphicon-link"></span></div></div><div class="c4p-color-a-gradient2 row" sense-opts="{name:\'right_toolbar_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedGroupList\']}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" resize-opts="{name:\'right_toolbar_wrapper\'}" resizecss-height="getResizeHeight() - getResizePathValue(\'right_toolbar_header\', \'\', \'offsetHeight\')"><div class="col-xxs-12" resize-opts="{name:\'right_toolbar_scroller\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedGroupList\']}"><div ng-if="!detailLoadingSpinner" ng-click="setNavRelated(true);setShowGroupSuggestion(true);setLinksScrollerPageY(0); " ng-show="(getSlideFromNavIndex() != \'calendar\')"><div class="c4p-color-j-dark-iii" ng-style="{width:getSliderWidth()+\'px\'}"><div class="c4p-related-square-icon"><span class="c4p-icon-std glyphicon glyphicon-ellipsis-h"></span></div><div class="c4p-related-square-text"><span>&nbsp;</span></div></div></div><div ng-if="!detailLoadingSpinner" ng-repeat="group in srvNav.itemRelatedGroupList" ng-show="group.type != \'Plan\' && group.type != \'Facet\'" ng-class="{\'active\': linksPageY == $index}" ng-click="setNavRelated(true);setShowGroup(group, true);setLinksScrollerPageY($index); "><div class="c4p-color-{{group.colorType}}-dark-iii" ng-style="{width:getSliderWidth()+\'px\'}"><div class="c4p-related-square-icon"><span class="c4p-icon-std glyphicon glyphicon-{{group.icon}}"></span></div><div class="c4p-related-square-text"><span>{{group.size}}</span></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/navigation/translucent_panel.html", '<div class="btn c4p-padding-w-packed c4p-color-gradient0 c4p-click-intercepted" style="position:absolute; top:50%; right: 0;height:2em; margin-top:-1em;box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.5);z-index: 5" ng-click="setNavAside(false)" ng-show="isOnePageFormat() && (srvNav.current == null) "><span class="c4p-icon-std glyphicon glyphicon-ellipsis-v"></span></div><div class="half-circle-left c4p-color-gradient0 c4p-click-intercepted" style="position:absolute; top:50%; right: 0; margin-top:-4em;box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.5);z-index: 8" ng-show="isOnePageFormat() && (srvNav.current!=null) " ng-class="{\'c4p-dropzone-active\': dndActive, \'c4p-dropzone-active-hover\': dropOver}" ng-controller="ctrlLinkActions" ng-click="setNavAside(false)" sense-opts="{name:\'navigation_detail_small_drop_zone\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropstart="dropStart($event)" sense-dropend="dropEnd($event)" sense-dropcancel="dropCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)"><div class="c4p-icn-side-drop"><span class="c4p-icon-std glyphicon glyphicon-{{srvNav.current.itemIcon}}"></span></div><div class="c4p-txt-side-drop"><div class="rotate-txt"><div class="c4p-no-dot-container"><small class="a4p-dot">{{srvNav.current.itemName}}</small></div></div></div></div>'), 
-    $templateCache.put("partials/navigation/view_n.html", '<div class="container" resize-opts="{name:\'navigation_view_n\'}"><div class="c4p-ltr ng-cloak" ng-style="{height:getResizeHeight()+\'px\', width:getDetailWidth()+\'px\'}" resize-opts="{name:\'navigation_view_detailed\'}"><div class="btn c4p-padding-w-packed c4p-color-gradient0" style="position:absolute; top:50%; right: 0;height:2em; margin-top:-1em;box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.5);z-index: 10" ng-click="setNavRelated(true)" ng-show="isOnePageFormat()"><span class="c4p-icon-std glyphicon glyphicon-ellipsis-v"></span></div><div ng-include="\'partials/navigation/view_n_1.html\'"></div></div><div class="c4p-ltr ng-cloak" ng-style="{height:getResizeHeight()+\'px\', width:getRelatedWidth()+\'px\'}" resize-opts="{name:\'navigation_view_links\'}"><div ng-include="\'partials/navigation/view_n_2.html\'"></div></div></div>'), 
-    $templateCache.put("partials/navigation/view_n_1.html", '<div ng-controller="ctrlDetailedObject" class="c4p-color-a-gradient{{cards.length}}"><div ng-controller="ctrlAction" ng-init="watchSrvNav();"><div class="row c4p-header-std c4p-header-details c4p-color-gradient0" ng-style="{width:getDetailWidth()+\'px\'}" resize-opts="{name:\'navigation_detail_title\'}" ng-include="\'partials/navigation/view_n_1_header.html\'"></div><div sense-opts="{name:\'detailed_item_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedList[srvNav.itemRelatedGroup.type]\']}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', momentum:0}" ng-style="{width:getDetailWidth()+\'px\'}" resize-opts="{name:\'detailed_item_wrapper\'}" resizecss-height="getResizeHeight() - getResizePathValue(\'navigation_detail_title\', \'\', \'offsetHeight\') - getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetHeight\')"><div class="col-xxs-12 c4p-color-gradient0" resize-opts="{name:\'detailed_item_scroller\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedList[srvNav.itemRelatedGroup.type]\']}"><div ng-repeat="card in cards" class="c4p-color-a-gradient{{$index}} c4p-card row" ng-class="{\'c4p-card-thumb\': $first}" ng-init="cardItem = srvNav.item; cardGroups = card.groups; cardHasThumb = ($first == true); cardItemName = itemName; cardIsAboutVideo = isVideo; cardIsAboutFile = isFile;" ng-include="\'partials/navigation/cards/detail_card.html\'"></div></div><div ng-show="dndActive" ng-controller="ctrlLinkActions"><div style="position: absolute; z-index: 1041; top: 0; left: 0; bottom:0; right:0" ng-class="{\'c4p-dropzone-active\': dndActive, \'c4p-dropzone-active-hover\': dropOver}" ng-style="{width:getDetailWidth()+\'px\'}" resize-opts="{name:\'navigation_detail_link_drop_zone\', watchRefresh:[\'getSensePanelScrollX()\', \'srvNav.item.id.dbid\']}" resizecss-height="getResizePathValue(\'detailed_item_wrapper\', \'\', \'offsetHeight\')" sense-opts="{name:\'navigation_detail_link_drop_zone\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropstart="dropStart($event)" sense-dropend="dropEnd($event)" sense-dropcancel="dropCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)"><div ng-style="{width:getDetailWidth()+\'px\'}" resize-opts="{name:\'navigation_detail_link_zone_wrapper\', watchRefresh:[\'getSensePanelScrollX()\', \'srvNav.item\']}" sense-opts="{name:\'navigation_detail_link_zone_wrapper\', axeY:\'scroll\', watchRefresh:\'srvNav.itemRelatedList\'}" ng-show="dndActive"><div><span>{{translate(\'htmlCardsTextActionAs\')}} {{srvLocale.translations.htmlShortLinkName[fromLink]}}</span></div></div></div></div></div></div></div>'), 
+    $templateCache.put("partials/navigation/view_n.html", '<div class="c4p-container c4p-color-gradient0" resize-opts="{name:\'navigation_view_n\'}"><div class="c4p-waiting" ng-show="detailLoadingSpinner" ng-style="{\'max-width\':pageWidth+\'px\'}" c4p-animateshow="detailLoadingSpinner" after-hide="afterDetailSpinnerHide()" after-show="afterDetailSpinnerShow()"><div ng-include="\'partials/spinner.html\'"></div></div><div ng-if="!detailLoadingSpinner"><div class="c4p-ltr" ng-style="{height:getResizeHeight()+\'px\', width:getDetailWidth()+\'px\'}" resize-opts="{name:\'navigation_view_detailed\'}"><div class="btn c4p-padding-w-packed c4p-color-gradient0" style="position:absolute; top:50%; right: 0;height:2em; margin-top:-1em;box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.5);z-index: 10" ng-click="setNavRelated(true)" ng-show="isOnePageFormat()"><span class="c4p-icon-std glyphicon glyphicon-ellipsis-v"></span></div><div ng-include="\'partials/navigation/view_n_1.html\'"></div></div><div class="c4p-ltr" ng-style="{height:getResizeHeight()+\'px\', width:getRelatedWidth()+\'px\'}" resize-opts="{name:\'navigation_view_links\'}"><div ng-include="\'partials/navigation/view_n_2.html\'"></div></div></div></div>'), 
+    $templateCache.put("partials/navigation/view_n_1.html", "<div ng-controller=\"ctrlDetailedObject\" class=\"c4p-color-a-gradient{{cards.length}}\"><div ng-controller=\"ctrlAction\" ng-init=\"watchSrvNav();\"><div class=\"row c4p-header-std c4p-header-details c4p-color-gradient0\" ng-style=\"{width:getDetailWidth()+'px'}\" resize-opts=\"{name:'navigation_detail_title'}\" ng-include=\"'partials/navigation/view_n_1_header.html'\"></div><div sense-opts=\"{name:'detailed_item_wrapper', axeY:'scroll', watchRefresh:['srvNav.item', 'srvNav.itemRelatedList[srvNav.itemRelatedGroup.type]']}\" sense-scrollopts=\"{scrollbarClass:'c4p-scrollbar', momentum:0}\" ng-style=\"{width:getDetailWidth()+'px'}\" resize-opts=\"{name:'detailed_item_wrapper'}\" resizecss-height=\"getResizeHeight() - getResizePathValue('navigation_detail_title', '', 'offsetHeight') - getResizePathValue('navigation_footer_detail', '', 'offsetHeight')\"><div class=\"col-xxs-12 c4p-color-gradient0\" resize-opts=\"{name:'detailed_item_scroller', watchRefresh:['srvNav.item', 'srvNav.itemRelatedList[srvNav.itemRelatedGroup.type]']}\"><div ng-repeat=\"card in cards\" class=\"c4p-color-a-gradient{{$index}} c4p-card row\" ng-class=\"{'c4p-card-thumb': $first}\" ng-init=\"cardItem = srvNav.item; cardGroups = card.groups; cardHasThumb = ($first == true); cardItemName = itemName; cardIsAboutVideo = isVideo; cardIsAboutFile = isFile; cardItemColor = 'c4p-color-'+itemColor\" ng-include=\"'partials/navigation/cards/detail_card.html'\"></div></div><div ng-show=\"dndActive\" ng-controller=\"ctrlLinkActions\"><div style=\"position: absolute; z-index: 1041; top: 0; left: 0; bottom:0; right:0\" ng-class=\"{'c4p-dropzone-active': dndActive, 'c4p-dropzone-active-hover': dropOver}\" ng-style=\"{width:getDetailWidth()+'px'}\" resize-opts=\"{name:'navigation_detail_link_drop_zone', watchRefresh:['getSensePanelScrollX()', 'srvNav.item.id.dbid']}\" resizecss-height=\"getResizePathValue('detailed_item_wrapper', '', 'offsetHeight')\" sense-opts=\"{name:'navigation_detail_link_drop_zone'}\" sense-dndstart=\"dndStart($event)\" sense-dndend=\"dndEnd($event)\" sense-dndcancel=\"dndCancel($event)\" sense-dropstart=\"dropStart($event)\" sense-dropend=\"dropEnd($event)\" sense-dropcancel=\"dropCancel($event)\" sense-dropoverenter=\"dropOverEnter($event)\" sense-dropoverleave=\"dropOverLeave($event)\"><div ng-style=\"{width:getDetailWidth()+'px'}\" resize-opts=\"{name:'navigation_detail_link_zone_wrapper', watchRefresh:['getSensePanelScrollX()', 'srvNav.item']}\" sense-opts=\"{name:'navigation_detail_link_zone_wrapper', axeY:'scroll', watchRefresh:'srvNav.itemRelatedList'}\" ng-show=\"dndActive\"><div><span>{{translate('htmlCardsTextActionAs')}} {{srvLocale.translations.htmlShortLinkName[fromLink]}}</span></div></div></div></div></div></div></div>"), 
     $templateCache.put("partials/navigation/view_n_1_details___deprecated.html", '<div class="c4p-color-a-gradient{{$index}}" ng-repeat="card in cards" ng-class="{\'first-card\': $first}"><div class="c4p-card" ng-class="{\'row\' : $first}"><div class="c4p-card-text" ng-class="{\'col-xxs-8\' : $first}"><span ng-repeat="group in card.groups" style="margin: 0; padding: 0" class="c4p-size-{{group.size}}" style="display: block;\n                                                /* -webkit-margin-before: 1.67em; \n                                                -webkit-margin-after: 1.67em; \n                                                -webkit-margin-start: 0px;\n                                                -webkit-margin-end: 0px;*/"><br ng-show="card.brSeparated && ($index > 0)"><span><span ng-show="group.synchro && (srvNav.item.c4p_synchro.creating || srvNav.item.c4p_synchro.writing || srvNav.item.c4p_synchro.reading || srvNav.item.c4p_synchro.deleting)" class="glyphicon" ng-class="{\n                                \'glyphicon-trash\'    : (srvNav.item.c4p_synchro.deleting > 1),\n                                \'glyphicon-times-circle\' : (!srvNav.item.c4p_synchro.deleting && (srvNav.item.c4p_synchro.creating > 1)),\n                                \'glyphicon-upload\'   : (!srvNav.item.c4p_synchro.deleting && !srvNav.item.c4p_synchro.creating && (srvNav.item.c4p_synchro.writing > 1)),\n                                \'glyphicon-download\' : (!srvNav.item.c4p_synchro.deleting && !srvNav.item.c4p_synchro.creating && !srvNav.item.c4p_synchro.writing && (srvNav.item.c4p_synchro.reading > 1)),\n                                \'glyphicon-spinner\'  : ((srvNav.item.c4p_synchro.deleting == 1) || (srvNav.item.c4p_synchro.creating == 1) || (srvNav.item.c4p_synchro.writing == 1) || (srvNav.item.c4p_synchro.reading == 1)),\n                                \'glyphicon-spin\'          : ((srvNav.item.c4p_synchro.deleting == 1) || (srvNav.item.c4p_synchro.creating == 1) || (srvNav.item.c4p_synchro.writing == 1) || (srvNav.item.c4p_synchro.reading == 1))\n                              }"></span>  <span ng-show="group.icon" ng-hide="$first" class="glyphicon glyphicon-{{group.icon}}"></span> <span ng-show="group.name">{{itemName}}</span> <span ng-show="group.title">{{group.title}}</span></span> <span ng-repeat="field in group.fields" class="c4p-size-{{field.size}}"><span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="currency"><span>{{item | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{item}}%</span></span> <span ng-switch-when="probability"><span>{{item}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(item, \'short\')}}</span></span> <span ng-switch-when="dateTIME"><span>{{srvLocale.formatDate(item, \'shortDate\')}} <b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(item, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(item, \'shortTime\')}}</span></span> <span ng-switch-when="TIME"><span><b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span></span> <span ng-switch-when="number"><span>{{item | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="item"></blockquote><span ng-switch-default=""><span>{{item}}</span></span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="currency"><span>{{field.value | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{field.value}}%</span></span> <span ng-switch-when="probability"><span>{{field.value}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(field.value, \'short\')}}</span></span> <span ng-switch-when="dateTIME"><span>{{srvLocale.formatDate(field.value, \'shortDate\')}} <b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(field.value, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(field.value, \'shortTime\')}}</span></span> <span ng-switch-when="TIME"><span><b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span></span> <span ng-switch-when="number"><span>{{field.value | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="field.value"></blockquote><span ng-switch-default=""><span>{{field.value}}</span></span></span></span></span> <span ng-show="field.suffix">{{field.suffix}}</span></span></span></div><div class="c4p-card-thumb" ng-class="{\'col-xxs-4\' : $first}" c4p-show="$first"><div class="table-responsive"><table class="table"><tr><td><div class="btn btn-sm pull-right c4p-color-action-transparent" ng-click="doAction(\'toggleFavorite\')"><span class="c4p-icon-std glyphicon c4p-outline-star" ng-class="{\'glyphicon-star\' : isTaggedFavorite(srvNav.item), \'glyphicon-star-o\' : !isTaggedFavorite(srvNav.item)}"></span></div></td><td width="70px"><div class=""><c4p-thumb width="70" height="70" text="{{itemName}}" indic="{{itemRelationCount}}" icon="glyphicon-{{itemIcon}}" color="{{itemColor}}" url="{{srvNav.item.thumb_url}}"></c4p-thumb></div></td></tr></table></div></div></div></div><div c4p-show="srvConfig.c4pConfig.exposeGoogleMap && srvRunning.online && google"><div class="google-map" center="position.coords" zoom="zoomProperty" markers="markersProperty" latitude="clickedLatitudeProperty" longitude="clickedLongitudeProperty" mark-click="true" draggable="true" fit="false" events="eventsProperty" style="height: 300px; width: 100%"></div></div>'), 
     $templateCache.put("partials/navigation/view_n_1_header.html", '<div class="col-xxs-12"><ul class="nav nav-pills"><li class=""><a class="btn btn-sm disabled"><img class="c4p-img-icon" src="l4p/img/logo_meeting_.png"></a></li><li ng-include="\'partials/navigation/header_back.html\'"></li><li class="pull-right"><a class="btn" ng-click="doAction(\'editItem\')"><span class="c4p-icon-std glyphicon glyphicon-edit"></span></a></li></ul></div>'), 
-    $templateCache.put("partials/navigation/view_n_2.html", '<div class="row c4p-header-related c4p-color-a-gradient2" resize-opts="{name:\'detailed_links_header\'}"><div class="col-xxs-12"><ul class="nav nav-pills"><li ng-show="isOnePageFormat()"><a class="btn" ng-click="setNavRelated(false)"><span class="pull-left c4p-icon-std glyphicon glyphicon-angle-left"></span><c4p-thumb width="20" height="20" text="{{getItemNameById(srvNav.item.id.dbid)}}" indic="##todo" icon="##todo" color="##todo" url="{{srvNav.item.thumb_url}}"></c4p-thumb></a></li><li ng-hide="linkStateAdd" style="width:80%"><a class="btn disabled"><h5 class="a4p-dot">{{translate(\'htmlViewNrelatedPageTitle\')}}</h5></a></li><li><a class="btn" ng-show="linkStateAdd"><span class="">{{translate(\'htmlViewNrelatedPageTitleNew\')}}</span></a></li></ul></div><div class="btn c4p-padding-w-packed c4p-color-action-transparent pull-right" ng-show="linkStateAdd" ng-click="toggleLinkStateAdd()"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div><div class="row c4p-color-a-gradient1"><article class="col-xxs-12" ng-include="\'partials/navigation/view_n_2_links_item.html\'"></article></div>'), 
+    $templateCache.put("partials/navigation/view_n_2.html", '<div class="row c4p-header-related c4p-color-a-gradient2" resize-opts="{name:\'detailed_links_header\'}"><div class="col-xxs-12"><ul class="nav nav-pills"><li ng-show="isOnePageFormat()"><a class="btn" ng-click="setNavRelated(false)"><span class="pull-left c4p-icon-std glyphicon glyphicon-angle-left"></span><c4p-thumb width="20" height="20" text="{{getItemNameById(srvNav.item.id.dbid)}}" indic="##todo" icon="##todo" color="c4p-color-{{srvNav.itemColor}}" url="{{srvNav.item.thumb_url}}"></c4p-thumb></a></li><li ng-hide="linkStateAdd" style="width:80%"><a class="btn disabled"><h5 class="a4p-dot">{{translate(\'htmlViewNrelatedPageTitle\')}}</h5></a></li><li><a class="btn" ng-show="linkStateAdd"><span class="">{{translate(\'htmlViewNrelatedPageTitleNew\')}}</span></a></li></ul></div><div class="btn c4p-padding-w-packed c4p-color-action-transparent pull-right" ng-show="linkStateAdd" ng-click="toggleLinkStateAdd()"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div><div class="row c4p-color-a-gradient1"><article class="col-xxs-12" ng-include="\'partials/navigation/view_n_2_links_item.html\'"></article></div>'), 
     $templateCache.put("partials/navigation/view_n_2_link_editor.html", '<div sense-opts="{name:\'detailed_links_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvNav.itemRelatedGroup\', \'srvNav.item.a4p_type\']}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" resize-opts="{name:\'detailed_links_wrapper\'}" resizecss-height="getResizeHeight() -getResizePathValue(\'detailed_links_header\', \'\', \'offsetHeight\')"><div resize-opts="{name:\'detailed_links_scroller\', watchRefresh:[\'srvNav.itemRelatedGroup\', \'srvNav.item.a4p_type\']}"><div class="c4p-related-card" ng-repeat="objectType in objectTypes()" ng-show="isPossibleLinkAction(srvNav.item.a4p_type, objectType)"><ul class="c4p-related-card-list"><li class="c4p-related-card-header c4p-color-{{objectTypeColor(objectType)}}-dark-iii"><span class="glyphicon glyphicon-{{objectTypeIcon(objectType)}}"></span> <span>{{srvLocale.translations.htmlTitleType[objectType]}}</span></li><li class="c4p-related-card-item c4p-color-{{objectTypeColor(objectType)}}-gradient3" ng-repeat="linkName in getPossibleLinkActionList(srvNav.item.a4p_type, objectType)"><div class="btn c4p-padding-w-packed">{{srvLocale.translations.htmlShortLinkName[linkName]}}</div><div class="btn c4p-padding-w-packed pull-right"><span class="c4p-icon-std glyphicon glyphicon-list c4p-color-action-transparent c4p-related-card-item-icon" ng-click="linkAddDialog(srvNav.item, linkName, objectType)"></span> <span class="c4p-icon-std glyphicon glyphicon-plus c4p-color-action-transparent c4p-related-card-item-icon" ng-click="createAndLinkDialog(srvNav.item, linkName, objectType)"></span></div></li></ul></div></div></div>'), 
-    $templateCache.put("partials/navigation/view_n_2_links_item.html", '<div sense-opts="{name:\'detailed_links_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvNav.itemRelatedGroupList\', \'srvNav.item\', \'linksTimestamp\'], init: \'setLinksScroller($sense)\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', pageSelector: \'div.c4p-related-card\', momentum:0}" sense-afterscrollend="onLinksScrollEnd($event)" resize-opts="{name:\'detailed_links_wrapper\'}" resizecss-height="getResizeHeight() -getResizePathValue(\'detailed_links_header\', \'\', \'offsetHeight\')"><div class="col-xxs-12" resize-opts="{name:\'detailed_links_scroller\', watchRefresh:[\'srvNav.itemRelatedGroupList\', \'srvNav.item\']}"><div class="c4p-related-card c4p-color-a-gradient1" ng-controller="ctrlAction" ng-init="watchSrvNav();"><ul class="c4p-related-card-list"><li class="c4p-related-card-header c4p-color-j-dark-iii" ng-click="setShowGroupSuggestion(!showGroupSuggestion)"><span class="glyphicon glyphicon-fw glyphicon-ellipsis-h"></span></li><li ng-show="showGroupSuggestion"><div class="row c4p-color-j-gradient3"><div class="col-xxs-8 col-xxs-offset-2"><div class="btn-group btn-group-justified btn-block"><a ng-show="srvData.isMethodPossibleForObject(\'createNewPicture\', srvNav.item)" class="btn close" ng-click="createNewPicture(srvNav.item)"><span class="glyphicon glyphicon-camera"></span></a> <a ng-show="srvData.isMethodPossibleForObject(\'createNewNote\', srvNav.item)" class="btn close" ng-click="createNewNote(srvNav.item)"><span class="glyphicon glyphicon-{{getTypeIcon(\'Note\')}}"></span></a></div><div class="btn-block well well-sm" style="border-radius: 1em" ng-show="srvNav.itemRelatedGroupList.length == 0"><a class="btn" style="white-space:normal" ng-click="setRootMenu()"><span>{{getHtmlLinkHowto()}}</span><br><br><span class="c4p-icon-std glyphicon glyphicon-plus"></span></a></div></div></div></li></ul></div><div class="c4p-related-card c4p-color-a-gradient1" ng-repeat="group in srvNav.itemRelatedGroupList" ng-show="group.type != \'Plan\' && group.type != \'Facet\'"><ul class="c4p-related-card-list"><li class="c4p-related-card-header c4p-color-{{group.colorType}}-dark-iii" ng-click="toggleShowGroup(group)"><span class="glyphicon glyphicon-fw glyphicon-{{group.icon}}"></span> <span>{{group.name}}</span><span class="c4p-aside-count">{{group.size}}</span> <span c4p-show="isDocumentGroup(group.type) && (srvNav.imageRelatedList.length > 0)" ng-click="$event.stopPropagation();showGallery();" class="glyphicon glyphicon-eye-open pull-right"></span></li><li ng-repeat="link in srvNav.itemRelatedList[group.type]" ng-show="group.show"><div class="row c4p-color-{{group.colorType}}-gradient3 {{{true: \'c4p-related-card-item-1st\', false: \'c4p-related-card-item-others\'}[$first]}}"><div class="col-xxs-10 c4p-related-card-holder"><span ng-include="\'partials/navigation/cards/summarized_card.html\'" ng-init="item = link.item"></span></div><div class="col-xxs-2" style="text-align: center"><div ng-show="link.linkNames.length == 1"><div id="{{link.item.id.dbid}}-unlink" class="btn c4p-color-action-transparent c4p-padding-w-packed" ng-click="unlinkDialog(link.linkNames[0], link.item)"><span class="c4p-icon-std close">&times;</span></div></div><div class="dropdown" ng-show="link.linkNames.length > 1"><div id="{{link.item.id.dbid}}-unlink" class="dropdown-toggle c4p-color-action-transparent c4p-padding-w-packed" data-toggle="dropdown"><span class="c4p-icon-std close">&times;</span></div><ul class="dropdown-menu c4p-dropdown-menu pull-right c4p-dropdown" aria-labelledby="{{link.item.id.dbid}}-unlink"><li>{{translate(\'htmlViewNlinkItemTextRemoveLink\')}}</li><li ng-repeat="linkName in getPossibleLinkActionList(srvNav.item.a4p_type, link.item.a4p_type)" ng-show="srvData.isObjectOwnedByUser(link.item) && srvData.isObjectOwnedByUser(srvNav.item)"><div class="btn" ng-click="unlinkDialog(linkName, link.item)"><span style="vertical-align:top">{{srvLocale.translations.htmlShortLinkName[linkName]}}</span></div></li></ul></div></div></div></li></ul></div></div></div>'), 
+    $templateCache.put("partials/navigation/view_n_2_links_item.html", '<div sense-opts="{name:\'detailed_links_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvNav.itemRelatedGroupList\', \'srvNav.item\', \'linksTimestamp\'], init: \'setLinksScroller($sense)\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', pageSelector: \'div.c4p-related-card\', momentum:0}" sense-afterscrollend="onLinksScrollEnd($event)" resize-opts="{name:\'detailed_links_wrapper\'}" resizecss-height="getResizeHeight() -getResizePathValue(\'detailed_links_header\', \'\', \'offsetHeight\')"><div class="col-xxs-12" resize-opts="{name:\'detailed_links_scroller\', watchRefresh:[\'srvNav.itemRelatedGroupList\', \'srvNav.item\']}"><div class="c4p-related-card c4p-color-a-gradient1" ng-controller="ctrlAction" ng-init="watchSrvNav();"><ul class="c4p-related-card-list"><li class="c4p-related-card-header c4p-color-j-dark-iii" ng-click="setShowGroupSuggestion(!showGroupSuggestion)"><span class="glyphicon glyphicon-fw glyphicon-ellipsis-h"></span></li><li ng-show="showGroupSuggestion"><div class="row c4p-color-j-gradient3"><div class="col-xxs-8 col-xxs-offset-2"><div class="btn-group btn-group-justified btn-block"><a ng-show="srvData.isMethodPossibleForObject(\'createNewPicture\', srvNav.item)" class="btn close" ng-click="createNewPicture(srvNav.item)"><span class="glyphicon glyphicon-camera"></span></a> <a ng-show="srvData.isMethodPossibleForObject(\'createNewNote\', srvNav.item)" class="btn close" ng-click="createNewNote(srvNav.item)"><span class="glyphicon glyphicon-{{getTypeIcon(\'Note\')}}"></span></a> <a ng-hide="srvData.isMethodPossibleForObject(\'createNewNote\', srvNav.item) || srvData.isMethodPossibleForObject(\'createNewPicture\', srvNav.item)" class="btn close" ng-click="createNewNote(srvNav.item)"><span>Need more suggestion ?</span></a></div><div class="btn-block well well-sm" style="border-radius: 1em" ng-show="srvNav.itemRelatedGroupList.length == 0"><a class="btn" style="white-space:normal" ng-click="setRootMenu()"><span>{{getHtmlLinkHowto()}}</span><br><br><span class="c4p-icon-std glyphicon glyphicon-plus"></span></a></div></div></div></li></ul></div><div class="c4p-related-card c4p-color-a-gradient1" ng-repeat="group in srvNav.itemRelatedGroupList" ng-show="group.type != \'Plan\' && group.type != \'Facet\'"><ul class="c4p-related-card-list"><li class="c4p-related-card-header c4p-color-{{group.colorType}}-dark-iii" ng-click="toggleShowGroup(group)"><span class="glyphicon glyphicon-fw glyphicon-{{group.icon}}"></span> <span>{{group.name}}</span><span class="c4p-aside-count">{{group.size}}</span> <span c4p-show="isDocumentGroup(group.type) && (srvNav.imageRelatedList.length > 0)" ng-click="$event.stopPropagation();showGallery();" class="glyphicon glyphicon-eye-open pull-right"></span></li><li ng-repeat="link in srvNav.itemRelatedList[group.type]" ng-show="group.show"><div class="row c4p-color-{{group.colorType}}-gradient3 {{{true: \'c4p-related-card-item-1st\', false: \'c4p-related-card-item-others\'}[$first]}}"><div class="col-xxs-10 c4p-related-card-holder"><span ng-include="\'partials/navigation/cards/summarized_card.html\'" ng-init="item = link.item; cardItemColor = \'c4p-color-\'+group.colorType"></span></div><div class="col-xxs-2" style="text-align: center"><div ng-if="link.linkNames.length == 1"><div id="{{link.item.id.dbid}}-unlink" class="btn c4p-color-action-transparent c4p-padding-w-packed" ng-click="unlinkDialog(link.linkNames[0], link.item)"><span class="c4p-icon-std close">&times;</span></div></div><div class="dropdown" ng-if="link.linkNames.length > 1"><div id="{{link.item.id.dbid}}-unlink" class="dropdown-toggle btn c4p-color-action-transparent c4p-padding-w-packed" data-toggle="dropdown"><span class="c4p-icon-std close">&times;</span></div><ul class="dropdown-menu c4p-dropdown-menu pull-right c4p-dropdown" aria-labelledby="{{link.item.id.dbid}}-unlink"><li>{{translate(\'htmlViewNlinkItemTextRemoveLink\')}}</li><li ng-repeat="linkName in getPossibleLinkActionList(srvNav.item.a4p_type, link.item.a4p_type)" ng-show="srvData.isObjectOwnedByUser(link.item) && srvData.isObjectOwnedByUser(srvNav.item)"><div class="btn" ng-click="unlinkDialog(linkName, link.item)"><span style="vertical-align:top">{{srvLocale.translations.htmlShortLinkName[linkName]}}</span></div></li></ul></div></div></div></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/cards/4_rating.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><c4p-check ng-model="item.value" readonly></c4p-check><span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span style="padding:0 10px 0 0">{{item.name}}</span><c4p-angular-ratings ng-model="item.value" readonly></c4p-angular-ratings></span></span>'), 
     $templateCache.put("partials/navigation/cards/4_rating_ro.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><span class="glyphicon glyphicon-unchecked icon-large"></span> <span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span class="glyphicon glyphicon-star-empty icon-large"></span> <span style="padding:0 0 0 10px">{{item.name}}</span></span></span>'), 
     $templateCache.put("partials/navigation/cards/4_rating_ro2.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><c4p-check ng-model="item.value" readonly></c4p-check><span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span style="padding:0 10px 0 0">{{item.name}}</span><c4p-angular-ratings ng-model="item.value" readonly></c4p-angular-ratings></span></span>'), 
-    $templateCache.put("partials/navigation/cards/detail_card.html", '<div class="c4p-card-text" ng-class="{\'col-xxs-12\': !cardHasThumb,\'col-xxs-11\' : (cardHasThumb && (cardIsAboutFile || cardIsAboutVideo)),\'col-sm-8 col-xxs-11\' : (cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo)}"><div ng-repeat="group in cardGroups" style="display: block; margin: 0; padding: 0" class="c4p-size-{{group.size}}"><span ng-if="group.name" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItemName}}</span> <span ng-if="group.title">{{group.title}}</span> <span ng-if="group.synchro" ng-init="itemSynchro = cardItem.c4p_synchro" ng-include="\'partials/navigation/cards/detail_synchro.html\'"></span> <address ng-if="group.fields.length > 1" ng-repeat="field in group.fields"><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></address><span ng-if="group.fields.length == 1" ng-init="field = group.fields[0]"><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></span></div></div><div class="c4p-card-thumb pull-right col-sm-3 hidden-xs" ng-if="cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo"><c4p-thumb class="pull-right" width="70" height="70" text="{{cardItemName}}" indic="{{itemRelationCount}}" icon="glyphicon-{{itemIcon}}" color="{{itemColor}}" url="{{cardItem.thumb_url}}"></c4p-thumb></div><div class="c4p-card-thumb pull-right col-xxs-1" ng-if="cardHasThumb"><div class="pull-right c4p-color-action-transparent" ng-click="doAction(\'toggleFavorite\')"><span class="c4p-icon-std glyphicon c4p-outline-star" ng-class="{\'glyphicon-star\' : srvData.isTaggedFavorite(cardItem), \'glyphicon-star-o\' : !srvData.isTaggedFavorite(cardItem)}"></span></div></div><div class="c4p-card-thumb clear col-xxs-12" ng-if="cardHasThumb && cardIsAboutFile" style="text-align: center"><div class="btn" ng-class="{\'disabled\': actionMap.viewDocument.disabled}" ng-click="doAction(\'viewDocument\')" style="background: url(\'{{cardItem.thumb_url}}\') no-repeat center center; width: 100%; height: 250px; -webkit-background-size: contain"></div></div><div class="c4p-card-thumb clear col-xxs-12" ng-if="cardHasThumb && cardIsAboutVideo" style="text-align: center"><video controls="" ng-src="{{cardItem.url}}" style="max-width: 100%; height: auto"></video></div>'), 
+    $templateCache.put("partials/navigation/cards/detail_card.html", '<div class="c4p-card-text" ng-class="{\'col-xxs-12\': !cardHasThumb,\'col-xxs-11\' : (cardHasThumb && (cardIsAboutFile || cardIsAboutVideo)),\'col-sm-9 col-xxs-11\' : (cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo)}"><div ng-repeat="group in cardGroups" style="display: block; margin: 0; padding: 0" class="c4p-size-{{group.size}}"><span ng-if="group.name" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItemName}}</span> <span ng-if="group.title">{{group.title}}</span> <span ng-if="group.synchro" ng-init="itemSynchro = cardItem.c4p_synchro" ng-include="\'partials/navigation/cards/detail_synchro.html\'"></span> <address ng-if="group.fields.length > 1" ng-repeat="field in group.fields"><i ng-show="group.icon && $first && field.value && field.value.length" class="glyphicon glyphicon-lg glyphicon-{{group.icon}} pull-left" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></address><span ng-if="group.fields.length == 1" ng-init="field = group.fields[0]"><i ng-show="group.icon && field.value && field.value.length" class="glyphicon glyphicon-lg glyphicon-{{group.icon}} pull-left" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></span></div></div><div class="c4p-card-thumb pull-right col-sm-2 hidden-xs" ng-if="cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo"><c4p-thumb class="pull-right" width="70" height="70" text="{{cardItemName}}" indic="{{itemRelationCount}}" icon="glyphicon-{{itemIcon}}" color="{{cardItemColor}}" url="{{cardItem.thumb_url}}"></c4p-thumb></div><div class="c4p-card-thumb pull-right col-xxs-1" ng-if="cardHasThumb"><div class="pull-right c4p-color-action-transparent" ng-click="doAction(\'toggleFavorite\')"><span class="c4p-icon-std glyphicon c4p-outline-star" ng-class="{\'glyphicon-star\' : srvData.isTaggedFavorite(cardItem), \'glyphicon-star-o\' : !srvData.isTaggedFavorite(cardItem)}"></span></div></div><div class="c4p-card-thumb center-block col-xxs-12" ng-if="cardHasThumb && cardIsAboutFile && !cardIsAboutVideo "><div class="btn c4p-card-thumb-media" ng-class="{\'disabled\': actionMap.viewDocument.disabled}" ng-click="doAction(\'viewDocument\')" style="background:url(\'{{cardItem.thumb_url}}\') no-repeat center center;-webkit-background-size: contain"></div></div><div class="c4p-card-thumb center-block col-xxs-12" ng-if="cardHasThumb && cardIsAboutVideo"><video controls="" ng-src="{{cardItem.url}}" class="c4p-card-thumb-media"></video></div>'), 
     $templateCache.put("partials/navigation/cards/detail_field.html", ' <span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{item}}" target="_blank">{{item}}</a> <a ng-switch-when="mail" class="c4p-color-lnk" href="mailto:{{item}}" target="_blank">{{item}}</a> <a ng-switch-when="url" class="c4p-color-lnk" href="{{item}}" target="_blank">{{item}}</a> <span ng-switch-when="currency">{{item | c4pCurrency}}</span> <span ng-switch-when="percent">{{item}}%</span> <span ng-switch-when="probability">{{item}}%</span> <span ng-switch-when="datetime">{{srvLocale.formatDate(item, \'short\')}}</span> <span ng-switch-when="dateTIME">{{srvLocale.formatDate(item, \'shortDate\')}} <b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span> <span ng-switch-when="date">{{srvLocale.formatDate(item, \'shortDate\')}}</span> <span ng-switch-when="time">{{srvLocale.formatDate(item, \'shortTime\')}}</span> <span ng-switch-when="TIME"><b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span> <span ng-switch-when="number">{{item | c4pNumber}}</span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="item"></blockquote><address ng-switch-when="address">{{item}}</address><span ng-switch-default="">{{item}}</span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank">{{field.value}}</a> <a ng-switch-when="mail" class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank">{{field.value}}</a> <a ng-switch-when="url" class="c4p-color-lnk" href="{{field.value}}" target="_blank">{{field.value}}</a> <span ng-switch-when="currency">{{field.value | c4pCurrency}}</span> <span ng-switch-when="percent">{{field.value}}%</span> <span ng-switch-when="probability">{{field.value}}%</span> <span ng-switch-when="datetime">{{srvLocale.formatDate(field.value, \'short\')}}</span> <span ng-switch-when="dateTIME">{{srvLocale.formatDate(field.value, \'shortDate\')}} <b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span> <span ng-switch-when="date">{{srvLocale.formatDate(field.value, \'shortDate\')}}</span> <span ng-switch-when="time">{{srvLocale.formatDate(field.value, \'shortTime\')}}</span> <span ng-switch-when="TIME"><b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span> <span ng-switch-when="number">{{field.value | c4pNumber}}</span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="field.value"></blockquote><address ng-switch-when="address">{{field.value}}</address><span ng-switch-default="">{{field.value}}</span></span></span></span> <span ng-if="field.suffix">{{field.suffix}}</span>'), 
     $templateCache.put("partials/navigation/cards/detail_synchro.html", "<div ng-if=\"itemSynchro && (itemSynchro.creating || itemSynchro.writing || itemSynchro.reading || itemSynchro.deleting)\" class=\"glyphicon\" ng-class=\"{\n	        'glyphicon-trash'    : (itemSynchro.deleting > 1),\n	        'glyphicon-times-circle' : (!itemSynchro.deleting && (itemSynchro.creating > 1)),\n	        'glyphicon-upload'   : (!itemSynchro.deleting && !itemSynchro.creating && (itemSynchro.writing > 1)),\n	        'glyphicon-download' : (!itemSynchro.deleting && !itemSynchro.creating && !itemSynchro.writing && (itemSynchro.reading > 1)),\n	        'glyphicon-spinner'  : ((itemSynchro.deleting == 1) || (itemSynchro.creating == 1) || (itemSynchro.writing == 1) || (itemSynchro.reading == 1)),\n	        'glyphicon-spin'          : ((itemSynchro.deleting == 1) || (itemSynchro.creating == 1) || (itemSynchro.writing == 1) || (itemSynchro.reading == 1))\n	      }\"></div>"), 
-    $templateCache.put("partials/navigation/cards/draggable_card.html", '<div class="col-xxs-12 c4p-link5" ng-controller="ctrlDragObject" ng-init="init(cardItem)" ng-click="selectItem()"><div ng-include="\'partials/navigation/cards/detail_card.html\'" ng-class="{\'c4p-hover-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableHover, \'c4p-border-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableBorder}" style="border-width: 1px;padding:2px"></div></div>'), 
-    $templateCache.put("partials/navigation/cards/draggable_inlined_card.html", '<div ng-controller="ctrlDragObject" ng-init="init(cardItem)" ng-class="{\n          \'c4p-color-drag-bg\' : srvNav.holdItem && (cardItem.id.dbid == srvNav.holdItem.id.dbid),\n          \'c4p-hover-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableHover,\n          \'c4p-border-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableBorder\n          }" sense-opts="{bubble:true, watchRefresh:[\'srvNav.item\', \'srvNav.holdItem\']}" sense-longdragoverenter="dragOverEnter($event,$element)" sense-longdragoverleave="dragOverLeave($event,$element)" sense-longdragstart="dragStart($event,$element)" sense-longdragmove="dragMove($event,$element)" sense-longdragend="dragEnd($event,$element)" sense-longdragcancel="dragCancel($event,$element)" sense-holdstart="holdStart($event,$element)" sense-holdstop="holdStop($event,$element)"><div ng-include="\'partials/navigation/cards/inlined_card.html\'"></div></div>'), 
-    $templateCache.put("partials/navigation/cards/draggable_inlined_item___deprecated.html", '<span ng-controller="ctrlDragObject" ng-init="init(item)" sense-opts="{bubble:true, watchRefresh:[\'srvNav.item\', \'srvNav.holdItem\']}" sense-shorttap="selectItem()" sense-doubletap="selectItemAndCloseAside()" sense-holdstart="holdStart()" sense-holdstop="holdStop()" sense-longdragoverenter="dragOverEnter($event)" sense-longdragoverleave="dragOverLeave($event)" sense-longdragstart="dragStart($event)" sense-longdragmove="dragMove($event)" sense-longdragend="dragEnd($event)" sense-longdragcancel="dragCancel($event)"><span ng-include="\'partials/navigation/cards/inlined_item.html\'" ng-class="{\'c4p-hover-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableHover, \'c4p-border-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableBorder}" style="border-width: 1px;padding:2px"></span></span>'), 
+    $templateCache.put("partials/navigation/cards/draggable_inlined_card.html", '<div ng-controller="ctrlDragObject" ng-init="init(cardItem)" sense-opts="{bubble:true, watchRefresh:[\'srvNav.item\', \'srvNav.holdItem\']}" sense-longdragoverenter="dragOverEnter($event,$element)" sense-longdragoverleave="dragOverLeave($event,$element)" sense-longdragstart="dragStart($event,$element)" sense-longdragmove="dragMove($event,$element)" sense-longdragend="dragEnd($event,$element)" sense-longdragcancel="dragCancel($event,$element)" sense-holdstart="holdStart($event,$element)" sense-holdstop="holdStop($event,$element)"><div ng-include="\'partials/navigation/cards/inlined_card.html\'"></div></div>'), 
     $templateCache.put("partials/navigation/cards/draggable_summarized_card.html", '<div class="col-xxs-12 c4p-link5" ng-controller="ctrlDragObject" ng-init="init(cardItem)"><div ng-class="{\'c4p-hover-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableHover, \'c4p-border-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableBorder}" style="border-width: 1px;padding:2px" ng-include="\'partials/navigation/cards/summarized_card.html\'"></div></div>'), 
-    $templateCache.put("partials/navigation/cards/draggable_summarized_item___deprecated.html", '<div class="col-xxs-12 c4p-link5" ng-controller="ctrlDragObject" ng-init="init(item)" ng-touch="startSpinner()" ng-click="selectItem()"><div ng-include="\'partials/navigation/cards/summarized_card.html\'" ng-class="{\'c4p-hover-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableHover, \'c4p-border-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableBorder}" style="border-width: 1px;padding:2px"></div></div>'), 
     $templateCache.put("partials/navigation/cards/inlined_card.html", '<ul class="nav nav-pills" ng-controller="ctrlInlinedObject" ng-init="init(cardItem)"><li class="" style="max-width:90%; text-align: left"><span class="a4p-dot">{{itemName}}</span></li><li><span ng-show="(cardItem.c4p_synchro.creating || cardItem.c4p_synchro.writing || cardItem.c4p_synchro.reading || cardItem.c4p_synchro.deleting)" class="glyphicon" ng-class="{\n            \'glyphicon-trash\'    : (cardItem.c4p_synchro.deleting > 1),\n            \'glyphicon-times-circle\' : (!cardItem.c4p_synchro.deleting && (cardItem.c4p_synchro.creating > 1)),\n            \'glyphicon-upload\'   : (!cardItem.c4p_synchro.deleting && !cardItem.c4p_synchro.creating && (cardItem.c4p_synchro.writing > 1)),\n            \'glyphicon-download\' : (!cardItem.c4p_synchro.deleting && !cardItem.c4p_synchro.creating && !cardItem.c4p_synchro.writing && (cardItem.c4p_synchro.reading > 1)),\n            \'glyphicon-spinner\'  : ((cardItem.c4p_synchro.deleting == 1) || (cardItem.c4p_synchro.creating == 1) || (cardItem.c4p_synchro.writing == 1) || (cardItem.c4p_synchro.reading == 1)),\n            \'glyphicon-spin\'          : ((cardItem.c4p_synchro.deleting == 1) || (cardItem.c4p_synchro.creating == 1) || (cardItem.c4p_synchro.writing == 1) || (cardItem.c4p_synchro.reading == 1))\n        }"></span></li></ul>'), 
-    $templateCache.put("partials/navigation/cards/inlined_item.html", '<h5>Inlined item</h5><span ng-controller="ctrlInlinedObject" ng-init="init(item)"><span ng-show="(item.c4p_synchro.creating || item.c4p_synchro.writing || item.c4p_synchro.reading || item.c4p_synchro.deleting)" class="glyphicon" ng-class="{\n        \'glyphicon-trash\'    : (item.c4p_synchro.deleting > 1),\n        \'glyphicon-times-circle\' : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),\n        \'glyphicon-upload\'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),\n        \'glyphicon-download\' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),\n        \'glyphicon-spinner\'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),\n        \'glyphicon-spin\'          : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))\n    }"></span> <span ng-show="srvNav.holdItem && (item.id.dbid == srvNav.holdItem.id.dbid)" class="icon-large glyphicon glyphicon-link"></span> <span ng-hide="srvNav.holdItem && (item.id.dbid == srvNav.holdItem.id.dbid)" class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> <span>{{itemName}}</span></span>'), 
-    $templateCache.put("partials/navigation/cards/list_item___deprecated.html", '<h5>List item</h5><ul class="nav nav-pills" ng-controller="ctrlInlinedObject" ng-init="init(item)"><li class="" style="max-width:90%; text-align: left"><span class="a4p-dot">{{itemName}}</span></li><li><span ng-show="(item.c4p_synchro.creating || item.c4p_synchro.writing || item.c4p_synchro.reading || item.c4p_synchro.deleting)" class="glyphicon" ng-class="{\n            \'glyphicon-trash\'    : (item.c4p_synchro.deleting > 1),\n            \'glyphicon-times-circle\' : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),\n            \'glyphicon-upload\'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),\n            \'glyphicon-download\' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),\n            \'glyphicon-spinner\'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),\n            \'glyphicon-spin\'          : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))\n        }"></span></li></ul>'), 
-    $templateCache.put("partials/navigation/cards/summarized_card.html", '<div ng-controller="ctrlSummarizedObject" ng-init="set(item, \'displaySummarizedObjectGroups\')" ng-click="selectItem(item)" c4p-waiting-click=""><div class="btn c4p-click-intercepted" style="position:absolute;top:0;bottom:0;left:0;right:0"></div><div class="c4p-card c4p-card-summarized c4p-card-thumb c4p-click-through" ng-init="cardItem = item; cardGroups = groups; cardHasThumb = true; cardItemName = itemName; cardIsAboutVideo = isVideo; cardIsAboutFile = isFile;" ng-include="\'partials/navigation/cards/detail_card.html\'"></div></div>'), 
-    $templateCache.put("partials/navigation/cards/summarized_card___deprecated.html", '<h5>Summarized card</h5><div ng-controller="ctrlSummarizedObject" ng-init="set(item, \'displaySummarizedObjectGroups\')"><div ng-init="cardHasThumb = true; cardItemName = itemName; isVideo ? (cardThumbUrl = item.url) : (cardThumbUrl = item.thumb_url); cardIsAboutVideo = isVideo; cardIsAboutFile = isFile;" ng-include="\'partials/navigation/cards/detail_card.html\'"></div><div class="c4p-card-text" ng-class="{\'col-xxs-12\': !cardHasThumb,\'col-xxs-6\' : (cardHasThumb && (cardIsAboutFile || cardIsAboutVideo)),\'col-xxs-8\' : (cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo)}"><div class="row"><div class="col-xxs-4" c4p-show="isFile" style="background: url(\'{{item.thumb_url}}\') no-repeat center center;-webkit-background-size: contain;position: absolute;top:0;bottom:0" ng-click="$event.stopPropagation();"></div><div ng-class="{\'col-xxs-12\':!isFile, \'col-xxs-8 col-xxs-offset-4\':isFile}"><div ng-repeat="group in groups"><div class="clearfix" ng-show="($index%2)==1"></div><span ng-show="group.synchro"><span ng-show="(item.c4p_synchro.creating || item.c4p_synchro.writing || item.c4p_synchro.reading || item.c4p_synchro.deleting)" class="glyphicon" ng-class="{\n                        \'glyphicon-trash\'    : (item.c4p_synchro.deleting > 1),\n                        \'glyphicon-times-circle\' : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),\n                        \'glyphicon-upload\'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),\n                        \'glyphicon-download\' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),\n                        \'glyphicon-spinner\'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),\n                        \'glyphicon-spin\'           : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))\n                    }"></span></span> <span ng-show="group.name"><span class="item-name"><b>{{itemName}}</b></span></span> <span ng-show="group.title">{{group.title}}</span><br ng-show="group.brSeparated && (group.synchro || group.name || group.title)"><fieldset><span ng-show="group.icon" class="glyphicon glyphicon-{{group.icon}}"></span> <span ng-repeat="field in group.fields" style="display: block;\n                                                                    /* -webkit-margin-before: 1.67em; \n                                                                    -webkit-margin-after: 1.67em; \n                                                                    -webkit-margin-start: 0px;\n                                                                    -webkit-margin-end: 0px;*/"><span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="$index > 0">,</span> <span ng-switch="field.type"><span ng-switch-when="tel">{{item}}</span> <span ng-switch-when="mail">{{item}}</span> <span ng-switch-when="url">{{item}}</span> <span ng-switch-when="currency"><span>{{item | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{item}}%</span></span> <span ng-switch-when="probability"><span>{{item}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(item, \'short\')}}</span></span> <span ng-switch-when="dateTIME"><span>{{srvLocale.formatDate(item, \'shortDate\')}} <b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(item, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(item, \'shortTime\')}}</span></span> <span ng-switch-when="TIME"><span><b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span></span> <span ng-switch-when="number"><span>{{item | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{item}}</span></span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><span ng-switch-when="tel">{{field.value}}</span> <span ng-switch-when="mail">{{field.value}}</span> <span ng-switch-when="url">{{field.value}}</span> <span ng-switch-when="currency"><span>{{field.value | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{field.value}}%</span></span> <span ng-switch-when="probability"><span>{{field.value}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(field.value, \'short\')}}</span></span> <span ng-switch-when="dateTIME"><span>{{srvLocale.formatDate(field.value, \'shortDate\')}} <b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(field.value, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(field.value, \'shortTime\')}}</span></span> <span ng-switch-when="TIME"><span><b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span></span> <span ng-switch-when="number"><span>{{field.value | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span><i>{{field.value}}</i></span></span></span></span></span> <span ng-show="field.suffix">{{field.suffix}}</span></span></fieldset></div></div></div></div></div>'), 
-    $templateCache.put("partials/navigation/cards/summarized_item.html", '<h5>Summarized item</h5><div ng-controller="ctrlSummarizedObject" ng-init="set(item, \'displaySummarizedObjectGroups\')"><div class="row"><div class="col-xxs-4" c4p-show="isFile" style="background: url(\'{{item.thumb_url}}\') no-repeat center center;-webkit-background-size: contain;position: absolute;top:0;bottom:0" ng-click="$event.stopPropagation();test();"></div><div ng-class="{\'col-xxs-12\':!isFile, \'col-xxs-8 col-xxs-offset-4\':isFile}"><div ng-repeat="group in groups"><div class="clearfix" ng-show="($index%2)==1"></div><span ng-show="group.synchro"><span ng-show="(item.c4p_synchro.creating || item.c4p_synchro.writing || item.c4p_synchro.reading || item.c4p_synchro.deleting)" class="glyphicon" ng-class="{\n                        \'glyphicon-trash\'    : (item.c4p_synchro.deleting > 1),\n                        \'glyphicon-times-circle\' : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),\n                        \'glyphicon-upload\'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),\n                        \'glyphicon-download\' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),\n                        \'glyphicon-spinner\'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),\n                        \'glyphicon-spin\'           : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))\n                    }"></span></span> <span ng-show="group.name"><span class="item-name"><b>{{itemName}}</b></span></span> <span ng-show="group.title">{{group.title}}</span><br ng-show="group.brSeparated && (group.synchro || group.name || group.title)"><fieldset><span ng-show="group.icon" class="glyphicon glyphicon-{{group.icon}}"></span> <span ng-repeat="field in group.fields" style="display: block;\n                                                                    /* -webkit-margin-before: 1.67em; \n                                                                    -webkit-margin-after: 1.67em; \n                                                                    -webkit-margin-start: 0px;\n                                                                    -webkit-margin-end: 0px;*/"><span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="$index > 0">,</span> <span ng-switch="field.type"><span ng-switch-when="tel">{{item}}</span> <span ng-switch-when="mail">{{item}}</span> <span ng-switch-when="url">{{item}}</span> <span ng-switch-when="currency"><span>{{item | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{item}}%</span></span> <span ng-switch-when="probability"><span>{{item}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(item, \'short\')}}</span></span> <span ng-switch-when="dateTIME"><span>{{srvLocale.formatDate(item, \'shortDate\')}} <b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(item, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(item, \'shortTime\')}}</span></span> <span ng-switch-when="TIME"><span><b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span></span> <span ng-switch-when="number"><span>{{item | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{item}}</span></span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><span ng-switch-when="tel">{{field.value}}</span> <span ng-switch-when="mail">{{field.value}}</span> <span ng-switch-when="url">{{field.value}}</span> <span ng-switch-when="currency"><span>{{field.value | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{field.value}}%</span></span> <span ng-switch-when="probability"><span>{{field.value}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(field.value, \'short\')}}</span></span> <span ng-switch-when="dateTIME"><span>{{srvLocale.formatDate(field.value, \'shortDate\')}} <b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(field.value, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(field.value, \'shortTime\')}}</span></span> <span ng-switch-when="TIME"><span><b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span></span> <span ng-switch-when="number"><span>{{field.value | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span><i>{{field.value}}</i></span></span></span></span></span> <span ng-show="field.suffix">{{field.suffix}}</span></span></fieldset></div></div></div></div>');
+    $templateCache.put("partials/navigation/cards/summarized_card.html", ' <a ng-controller="ctrlSummarizedObject" ng-init="set(item, \'displaySummarizedObjectGroups\')" ng-click="selectItem(item,true)"><div class="btn c4p-click-intercepted" style="position:absolute;top:0;bottom:0;left:0;right:0"></div><div class="c4p-card c4p-card-summarized c4p-card-thumb c4p-click-through" ng-init="cardItem = item; cardGroups = groups; cardHasThumb = true; cardItemName = itemName; cardIsAboutVideo = isVideo; cardIsAboutFile = isFile;" ng-include="\'partials/navigation/cards/detail_card.html\'"></div></a>');
 } ]);
 
 var SrvConfig = function() {
@@ -39878,6 +40501,7 @@ var SrvFacet = function() {
                 slide: slide,
                 itemName: this.srvConfig.getItemName(this.item),
                 itemIcon: c4p.Model.getItemIcon(this.item),
+                itemColor: c4p.Model.getItemColor(this.item),
                 itemRelationCount: 0,
                 itemThumbUrl: this.item.thumb_url,
                 type: this.item.a4p_type,
@@ -39890,6 +40514,7 @@ var SrvFacet = function() {
             slide: slide,
             itemName: "",
             itemIcon: "",
+            itemColor: "",
             itemRelationCount: 0,
             itemThumbUrl: "",
             type: "",
@@ -40390,7 +41015,7 @@ var SrvFacet = function() {
     }, Service.prototype.cancelListener = function(callbackHandle) {
         return removeIdFromList(this.callbacksYear, callbackHandle) === !1 && removeIdFromList(this.callbacksMonth, callbackHandle) === !1 && removeIdFromList(this.callbacksDay, callbackHandle) === !1 && removeIdFromList(this.callbacksHour, callbackHandle) === !1 && removeIdFromList(this.callbacksMinute, callbackHandle) === !1 ? removeIdFromList(this.callbacksSecond, callbackHandle) !== !1 : !0;
     }, Service;
-}(), appModule = angular.module("c4p", [ "ngTouch", "ngSanitize", "textAngular", "ui.bootstrap", "c4p.filters", "c4p.services", "c4p.directives", "c4pTemplates" ]);
+}(), appModule = angular.module("c4p", [ "ngAnimate", "ngSanitize", "textAngular", "ui.bootstrap", "c4pFilters", "c4pServices", "c4pDirectives", "c4pTemplates" ]);
 
 appModule.value("version", "14S15"), appModule.config(function($provide) {
     $provide.decorator("taOptions", [ "taRegisterTool", "$delegate", function(taRegisterTool, taOptions) {
@@ -40424,7 +41049,7 @@ appModule.value("version", "14S15"), appModule.config(function($provide) {
     } ]);
 });
 
-var serviceModule = angular.module("c4p.services", [ "ngResource" ]);
+var serviceModule = angular.module("c4pServices", [ "ngResource" ]);
 
 appModule.factory("$exceptionHandler", [ "$log", function($log) {
     function formatError(arg) {
@@ -40538,7 +41163,7 @@ serviceModule.factory("srvOpenUrl", [ "$exceptionHandler", function($exceptionHa
     return new SrvGuider(srvLocalStorage, srvLocale);
 } ]);
 
-var filterModule = angular.module("c4p.filters", [ "c4p.services" ]);
+var filterModule = angular.module("c4pFilters", [ "c4pServices" ]);
 
 filterModule.filter("interpolate", [ "version", function(version) {
     return function(text) {
