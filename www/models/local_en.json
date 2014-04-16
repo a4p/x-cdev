@@ -94,7 +94,7 @@
 
     "htmlViewNrelatedPageTitle":"Related items",
     "htmlViewNrelatedPageTitleNew":"New relations",
-    "htmlViewNlinkItemTextNoRelation": "Create one relation with {0}. Use the drag & drop.",
+    "htmlViewNlinkItemTextNoRelation": "Create one relation with '{0}'. Use the drag & drop.",
     "htmlViewNlinkItemTextRemoveLink":"Remove link kind:",
 
 
@@ -380,6 +380,7 @@
     "htmlMsgFeedbackOtherConnector":"Hi team!\nPlease connect to my CRM data :\n ... which one ? ",  
     "htmlMsgFeedbackOtherConnectorQuestion":"Do you want to connect to your system ?",  
     "htmlMsgFeedbackSuggestion":"Hi team!\nI need some helpfull topics like :\n ... which one ?", 
+    "htmlMsgFeedbackSuggestionQuestion":"Need more suggestion ?", 
     "htmlMsgRejectImportNotLogged":"Import rejected: you are not logged in.",
     "htmlMsgImportFile":"Import of file {0}",
     "htmlMsgFileImport":"File import",
