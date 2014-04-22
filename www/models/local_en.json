@@ -466,6 +466,7 @@
     "htmlFormTitlePersonal":"Personal",
     "htmlFormTitleOtherContactDetails":"Other details",
     "htmlFormTitleSegmentation":"Segmentation",
+    "htmlFormTitleAddress":"Address",
 
     "htmlTitleConfig":"Configuration",
     "htmlTitleConfigYourAccount":"Your account",
@@ -663,6 +664,7 @@
   	"htmlTextManager":"Manager",
   	"htmlTextTeam":"Team",
     "htmlTextAttendee":"Attendee",
+    "htmlTextContactWithoutCompany":"No account linked",
 
   	"htmlTextContactOrigin":"Origin: ",
     "htmlTextReminder":"Reminder: ",

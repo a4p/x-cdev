@@ -4,7 +4,7 @@
     xmlns:cdv   = "http://cordova.apache.org/ns/1.0"
     xmlns:android   = "http://schemas.android.com/apk/res/android"
     id          = "com.apps4pro.c4pdev"
-    version     = "14041816"  
+    version     = "14042210"  
     versionCode = "C4P_BUILD_DATE">
     
     <name>C_d</name>
@@ -63,8 +63,8 @@
             http://docs.phonegap.com/en/edge/guide_platforms_ios_config.md.html#iOS%20Configuration) 
             http://docs.phonegap.com/en/edge/guide_platforms_android_config.md.html#Android%20Configuration
     -->
-    <preference name="webviewbounce" value="true" />
-    <preference name="DisallowOverscroll" value="false" />
+    <preference name="webviewbounce" value="false" />
+    <preference name="DisallowOverscroll" value="true" />
     <preference name="HideKeyboardFormAccessoryBar" value="true" />
     <preference name="windowSoftInputMode" value="stateVisible|adjustResize" />
     <preference name="stay-in-webview" value="false" />
@@ -89,6 +89,7 @@
     <preference name="PageLength" value="0"/>
     <preference name="PaginationBreakingMode" value="page"/>
     <preference name="UIWebViewDecelerationSpeed" value="fast" />
+    <preference name="KeyboardShrinksView" value="true" />
 
 <!--
 <gap:config-file platform="ios" parent="CFBundleDocumentTypes" overwrite="true">
