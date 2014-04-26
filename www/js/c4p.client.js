@@ -1,4 +1,4 @@
-/*! c4p.client 2014-04-26 18:17 */
+/*! c4p.client 2014-04-26 19:43 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -34526,7 +34526,7 @@ angular.module("c4p.input", [ "c4p/input.html" ]).controller("c4pInputCtrl", [ "
         $scope.ngModelCtrl.$render());
     }, $scope.onDateChanged = function() {
         if ($scope.ngModelCtrl) {
-            $scope.currentDatePart || ($scope.currentDatePart = new Date()), $scope.currentDate.setFullYear()($scope.currentDatePart.getFullYear()), 
+            $scope.currentDatePart || ($scope.currentDatePart = new Date()), $scope.currentDate.setFullYear($scope.currentDatePart.getFullYear()), 
             $scope.currentDate.setMonth($scope.currentDatePart.getMonth()), $scope.currentDate.setDate($scope.currentDatePart.getDate());
             var formatDate = a4pDateFormat($scope.currentDate);
             $scope.ngModelCtrl.$setViewValue(formatDate), $scope.ngModelCtrl.$render();
@@ -36717,17 +36717,16 @@ var SrvData = function() {
             reading: c4p.Synchro.NONE,
             deleting: c4p.Synchro.NONE
         }, this.completeFields(object);
-        for (var now = new Date(), objDesc = c4p.Model.a4p_types[object.a4p_type], fieldIdx = 0, fieldNb = objDesc.fields.length; fieldNb > fieldIdx; fieldIdx++) {
+        for (var now = new Date(), objDesc = c4p.Model.a4p_types[object.a4p_type], owner = this.index.db[this.userId.dbid], fieldIdx = 0, fieldNb = objDesc.fields.length; fieldNb > fieldIdx; fieldIdx++) {
             var fieldName = objDesc.fields[fieldIdx];
             if ("owner_id" == fieldName) {
-                var owner = this.index.db[this.userId.dbid];
                 a4p.isDefined(owner) && (a4p.isUndefined(object.owner_id) || a4p.isUndefined(object.owner_id.dbid)) && (object.owner_id = angular.copy(owner.id));
                 break;
             }
         }
-        return (a4p.isUndefined(object.created_by_id) || a4p.isUndefined(object.created_by_id.dbid)) && (object.created_by_id = angular.copy(object.owner_id)), 
+        return (a4p.isUndefined(object.created_by_id) || a4p.isUndefined(object.created_by_id.dbid)) && (object.created_by_id = angular.copy(owner.id)), 
         (a4p.isUndefined(object.created_date) || "" == object.created_date) && (object.created_date = a4pDateFormat(now)), 
-        (a4p.isUndefined(object.last_modified_by_id) || a4p.isUndefined(object.last_modified_by_id.dbid)) && (object.last_modified_by_id = angular.copy(object.owner_id)), 
+        (a4p.isUndefined(object.last_modified_by_id) || a4p.isUndefined(object.last_modified_by_id.dbid)) && (object.last_modified_by_id = angular.copy(owner.id)), 
         (a4p.isUndefined(object.last_modified_date) || "" == object.last_modified_date) && (object.last_modified_date = a4pDateFormat(now)), 
         object;
     }, Service.prototype.addObject = function(object, isOriginal) {

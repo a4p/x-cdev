@@ -24215,7 +24215,7 @@ table h6,
   background-size: cover;
   color: #ffffff;
 }
-.c4p-login-body input {
+.c4p-login-body .form-control {
   color: #ffffff;
 }
 .c4p-login-body .form-control:not(input) {
