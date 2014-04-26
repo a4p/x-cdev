@@ -386,7 +386,7 @@
     "htmlMsgFileImport":"File import",
     "htmlMsgSynchronizationOK":"Synchronization OK.",
     "htmlMsgInvalidPassword":"User password is invalid.",
-    "htmlMsgSynchronizationClientPb":"Synchronization client problem. Please check the network.",
+    "htmlMsgSynchronizationClientPb":"Synchronization client problem.\nDo you have internet available ?\nSend us an email : help@apps4pro.com",
     "htmlMsgMaintenancePb":"Server is momentarily stopped. Please retry later.",
     "htmlMsgSendingEmailPb":"Sending email failure in server.",
     "htmlMsgTakePicturePb":"Take picture problem.",
@@ -477,8 +477,8 @@
     "htmlTitleShareByChatter":"Share by chatter",
     "htmlTitleTypeNote":"Note",
     "htmlTitleTypeReport":"Report",
-    "htmlTitleReportOf":"Report of {0}",
-    "htmlTitleNoteOf":"Note of {0}",
+    "htmlTitleReportOf":"Report > {0}",
+    "htmlTitleNoteOf":"Note > {0}",
     "htmlTitleFeedback":"Feedback",
 
 	"htmlFieldsetAddress":"Address",
@@ -714,7 +714,8 @@
 	},
 
 	"htmlOptionsLeadSource":{
-		"advertisement":"Advertisement",
+        "none":"Direct contact",
+        "advertisement":"Advertisement",
 		"employeeReferral":"Employee Referral",
 		"externalReferral":"External Referral",
 		"partner":"Partner",
