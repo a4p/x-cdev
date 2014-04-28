@@ -1,4 +1,4 @@
-/*! c4p.client 2014-04-28 14:07 */
+/*! c4p.client 2014-04-28 16:07 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -36720,13 +36720,13 @@ var SrvData = function() {
         for (var now = new Date(), objDesc = c4p.Model.a4p_types[object.a4p_type], owner = this.index.db[this.userId.dbid], fieldIdx = 0, fieldNb = objDesc.fields.length; fieldNb > fieldIdx; fieldIdx++) {
             var fieldName = objDesc.fields[fieldIdx];
             if ("owner_id" == fieldName) {
-                a4p.isDefined(owner) && (a4p.isUndefined(object.owner_id) || a4p.isUndefined(object.owner_id.dbid)) && (object.owner_id = angular.copy(owner.id));
+                a4p.isDefined(owner) && (a4p.isUndefined(object.owner_id) || a4p.isUndefined(object.owner_id.dbid)) && (owner ? object.owner_id = angular.copy(owner.id) : a4p.InternalLog.error("srvData", "object " + object.id.dbid + " has NO owner."));
                 break;
             }
         }
-        return (a4p.isUndefined(object.created_by_id) || a4p.isUndefined(object.created_by_id.dbid)) && (object.created_by_id = angular.copy(owner.id)), 
+        return (a4p.isUndefined(object.created_by_id) || a4p.isUndefined(object.created_by_id.dbid)) && (owner ? object.created_by_id = angular.copy(owner.id) : a4p.InternalLog.error("srvData", "object " + object.id.dbid + " has NO owner.")), 
         (a4p.isUndefined(object.created_date) || "" == object.created_date) && (object.created_date = a4pDateFormat(now)), 
-        (a4p.isUndefined(object.last_modified_by_id) || a4p.isUndefined(object.last_modified_by_id.dbid)) && (object.last_modified_by_id = angular.copy(owner.id)), 
+        (a4p.isUndefined(object.last_modified_by_id) || a4p.isUndefined(object.last_modified_by_id.dbid)) && (owner ? object.last_modified_by_id = angular.copy(owner.id) : a4p.InternalLog.error("srvData", "object " + object.id.dbid + " has NO owner.")), 
         (a4p.isUndefined(object.last_modified_date) || "" == object.last_modified_date) && (object.last_modified_date = a4pDateFormat(now)), 
         object;
     }, Service.prototype.addObject = function(object, isOriginal) {
