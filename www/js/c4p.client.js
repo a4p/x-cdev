@@ -1,4 +1,4 @@
-/*! c4p.client 2014-04-29 11:37 */
+/*! c4p.client 2014-04-29 15:41 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -38796,8 +38796,10 @@ var SrvFacet = function() {
                     uploadOptions.params = optionsParams;
                 }
                 var ft = new FileTransfer(), trustAllHosts = !0, feUrl = fileEntry.fullPath;
-                a4p.isDefined(fileEntry.toNativeURL) && (feUrl = fileEntry.toNativeURL()), a4p.InternalLog.log("srvFileTransfer", "File uploading " + filePath + " to " + url), 
-                ft.upload(feUrl, url, onTransferSuccessFct, onTransferFailureFct, uploadOptions, trustAllHosts);
+                a4p.isDefined(fileEntry.toURL) && (feUrl = fileEntry.toURL());
+                var destUri = encodeURIComponent(url);
+                a4p.InternalLog.log("srvFileTransfer", "File uploading " + feUrl + " to " + destUri), 
+                ft.upload(feUrl, destUri, onTransferSuccessFct, onTransferFailureFct, uploadOptions, trustAllHosts);
             }, onGetFileFailureFct = function(message) {
                 var msg = "File get failure for " + filePath + " : " + message;
                 a4p.safeApply(self.rootScope, function() {
@@ -38908,8 +38910,10 @@ var SrvFacet = function() {
                 });
             }, onCreateDirSuccessFct = function(fileEntry) {
                 var ft = new FileTransfer(), trustAllHosts = !0, feUrl = fileEntry.fullPath;
-                a4p.isDefined(fileEntry.toNativeURL) && (feUrl = fileEntry.toNativeURL()), a4p.InternalLog.log("srvFileTransfer", "File downloading from " + url + " to " + filePath), 
-                ft.download(url, feUrl, onTransferSuccessFct, onTransferFailureFct, trustAllHosts);
+                a4p.isDefined(fileEntry.toURL) && (feUrl = fileEntry.toURL());
+                var srcUri = encodeURIComponent(url);
+                a4p.InternalLog.log("srvFileTransfer", "File downloading from " + srcUri + " to " + feUrl), 
+                ft.download(srcUri, feUrl, onTransferSuccessFct, onTransferFailureFct, trustAllHosts);
             }, onCreateDirFailureFct = function(message) {
                 var msg = "File directory creation failure for " + filePath + " : " + message;
                 a4p.safeApply(self.rootScope, function() {
@@ -39859,7 +39863,7 @@ var SrvFacet = function() {
                 var request = self.pendingRequests[0];
                 a4p.isDefined(request) && requestId == request.id ? (triggerError(self, request, response.data), 
                 self.state != Service.PAUSE && (self.state = Service.READY, self.serverState != Service.READY && checkServerStatus(self)), 
-                request.nbTry > 20 ? (self.pendingRequests.length > 0 && self.pendingRequests[0].id == requestId && self.pendingRequests.splice(0, 1), 
+                request.nbTry > 10 ? (self.pendingRequests.length > 0 && self.pendingRequests[0].id == requestId && self.pendingRequests.splice(0, 1), 
                 setTimeout(function() {
                     sendNextRequest(self);
                 }, 100)) : setTimeout(function() {
