@@ -1,4 +1,4 @@
-/*! c4p.client 2014-04-28 21:43 */
+/*! c4p.client 2014-04-29 11:37 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -35226,7 +35226,8 @@ var SrvConfig = function() {
                 html.style.fontSize = this.sizeCss;
             }
             this.themeCss = this.srvLocalStorage.get("ThemeCss", "c4p-cosmo");
-            var appVersion = this.activeCrms.length > 1 ? "Premium" : "Free";
+            var appVersion = "Free";
+            2 == this.activeCrms.length && (appVersion = "Freemium"), this.activeCrms.length > 2 && (appVersion = "Premium"), 
             this.srvAnalytics.setVid(this.c4pBuildDate + " " + this.env + " " + appVersion), 
             this.initDone = !0, a4p.InternalLog.log("srvConfig", "initialized");
         }
@@ -38794,9 +38795,9 @@ var SrvFacet = function() {
                     optionsParams[paramKey] = params[paramKey]);
                     uploadOptions.params = optionsParams;
                 }
-                var ft = new FileTransfer(), trustAllHosts = !0;
-                a4p.InternalLog.log("srvFileTransfer", "File uploading " + filePath + " to " + url), 
-                ft.upload(fileEntry.fullPath, url, onTransferSuccessFct, onTransferFailureFct, uploadOptions, trustAllHosts);
+                var ft = new FileTransfer(), trustAllHosts = !0, feUrl = fileEntry.fullPath;
+                a4p.isDefined(fileEntry.toNativeURL) && (feUrl = fileEntry.toNativeURL()), a4p.InternalLog.log("srvFileTransfer", "File uploading " + filePath + " to " + url), 
+                ft.upload(feUrl, url, onTransferSuccessFct, onTransferFailureFct, uploadOptions, trustAllHosts);
             }, onGetFileFailureFct = function(message) {
                 var msg = "File get failure for " + filePath + " : " + message;
                 a4p.safeApply(self.rootScope, function() {
@@ -38906,9 +38907,9 @@ var SrvFacet = function() {
                     });
                 });
             }, onCreateDirSuccessFct = function(fileEntry) {
-                var ft = new FileTransfer(), trustAllHosts = !0;
-                a4p.InternalLog.log("srvFileTransfer", "File downloading from " + url + " to " + filePath), 
-                ft.download(url, fileEntry.fullPath, onTransferSuccessFct, onTransferFailureFct, trustAllHosts);
+                var ft = new FileTransfer(), trustAllHosts = !0, feUrl = fileEntry.fullPath;
+                a4p.isDefined(fileEntry.toNativeURL) && (feUrl = fileEntry.toNativeURL()), a4p.InternalLog.log("srvFileTransfer", "File downloading from " + url + " to " + filePath), 
+                ft.download(url, feUrl, onTransferSuccessFct, onTransferFailureFct, trustAllHosts);
             }, onCreateDirFailureFct = function(message) {
                 var msg = "File directory creation failure for " + filePath + " : " + message;
                 a4p.safeApply(self.rootScope, function() {
