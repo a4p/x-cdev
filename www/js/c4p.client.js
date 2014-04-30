@@ -1,4 +1,4 @@
-/*! c4p.client 2014-04-30 16:07 */
+/*! c4p.client 2014-04-30 18:08 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -3034,12 +3034,13 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
                     });
                 }, onLocationChange = function() {
                     a4p.safeApply(scope, function() {
-                        a4p.InternalLog.log("ctrlNavigation", "onLoginSuccess " + response.redirect), doRefreshClient(scope, !1, userEmail, userPassword, c4pToken, !0, deferred);
+                        a4p.InternalLog.log("ctrlNavigation", "onLoginSuccess " + response.redirect), doRefreshClient(scope, !1, userEmail, userPassword, c4pToken, !0, deferred), 
+                        scope.gotoWelcome();
                     });
                 };
                 openChildBrowser(response.redirect, "url", onLocationChange, onClose);
             } else a4p.safeApply(scope, function() {
-                endSynchronization(scope), scope.gotoWelcome(), deferred.resolve();
+                endSynchronization(scope), deferred.resolve();
             });
         });
     }
@@ -37486,7 +37487,7 @@ var SrvData = function() {
                         body: "",
                         length: "0",
                         path: targetDirPath,
-                        description: "Picture for " + self.srvConfig.getItemName(parentObject),
+                        description: "",
                         uid: "pict_" + photoRootname,
                         url: url,
                         fileUrl: url,
@@ -38916,23 +38917,30 @@ var SrvFacet = function() {
                         status: feUrl
                     });
                 });
+            }, onTransferFailureFct = function(fileTransferError) {
+                console.log("error");
+                var msg = "File download failure for " + filePath + " : " + transferErrorMessage(fileTransferError) + "(source=" + fileTransferError.source + ", target=" + fileTransferError.target + ")";
+                a4p.safeApply(self.rootScope, function() {
+                    a4p.ErrorLog.log("srvFileTransfer", msg), deferred.reject({
+                        data: msg,
+                        status: "error"
+                    });
+                });
             }, onCreateDirSuccessFct = function(fileEntry) {
-                var ft = new FileTransfer(), feUrl = fileEntry.fullPath;
-                console.log("feUrl fullPath : " + feUrl), a4p.isDefined(fileEntry.toURL) && (feUrl = fileEntry.toURL()), 
-                console.log("feUrl toURL : " + feUrl), a4p.isDefined(fileEntry.toNativeURL) && (feUrl = fileEntry.toNativeURL()), 
-                console.log("feUrl toNativeURL : " + feUrl), ft.onprogress = function(progressEvent) {
-                    console.log("Loading:"), progressEvent.loaded == progressEvent.total && (console.log("done !"), 
-                    onTransferSuccessFct(fileEntry));
-                }, console.log("remove previous file ? " + feUrl);
+                var ft = new FileTransfer(), trustAllHosts = !0, feUrl = fileEntry.fullPath;
+                a4p.isDefined(fileEntry.toURL) && (feUrl = fileEntry.toURL()), ft.onprogress = function(progressEvent) {
+                    if (a4p.InternalLog.log("srvFileTransfer", "Loading (" + url + ") :"), progressEvent.lengthComputable) {
+                        var perc = Math.floor(progressEvent.loaded / progressEvent.total * 100);
+                        a4p.InternalLog.log("srvFileTransfer", "" + perc + "% of " + progressEvent.total);
+                    }
+                    progressEvent.loaded == progressEvent.total && (console.log("done !"), onTransferSuccessFct(fileEntry));
+                };
                 var downloadFile = function() {
-                    console.log("downloadFile");
                     var srcUri = url;
                     a4p.InternalLog.log("srvFileTransfer", "File downloading from " + srcUri + " to " + feUrl), 
                     ft.download(srcUri, feUrl, function() {
-                        console.log("SSS");
-                    }, function() {
-                        console.log("FFF");
-                    });
+                        a4p.ErrorLog.log("srvFileTransfer", "Download suppose to do not work, use onprogress instead ?");
+                    }, onTransferFailureFct, trustAllHosts);
                 };
                 downloadFile();
             }, onCreateDirFailureFct = function(message) {
