@@ -1,4 +1,4 @@
-/*! c4p.client 2014-04-30 10:06 */
+/*! c4p.client 2014-04-30 12:13 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -2993,8 +2993,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
         srvRunning.setRefresh(!0), scope.setA4pSpinnerState("run");
     }
     function endSynchronization(scope) {
-        srvRunning.setRefresh(!1), scope.setA4pSpinnerState("done"), srvLog.logSuccess(!0, srvLocale.translations.htmlMsgSynchronizationOK, a4pFormat(srvLocale.translations.htmlMsgNbObjectsInserted, srvData.nbObjects)), 
-        scope.gotoWelcome();
+        srvRunning.setRefresh(!1), scope.setA4pSpinnerState("done"), srvLog.logSuccess(!0, srvLocale.translations.htmlMsgSynchronizationOK, a4pFormat(srvLocale.translations.htmlMsgNbObjectsInserted, srvData.nbObjects));
     }
     function failSynchronization(scope) {
         srvRunning.setRefresh(!1), scope.setA4pSpinnerState("doneWithPb");
@@ -3010,7 +3009,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
                 scope.filteredOpportunities = [], scope.filteredDocuments = [], scope.setFirstConfigDone(!0), 
                 scope.$broadcast("mindMapUpdated"), a4p.InternalLog.log("ctrlNavigation", "MindMap updated"), 
                 endSynchronization(scope), deferred.resolve(), scope.lastRefresh = 1e3 * (srvData.lastRefreshMindMap ? srvData.lastRefreshMindMap || 0 : 0), 
-                srvAnalytics.run();
+                srvSynchro.clearChannel("data"), srvAnalytics.run();
             });
         }, function(response) {
             if (response.error) a4p.safeApply(scope, function() {
@@ -3040,7 +3039,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
                 };
                 openChildBrowser(response.redirect, "url", onLocationChange, onClose);
             } else a4p.safeApply(scope, function() {
-                endSynchronization(scope), deferred.resolve();
+                endSynchronization(scope), scope.gotoWelcome(), deferred.resolve();
             });
         });
     }
@@ -3083,7 +3082,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
                 a4p.InternalLog.log("ctrlNavigation", "downloadFullMap done"), scope.filteredContacts = [], 
                 scope.filteredAccounts = [], scope.filteredEvents = [], scope.filteredOpportunities = [], 
                 scope.filteredDocuments = [], scope.setFirstConfigDone(!0), scope.$broadcast("mindMapLoaded"), 
-                endSynchronization(scope), deferred.resolve(), scope.lastRefresh = 1e3 * (srvData.lastRefreshMindMap ? srvData.lastRefreshMindMap || 0 : 0), 
+                endSynchronization(scope), scope.gotoWelcome(), deferred.resolve(), scope.lastRefresh = 1e3 * (srvData.lastRefreshMindMap ? srvData.lastRefreshMindMap || 0 : 0), 
                 srvAnalytics.run();
             });
         }, function(response) {
@@ -3124,7 +3123,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
                 a4p.ErrorLog.log("ctrlNavigation", "downloadFullMap empty"), scope.filteredContacts = [], 
                 scope.filteredAccounts = [], scope.filteredEvents = [], scope.filteredOpportunities = [], 
                 scope.filteredDocuments = [], scope.setFirstConfigDone(!0), scope.$broadcast("mindMapLoaded"), 
-                endSynchronization(scope), deferred.resolve();
+                endSynchronization(scope), scope.gotoWelcome(), deferred.resolve();
             });
         });
     }
@@ -4403,7 +4402,8 @@ function networkTestRunnerCtrl($scope, $q, $location, $http, $modal, version, sr
     }, $scope.waitSynchroDone = function() {
         var deferred = $q.defer(), timer = function() {
             a4p.safeApply($scope, function() {
-                0 == srvSynchro.nbPendingRequests() ? deferred.resolve() : ($scope.status2 = "Still " + srvSynchro.nbPendingRequests() + " pending requests in srvSynchro", 
+                0 == srvSynchro.nbPendingRequests() ? deferred.resolve() : (a4p.InternalLog.log("waitSynchroDone", "tick"), 
+                $scope.status2 = "Still " + srvSynchro.nbPendingRequests() + " pending requests in srvSynchro", 
                 setTimeout(function() {
                     timer();
                 }, 1e3));
@@ -18286,16 +18286,19 @@ a4p.idNext = {
         a4p.promiseWakeupNb > 0 && (a4p.safeApply(scope), a4p.promiseWakeupTimeout = setTimeout(tick, 1e3));
     }
     var promiseWakeupOnHttpSuccess = function(response) {
-        a4p.promiseWakeupNb--, a4p.promiseWakeupNb <= 0 && (a4p.InternalLog.log("a4p.promiseWakeup.tick", "stop"), 
+        a4p.InternalLog.log("a4p.promiseWakeup.tick", "promiseWakeupOnHttpSuccess?"), a4p.promiseWakeupNb--, 
+        a4p.promiseWakeupNb <= 0 && (a4p.InternalLog.log("a4p.promiseWakeup.tick", "stop"), 
         a4p.promiseWakeupNb = 0, clearTimeout(a4p.promiseWakeupTimeout), a4p.promiseWakeupTimeout = null), 
         fctOnHttpSuccess(response);
     }, promiseWakeupOnHttpError = function(response) {
-        a4p.promiseWakeupNb--, a4p.promiseWakeupNb <= 0 && (a4p.InternalLog.log("a4p.promiseWakeup.tick", "stop"), 
+        a4p.InternalLog.log("a4p.promiseWakeup.tick", "promiseWakeupOnHttpError?"), a4p.promiseWakeupNb--, 
+        a4p.promiseWakeupNb <= 0 && (a4p.InternalLog.log("a4p.promiseWakeup.tick", "stop"), 
         a4p.promiseWakeupNb = 0, clearTimeout(a4p.promiseWakeupTimeout), a4p.promiseWakeupTimeout = null), 
         fctOnHttpError(response);
     };
     0 == a4p.promiseWakeupNb && (a4p.InternalLog.log("a4p.promiseWakeup.tick", "start"), 
-    a4p.promiseWakeupTimeout = setTimeout(tick, 1e3)), a4p.promiseWakeupNb++, httpPromise.then(promiseWakeupOnHttpSuccess, promiseWakeupOnHttpError);
+    a4p.promiseWakeupTimeout = setTimeout(tick, 1e3)), a4p.promiseWakeupNb++, a4p.InternalLog.log("a4p.promiseWakeup.tick", "before?"), 
+    httpPromise.then(promiseWakeupOnHttpSuccess, promiseWakeupOnHttpError), a4p.InternalLog.log("a4p.promiseWakeup.tick", "after?");
 };
 
 var cache = window.applicationCache, cacheStatusValues = [], a4pTranslateDatesToPxSize = function(date_start, date_end, totalSize) {
@@ -22114,6 +22117,9 @@ a4p || (a4p = {}), a4p.MemoryStorage = function() {
             }, launchEnd(this);
         }
         return deferred.promise;
+    }, FileStorage.prototype.getFS = function() {
+        if (!this.fs) throw new Error("a4p.FileStorage is not yet initialized with its file system.");
+        return this.fs;
     }, FileStorage.prototype.createDir = function(dirPath, onSuccess, onFailure) {
         if (!this.fs) throw new Error("a4p.FileStorage is not yet initialized with its file system.");
         for (var names = dirPath.split("/"), max = names.length, dirs = [], i = 0; max > i; i++) "." != names[i] && "" != names[i] && dirs.push(names[i]);
@@ -35627,7 +35633,8 @@ var SrvData = function() {
     }
     function onDownloadFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
-        a4p.isDefined(object) ? (object.c4p_synchro.reading = c4p.Synchro.NONE, self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "download failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        a4p.isDefined(object) ? (object.c4p_synchro.reading = c4p.Synchro.NONE, self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type]), 
+        a4p.InternalLog.log("srvData", "download failure //TODO : what todo with this document not downloaded ? " + requestCtx.dbid)) : a4p.InternalLog.log("srvData", "download failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         getNextObjectToDownload(self, requestCtx.dbid);
     }
     function onShareSuccess(self, requestCtx, responseData) {
@@ -36467,12 +36474,14 @@ var SrvData = function() {
         unlinkLinkedObjects(self, itemId, isOriginal);
     }
     function addOriginalObject(self, object, downloadFile) {
+        a4p.InternalLog.log("srvData", "addOriginalObject " + object.id.dbid);
         var copy = copyObject(object);
         a4p.isDefined(copy) && (self.originalDbIndex[object.id.dbid] = copy, self.originalItems[copy.a4p_type].push(copy), 
         self.srvLocalStorage.set("Data-Original" + copy.a4p_type, self.originalItems[copy.a4p_type])), 
         a4p.isDefined(c4p.Model.files[object.a4p_type]) && (a4p.isDefined(object.id.sf_id) || a4p.isDefined(object.id.c4p_id)) && downloadFile && addObjectToDownload(self, object.a4p_type, object.id.dbid);
     }
     function updateOriginalObject(self, object, fields) {
+        a4p.InternalLog.log("srvData", "updateOriginalObject " + object.id.dbid);
         var original = self.originalDbIndex[object.id.dbid];
         if (a4p.isDefined(original)) {
             for (var objDesc = c4p.Model.a4p_types[object.a4p_type], i = 0, len = objDesc.fields.length; len > i; i++) {
@@ -36489,15 +36498,18 @@ var SrvData = function() {
         }
     }
     function setOriginalObject(self, object, downloadFile) {
+        a4p.InternalLog.log("srvData", "setOriginalObject " + object.id.dbid);
         var copy = copyObject(object);
         a4p.isDefined(copy) && (self.originalDbIndex[object.id.dbid] = copy, replaceObjectFromList(self.originalItems[copy.a4p_type], object.id.dbid, copy) !== !1 && self.srvLocalStorage.set("Data-Original" + copy.a4p_type, self.originalItems[copy.a4p_type])), 
         a4p.isDefined(c4p.Model.files[object.a4p_type]) && (a4p.isDefined(object.id.sf_id) || a4p.isDefined(object.id.c4p_id)) && downloadFile && addObjectToDownload(self, object.a4p_type, object.id.dbid);
     }
     function removeOriginalObject(self, dbid) {
+        a4p.InternalLog.log("srvData", "removeOriginalObject " + dbid);
         var object = self.originalDbIndex[dbid];
         a4p.isDefined(object) && (delete self.originalDbIndex[dbid], removeObjectFromList(self.originalItems[object.a4p_type], dbid) !== !1 && self.srvLocalStorage.set("Data-Original" + object.a4p_type, self.originalItems[object.a4p_type]));
     }
     function addObjectToDownload(self, type, dbid) {
+        a4p.InternalLog.log("srvData", "addObjectToDownload " + dbid);
         var delayedDownload = !0;
         if (0 == self.objectsToDownload.length && (delayedDownload = !1), getLinkFromList(self.objectsToDownload, dbid) !== !1) return !1;
         var object = self.getObject(dbid);
@@ -36512,10 +36524,11 @@ var SrvData = function() {
         !0;
     }
     function removeObjectToDownload(self, dbid) {
-        return removeLinkFromList(self.objectsToDownload, dbid) !== !1 ? (self.srvLocalStorage.set("Data-objectsToDownload", self.objectsToDownload), 
+        return a4p.InternalLog.log("srvData", "removeObjectToDownload " + dbid), removeLinkFromList(self.objectsToDownload, dbid) !== !1 ? (self.srvLocalStorage.set("Data-objectsToDownload", self.objectsToDownload), 
         !0) : !1;
     }
     function downloadObject(self, dbid) {
+        a4p.InternalLog.log("srvData", "downloadObject " + dbid);
         var object = self.getObject(dbid);
         if (a4p.isDefined(object)) {
             var loadFields = c4p.Model.files[object.a4p_type];
@@ -38796,8 +38809,8 @@ var SrvFacet = function() {
                     uploadOptions.params = optionsParams;
                 }
                 var ft = new FileTransfer(), trustAllHosts = !0, feUrl = fileEntry.fullPath;
-                a4p.isDefined(fileEntry.toURL) && (feUrl = fileEntry.toURL());
-                var destUri = encodeURIComponent(url);
+                a4p.isDefined(fileEntry.toNativeURL) && (feUrl = fileEntry.toNativeURL());
+                var destUri = url;
                 a4p.InternalLog.log("srvFileTransfer", "File uploading " + feUrl + " to " + destUri), 
                 ft.upload(feUrl, destUri, onTransferSuccessFct, onTransferFailureFct, uploadOptions, trustAllHosts);
             }, onGetFileFailureFct = function(message) {
@@ -38894,26 +38907,34 @@ var SrvFacet = function() {
         var self = this, deferred = this.defer.defer(), promise = deferred.promise;
         if (a4p.isDefinedAndNotNull(FileTransfer)) {
             var onTransferSuccessFct = function(fileEntry) {
+                console.log("success");
+                var feUrl = fileEntry.fullPath;
+                a4p.isDefined(fileEntry.toURL) && (feUrl = fileEntry.toURL()), a4p.InternalLog.log("srvFileTransfer", "File downloading sucess " + feUrl), 
                 a4p.safeApply(self.rootScope, function() {
                     deferred.resolve({
                         data: "",
-                        status: fileEntry.toNativeURL()
-                    });
-                });
-            }, onTransferFailureFct = function(fileTransferError) {
-                var msg = "File download failure for " + filePath + " : " + transferErrorMessage(fileTransferError) + "(source=" + fileTransferError.source + ", target=" + fileTransferError.target + ")";
-                a4p.safeApply(self.rootScope, function() {
-                    a4p.ErrorLog.log("srvFileTransfer", msg), deferred.reject({
-                        data: msg,
-                        status: "error"
+                        status: feUrl
                     });
                 });
             }, onCreateDirSuccessFct = function(fileEntry) {
-                var ft = new FileTransfer(), trustAllHosts = !0, feUrl = fileEntry.fullPath;
-                a4p.isDefined(fileEntry.toURL) && (feUrl = fileEntry.toURL());
-                var srcUri = encodeURIComponent(url);
-                a4p.InternalLog.log("srvFileTransfer", "File downloading from " + srcUri + " to " + feUrl), 
-                ft.download(srcUri, feUrl, onTransferSuccessFct, onTransferFailureFct, trustAllHosts);
+                var ft = new FileTransfer(), feUrl = fileEntry.fullPath;
+                console.log("feUrl fullPath : " + feUrl), a4p.isDefined(fileEntry.toURL) && (feUrl = fileEntry.toURL()), 
+                console.log("feUrl toURL : " + feUrl), a4p.isDefined(fileEntry.toNativeURL) && (feUrl = fileEntry.toNativeURL()), 
+                console.log("feUrl toNativeURL : " + feUrl), ft.onprogress = function(progressEvent) {
+                    console.log("Loading:"), progressEvent.loaded == progressEvent.total && (console.log("done !"), 
+                    onTransferSuccessFct(fileEntry));
+                }, console.log("remove previous file ? " + feUrl);
+                var downloadFile = function() {
+                    console.log("downloadFile");
+                    var srcUri = url;
+                    a4p.InternalLog.log("srvFileTransfer", "File downloading from " + srcUri + " to " + feUrl), 
+                    ft.download(srcUri, feUrl, function() {
+                        console.log("SSS");
+                    }, function() {
+                        console.log("FFF");
+                    });
+                };
+                downloadFile();
             }, onCreateDirFailureFct = function(message) {
                 var msg = "File directory creation failure for " + filePath + " : " + message;
                 a4p.safeApply(self.rootScope, function() {
@@ -38965,7 +38986,7 @@ var SrvFacet = function() {
                 transformResponse: angular.identity,
                 responseType: "arraybuffer"
             };
-            null != timeout && (urlData.timeout = timeout), a4p.InternalLog.log("srvFileTransfer", "File downloading from " + url + " to " + filePath), 
+            null != timeout && (urlData.timeout = timeout), a4p.InternalLog.log("srvFileTransfer", "File downloading from ... " + url + " to " + filePath), 
             a4p.promiseWakeup(this.rootScope, this.http(urlData), fctOnHttpSuccess, fctOnHttpError);
         }
         return promise;
@@ -39847,10 +39868,11 @@ var SrvFacet = function() {
             var request = self.pendingRequests[0];
             request.nbTry++;
             var requestId = request.id, fctOnHttpSuccess = function(response) {
+                a4p.InternalLog.log("srvSynchro", "sendNextRequest success : " + response.status + " : " + response.data);
                 var request = self.pendingRequests[0];
                 self.tryAgain = !1, a4p.isDefined(request) && requestId == request.id ? (triggerSuccess(self, request, response.status, response.data, response.headers), 
                 self.state != Service.PAUSE && (self.state = Service.READY, self.serverState != Service.READY && checkServerStatus(self)), 
-                self.tryAgain && request.nbTry <= 20 ? setTimeout(function() {
+                self.tryAgain && request.nbTry <= 10 ? setTimeout(function() {
                     sendNextRequest(self);
                 }, 1e3 * request.nbTry * request.nbTry) : (self.pendingRequests.length > 0 && self.pendingRequests[0].id == requestId && self.pendingRequests.splice(0, 1), 
                 setTimeout(function() {
@@ -39860,21 +39882,26 @@ var SrvFacet = function() {
                     sendNextRequest(self);
                 }, 100));
             }, fctOnHttpError = function(response) {
+                a4p.InternalLog.log("srvSynchro", "sendNextRequest error : " + response.status + " : " + response.data);
                 var request = self.pendingRequests[0];
                 a4p.isDefined(request) && requestId == request.id ? (triggerError(self, request, response.data), 
                 self.state != Service.PAUSE && (self.state = Service.READY, self.serverState != Service.READY && checkServerStatus(self)), 
+                a4p.InternalLog.log("srvSynchro", "sendNextRequest retry : " + request.id + " # " + request.nbTry), 
                 request.nbTry > 10 ? (self.pendingRequests.length > 0 && self.pendingRequests[0].id == requestId && self.pendingRequests.splice(0, 1), 
                 setTimeout(function() {
                     sendNextRequest(self);
                 }, 100)) : setTimeout(function() {
                     sendNextRequest(self);
-                }, 1e3 * request.nbTry * request.nbTry)) : (self.state != Service.PAUSE && (self.state = Service.READY, 
-                self.serverState != Service.READY && checkServerStatus(self)), setTimeout(function() {
-                    sendNextRequest(self);
+                }, 1e3 * request.nbTry * request.nbTry)) : (a4p.InternalLog.log("srvSynchro", "sendNextRequest cancel already done " + request.id + " # " + request.nbTry), 
+                self.state != Service.PAUSE && (self.state = Service.READY, self.serverState != Service.READY && checkServerStatus(self)), 
+                setTimeout(function() {
+                    a4p.InternalLog.log("srvSynchro", "sendNextRequest WHY ?"), sendNextRequest(self);
                 }, 100));
             };
-            triggerStart(self, request), null != request.filePath ? "post" == request.method.toLowerCase() ? (request.params.c4pToken = self.srvSecurity.getHttpRequestToken(), 
-            self.fileTransfer.sendFile(request.filePath, request.options, request.url, request.params, request.headers).then(fctOnHttpSuccess, fctOnHttpError)) : request.url.indexOf("?") >= 0 ? self.fileTransfer.recvFile(request.filePath, request.url + "&c4pToken=" + encodeURIComponent(self.srvSecurity.getHttpRequestToken())).then(fctOnHttpSuccess, fctOnHttpError) : self.fileTransfer.recvFile(request.filePath, request.url + "?c4pToken=" + encodeURIComponent(self.srvSecurity.getHttpRequestToken())).then(fctOnHttpSuccess, fctOnHttpError) : "post" == request.method.toLowerCase() ? (request.params.c4pToken = self.srvSecurity.getHttpRequestToken(), 
+            triggerStart(self, request), a4p.InternalLog.log("srvSynchro", "sendNextRequest send " + request.id + " # " + request.nbTry), 
+            null != request.filePath ? (a4p.InternalLog.log("srvSynchro", "sendNextRequest send file " + request.url), 
+            "post" == request.method.toLowerCase() ? (request.params.c4pToken = self.srvSecurity.getHttpRequestToken(), 
+            self.fileTransfer.sendFile(request.filePath, request.options, request.url, request.params, request.headers).then(fctOnHttpSuccess, fctOnHttpError)) : request.url.indexOf("?") >= 0 ? self.fileTransfer.recvFile(request.filePath, request.url + "&c4pToken=" + encodeURIComponent(self.srvSecurity.getHttpRequestToken())).then(fctOnHttpSuccess, fctOnHttpError) : self.fileTransfer.recvFile(request.filePath, request.url + "?c4pToken=" + encodeURIComponent(self.srvSecurity.getHttpRequestToken())).then(fctOnHttpSuccess, fctOnHttpError)) : "post" == request.method.toLowerCase() ? (request.params.c4pToken = self.srvSecurity.getHttpRequestToken(), 
             self.dataTransfer.sendData(request.url, request.params, request.headers).then(fctOnHttpSuccess, fctOnHttpError)) : request.url.indexOf("?") >= 0 ? self.dataTransfer.recvData(request.url + "&c4pToken=" + encodeURIComponent(self.srvSecurity.getHttpRequestToken())).then(fctOnHttpSuccess, fctOnHttpError) : self.dataTransfer.recvData(request.url + "?c4pToken=" + encodeURIComponent(self.srvSecurity.getHttpRequestToken())).then(fctOnHttpSuccess, fctOnHttpError);
         }
     }
