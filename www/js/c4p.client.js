@@ -1,4 +1,4 @@
-/*! c4p.client 2014-05-02 16:06 */
+/*! c4p.client 2014-05-04 22:47 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -825,6 +825,7 @@ function ctrlAction($scope, $q, $modal, srvData, srvNav, srvFacet, srvConfig, sr
         $scope.navListener && (srvNav.cancelListener($scope.navListener), $scope.navListener = null), 
         $scope.init(object);
     }, $scope.init = function(object) {
+        if (!object) return !1;
         $scope.currentObject = object, $scope.actionList = [], $scope.actionMap = {};
         for (var i = 0, nb = $scope.methodList.length; nb > i; i++) {
             {
@@ -851,7 +852,7 @@ function ctrlAction($scope, $q, $modal, srvData, srvNav, srvFacet, srvConfig, sr
                 var currentMethod = $scope.actionList[actionIdx], icon = methodDesc.icon;
                 a4p.isDefined(methodDesc.iconeToggle) && $scope[methodDesc.iconeToggle.when]($scope.currentObject) && (icon = methodDesc.iconeToggle.icon);
                 var disabled = !1;
-                if (methodDesc.mustBeOwner && !srvData.isObjectOwnedByUser(object)) disabled = !0; else if (a4p.isDefined(methodDesc.mustHaveFavorite) && !srvData.favoritesObject) disabled = !0; else if (a4p.isDefined(methodDesc.mustHaveBetaOption) && !srvConfig.c4pConfig[methodDesc.mustHaveBetaOption]) disabled = !0; else if (a4p.isDefined(methodDesc.mustBeCreated) && (object.c4p_synchro.creating || object.c4p_synchro.reading)) disabled = !0; else if (a4p.isDefinedAndNotNull(methodDesc.possibleCrms)) {
+                if (methodDesc.mustBeOwner && !srvData.isObjectOwnedByUser(object)) disabled = !0; else if (a4p.isDefined(methodDesc.mustHaveFavorite) && !srvData.favoritesObject) disabled = !0; else if (a4p.isDefined(methodDesc.mustHaveBetaOption) && !srvConfig.c4pConfig[methodDesc.mustHaveBetaOption]) disabled = !0; else if (a4p.isDefinedAndNotNull(methodDesc.possibleCrms)) {
                     for (var enabled = !1, j = 0, max = methodDesc.possibleCrms.length; max > j; j++) {
                         var crm = methodDesc.possibleCrms[j];
                         if (isValueInList(srvConfig.getActiveCrms(), crm)) {
@@ -882,7 +883,7 @@ function ctrlAction($scope, $q, $modal, srvData, srvNav, srvFacet, srvConfig, sr
     }, $scope.isTaggedFavorite = function(object) {
         return srvData.isTaggedFavorite(object);
     }, $scope.toggleFavorite = function(object) {
-        srvData.toggleFavorite(object) && $scope.update();
+        srvData.toggleFavorite(object);
     }, $scope.setItemAndGoTimeline = function(object) {
         openDialog({
             backdrop: !1,
@@ -1242,7 +1243,7 @@ function ctrlAction($scope, $q, $modal, srvData, srvNav, srvFacet, srvConfig, sr
     };
 }
 
-function ctrlAside($scope, $location, $anchorScroll, srvFacet, srvLocale, srvData, srvAnalytics, srvNav) {
+function ctrlAside($scope, $location, $anchorScroll, $timeout, srvFacet, srvLocale, srvData, srvAnalytics, srvNav) {
     $scope.srvFacet = srvFacet, $scope.srvLocale = srvLocale, $scope.srvNav = srvNav, 
     $scope.asideRootMenuUp = !0, $scope.asideActiveSearch = !1, $scope.asideCategoryName = null, 
     $scope.asideInputs = {
@@ -1337,12 +1338,14 @@ function ctrlAside($scope, $location, $anchorScroll, srvFacet, srvLocale, srvDat
         }, function() {});
     }, $scope.asideScrollToItem = function(item) {
         var sid = "aside_" + item.id.dbid;
-        a4p.InternalLog.log("ctrlAside", "asideScrollToItem to " + sid), $location.hash(sid), 
-        $anchorScroll();
+        a4p.InternalLog.log("ctrlAside", "asideScrollToItem to " + sid), $timeout(function() {
+            $location.hash(sid), $anchorScroll(), $location.hash();
+        }, 1e3);
     }, $scope.relatedScrollToGroup = function(group) {
         var sid = "related_" + group.name;
-        a4p.InternalLog.log("ctrlAside", "relatedScrollToGroup to " + sid), $location.hash(sid), 
-        $anchorScroll();
+        a4p.InternalLog.log("ctrlAside", "relatedScrollToGroup to " + sid), $timeout(function() {
+            $location.hash(sid), $anchorScroll(), $location.hash();
+        }, 1e3);
     }, $scope.activeItem = "", $scope.setAsideSearchMenu = function(name) {
         name && (a4p.InternalLog.log("setAsideSearchMenu " + name), a4p.safeApply($scope, function() {
             $scope.asideInputs = {
@@ -2014,10 +2017,10 @@ function ctrlDetail($scope, $timeout, $modal, version, srvData, srvFacet, srvLoc
             return object.manager_id.dbid == managerId;
         };
     }
-    $scope.itemDetailDBId = void 0, $scope.auditCreator = "", $scope.auditCreatedDate = "", 
-    $scope.auditModifier = "", $scope.auditModifiedDate = "", $scope.itemRelationCount = 0, 
-    $scope.configStateEdit = !0, $scope.configStateAdd = !0, $scope.linkStateAdd = !1, 
-    $scope.dataListener = srvData.addListenerOnUpdate(function(callbackId, action) {
+    $scope.itemDetailDBId = void 0, $scope.itemDetailName = "", $scope.auditCreator = "", 
+    $scope.auditCreatedDate = "", $scope.auditModifier = "", $scope.auditModifiedDate = "", 
+    $scope.itemRelationCount = 0, $scope.configStateEdit = !0, $scope.configStateAdd = !0, 
+    $scope.linkStateAdd = !1, $scope.detailGetHtmlLinkHowTo = " ", $scope.dataListener = srvData.addListenerOnUpdate(function(callbackId, action) {
         srvNav.item && "clear" == action && a4p.safeApply($scope, function() {
             $scope.clear();
         });
@@ -2052,7 +2055,8 @@ function ctrlDetail($scope, $timeout, $modal, version, srvData, srvFacet, srvLoc
     }, $scope._initDetail = function() {
         a4p.InternalLog.log("ctrlDetail - initDetail", "" + version), $scope.srvNav.item && ($scope.itemDetailDBId = $scope.srvNav.item.id.dbid, 
         a4p.InternalLog.log("ctrlDetail - initDetail", "" + $scope.srvNav.item.id.dbid), 
-        $scope._refreshData(), "Document" == $scope.srvNav.item.a4p_type && ($scope.configStateAdd = !1));
+        $scope._refreshData(), "Document" == $scope.srvNav.item.a4p_type && ($scope.configStateAdd = !1), 
+        $scope.detailGetHtmlLinkHowTo = a4pFormat(srvLocale.translations.htmlViewNlinkItemTextNoRelation, $scope.itemDetailName));
     }, $scope._formatStringDateToDay = function(string) {
         var date = a4pDateParse(string), val = $scope.srvLocale.formatDate(date, "shortDate");
         return val;
@@ -2060,8 +2064,8 @@ function ctrlDetail($scope, $timeout, $modal, version, srvData, srvFacet, srvLoc
         var date = a4pDateParse(string), val = $scope.srvLocale.formatDate(date, "shortTime");
         return val;
     }, $scope._refreshData = function() {
-        $scope.setNavTitle($scope.getItemTitle($scope.srvNav.item.a4p_type)), $scope.getDetailCompanyName(), 
-        a4p.isDefined($scope.srvNav.item.created_by_id) && a4p.isDefined($scope.srvNav.item.created_by_id.dbid) && $scope.srvNav.item.created_date ? ($scope.auditCreator = $scope.getItemNameById($scope.srvNav.item.created_by_id.dbid), 
+        $scope.itemDetailName = $scope.getItemNameById($scope.itemDetailDBId), $scope.setNavTitle($scope.getItemTitle($scope.srvNav.item.a4p_type)), 
+        $scope.getDetailCompanyName(), a4p.isDefined($scope.srvNav.item.created_by_id) && a4p.isDefined($scope.srvNav.item.created_by_id.dbid) && $scope.srvNav.item.created_date ? ($scope.auditCreator = $scope.getItemNameById($scope.srvNav.item.created_by_id.dbid), 
         $scope.auditCreatedDate = $scope._formatStringDateToDay($scope.srvNav.item.created_date)) : ($scope.auditCreator = "", 
         $scope.auditCreatedDate = ""), a4p.isDefined($scope.srvNav.item.last_modified_by_id) && a4p.isDefined($scope.srvNav.item.last_modified_by_id.dbid) && $scope.srvNav.item.last_modified_date ? ($scope.auditModifier = $scope.getItemNameById($scope.srvNav.item.last_modified_by_id.dbid), 
         $scope.auditModifiedDate = $scope._formatStringDateToDay($scope.srvNav.item.last_modified_date)) : ($scope.auditModifier = "", 
@@ -2386,69 +2390,71 @@ function ctrlDetailLink($scope, srvData, srvLocale, srvNav) {
 
 function ctrlDetailedObject($scope, $sce, srvLocale, srvData, srvNav, srvLink, srvConfig, srvAnalytics) {
     $scope.srvLocale = srvLocale, $scope.linkedItems = {}, $scope.init = function(item) {
-        $scope.item = item, $scope.itemIcon = c4p.Model.getItemIcon(item), $scope.itemColor = c4p.Model.getItemColor(item), 
-        $scope.itemName = srvConfig.getItemName(item), $scope.isFile = !!c4p.Model.files[item.a4p_type], 
-        $scope.isVideo = $scope.isVideoFormatSupported(), $scope.linkedItems = {}, $scope.cards = [], 
-        $scope.allDayEvent = !1, $scope.manyDayEvent = !1;
-        var objDesc = c4p.Model.a4p_types[$scope.item.a4p_type], editDesc = objDesc.editObjectFields, cards = objDesc.displayDetailedObjectCards;
-        if ($scope.item.date_start && $scope.item.date_end) {
-            var startDate = srvLocale.formatDate($scope.item.date_start, "shortDate"), endDate = srvLocale.formatDate($scope.item.date_end, "shortDate");
-            startDate != endDate ? ($scope.manyDayEvent = !0, $scope.allDayEvent = !0) : $scope.item.duration_hours > 23 && ($scope.allDayEvent = !0);
-        }
-        if (a4p.isDefined(editDesc) && a4p.isDefined(cards)) for (var cardIdx = 0, cardNb = cards.length; cardNb > cardIdx; cardIdx++) {
-            var cardDesc = cards[cardIdx], cardShow = !1, card = {
-                type: cardDesc.type,
-                brSeparated: cardDesc.brSeparated,
-                groups: []
-            }, groups = cardDesc.groups;
-            if (a4p.isDefined(groups)) for (var groupIdx = 0, groupNb = groups.length; groupNb > groupIdx; groupIdx++) {
-                for (var groupDesc = groups[groupIdx], groupShow = !!groupDesc.icon && groupDesc.icon.length > 0 || !!groupDesc.name || !!groupDesc.synchro, group = {
-                    synchro: !!groupDesc.synchro,
-                    icon: groupDesc.icon ? groupDesc.icon : "",
-                    name: !!groupDesc.name,
-                    title: groupDesc.title ? srvLocale.translations[groupDesc.title] : "",
-                    size: groupDesc.size,
-                    fields: []
-                }, fieldIdx = 0, fieldNb = groupDesc.fields.length; fieldNb > fieldIdx; fieldIdx++) {
-                    var fieldType = "", value = "", fieldTitle = "", fieldDesc = groupDesc.fields[fieldIdx], fieldKey = fieldDesc.key, fieldValue = $scope.item[fieldKey], isLink = objDesc.linkDescs[fieldKey], isArray = a4p.isDefined(c4p.Model.objectArrays[$scope.item.a4p_type][fieldKey]);
-                    if (isLink) {
-                        fieldTitle = srvLocale.translations.htmlShortLinkName[objDesc.linkDescs[fieldKey].one], 
-                        fieldType = "";
-                        var targetItem;
-                        if (isArray) {
-                            value = [];
-                            for (var valueIdx = 0, valueNb = fieldValue.length; valueNb > valueIdx; valueIdx++) targetItem = srvData.getObject(fieldValue[valueIdx].dbid), 
-                            targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, value.push(srvConfig.getItemName(targetItem)));
-                        } else targetItem = srvData.getObject(fieldValue.dbid), targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, 
-                        value = srvConfig.getItemName(targetItem));
-                    } else if (a4p.isDefined(editDesc[fieldKey])) (a4p.isDefined(editDesc[fieldKey].type) || a4p.isDefined(fieldDesc.type)) && (fieldType = fieldDesc.type ? fieldDesc.type : editDesc[fieldKey].type), 
-                    a4p.isDefined(editDesc[fieldKey].title) && (fieldTitle = srvLocale.translations[editDesc[fieldKey].title]), 
-                    "duration" == fieldType ? $scope.allDayEvent ? (fieldType = "datetime", value = fieldValue) : (fieldType = "", 
-                    value = $scope.item.duration_hours + ":" + a4pPadNumber($scope.item.duration_minutes, 2)) : "samedayTIME" == fieldType ? $scope.manyDayEvent ? (fieldType = "dateTIME", 
-                    value = fieldValue) : (fieldType = "TIME", value = fieldValue) : value = fieldValue; else if (a4p.isDefined(fieldValue)) value = fieldValue; else {
-                        fieldTitle = srvLocale.translations.htmlShortLinkName[fieldKey], fieldType = "", 
-                        isArray = !0, value = [], fieldValue = srvData.getRemoteLinks($scope.item, fieldKey);
-                        for (var valueIdx = 0, valueNb = fieldValue.length; valueNb > valueIdx; valueIdx++) targetItem = fieldValue[valueIdx], 
-                        targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, value.push(srvConfig.getItemName(targetItem)));
-                    }
-                    var field = {
-                        key: fieldKey,
-                        title: fieldDesc.title ? fieldTitle : "",
-                        type: fieldType,
-                        isArray: isArray,
-                        value: value,
-                        prefix: fieldDesc.prefix ? srvLocale.translations[fieldDesc.prefix] : "",
-                        suffix: fieldDesc.suffix ? srvLocale.translations[fieldDesc.suffix] : "",
-                        size: fieldDesc.size,
-                        separator: fieldDesc.separator || ""
-                    };
-                    value && (groupShow = !0, group.fields.push(field));
-                }
-                groupShow ? (cardShow = !0, card.groups.push(group)) : group.title && card.groups.push(group);
+        if (item) {
+            $scope.item = item, $scope.itemIcon = c4p.Model.getItemIcon(item), $scope.itemColor = c4p.Model.getItemColor(item), 
+            $scope.itemName = srvConfig.getItemName(item), $scope.isFile = !!c4p.Model.files[item.a4p_type], 
+            $scope.isVideo = $scope.isVideoFormatSupported(), $scope.linkedItems = {}, $scope.cards = [], 
+            $scope.allDayEvent = !1, $scope.manyDayEvent = !1;
+            var objDesc = c4p.Model.a4p_types[$scope.item.a4p_type], editDesc = objDesc.editObjectFields, cards = objDesc.displayDetailedObjectCards;
+            if ($scope.item.date_start && $scope.item.date_end) {
+                var startDate = srvLocale.formatDate($scope.item.date_start, "shortDate"), endDate = srvLocale.formatDate($scope.item.date_end, "shortDate");
+                startDate != endDate ? ($scope.manyDayEvent = !0, $scope.allDayEvent = !0) : $scope.item.duration_hours > 23 && ($scope.allDayEvent = !0);
             }
-            cardShow && $scope.cards.push(card);
+            if (a4p.isDefined(editDesc) && a4p.isDefined(cards)) for (var cardIdx = 0, cardNb = cards.length; cardNb > cardIdx; cardIdx++) {
+                var cardDesc = cards[cardIdx], cardShow = !1, card = {
+                    type: cardDesc.type,
+                    brSeparated: cardDesc.brSeparated,
+                    groups: []
+                }, groups = cardDesc.groups;
+                if (a4p.isDefined(groups)) for (var groupIdx = 0, groupNb = groups.length; groupNb > groupIdx; groupIdx++) {
+                    for (var groupDesc = groups[groupIdx], groupShow = !!groupDesc.icon && groupDesc.icon.length > 0 || !!groupDesc.name || !!groupDesc.synchro, group = {
+                        synchro: !!groupDesc.synchro,
+                        icon: groupDesc.icon ? groupDesc.icon : "",
+                        name: !!groupDesc.name,
+                        title: groupDesc.title ? srvLocale.translations[groupDesc.title] : "",
+                        size: groupDesc.size,
+                        fields: []
+                    }, fieldIdx = 0, fieldNb = groupDesc.fields.length; fieldNb > fieldIdx; fieldIdx++) {
+                        var fieldType = "", value = "", fieldTitle = "", fieldDesc = groupDesc.fields[fieldIdx], fieldKey = fieldDesc.key, fieldValue = $scope.item[fieldKey], isLink = objDesc.linkDescs[fieldKey], isArray = a4p.isDefined(c4p.Model.objectArrays[$scope.item.a4p_type][fieldKey]);
+                        if (isLink) {
+                            fieldTitle = srvLocale.translations.htmlShortLinkName[objDesc.linkDescs[fieldKey].one], 
+                            fieldType = "";
+                            var targetItem;
+                            if (isArray) {
+                                value = [];
+                                for (var valueIdx = 0, valueNb = fieldValue.length; valueNb > valueIdx; valueIdx++) targetItem = srvData.getObject(fieldValue[valueIdx].dbid), 
+                                targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, value.push(srvConfig.getItemName(targetItem)));
+                            } else targetItem = srvData.getObject(fieldValue.dbid), targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, 
+                            value = srvConfig.getItemName(targetItem));
+                        } else if (a4p.isDefined(editDesc[fieldKey])) (a4p.isDefined(editDesc[fieldKey].type) || a4p.isDefined(fieldDesc.type)) && (fieldType = fieldDesc.type ? fieldDesc.type : editDesc[fieldKey].type), 
+                        a4p.isDefined(editDesc[fieldKey].title) && (fieldTitle = srvLocale.translations[editDesc[fieldKey].title]), 
+                        "duration" == fieldType ? $scope.allDayEvent ? (fieldType = "datetime", value = fieldValue) : (fieldType = "", 
+                        value = $scope.item.duration_hours + ":" + a4pPadNumber($scope.item.duration_minutes, 2)) : "samedayTIME" == fieldType ? $scope.manyDayEvent ? (fieldType = "dateTIME", 
+                        value = fieldValue) : (fieldType = "TIME", value = fieldValue) : value = fieldValue; else if (a4p.isDefined(fieldValue)) value = fieldValue; else {
+                            fieldTitle = srvLocale.translations.htmlShortLinkName[fieldKey], fieldType = "", 
+                            isArray = !0, value = [], fieldValue = srvData.getRemoteLinks($scope.item, fieldKey);
+                            for (var valueIdx = 0, valueNb = fieldValue.length; valueNb > valueIdx; valueIdx++) targetItem = fieldValue[valueIdx], 
+                            targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, value.push(srvConfig.getItemName(targetItem)));
+                        }
+                        var field = {
+                            key: fieldKey,
+                            title: fieldDesc.title ? fieldTitle : "",
+                            type: fieldType,
+                            isArray: isArray,
+                            value: value,
+                            prefix: fieldDesc.prefix ? srvLocale.translations[fieldDesc.prefix] : "",
+                            suffix: fieldDesc.suffix ? srvLocale.translations[fieldDesc.suffix] : "",
+                            size: fieldDesc.size,
+                            separator: fieldDesc.separator || ""
+                        };
+                        value && (groupShow = !0, group.fields.push(field));
+                    }
+                    groupShow ? (cardShow = !0, card.groups.push(group)) : group.title && card.groups.push(group);
+                }
+                cardShow && $scope.cards.push(card);
+            }
+            a4p.isTrueOrNonEmpty(item.a4p_type) && srvAnalytics.add("Once", "View " + item.a4p_type);
         }
-        a4p.isTrueOrNonEmpty(item.a4p_type) && srvAnalytics.add("Once", "View " + item.a4p_type);
     }, $scope.clear = function() {
         $scope.item = null, $scope.itemIcon = "", $scope.itemName = "", $scope.isFile = !1, 
         $scope.isVideo = !1, $scope.allDayEvent = !1, $scope.manyDayEvent = !1, $scope.cards = [], 
@@ -3014,7 +3020,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
         }, function(response) {
             if (response.error) a4p.safeApply(scope, function() {
                 var errorCode = response.error, log = response.log;
-                srvLog.logWarning(!0, srvLocale.translations[errorCode], log), failSynchronization(scope), 
+                srvLog.logError(!0, srvLocale.translations[errorCode], log), failSynchronization(scope), 
                 deferred.reject({
                     error: srvLocale.translations[errorCode] + " : " + log
                 });
@@ -3059,7 +3065,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
                 a4p.ErrorLog.log("ctrlNavigation", "loginUser error " + response.error + " " + response.log);
                 var errorCode = response.error, log = response.log;
                 scope.page == scope.pageGuider ? (scope.setMessageGuider(errorCode), scope.setSlideToTransferInGuider(scope.slideGuiderConnection), 
-                scope.gotoSlide(scope.pageGuider, scope.slideGuiderValidationReceiveRes)) : srvLog.logWarning(!0, srvLocale.translations[errorCode], log), 
+                scope.gotoSlide(scope.pageGuider, scope.slideGuiderValidationReceiveRes)) : srvLog.logError(!0, srvLocale.translations[errorCode], log), 
                 failSynchronization(scope), deferred.reject({
                     error: srvLocale.translations[errorCode] + " : " + log
                 });
@@ -3091,7 +3097,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
                 a4p.ErrorLog.log("ctrlNavigation", "downloadFullMap error " + response.error + " " + response.log);
                 var errorCode = response.error, log = response.log;
                 scope.page == scope.pageGuider ? (scope.setMessageGuider(errorCode), scope.setSlideToTransferInGuider(scope.slideGuiderConnection), 
-                scope.gotoSlide(scope.pageGuider, scope.slideGuiderValidationReceiveRes)) : srvLog.logWarning(!0, srvLocale.translations[errorCode], log), 
+                scope.gotoSlide(scope.pageGuider, scope.slideGuiderValidationReceiveRes)) : srvLog.logError(!0, srvLocale.translations[errorCode], log), 
                 failSynchronization(scope), deferred.reject({
                     error: srvLocale.translations[errorCode] + " : " + log
                 });
@@ -3223,11 +3229,11 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
     }, $scope.setA4pSpinnerState = function(state) {
         $scope.a4pSpinnerState = state;
     }, srvLoad.setStatus(""), srvLoad.setError(""), $scope.page = "", $scope.slide = "", 
-    $scope.slideToTransferInGuider = "", $scope.a4pSpinnerState = "done", $scope.a4pSpinnerDownloadState = "done", 
-    $scope.filteredContacts = [], $scope.filteredAccounts = [], $scope.filteredEvents = [], 
-    $scope.filteredOpportunities = [], $scope.filteredDocuments = [], $scope.contactQuery = "", 
-    $scope.accountQuery = "", $scope.eventQuery = "", $scope.opportunityQuery = "", 
-    $scope.documentQuery = "", $scope.sameElementQuery = "", $scope.runningOnline = srvRunning.addListenerOnOnline(function(callbackId, online) {
+    $scope.slideToTransferInGuider = "", $scope.a4pSpinnerState = "done", $scope.filteredContacts = [], 
+    $scope.filteredAccounts = [], $scope.filteredEvents = [], $scope.filteredOpportunities = [], 
+    $scope.filteredDocuments = [], $scope.contactQuery = "", $scope.accountQuery = "", 
+    $scope.eventQuery = "", $scope.opportunityQuery = "", $scope.documentQuery = "", 
+    $scope.sameElementQuery = "", $scope.runningOnline = srvRunning.addListenerOnOnline(function(callbackId, online) {
         online || a4p.safeApply($scope, function() {
             $scope.setA4pSpinnerState("offline");
         });
@@ -3396,7 +3402,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
             var relative = !1, timeMs = 500, x = 0, y = 0;
             x = $scope.navAside ? 0 : $scope.has3Pages() && $scope.navRelated ? $scope.responsivePanel2X() : $scope.responsivePanel1X(), 
             $scope.sensePanel && $scope.sensePanel.scroll && ($scope.sensePanel.scroll.checkDOMChanges() && $scope.sensePanel.scroll.refresh(), 
-            $scope.sensePanel.scroll.scrollTo(x, y, timeMs, relative)), $anchorScroll(), $location.hash("");
+            $scope.sensePanel.scroll.scrollTo(x, y, timeMs, relative)), $location.hash("");
         }, 300);
     }, $scope.sensePanel = null, $scope.setSensePanel = function(sense) {
         $scope.sensePanel = sense;
@@ -3866,7 +3872,11 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
             });
         }
     }, $scope.viewDocument = function(item) {
-        if (item || (item = srvNav.item), "Note" == item.a4p_type || "Report" == item.a4p_type) $scope.viewNote(item, !1); else if ("Document" == item.a4p_type && item.email) $scope.viewEmail(item); else if ("Document" == item.a4p_type && c4p.Model.isImage(item.extension)) $scope.viewImage(item); else if (item.fileUrl && item.extension) $scope.viewFile(item.fileUrl, item.extension); else if (item.mimetype && item.extension) {
+        if (a4p.InternalLog.log("ctrlNavigation", "viewDocument " + item.a4p_type), item || (item = srvNav.item), 
+        "Note" == item.a4p_type || "Report" == item.a4p_type) $scope.viewNote(item, !1); else if ("Document" == item.a4p_type && item.email) $scope.viewEmail(item); else if ("Document" == item.a4p_type && c4p.Model.isImage(item.extension)) a4p.InternalLog.log("ctrlNavigation", "viewDocument viewImage : " + item.fileUrl + ", " + item.extension), 
+        $scope.viewImage(item); else if (item.fileUrl && item.extension) a4p.InternalLog.log("ctrlNavigation", "viewDocument viewFile : " + item.fileUrl + ", " + item.extension), 
+        $scope.viewFile(item.fileUrl, item.extension); else if (item.mimetype && item.extension) {
+            a4p.ErrorLog.log("ctrlNavigation", "viewDocument DEV env : " + item.id.dbid);
             var url = srvConfig.c4pUrlDownload + "?type=" + encodeURIComponent(item.a4p_type) + "&dbid=" + encodeURIComponent(item.id.dbid) + "&sf_id=" + encodeURIComponent(item.id.sf_id) + "&mimetype=" + encodeURIComponent(item.mimetype) + "&c4pToken=" + encodeURIComponent(srvSecurity.getHttpRequestToken());
             openChildBrowser(url, item.extension);
         }
@@ -6333,7 +6343,9 @@ function ctrlEditDialogObject($scope, $location, $anchorScroll, srvData, srvLoca
             result && ($scope.removeFct(objectItem), $modalInstance.close());
         });
     }, $scope.editScrollTo = function(id) {
-        $location.hash(id), $anchorScroll();
+        $timeout(function() {
+            $location.hash(id), $anchorScroll();
+        }, 200);
     }, $scope.getTypeColor = function(type) {
         return c4p.Model.getTypeColor(type);
     };
@@ -6880,9 +6892,9 @@ function ctrlSelectObjectsDialog($scope, srvLocale, srvData, srvConfig, type, in
 
 function ctrlShowImage($scope, imageData, $modalInstance) {
     $scope.sensePanel = null, $scope.imageList = [], $scope.imageIndex = -1, $scope.imageObject = null, 
-    $scope.init = function(imageData) {
-        Array.isArray(imageData) ? $scope.imageList = imageData : $scope.imageList.push(imageData), 
-        $scope.documentIndex = 0, $scope.imageObject = $scope.imageList[0];
+    $scope.init = function(obj) {
+        Array.isArray(obj) ? $scope.imageList = obj : $scope.imageList.push(obj), $scope.documentIndex = 0, 
+        $scope.imageObject = $scope.imageList[0];
     }, $scope.setSensePanel = function(sense) {
         $scope.sensePanel = sense;
     }, $scope.close = function() {
@@ -19464,7 +19476,7 @@ a4p || (a4p = {}), a4p.Resize = function(navigator, window, document) {
                     break;
 
                   case "lineHeight":                }
-                console.log("refreshWriteQueue + :" + resizer.name + " " + key + " " + value), refreshWriteQueue.push({
+                refreshWriteQueue.push({
                     resizer: resizer,
                     cssAttr: key,
                     value: value,
@@ -20200,8 +20212,7 @@ a4p || (a4p = {}), a4p.Scroll = function(navigator, window, document) {
     }, Scroll.prototype.scrollTo = function(x, y, time, relative, reset) {
         this.stop(), relative && (x = this.x - x, y = this.y - y);
         var deltaX = x - this.x, deltaY = y - this.y;
-        (deltaX || deltaY) && (console.log("Scroll : scrollTo() steps.push : deltaX=" + deltaX + " deltaY=" + deltaY + " x=" + x + " y=" + y + " this.x=" + this.x + " this.y=" + this.y), 
-        this.steps.push({
+        (deltaX || deltaY) && (this.steps.push({
             deltaX: deltaX,
             deltaY: deltaY,
             time: time || 0,
@@ -23309,8 +23320,7 @@ c4p || (c4p = {}), c4p.Model = function() {
                 birthday: {
                     title: "htmlFormBirthday",
                     type: "date",
-                    defaultValue: "",
-                    defaultSetter: "now"
+                    defaultValue: ""
                 },
                 department: {
                     title: "htmlFormDepartment",
@@ -23959,7 +23969,7 @@ c4p || (c4p = {}), c4p.Model = function() {
                     title: "htmlFormIndustry",
                     type: "select",
                     defaultValue: "",
-                    defaultSetter: "firstOptionItem",
+                    defaultSetter: "",
                     defaultSetterParam: [ "htmlOptionsIndustry" ],
                     optionList: "htmlOptionsIndustry",
                     validations: [ {
@@ -25021,7 +25031,7 @@ c4p || (c4p = {}), c4p.Model = function() {
                 probability: {
                     title: "htmlFormProbability",
                     type: "probability",
-                    defaultValue: 100,
+                    defaultValue: 10,
                     validations: [ {
                         expr: "/^\\d+$/.test(object.probability) && object.probability >= 0",
                         errorKey: "Model.createErrMsg(scope, 'htmlErrorRequireInteger', ['htmlFormProbability'])"
@@ -25213,12 +25223,6 @@ c4p || (c4p = {}), c4p.Model = function() {
                         suffix: "",
                         size: "small"
                     }, {
-                        key: "date_closed",
-                        title: !0,
-                        prefix: "",
-                        suffix: "",
-                        size: "small"
-                    }, {
                         key: "stage",
                         title: !0,
                         prefix: "",
@@ -25226,6 +25230,12 @@ c4p || (c4p = {}), c4p.Model = function() {
                         size: "small"
                     }, {
                         key: "next_step",
+                        title: !0,
+                        prefix: "",
+                        suffix: "",
+                        size: "small"
+                    }, {
+                        key: "date_closed",
                         title: !0,
                         prefix: "",
                         suffix: "",
@@ -25325,7 +25335,7 @@ c4p || (c4p = {}), c4p.Model = function() {
                     title: "htmlFormSalutation",
                     type: "select",
                     defaultValue: "",
-                    defaultSetter: "firstOptionItem",
+                    defaultSetter: "",
                     defaultSetterParam: [ "htmlOptionsSalutation" ],
                     optionList: "htmlOptionsSalutation",
                     validations: [ {
@@ -28461,10 +28471,10 @@ c4p || (c4p = {}), c4p.Locale = {
         htmlMsgFileImport: "File import",
         htmlMsgSynchronizationOK: "Synchronization OK.",
         htmlMsgInvalidPassword: "User password is invalid.",
-        htmlMsgSynchronizationClientPb: "Synchronization client problem.\nDo you have internet available ?\nSend us an email : help@apps4pro.com",
+        htmlMsgSynchronizationClientPb: "Synchronization client problem.\nDo you have internet available ?",
         htmlMsgMaintenancePb: "Server is momentarily stopped. Please retry later.",
         htmlMsgSendingEmailPb: "Sending email failure in server.",
-        htmlMsgTakePicturePb: "Take picture problem.",
+        htmlMsgTakePicturePb: "No picture.",
         htmlMsgMakeNotePb: "Make note problem.",
         htmlMsgMakeReportPb: "Make report problem.",
         htmlMsgFileImportPb: "File importation problem.",
@@ -29184,10 +29194,10 @@ c4p || (c4p = {}), c4p.Locale = {
         htmlMsgFileImport: "Import de fichier",
         htmlMsgSynchronizationOK: "Synchronisation OK.",
         htmlMsgInvalidPassword: "Mot de passe invalide.",
-        htmlMsgSynchronizationClientPb: "Problème de Synchronisation sur le client.\nDo you have internet available ?\nSend us an email : help@apps4pro.com",
+        htmlMsgSynchronizationClientPb: "Problème de Synchronisation sur le client.\nDo you have internet available ?",
         htmlMsgMaintenancePb: "Serveur temporairement arrêté. Essayez plus tard.",
         htmlMsgSendingEmailPb: "Le courriel n'a pas été envoyé depuis le serveur.",
-        htmlMsgTakePicturePb: "Problème de prise de photo.",
+        htmlMsgTakePicturePb: "Pas de photo.",
         htmlMsgMakeNotePb: "Problème de création de note.",
         htmlMsgMakeReportPb: "Problème de création de rapport.",
         htmlMsgFileImportPb: "Problème d'importation de fichier.",
@@ -34041,7 +34051,7 @@ $("html").attr("manifest")) {
 } else a4pInitCache();
 
 ctrlAction.$inject = [ "$scope", "$q", "$modal", "srvData", "srvNav", "srvFacet", "srvConfig", "srvLocale" ], 
-ctrlAside.$inject = [ "$scope", "$location", "$anchorScroll", "srvFacet", "srvLocale", "srvData", "srvAnalytics", "srvNav", "version" ], 
+ctrlAside.$inject = [ "$scope", "$location", "$anchorScroll", "$timeout", "srvFacet", "srvLocale", "srvData", "srvAnalytics", "srvNav", "version" ], 
 ctrlAsideItem.$inject = [ "$scope", "srvLocale", "srvData", "srvNav", "srvLink", "srvConfig" ], 
 ctrlAsideSearch.$inject = [ "$scope", "$timeout", "srvFacet", "srvLocale", "srvData", "srvNav", "version" ], 
 ctrlCalendar.$inject = [ "$scope", "$timeout", "version", "srvAnalytics", "srvLocale", "srvTime", "srvConfig" ], 
@@ -34724,12 +34734,6 @@ angular.module("c4p.input", [ "c4p/input.html" ]).controller("c4pInputCtrl", [ "
             scope.addSpinner && scope.addSpinner(element);
         }
     };
-}), directiveModule.directive("a4pRefresh", function() {
-    return {
-        restrict: "A",
-        template: "<div class='a4pRefresh'><span class='glyphicon glyphicon-refresh glyphicon-lg' ng-show='a4pSpinnerState == \"done\"'></span><span class='glyphicon glyphicon-refresh glyphicon-lg glyphicon-spin' ng-show='a4pSpinnerState == \"run\"'></span><span class='glyphicon glyphicon-refresh glyphicon-lg alert-error' ng-show='a4pSpinnerState == \"doneWithPb\"'></span><span class='glyphicon glyphicon-refresh glyphicon-lg close' ng-show='a4pSpinnerState == \"offline\"'></span></div>",
-        link: function() {}
-    };
 });
 
 var actionOnClick = function(scope, element) {
@@ -35126,7 +35130,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/dialog/dialogNote_report.html", '<div class="row" ng-show="modeEdit"><div class="col-xxs-12"><form class="c4p-color-a-gradient{{objectGroups.length}}"><marker ng-repeat="group in objectGroups"><div class="c4p-color-a-gradient{{$index+1}} c4p-form-group"><span class="c4p-form-group-title">{{group.title}}</span><fieldset ng-repeat="field in group.groupFields"><c4p-input warn-var="field.warn" title-var="field.title" ng-model="note[field.key]" type-var="field.type" rows="5" cols="20" ng-change="onFieldChanged(field)"></c4p-input></fieldset></div></marker></form><div class="col-xxs-12 c4p-form-group"><span class="c4p-form-group-title"><c4p-pluralize count="toolboxContacts.length" when="srvLocale.translations.pluralHtmlTextReportPeople"></span><ul class="nav nav-pills" ng-repeat="item in toolboxContacts"><li ng-controller="ctrlNamedObject" ng-init="init(item)"><span class="c4p-detail-c-bg"><span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> {{itemName}}</span> <span class="glyphicon glyphicon-times-circle c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeContact($index)"></span> </li></ul></div><div class="col-xxs-12 c4p-form-group"><span class="c4p-form-group-title"><c4p-pluralize count="toolboxDocs.length" when="srvLocale.translations.pluralHtmlTextReportDoc"></span><ul class="nav nav-pills" ng-repeat="item in toolboxDocs"><li ng-controller="ctrlNamedObject" ng-init="init(item)"><span class="c4p-detail-c-bg"><span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> {{itemName}}</span> <span class="glyphicon glyphicon-remove c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeDoc($index)"></span> </li></ul></div><div class="col-xxs-12 c4p-form-group"><span class="c4p-form-group-title">{{srvLocale.translations.htmlDialogNoteReportObservation}}</span><ul class="nav nav-pills" ng-repeat="item in toolboxRatings"><span ng-show="modeEdit" ng-include="\'partials/navigation/cards/4_rating.html\'" style="padding:0 10px"></span> <span ng-hide="modeEdit" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span> <span class="glyphicon glyphicon-remove c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeRating($index)"></span></ul></div></div><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div><div class="row" ng-controller="ctrlDetailedObject" ng-init="init(note)" c4p-show="!modeEdit"><div class="col-xxs-12"><div class="c4p-color-a-gradient{{$index}}" ng-repeat="card in cards"><div class="c4p-card"><div ng-show="isFile && $first" class="btn" ng-class="{\'disabled\': actionMap.viewDocument.disabled}" ng-click="doAction(\'viewDocument\')" style="background: url(\'{{item.thumb_url}}\') no-repeat center center;width:100%;height: 250px;-webkit-background-size: contain"></div><span ng-repeat="group in card.groups" style="margin:0;padding:0" class="c4p-size-{{group.size}}"><br ng-show="card.brSeparated && ($index > 0)"><span><span ng-show="group.synchro && (item.c4p_synchro.creating || item.c4p_synchro.writing || item.c4p_synchro.reading || item.c4p_synchro.deleting)" class="glyphicon" ng-class="{\r\n                                    \'glyphicon-trash\'    : (item.c4p_synchro.deleting > 1),\r\n                                    \'glyphicon-remove\'   : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),\r\n                                    \'glyphicon-upload\'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),\r\n                                    \'glyphicon-download\' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),\r\n                                    \'glyphicon-spinner\'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),\r\n                                    \'icon-spin\'          : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))\r\n                                  }"></span>  <span ng-show="group.name">{{itemName}}</span> <span ng-show="group.title">{{group.title}}</span></span> <span ng-repeat="field in group.fields" class="c4p-size-{{field.size}}"><span ng-show="($index > 0)"></span> <span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="currency"><span>{{item | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{item}}%</span></span> <span ng-switch-when="probability"><span>{{item}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(item, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(item, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(item, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{item | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{item}}</span></span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="currency"><span>{{field.value | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{field.value}}%</span></span> <span ng-switch-when="probability"><span>{{field.value}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(field.value, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(field.value, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(field.value, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{field.value | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{field.value}}</span></span></span></span></span> <span ng-show="field.suffix">{{field.suffix}}</span></span></span></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogSelectCrms.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogSelectCrmUse}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="validateDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:\'visibleElements.length\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="crm in possibleCrms"><div ng-click="toggleItem(crm)" class="clearfix c4p-link5"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':!selectedCrms[crm]}"></span><label class="pull-left" ng-class="{scrollTop:element.scrollTo}"><span>{{srvLocale.translations.htmlConfigCrmList[crm]}}</span></label></div></li></ul></div></div>'), 
     $templateCache.put("partials/dialog/dialogSelectObjects.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed c4p-color-action-transparent c4p-stroke" ng-show="createButton" ng-click="createObject()"><span class="c4p-icon-std glyphicon glyphicon-plus"></span></div><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlTitleSelection[type]}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="validateDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div class="c4p-dialog-search-container c4p-color-a-dark-iii"><div class="row"><div class="col-xxs-12"><span>{{srvLocale.translations.htmlTitleSelection[type]}}</span></div></div><div class="row" ng-show="suggestedOptions.length"><div class="col-xxs-12 btn-group dropdown"><button class="btn dropdown-toggle" data-toggle="dropdown" style="text-align: left"><span class="c4p-n_1">{{srvLocale.translations.htmlTypeName[type]}}</span><span class="glyphicon glyphicon-caret-down"></span></button><ul class="dropdown-menu" style="width:100%"><li ng-repeat="suggestedOption in suggestedOptions"><a ng-click="toggleSuggestion($index)"><span class="glyphicon glyphicon-ok" ng-show="suggestedOption.selected"></span> <span style="vertical-align:top">{{srvLocale.translations.htmlSuggestionName[suggestedOption.name]}}</span> <span class="badge glyphicon glyphicon-{{suggestedOption.icon}}" style="vertical-align:bottom" ng-show="suggestedOption.icon"></span></a></li></ul></div></div><div class="row"><div class="controls controls-row col-xxs-12" style="position: relative"><input style="width:90%" placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}" ng-model="showFilter"><span style="position: absolute; right: 10px" ng-show="forceSearch" ng-click="search()"><span class="glyphicon glyphicon-search"></span></span></div></div><div class="row"><div class="col-xxs-12" ng-show="(suggestedOptions | filter:{selected:true}).length">{{srvLocale.translations.htmlDialogSelectObjectsSugestionFilterIn}} <span ng-repeat="suggestedOption in suggestedOptions | filter:{selected:true}"><a class="active">{{srvLocale.translations.htmlSuggestionName[suggestedOption.name]}}</a> <span ng-hide="$last">,</span></span></div></div><div class="row"><div class="col-xxs-12" ng-show="(suggestedOptions | filter:{selected:true}).length == 0">{{srvLocale.translations.htmlDialogSelectObjectsSugestionFilterIn}} <a>{{srvLocale.translations.htmlSuggestionName[\'all\']}}</a></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:\'visibleElements.length\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="element in (visibleElements = ( elements | listFilter:showFilter:false:\'selected\' | orderBy:\'showName\':false ))"><div ng-click="toggleItem(element.id)" class="clearfix c4p-link5 c4p-select-objects-item"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':!selectedIndex[element.id].selected}"></span> <div class="pull-left" ng-controller="ctrlNamedObject" ng-init="init(element.object)" ng-class="{scrollTop:element.scrollTo}"><span>{{itemName}}</span></div><span ng-repeat="suggestedOption in suggestedOptions" class="badge glyphicon glyphicon-{{suggestedOption.icon}}" ng-show="selectedIndex[element.id][suggestedOption.name]"></span></div></li></ul></div></div>'), 
-    $templateCache.put("partials/dialog/dialogShowImage.html", '<div class="c4p-modal-img"><div class="c4p-modal-close btn" ng-click="close()"><span class="close">&times;</span></div><div class="c4p-modal-img-container" sense-opts="{name:\'dialog_ctrlShowImage\', axeX:\'swipe\', axeY:\'\', init:\'setSensePanel($sense);\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', wheelAction:\'zoom\', zoom: true, momentum: 0, zoomMin: 1, zoomMax: 10}" sense-swipeend="onImageSwipe($event)"><div class="center-block" style="width:100%;text-align: center"><img ng-src="{{imageObject.fileUrl}}"></div></div></div>'), 
+    $templateCache.put("partials/dialog/dialogShowImage.html", '<div class="c4p-modal-img"><div class="c4p-modal-close btn" ng-click="close()"><span class="close">&times;</span></div><div class="c4p-modal-img-container" sense-opts="{name:\'dialog_ctrlShowImage\', axeX:\'swipe\', axeY:\'\', init:\'setSensePanel($sense);\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', wheelAction:\'zoom\', zoom: true, momentum: 0, zoomMin: 1, zoomMax: 10}" sense-swipeend="onImageSwipe($event)"><div class="center-block" style="width:100%;text-align: center"><img ng-src="{{imageObject.fileUrl}}"></div>FIX:{{imageObject.fileUrl}}</div></div>'), 
     $templateCache.put("partials/dialog/edit_object.html", '<div ng-controller="ctrlEditFocus"><div class="modal-header col-xxs-12 c4p-color-gradient0"><ul class="nav nav-pills"><li class="hidden-xs" ng-hide="removeEnabled"><a class="btn disabled"><h5>{{srvLocale.translations.htmlTitleNewObject[objectTypeLocale]}}</h5></a></li><li class="hidden-xs" ng-show="removeEnabled"><a class="btn disabled"><h5>{{srvLocale.translations.htmlTitleEditObject[objectTypeLocale]}}</h5></a></li><li ng-show="removeEnabled"><a class="btn c4p-color-cancel-transparent" ng-click="remove()" ng-disabled="isEditFocused"><span class="glyphicon glyphicon-trash-o"></span></a></li><li class="pull-right"><a class="btn" ng-click="close()" ng-disabled="isEditFocused"><span class="">&times;</span></a></li><li class="pull-right"><a class="btn" ng-click="submit()" ng-disabled="isEditFocused"><div ng-class="{\'c4p-color-ok-transparent\' : objectValidated, \'c4p-color-cancel-transparent\' : !objectValidated}"><span class="glyphicon glyphicon-check"></span></div></a></li><li class="pull-right" ng-show="hasOpenImportContactDialog && !removeEnabled"><a class="btn btn-link" ng-click="openImportContactDialog()" ng-disabled="isEditFocused"><span>{{srvLocale.translations.htmlDialogTextImport}}</span></a></li></ul></div><div class="hidden-xs col-sm-4 c4p-color-gradient0" style="position: absolute;right: 0;top: 70px; z-index: 1052"><div class=""><ul class="nav nav-tabs nav-stacked"><li class="" ng-repeat="group in objectGroups"><a class="btn btn-link" ng-click="editScrollTo(\'group_\'+$index)" ng-disabled="isEditFocused" ng-class="{\'c4p-field-error-message\': (group.warn.length > 0)}" style="text-align: left">{{group.title}}</a></li></ul></div></div><div class="modal-body col-xxs-12 col-sm-8 c4p-color-gradient0"><div class="c4p-container-scroll-y"><div class="c4p-container"><form class=""><marker ng-repeat="group in objectGroups" ng-init="groupIndex = $index"><div class="well c4p-form-group" ng-class-even="\'c4p-color-a-gradient1\'" ng-class-odd="\'c4p-color-gradient0\'"><h5 id="group_{{groupIndex}}" class="c4p-form-group-title">{{group.title}}</h5><fieldset id="field_{{groupIndex}}_{{$index}}" ng-repeat="field in group.groupFields"><c4p-input warn-var="field.warn" title-var="field.title" ng-model="object[field.key]" type-var="field.type" options-var="field.optionList" rows="5" cols="20" ng-change="onFieldChanged(field)" ng-disabled="isEditFocused"></c4p-input></fieldset></div></marker></form></div></div></div></div>'), 
     $templateCache.put("partials/dialog/message.html", '<div class="modal-body c4p-vertical-container"><div class="c4p-dialog c4p-vertical-align"><div class="row"><div class="col-xxs-offset-1 col-xxs-10 col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 c4p-modal-confirm-container"><div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-padding-w-packed"><span>{{text}}</span></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="startSpinner();close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div class="row"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><ul><li ng-repeat="item in textArray"><span>{{item}}</span></li></ul></div></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/pin_init.html", '<div class="modal-body vertical-container"><div class="c4p-dialog vertical-align"><div class="row"><div class="col-xxs-offset-1 col-xxs-10 col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 c4p-modal-confirm-container"><div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogPINModePageTitle}}</span></div><div class="pull-right" ng-hide="false"><div class="row c4p-modal-confirm-btns"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="submit()"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div><div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><form class="form-horizontal c4p-color-a-gradient1" name="pinForm" novalidate><div class="form-group row c4p-color-a-gradient1" ng-class="{\'has-error\':(pinForm.code.$dirty && pinForm.code.$invalid)}"><span class="help-inline" ng-show="!pinForm.code.$dirty || !pinForm.code.$invalid">{{srvLocale.translations.htmlDialogPINModeInit}}</span> <span ng-show="pinForm.code.$dirty && pinForm.code.$invalid"><span class="help-inline c4p-field-error-message" ng-show="pinForm.code.$error.required">{{srvLocale.translations.htmlDialogPINModeRequired}}</span></span><input id="code" name="code" class="form-control" type="password" ng-model="pinCode" required></div></form></div></div><div ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div></div></div></div></div>'), 
@@ -35134,7 +35138,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/dialog/pin_modify.html", '<div class="modal-body vertical-container"><div class="c4p-dialog vertical-align"><div class="row"><div class="col-xxs-offset-1 col-xxs-10 col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 c4p-modal-confirm-container"><div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogPINModePageTitle}}</span></div><div class="pull-right" ng-hide="false"><div class="row c4p-modal-confirm-btns"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="submitNewPinCode()"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div><div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" style="height:13em"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><form class="form-horizontal c4p-color-a-gradient2" name="pinForm" novalidate><div class="form-group row c4p-color-a-gradient2" ng-class="{\'has-error\':((pinForm.oldPinCode.$dirty && pinForm.oldPinCode.$invalid) || oldPinCodeError)}"><div class="row"><span ng-hide="(pinForm.oldPinCode.$dirty && pinForm.oldPinCode.$invalid) || oldPinCodeError">{{srvLocale.translations.htmlDialogPINModeOld}}</span> <span ng-show="pinForm.oldPinCode.$dirty && pinForm.oldPinCode.$invalid"><span class="help-inline c4p-field-error-message" ng-show="pinForm.oldPinCode.$error.required">{{srvLocale.translations.htmlDialogPINModeRequired}}</span></span> <span ng-show="oldPinCodeError"><span class="help-inline c4p-field-error-message">{{srvLocale.translations.htmlDialogPINModeKO}}</span></span><input id="oldPinCode" name="oldPinCode" class="form-control" type="password" ng-model="oldPinCode" required></div></div><div class="form-group row c4p-color-a-gradient2" ng-class="{\'has-error\':((pinForm.newPinCode.$dirty && pinForm.newPinCode.$invalid) || newPinCodeError)}"><div class="row"><span ng-hide="(pinForm.newPinCode.$dirty && pinForm.newPinCode.$invalid) || newPinCodeError">{{srvLocale.translations.htmlDialogPINModeNew}}</span> <span ng-show="pinForm.newPinCode.$dirty && pinForm.newPinCode.$invalid"><span class="help-inline c4p-field-error-message" ng-show="pinForm.newPinCode.$error.required">{{srvLocale.translations.htmlDialogPINModeRequired}}</span></span> <span ng-show="sameAsOldPin()"><span class="help-inline c4p-field-error-message">{{srvLocale.translations.htmlDialogPINModeDifferent}}</span></span><input id="newPinCode" name="newPinCode" class="form-control" type="password" ng-model="newPinCode" required></div></div></form></div></div><div ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/timeline.html", '<div resize-opts="{name:\'timeline_header\'}"><div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-color-action-transparent" ng-click="close()"><span class="glyphicon glyphicon-arrow-left"></span></div><div class="btn c4p-padding-w-packed c4p-color-action-transparent"><span>{{objectName}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div></div></div></div><div class="row c4p-dialog-bg" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')"><div class="col-xxs-12 c4p-dialog-edit-container c4p-color-gradient0" sense-opts="{axeY:\'scroll\', init: \'setSenseScroller($sense)\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', pageSelector: \'marker\'}" sense-afterscrollend="onSenseScrollEnd($event)" style="height: 100%"><c4p-timeline data="buildTimelineData()"></c4p-timeline></div></div>'), 
     $templateCache.put("partials/guider/connection.html", '<div ng-controller="ctrlConfig" class=""><div class=""><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3></div><form class="form-horizontal" name="loginForm" style="min-height: 300px"><div class="form-group row"><div class="col-xxs-12 col-sm-offset-3 col-sm-6"><c4p-input type="mail" class="form-control" ng-model="configLogin.email" placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}" required ng-disabled="isEditFocused"></c4p-input></div></div><div class="form-group row"><div class="col-xxs-12 col-sm-offset-3 col-sm-6"><c4p-input class="form-control" ng-model="configLogin.password" placeholder="{{srvLocale.translations.htmlFormPasswordPlaceHolder}}" type="password" required ng-disabled="isEditFocused"></c4p-input></div></div><div class="row"><button class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-3" ng-click="c4pConnection()" ng-disabled="isEditFocused">{{srvLocale.translations.htmlButtonLogin}}</button> <button class="btn btn-link white col-xxs-12 col-sm-3" ng-click="gotoSlide(pageGuider, slideGuiderRequestPassword)" ng-disabled="isEditFocused">{{srvLocale.translations.htmlButtonPasswordForgotten}}</button></div><div class="form-group row"><button class="btn btn-link pull-left white col-xxs-12 col-sm-offset-6 col-sm-3" ng-hide="isEditFocused"><c4p-check ng-model="rememberPassword" readonly></c4p-check><label>{{translate(\'htmlGuiderFormStaySignedIn\')}}</label></button></div></form></div></div>'), 
-    $templateCache.put("partials/guider/footer.html", '<ul class="nav nav-pills" resize-opts="{name:\'guider_footer\'}"><li><a class="btn btn-link" ng-click="doubleSetDemo(true)" ng-disabled="isEditFocused"><span style="color: grey;font-size: 50%"><span app-version=""></span><span>{{srvConfig.c4pBuildDate}} {{srvConfig.env}}</span> <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span></span></a></li><li class="pull-right"><a class="btn pull-right" ng-click="openDialogSendFeedbackReport(\'Login Feedback\')" ng-hide="isEditFocused" ng-disabled="isEditFocused" c4p-waiting-click=""><span class="c4p-icon-std glyphicon glyphicon-question"></span></a></li></ul>'), 
+    $templateCache.put("partials/guider/footer.html", '<ul class="nav nav-pills" resize-opts="{name:\'guider_footer\'}"><li><a class="btn btn-link" ng-click="doubleSetDemo(true)" ng-disabled="isEditFocused"><span style="color: grey;font-size: 50%"><span app-version=""></span><span>{{srvConfig.c4pBuildDate}} {{srvConfig.c4pConfigEnv}}</span> <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span></span></a></li><li class="pull-right"><a class="btn pull-right" ng-click="openDialogSendFeedbackReport(\'Login Feedback\')" ng-hide="isEditFocused" ng-disabled="isEditFocused" c4p-waiting-click=""><span class="c4p-icon-std glyphicon glyphicon-question"></span></a></li></ul>'), 
     $templateCache.put("partials/guider/header.html", '<ul class="nav nav-pills" resize-opts="{name:\'guider_header\'}"><li ng-show="slide != slideGuiderRegister"><a class="btn btn-link" ng-click="gotoRegister()" ng-disabled="isEditFocused">{{srvLocale.translations.htmlButtonRegister}}</a></li><li class="dropdown pull-right" ng-hide="isEditFocused"><a class="dropdown-toggle" data-toggle="dropdown">{{srvLocale.lang.title}} <b class="caret"></b></a><ul class="dropdown-menu" role="menu" aria-labelledby="drop3"><li ng-repeat="link in srvLocale.langs"><a class="white smaller-70" ng-click="srvLocale.setLang(link)">{{link.title}}</a></li></ul></li></ul>'), 
     $templateCache.put("partials/guider/main.html", '<div class="c4p-login-body c4p-container" ng-controller="ctrlEditFocus"><header ng-include="\'partials/guider/header.html\'"></header><section class="c4p-container-scroll-y" resizecss-height="responsivePageHeight() -getResizePathValue(\'guider_header\', \'\', \'offsetHeight\') -getResizePathValue(\'guider_footer\', \'\', \'offsetHeight\')"><div class="c4p-container"><div ng-switch="" on="getSlideFromGuider()" class="col-xxs-12 c4p-animate-switch-container"><div ng-switch-when="connection" class="c4p-animate-switch"><div ng-include="\'partials/guider/connection.html\'"></div></div><div ng-switch-when="validation" class="col-xxs-12 c4p-animate-switch"><div ng-include="\'partials/guider/validation.html\'"></div></div><div ng-switch-when="requestPassword" class="col-xxs-12 c4p-animate-switch"><div ng-include="\'partials/guider/requestPassword.html\'"></div></div><div ng-switch-when="validationReceiveRes" class="col-xxs-12 c4p-animate-switch"><div ng-include="\'partials/guider/validationReceiveRes.html\'"></div></div><div ng-switch-default="" class="col-xxs-12 c4p-animate-switch"><div ng-include="\'partials/guider/register.html\'"></div></div></div></div></section><footer ng-include="\'partials/guider/footer.html\'"></footer></div>'), 
     $templateCache.put("partials/guider/register.html", '<div ng-controller="ctrlConfig" class=""><div class=""><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3></div><form class="form-horizontal" name="loginForm" novalidate style="min-height: 300px"><div class="form-group row"><div class="col-xxs-12 col-sm-offset-3 col-sm-6"><c4p-input type="mail" class="form-control" ng-model="configLogin.email" placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}" required ng-disabled="isEditFocused"></c4p-input></div></div><div class="row"><a class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-3" ng-click="createAccount()" ng-disabled="isEditFocused">{{srvLocale.translations.htmlButtonRegister}}</a> <a class="btn btn-link white col-xxs-12 col-sm-3" ng-click="gotoLogin()" ng-disabled="isEditFocused">{{srvLocale.translations.htmlTextAlreadyRegistered}}</a></div></form></div></div>'), 
@@ -35157,7 +35161,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/meeting/meeting_viewer_note.html", '<div class="row" ng-show="modeEdit"><div class="col-xxs-12"><form class="c4p-color-a-gradient{{objectGroups.length}}"><marker ng-repeat="group in objectGroups"><div class="c4p-color-a-gradient{{$index+1}} c4p-form-group"><span class="c4p-form-group-title">{{group.title}}</span><fieldset ng-repeat="field in group.groupFields"><c4p-input warn-var="field.warn" title-var="field.title" ng-model="note[field.key]" type-var="field.type" rows="5" cols="20" ng-change="onFieldChanged(field)"></c4p-input></fieldset></div></marker></form></div><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div><div class="row" ng-controller="ctrlDetailedObject" ng-init="init(documentObject)" c4p-show="!modeEdit"><div class="col-xxs-12"><div class="c4p-color-a-gradient{{$index}}" ng-repeat="card in cards"><div class="c4p-card"><div ng-show="isFile && $first" class="btn" ng-class="{\'disabled\': actionMap.viewDocument.disabled}" ng-click="doAction(\'viewDocument\')" style="background: url(\'{{item.thumb_url}}\') no-repeat center center;width:100%;height: 250px;-webkit-background-size: contain"></div><span ng-repeat="group in card.groups" style="margin:0;padding:0" class="c4p-size-{{group.size}}"><br ng-show="card.brSeparated && ($index > 0)"><span><span ng-show="group.synchro && (item.c4p_synchro.creating || item.c4p_synchro.writing || item.c4p_synchro.reading || item.c4p_synchro.deleting)" class="glyphicon" ng-class="{\n                                    \'glyphicon-trash\'    : (item.c4p_synchro.deleting > 1),\n                                    \'glyphicon-times-circle\' : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),\n                                    \'glyphicon-upload\'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),\n                                    \'glyphicon-download\' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),\n                                    \'glyphicon-spinner\'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),\n                                    \'icon-spin\'          : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))\n                                  }"></span>  <span ng-show="group.name">{{itemName}}</span> <span ng-show="group.title">{{group.title}}</span></span> <span ng-repeat="field in group.fields" class="c4p-size-{{field.size}}"><span ng-show="($index > 0)"></span> <span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="currency"><span>{{item | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{item}}%</span></span> <span ng-switch-when="probability"><span>{{item}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(item, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(item, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(item, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{item | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{item}}</span></span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="currency"><span>{{field.value | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{field.value}}%</span></span> <span ng-switch-when="probability"><span>{{field.value}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(field.value, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(field.value, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(field.value, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{field.value | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{field.value}}</span></span></span></span></span> <span ng-show="field.suffix">{{field.suffix}}</span></span></span></div></div></div></div>'), 
     $templateCache.put("partials/meeting/meeting_viewer_report.html", '<div class="row" ng-controller="ctrlDetailedObject" ng-init="init(documentObject)" c4p-show="!modeEdit"><div class="col-xxs-12"><div class="c4p-color-a-gradient{{$index}}" ng-repeat="card in cards"><div class="c4p-card"><div ng-show="isFile && $first" class="btn" ng-class="{\'disabled\': actionMap.viewDocument.disabled}" ng-click="doAction(\'viewDocument\')" style="background: url(\'{{item.thumb_url}}\') no-repeat center center;width:100%;height: 250px;-webkit-background-size: contain"></div><span ng-repeat="group in card.groups" style="margin:0;padding:0" class="c4p-size-{{group.size}}"><br ng-show="card.brSeparated && ($index > 0)"><span><span ng-show="group.synchro && (item.c4p_synchro.creating || item.c4p_synchro.writing || item.c4p_synchro.reading || item.c4p_synchro.deleting)" class="glyphicon" ng-class="{\n                                    \'glyphicon-trash\'    : (item.c4p_synchro.deleting > 1),\n                                    \'glyphicon-times-circle\' : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),\n                                    \'glyphicon-upload\'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),\n                                    \'glyphicon-download\' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),\n                                    \'glyphicon-spinner\'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),\n                                    \'icon-spin\'          : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))\n                                  }"></span>  <span ng-show="group.name">{{itemName}}</span> <span ng-show="group.title">{{group.title}}</span></span> <span ng-repeat="field in group.fields" class="c4p-size-{{field.size}}"><span ng-show="($index > 0)"></span> <span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="currency"><span>{{item | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{item}}%</span></span> <span ng-switch-when="probability"><span>{{item}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(item, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(item, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(item, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{item | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{item}}</span></span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="currency"><span>{{field.value | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{field.value}}%</span></span> <span ng-switch-when="probability"><span>{{field.value}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(field.value, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(field.value, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(field.value, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{field.value | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{field.value}}</span></span></span></span></span> <span ng-show="field.suffix">{{field.suffix}}</span></span></span></div></div></div></div>'), 
     $templateCache.put("partials/navigation/aside_header.html", '<div class="panel panel-default"><div class="panel-heading" ng-controller="ctrlNavObject"><span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> <span>{{itemName}}</span></div><div class="panel-body"><div class="input-group"><input type="text" class="form-control" placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}" ng-model="asideInputs.itemSearchQuery" ng-change="srvFacet.setFilterQuery(asideInputs.itemSearchQuery);"><span class="input-group-addon input-sm btn-group btn-group-sm btn-group-justified"><a type="button" class="btn btn-default" ng-show="srvFacet.ascendingOrder" ng-click="srvFacet.toggleOrder()"><span class="glyphicon glyphicon-sort-alpha-asc"></span></a><a type="button" class="btn btn-default" ng-hide="srvFacet.ascendingOrder" ng-click="srvFacet.toggleOrder()"><span class="glyphicon glyphicon-sort-alpha-desc"></span></a><a type="button" class="btn btn-default" ng-show="srvFacet.caseSensitive" ng-click="srvFacet.toggleCaseSensitive()"><span class="glyphicon glyphicon-font icon-small"></span></a><a type="button" class="btn btn-default" ng-hide="srvFacet.caseSensitive" ng-click="srvFacet.toggleCaseSensitive()"><span class="glyphicon glyphicon-font icon-large"></span></a><a type="button" class="btn btn-default" ng-click="srvFacet.clear();removeGlobalSearch();"><span class="glyphicon glyphicon-times-circle"></span></a></span></div><ul class="list-group"><li class="list-group-item" ng-repeat="filterFacet in srvFacet.filterFacets"><span ng-click="srvFacet.removeFacet($index)" class="pull-left glyphicon glyphicon-times-circle"></span> <span>{{srvLocale.translations.htmlFacetName[filterFacet.key]}} : {{filterFacet.title}}</span> <span class="badge">{{filterFacet.items.length}}</span></li></ul></div></div>'), 
-    $templateCache.put("partials/navigation/aside_root.html", '<div class="row c4p-aside-header c4p-header-std" resize-opts="{name:\'aside_root_header\'}"><div class="col-xxs-12"><ul class="c4p-list-aside nav nav-pills"><li class="c4p-list-item-aside"><div class="btn c4p-color-action-aside-transparent" ng-click="setAsideRootMenu()"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-bars"></span><h5 class="pull-left c4p-item-root-txt">{{translate(\'htmlGuiderPageTitle\')}}</h5></div></li></ul></div></div><div resize-opts="{name:\'aside_root\'}" resizecss-height="responsivePageHeight() -getResizePathValue(\'aside_root_header\', \'\', \'offsetHeight\') -getResizePathValue(\'aside_root_footer\', \'\', \'offsetHeight\')" sense-opts="{name:\'aside_root\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', momentum: 0}" class="c4p-bg-aside row c4p-height-full"><div class="col-xxs-12"><div class="col-xxs-12"><ul class="c4p-list-aside nav nav-pills nav-stacked"><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Event\')}}" ng-class="{active: activeItem == slideNavigationCalendar}" ng-click="srvFacet.clearOrRemoveFacet($first, $index);setAsideCalendar()"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-calendar"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'calendar\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Event\')}}" ng-class="{active: activeItem == slideNavigationFavorites}" ng-click="setAsideFavoriteSearchMenu()"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-star"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'favorites\']}}</span></div></li></ul></div><div class="col-xxs-12" ng-show="navAside">&nbsp;</div><div class="col-xxs-12"><ul class="c4p-list-aside nav nav-pills nav-stacked"><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Event\')}}" ng-class="{active: activeItem == slideNavigationEvents}" ng-click="setAsideSearchMenu(\'Event\')" ng-show="navAside || activeItem == slideNavigationEvents"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Event\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'events\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Contact\')}}" ng-class="{active: activeItem == slideNavigationContacts}" ng-click="setAsideSearchMenu(\'Contact\')" ng-show="navAside || activeItem == slideNavigationContacts"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Contact\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'contacts\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Account\')}}" ng-class="{active: activeItem == slideNavigationAccounts}" ng-click="setAsideSearchMenu(\'Account\')" ng-show="navAside || activeItem == slideNavigationAccounts"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Account\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'accounts\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Opportunity\')}}" ng-class="{active: activeItem == slideNavigationOpportunities}" ng-click="setAsideSearchMenu(\'Opportunity\')" ng-show="navAside || activeItem == slideNavigationOpportunities"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Opportunity\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'opportunities\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Document\')}}" ng-class="{active: activeItem == slideNavigationDocuments}" ng-click="setAsideSearchMenu(\'Document\')" ng-show="navAside || activeItem == slideNavigationDocuments"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Document\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'documents\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Note\')}}" ng-class="{active: activeItem == slideNavigationNotes}" ng-click="setAsideSearchMenu(\'Note\')" ng-show="navAside || activeItem == slideNavigationNotes"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Note\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'notes\']}}</span></div></li><li class="c4p-list-item-aside" ng-click="setAsideRootMenu()" ng-hide="navAside"><div class="btn c4p-color-action-aside-transparent col-xxs-12" style="padding-bottom:400px"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-angle-down"></span></div></li></ul></div></div></div><div class="c4p-aside-footer" resize-opts="{name:\'aside_root_footer\'}"><div class="row" ng-controller="ctrlTrashObject"><div class="col-xxs-12" ng-show="dndActive"><div class="c4p-aside-trash"><div class="btn btn-danger col-xxs-12" ng-class="{\'active\' : dropOver}" sense-opts="{name:\'dropObjectTrash\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)" sense-dropend="dropEnd($event)"><span class="c4p-icon-std glyphicon glyphicon-trash-o"></span></div></div></div><div class="col-xxs-12" ng-hide="dndActive"><ul class="c4p-list-aside nav nav-pills"><li class="c4p-list-item-aside"><div class="btn c4p-gray c4p-color-action-aside-transparent" ng-click="openDialogSendFeedbackReport(\'Menu Feedback\')"><div class="c4p-icon-std glyphicon glyphicon-fw glyphicon-question"></div></div></li><li class="c4p-list-item-aside"><div class="btn c4p-gray c4p-color-action-aside-transparent" ng-click="gotoSlideWithSearchReset(pageNavigation, slideNavigationConfig);"><span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-cog"></span></div></li><li class="c4p-list-item-aside pull-right"><div class="btn c4p-gray c4p-color-action-aside-transparent" ng-click="refreshClient();"><span ng-switch="a4pSpinnerState"><span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh glyphicon-spin" ng-switch-when="run"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh alert-error" ng-switch-when="doneWithPb"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh close" ng-switch-when="offline"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh" ng-switch-default=""></span> <span ng-show="(srvData.objectsToDownload.length + srvData.objectsToSave.length)">{{srvData.objectsToDownload.length + srvData.objectsToSave.length}}</span></span></div></li></ul></div></div></div>'), 
+    $templateCache.put("partials/navigation/aside_root.html", '<div class="row c4p-aside-header c4p-header-std" resize-opts="{name:\'aside_root_header\'}"><div class="col-xxs-12"><ul class="c4p-list-aside nav nav-pills"><li class="c4p-list-item-aside"><div class="btn c4p-color-action-aside-transparent" ng-click="setAsideRootMenu()"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-bars"></span><h5 class="pull-left c4p-item-root-txt">{{translate(\'htmlGuiderPageTitle\')}}</h5></div></li></ul></div></div><div resize-opts="{name:\'aside_root\'}" resizecss-height="responsivePageHeight() -getResizePathValue(\'aside_root_header\', \'\', \'offsetHeight\') -getResizePathValue(\'aside_root_footer\', \'\', \'offsetHeight\')" sense-opts="{name:\'aside_root\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', momentum: 0}" class="c4p-bg-aside row c4p-height-full"><div class="col-xxs-12"><div class="col-xxs-12"><ul class="c4p-list-aside nav nav-pills nav-stacked"><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Event\')}}" ng-class="{active: activeItem == slideNavigationCalendar}" ng-click="srvFacet.clearOrRemoveFacet($first, $index);setAsideCalendar()"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-calendar"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'calendar\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Event\')}}" ng-class="{active: activeItem == slideNavigationFavorites}" ng-click="setAsideFavoriteSearchMenu()"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-star"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'favorites\']}}</span></div></li></ul></div><div class="col-xxs-12" ng-show="navAside">&nbsp;</div><div class="col-xxs-12"><ul class="c4p-list-aside nav nav-pills nav-stacked"><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Event\')}}" ng-class="{active: activeItem == slideNavigationEvents}" ng-click="setAsideSearchMenu(\'Event\')" ng-show="navAside || activeItem == slideNavigationEvents"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Event\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'events\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Contact\')}}" ng-class="{active: activeItem == slideNavigationContacts}" ng-click="setAsideSearchMenu(\'Contact\')" ng-show="navAside || activeItem == slideNavigationContacts"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Contact\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'contacts\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Account\')}}" ng-class="{active: activeItem == slideNavigationAccounts}" ng-click="setAsideSearchMenu(\'Account\')" ng-show="navAside || activeItem == slideNavigationAccounts"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Account\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'accounts\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Opportunity\')}}" ng-class="{active: activeItem == slideNavigationOpportunities}" ng-click="setAsideSearchMenu(\'Opportunity\')" ng-show="navAside || activeItem == slideNavigationOpportunities"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Opportunity\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'opportunities\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Document\')}}" ng-class="{active: activeItem == slideNavigationDocuments}" ng-click="setAsideSearchMenu(\'Document\')" ng-show="navAside || activeItem == slideNavigationDocuments"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Document\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'documents\']}}</span></div></li><li class="c4p-list-item-aside c4p-color-{{getTypeColor(\'Note\')}}" ng-class="{active: activeItem == slideNavigationNotes}" ng-click="setAsideSearchMenu(\'Note\')" ng-show="navAside || activeItem == slideNavigationNotes"><div class="btn col-xxs-12"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-{{getTypeIcon(\'Note\')}}"></span> <span class="pull-left c4p-item-root-txt">{{srvLocale.translations.htmlSlideName[\'notes\']}}</span></div></li><li class="c4p-list-item-aside" ng-click="setAsideRootMenu()" ng-hide="navAside"><div class="btn c4p-color-action-aside-transparent col-xxs-12" style="padding-bottom:400px"><span class="pull-left c4p-icon-std glyphicon glyphicon-fw glyphicon-angle-down"></span></div></li></ul></div></div></div><div class="c4p-aside-footer" resize-opts="{name:\'aside_root_footer\'}"><div class="row" ng-controller="ctrlTrashObject"><div class="col-xxs-12" ng-show="dndActive"><div class="c4p-aside-trash"><div class="btn btn-danger col-xxs-12" ng-class="{\'active\' : dropOver}" sense-opts="{name:\'dropObjectTrash\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)" sense-dropend="dropEnd($event)"><span class="c4p-icon-std glyphicon glyphicon-trash-o"></span></div></div></div><div class="col-xxs-12" ng-hide="dndActive"><ul class="c4p-list-aside nav nav-pills"><li class="c4p-list-item-aside"><div class="btn c4p-gray c4p-color-action-aside-transparent" ng-click="openDialogSendFeedbackReport(\'Menu Feedback\')"><div class="c4p-icon-std glyphicon glyphicon-fw glyphicon-question"></div></div></li><li class="c4p-list-item-aside"><div class="btn c4p-gray c4p-color-action-aside-transparent" ng-click="gotoSlideWithSearchReset(pageNavigation, slideNavigationConfig);"><span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-cog"></span></div></li><li class="c4p-list-item-aside pull-right"><div class="btn c4p-gray c4p-color-action-aside-transparent" style="font-size: .6em" ng-click="refreshClient();"><span class="glyphicon-stack glyphicon-lg" ng-switch="a4pSpinnerState"><i class="glyphicon glyphicon-stack-2x glyphicon-refresh glyphicon-spin" ng-switch-when="run"></i> <i class="glyphicon glyphicon-stack-2x glyphicon-refresh" style="color:red" ng-switch-when="doneWithPb"></i> <i class="glyphicon glyphicon-stack-2x glyphicon-refresh close" ng-switch-when="offline"></i> <i class="glyphicon glyphicon-stack-2x glyphicon-refresh" ng-switch-default=""></i> <i class="glyphicon glyphicon-stack-1x" ng-show="(srvData.objectsToDownload.length + srvData.objectsToSave.length)"><span>{{srvData.objectsToDownload.length + srvData.objectsToSave.length}}</span></i></span></div></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/aside_search.html", '<div ng-controller="ctrlAsideSearch" class="c4p-container c4p-color-z-dark-i"><div class="c4p-waiting" ng-show="asideSearchSpinner" c4p-animateshow="asideSearchSpinner" after-hide="afterAsideSpinnerHide()" after-show="afterAsideSpinnerShow()"><div ng-include="\'partials/spinner.html\'"></div></div><div ng-if="!asideSearchSpinner"><div resize-opts="{name:\'aside_search_header\', watchRefresh:[\'srvFacet.filterFacets.length\', \'srvFacet.lastFacetKey\', \'srvConfig.c4pConfig.exposeAllFacets\']}" class="c4p-color-z-dark-i"><div class="col-xxs-12 c4p-aside-header c4p-header-std"><ul class="nav nav-pills c4p-list-aside" ng-repeat="filterFacet in srvFacet.filterFacets" ng-show="$first || srvConfig.c4pConfig.exposeAllFacets"><li class="c4p-list-item-aside c4p-search-header-aside"><div class="btn"><span ng-hide="srvFacet.isFacetAnObjectType(filterFacet.value)">{{srvLocale.translations.htmlFacetName[filterFacet.key]}}</span><h5 class="c4p-search-header-txt-aside pull-left">{{filterFacet.title}}</h5><span class="c4p-aside-count c4p-gray">{{srvData.getObjectCount(filterFacet.value)}}</span> </div></li><li class="pull-right" ng-hide="$first && !srvConfig.c4pConfig.exposeAllFacets"><a class="btn" ng-click="srvFacet.removeFacet($index)"><span class="c4p-color-action-aside-transparent c4p-stroke c4p-padding-w-packed"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></span></a></li><li class="pull-right" ng-switch="filterFacet.value"><a class="btn c4p-color-action-aside-transparent" ng-click="addItemDialog(filterFacet.value)" ng-switch-when="Document" ng-show="objectCreatable(filterFacet.value)"><span class="c4p-icon-std glyphicon glyphicon-camera"></span></a> <a class="btn c4p-color-action-aside-transparent" ng-switch-default="" ng-show="objectCreatable(filterFacet.value)" ng-click="addItemDialog(filterFacet.value)"><span class="c4p-icon-std glyphicon glyphicon-plus"></span></a></li></ul></div></div><div resize-opts="{name:\'aside_search_search\', watchRefresh:[\'srvFacet.filterFacets.length\', \'asideActiveSearch\']}"><div class="col-xxs-12" ng-show="asideActiveSearch"><form class="form-horizontal"><div class="has-feedback"><input type="text" class="form-control" id="inputSearch" placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}" ng-model="asideInputs.itemSearchQuery" ng-change="srvFacet.setFilterQuery(asideInputs.itemSearchQuery);"><span class="c4p-icon-std glyphicon glyphicon-search form-control-feedback" ng-click="toggleSearch()"></span></div></form></div><div class="col-xxs-12" ng-hide="asideActiveSearch"><ul class="nav nav-pills c4p-list-aside c4p-color-z-dark-ii" ng-click="toggleSearch()"><li class="c4p-list-item-aside" ng-show="srvFacet.ascendingOrder"><a class="btn c4p-color-action-aside-transparent" ng-click="$event.stopPropagation(); srvFacet.toggleOrder()"><span class="glyphicon glyphicon-sort-alpha-asc"></span></a></li><li class="c4p-list-item-aside" ng-hide="srvFacet.ascendingOrder"><a class="btn c4p-color-action-aside-transparent" ng-click="$event.stopPropagation(); srvFacet.toggleOrder()"><span class="glyphicon glyphicon-sort-alpha-desc"></span></a></li><li class="c4p-list-item-aside"><div ng-show="asideInputs.itemSearchQuery.length > 0" class="btn btn-info"><div class="pull-left" style="padding-right: 10px">{{asideInputs.itemSearchQuery}}</div><a type="" class="pull-right" ng-click="removeGlobalSearch()">&times;</a></div></li><li class="c4p-list-item-aside pull-right"><div class="btn btn-sm" ng-click="$event.stopPropagation(); toggleSearch()"><span class="c4p-icon-std c4p-color-action-aside-transparent"><span class="glyphicon glyphicon-search"></span></span></div></li></ul></div></div><div class="col-xxs-12" resize-opts="{name:\'aside_search_result_wrapper\'}" resizecss-height="getResizePathValue(\'navigation_ctrlAside\', \'\', \'offsetHeight\') -getResizePathValue(\'aside_search_header\', \'\', \'offsetHeight\') -getResizePathValue(\'aside_search_search\', \'\', \'offsetHeight\') - getResizePathValue(\'aside_root_footer\',\'\',\'offsetHeight\')"><div class="c4p-container c4p-menu-bg c4p-color-z"><nav class="c4p-container-scroll-y ng-cloak" ng-controller="ctrlSingleTap"><div class="c4p-container"><ul class="list-group c4p-list-aside c4p-search-group-separator c4p-color-z" ng-repeat="groupKey in srvFacet.items.keyes"><li class="list-group-item c4p-list-item-aside" ng-show="srvConfig.c4pConfig.exposeAllFacets" ng-click="srvFacet.addFacet(srvFacet.lastFacetKey, groupKey.title, groupKey.value)"><a class="btn btn-sm"><span ng-show="srvFacet.isFacetAnObjectType(groupKey.value)" class="icon-large glyphicon glyphicon-{{getTypeIcon(groupKey.value)}}"></span> <span>{{groupKey.title}}</span></a> <a ng-show="srvFacet.isFacetAnObjectType(groupKey.value)" ng-click="addItemDialog(groupKey.value)"><span class="pull-right icon-large glyphicon glyphicon-plus"></span></a> <span class="badge">{{srvFacet.items.lists[groupKey.value].length}}</span></li><li class="list-group-item c4p-list-item-aside" ng-repeat="listItem in srvFacet.items.lists[groupKey.value]"><div ng-include="\'partials/navigation/aside_search_list.html\'"></div></li></ul><ul class="list-group c4p-list-aside c4p-color-z" ng-if="srvFacet.items.others.length > 0"><li class="list-group-item c4p-list-item-aside" ng-repeat="listItem in srvFacet.items.others"><div ng-include="\'partials/navigation/aside_search_list.html\'"></div></li></ul></div></nav></div></div></div></div>'), 
     $templateCache.put("partials/navigation/aside_search_list.html", '<div id="aside_{{listItem.object.id.dbid}}" ng-class="{\n        \'c4p-color-{{getFacetColor(srvFacet.getFirstFacet())}}\':srvNav.item && (listItem.object.id.dbid == srvNav.item.id.dbid),\n        \'active\':srvNav.item && (listItem.object.id.dbid == srvNav.item.id.dbid)}" sense-opts="{name:\'search-others-{{$index}}\', bubble:true, watchRefresh:[\'srvNav.item\', \'srvNav.holdItem\']}" ng-click="firstSingleTap(listItem.object, selectItem, true)" sense-doubletap="firstSingleTap(listItem.object, selectItem, true)"><div class="row"><div class="btn col-xxs-12" ng-class="{active: singleTapFocusId == listItem.object.id.dbid}"><ul class="nav nav-pills"><li class="" style="width:100%"><div ng-init="cardItem = listItem.object" ng-include="\'partials/navigation/cards/draggable_inlined_card.html\'"></div></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/calendar.html", '<div class="c4p-container c4p-color-gradient0"><header class="row c4p-color-gradient0" ng-include="\'partials/navigation/calendar_header.html\'"></header><div class="c4p-waiting" ng-show="calendarLoadingSpinner" c4p-animateshow="calendarLoadingSpinner" after-hide="afterCalendarSpinnerHide()" after-show="afterCalendarSpinnerShow()"><div ng-include="\'partials/spinner.html\'"></div></div><div ng-show="!calendarLoadingSpinner" class="row c4p-color-a-gradient4"><article class="col-xxs-12" ng-switch="" on="calendarView"><div ng-switch-when="dayView"><div ng-include="\'partials/navigation/calendar_day.html\'"></div></div><div ng-switch-when="listView"><div ng-include="\'partials/navigation/calendar_events.html\'"></div></div><div ng-switch-default=""><div ng-include="\'partials/navigation/calendar_month.html\'"></div></div></article></div></div>'), 
@@ -35167,7 +35171,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/navigation/calendar_events.html", '<div class="row col-xxs-12"><div ng-style="{width:(getMainWidth() + getAsideWidth())+\'px\'}" resize-opts="{name:\'calendar_events\', watchRefresh:\'navAside\'}" resizecss-height="getResizeHeight() -getResizePathValue(\'calendar_header\', \'\', \'offsetHeight\')" sense-opts="{name:\'calendar_events\', axeY:\'scroll\', watchRefresh:\'calendarEventsGroupsByDaySinceToday\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div id="calendar-cards"><div class="row c4p-color-a-gradient1"><div class="col-xxs-12 c4p-details hidden-xs hidden-sm"><h2>{{translate(\'htmlCalendarListPageTitle\')}}</h2></div><div class="col-xxs-12 c4p-details hidden-md hidden-lg"><h4>{{translate(\'htmlCalendarListPageTitle\')}}</h4></div></div><ul class="nav nav-pills nav-stacked c4p-details-title" ng-repeat="group in calendarEventsGroupsByDaySinceToday" ng-show="group.events.length || group.eventsAllDay.length"><li class="c4p-details c4p-color-a-gradient2"><span class="">{{translateDateDayToFullString(group.date)}}</span></li><li ng-repeat="item in group.eventsAllDay" class="c4p-details c4p-color-a-gradient3"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li><li ng-repeat="item in group.events" class="c4p-details c4p-color-a-gradient4"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/calendar_header.html", '<div class="c4p-header-std" resize-opts="{name:\'calendar_header\', watchRefresh:\'navAside\'}"><div class="row"><div class="col-xxs-12"><ul class="nav nav-pills"><li class=""><a class="btn disabled"><img class="c4p-img-icon" src="l4p/img/logo_meeting_.png"></a></li><li ng-include="\'partials/navigation/header_back.html\'"></li><li class="pull-right" ng-show="configStateAdd"><a class="btn" ng-click="addItemDialog()"><span class="c4p-icon-std glyphicon glyphicon-plus"></span></a></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/calendar_month.html", '<div class="ng-cloak"><table class="table c4p-table-calendar-month" style="width:100%;table-layout: fixed"><thead resize-opts="{name:\'calendar_month_header\'}"><tr style="color:whitesmoke"><th class="empty" style="width:20px"></th><th class="c4p-link5" ng-click="gotoPreviousYear()"><span class="glyphicon glyphicon-angle-double-left"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousYear}}</h5></th><th class="c4p-link5" ng-click="gotoPreviousMonth()"><span class="glyphicon glyphicon-angle-left"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousMonthName}}</h5></th><th class="disabled" colspan="3" style="text-align:center;vertical-align:middle"><h4 ng-hide="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</h4><span ng-show="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</span></th><th class="c4p-link5" ng-click="gotoNextMonth()"><span class="glyphicon glyphicon-angle-right"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextMonthName}}</h5></th><th class="c4p-link5" ng-click="gotoNextYear()"><span class="glyphicon glyphicon-angle-double-right"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextYear}}</h5></th></tr><tr style="height:20px;line-height:20px" resize-opts="{name:\'calendar_month_week_header\'}"><th style="height:20px;line-height:20px" class="disabled"><small>{{translate(\'htmlCalendarMonthTextWeekAbrev\')}}</small></th><th ng-repeat="day in calendarMonthWeeks[0].days" class="disabled" style="height:20px;line-height:20px; width:{{(width - 20) / calendarMonthWeeks[0].days.length}}px"><small>{{day.shortName}}</small></th></tr></thead><tbody><tr ng-repeat="week in calendarMonthWeeks"><td class="disabled" style="text-align: center;vertical-align: middle"><small>{{week.id}}</small></td><td ng-repeat="day in week.days" class="c4p-link5 c4p-table-cell" ng-click="onDayClick(day.date)" style="height:{{calendarMonthCellHeight}}px" ng-class="{	\'c4p-cell-initial\': translateDateDayToString(day.date) == translateDateDayToString(calendarNow),\r\n								\'c4p-cell-selected\': translateDateDayToString(day.date) == translateDateDayToString(calendarSelected),\r\n								\'c4p-cell-weekend\': day.isWeekend,\r\n								\'c4p-cell-disabled\': day.date.getMonth() != calendarMonth}"><div style="width:100%;height:100%"><div class="pull-left" style="position:relative; height:100%;width:8%"><div ng-repeat="position in day.group.eventsPosition" class="label c4p-label-calendar-notallday-inverse" style="position:absolute; width:90%; padding:2px 0; border:1px solid gray; top:{{position.posPercent}}%; height:{{position.lengthPercent}}%" ng-class="position.event.id">&nbsp;</div></div><div class="pull-right" style="position:relative; height:100%;width:90%"><div style="height:{{(calendarMonthHeight / calendarMonthWeeks.length) - 20}}px;overflow:hidden;text-overflow:ellipsis;display:block"><span ng-repeat="position in day.group.eventsAllDayPosition" style="width:{{position.lengthPercent}}%; margin-left:{{position.posPercent}}%; margin-top:1px; min-height:2px" class="label c4p-label-calendar-all-day a4p-dot"><span class="hidden-xs">{{position.event.name}}</span></span>  <span ng-repeat="event in day.group.events" style="width:100%; margin-top: 1px" class="label c4p-label-calendar-day a4p-dot hidden-xs">{{getEventTime(event.date_start)}} {{event.name}}</span></div><small class="pull-left label c4p-label-calendar-light hidden-xs" style="padding:0" ng-show="(20*(day.group.eventsAllDay.length + day.group.events.length)) > (((calendarMonthHeight -24)/ calendarMonthWeeks.length) - 20)">{{translate(\'htmlCalendarMonthTextMore\')}}</small>  <small class="pull-right label c4p-label-calendar" style="padding:0 3px">{{day.date.getDate()}}</small></div></div></td></tr></tbody></table></div>'), 
-    $templateCache.put("partials/navigation/config.html", '<header class="row c4p-color-gradient0" ng-include="\'partials/navigation/config_header.html\'"></header><div class="row c4p-config-panel"><div sense-opts="{name:\'config_main\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" class="col-xxs-12 col-sm-11 col-sm-offset-1" resize-opts="{name:\'config_main\'}" resizecss-height="responsivePageHeight() -getResizePathValue(\'config_header\', \'\', \'offsetHeight\') -getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetHeight\')"><div class="col-xxs-12"><div class="row hidden-xs hidden-sm"><div class="col-xxs-12 col-xs-8 col-xs-offset-2 navbar"><h2 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{email}}</h2><h2 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h2></div></div><div class="row hidden-md hidden-lg"><div class="col-xxs-12 col-xs-8 col-xs-offset-2 navbar"><h5 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{email}}</h5><h5 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h5></div></div><div class="row"><button class="col-xxs-12 col-xs-8 col-xs-offset-2 btn btn-primary" ng-click="switchUser()">{{translate(\'htmlButtonChangeUser\')}}</button> </div><div class="row"><div class="col-xxs-12 col-xs-8 col-xs-offset-2"><button type="button" class="btn btn-link col-xxs-12" style="padding-top: 20px;padding-bottom: 40px" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'OtherConnector\',srvLocale.translations.htmlMsgFeedbackOtherConnector)"><span style="white-space:normal">{{srvLocale.translations.htmlMsgFeedbackOtherConnectorQuestion}}</span></button></div></div><div class="row"><div class="col-xxs-12 col-xs-8 col-xs-offset-2"><button type="button" class="btn btn-info col-xxs-12 dropdown-toggle" data-toggle="dropdown"><span>{{srvLocale.lang.title}}</span></button><ul class="dropdown-menu col-xxs-12" role="menu"><li ng-repeat="lang in srvLocale.langs"><a class="" ng-click="srvLocale.setLang(lang)">{{lang.title}}</a></li></ul></div></div><div class="row" ng-show="isDemo"><div class="col-xxs-12 col-xs-8 col-xs-offset-2 well"><a class="btn btn-warning col-xxs-12" ng-click="addMoreDataInDemoMode()">{{srvLocale.translations.htmlTextDemoModeMoreData}}</a></div></div><div class="row"><div class="col-xxs-12"><div class="row"><label class="col-xxs-12 control-label">&nbsp;</label><div class="col-xxs-12 controls">&nbsp;</div></div></div></div><div class="row"><div class="col-xxs-12"><small>{{translate(\'htmlConfigTextAppVersion\')}} v<span id="a4pDeviceDetectorWidth" app-version=""></span> <span id="a4pDeviceDetectorHeight">{{srvConfig.c4pBuildDate}} {{srvConfig.env}}</span> <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span></small></div></div></div></div></div>'), 
+    $templateCache.put("partials/navigation/config.html", '<header class="row c4p-color-gradient0" ng-include="\'partials/navigation/config_header.html\'"></header><div class="row c4p-config-panel"><div sense-opts="{name:\'config_main\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" class="col-xxs-12 col-sm-11 col-sm-offset-1" resize-opts="{name:\'config_main\'}" resizecss-height="responsivePageHeight() -getResizePathValue(\'config_header\', \'\', \'offsetHeight\') -getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetHeight\')"><div class="col-xxs-12"><div class="row hidden-xs hidden-sm"><div class="col-xxs-12 col-xs-8 col-xs-offset-2 navbar"><h2 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{configEmail}}</h2><h2 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h2></div></div><div class="row hidden-md hidden-lg"><div class="col-xxs-12 col-xs-8 col-xs-offset-2 navbar"><h5 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{configEmail}}</h5><h5 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h5></div></div><div class="row"><button class="col-xxs-12 col-xs-8 col-xs-offset-2 btn btn-primary" ng-click="switchUser()">{{translate(\'htmlButtonChangeUser\')}}</button> </div><div class="row"><div class="col-xxs-12 col-xs-8 col-xs-offset-2"><button type="button" class="btn btn-link col-xxs-12" style="padding-top: 20px;padding-bottom: 40px" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'OtherConnector\',srvLocale.translations.htmlMsgFeedbackOtherConnector)"><span style="white-space:normal">{{srvLocale.translations.htmlMsgFeedbackOtherConnectorQuestion}}</span></button></div></div><div class="row"><div class="col-xxs-12 col-xs-8 col-xs-offset-2"><button type="button" class="btn btn-info col-xxs-12 dropdown-toggle" data-toggle="dropdown"><span>{{srvLocale.lang.title}}</span></button><ul class="dropdown-menu col-xxs-12" role="menu"><li ng-repeat="lang in srvLocale.langs"><a class="" ng-click="srvLocale.setLang(lang)">{{lang.title}}</a></li></ul></div></div><div class="row" ng-show="isDemo"><div class="col-xxs-12 col-xs-8 col-xs-offset-2 well"><a class="btn btn-warning col-xxs-12" ng-click="addMoreDataInDemoMode()">{{srvLocale.translations.htmlTextDemoModeMoreData}}</a></div></div><div class="row"><div class="col-xxs-12"><div class="row"><label class="col-xxs-12 control-label">&nbsp;</label><div class="col-xxs-12 controls">&nbsp;</div></div></div></div><div class="row"><div class="col-xxs-12"><small>{{translate(\'htmlConfigTextAppVersion\')}} v<span id="a4pDeviceDetectorWidth" app-version=""></span> <span id="a4pDeviceDetectorHeight">{{srvConfig.c4pBuildDate}} {{srvConfig.c4pConfigEnv}}</span> <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span></small></div></div></div></div></div>'), 
     $templateCache.put("partials/navigation/config_header.html", '<div class="c4p-header-std" resize-opts="{name:\'config_header\'}"><div class="row"><div class="col-xxs-12"><ul class="nav nav-pills"><li class=""><a class="btn disabled"><img class="c4p-img-icon" src="l4p/img/logo_meeting_.png"></a></li><li ng-include="\'partials/navigation/header_back.html\'"></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/footer_detail.html", '<div class="c4p-footer-details c4p-color-gradient0" style="position:relative" resize-opts="{name:\'navigation_footer_detail\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}" resizecss-width="getPathValue(\'parentNode\', \'offsetWidth\')"><div class="btn c4p-color-action-transparent" ng-click="gotoBack()" resize-opts="{name:\'navigation_footer_detail_back\'}"><span class="c4p-icon-std glyphicon glyphicon-arrow-left"></span></div><div class="btn btn-xs" ng-controller="ctrlNavObject" resize-opts="{name:\'navigation_footer_detail_history\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}" resizecss-width="getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetWidth\') -1 -getResizePathValue(\'navigation_footer_detail_back\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_detail_spacer\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_detail_lock\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_detail_meeting\', \'\', \'offsetWidth\')"><ul style="overflow-x:hidden" class="c4p-list-footer-details"><li class="c4p-item-list-footer-details" ng-repeat="back in srvNav.history | limitTo:3" ng-class="{\'c4p-item-list-ftr-footer-details\':$last}" style="opacity: {{1-(0.33*$index)}}"><small><span class="glyphicon glyphicon-{{back.itemIcon}}"></span> <span ng-switch="!back.itemName"><span ng-switch-when="true">{{srvLocale.translations.htmlSlideName[back.slide]}}</span> <span ng-switch-default="">{{back.itemName}}</span></span></small></li></ul></div><div class="c4p-hf-spacer" resize-opts="{name:\'navigation_footer_detail_spacer\'}"><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div></div><div class="btn" ng-show="srvSecurity.isSecured()" ng-click="openDialogLocked()" resize-opts="{name:\'navigation_footer_detail_lock\'}"><a class="c4p-link2"><span class="glyphicon glyphicon-lock"></span></a></div><div class="btn btn-danger" ng-class="{\'active\' : dropOver}" ng-show="dndActive" ng-controller="ctrlTrashObject" sense-opts="{name:\'dropObjectTrash\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)" sense-dropend="dropEnd($event)" style="position:absolute;z-index:1041;top:0;left:0"><span class="c4p-icon-std glyphicon glyphicon-trash"></span></div></div>'), 
     $templateCache.put("partials/navigation/footer_related.html", '<div class="c4p-footer-details c4p-color-{{getTypeColor(srvNav.item.a4p_type)}}-gradient2" resize-opts="{name:\'navigation_footer_related\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}"><div class="btn c4p-color-action-transparent" ng-show="responsiveIsOnePageFormat()" ng-click="gotoBack()" resize-opts="{name:\'navigation_footer_related_back\'}"><span class="c4p-icon-std glyphicon glyphicon-arrow-left"></span></div><div class="btn btn-xs" ng-show="responsiveIsOnePageFormat()" ng-controller="ctrlNavObject" resize-opts="{name:\'navigation_footer_related_history\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}" resizecss-width="getResizePathValue(\'navigation_footer_related\', \'\', \'offsetWidth\') -1 -getResizePathValue(\'navigation_footer_related_back\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_related_lock\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_related_spacer\', \'\', \'offsetWidth\') - getResizePathValue(\'navigation_footer_related_meeting\', \'\', \'offsetWidth\')"><ul style="overflow-x:hidden" class="c4p-list-footer-details"><li class="c4p-item-list-footer-details" ng-repeat="back in srvNav.history | limitTo:3" ng-class="{\'c4p-item-list-ftr-footer-details\':$last}" style="opacity: {{1-(0.33*$index)}}"><small><span class="glyphicon glyphicon-{{back.itemIcon}}"></span> <span ng-switch="!back.itemName"><span ng-switch-when="true">{{srvLocale.translations.htmlSlideName[back.slide]}}</span> <span ng-switch-default="">{{back.itemName}}</span></span></small></li></ul></div><div class="c4p-hf-spacer" resize-opts="{name:\'navigation_footer_related_spacer\'}"><div class="btn"><div class="c4p-icon-std glyphicon">&nbsp;</div></div></div><div class="btn" ng-show="responsiveIsOnePageFormat() && srvSecurity.isSecured()" ng-click="openDialogLocked()" resize-opts="{name:\'navigation_footer_related_lock\'}"><a class="c4p-link2"><span class="glyphicon glyphicon-lock"></span></a></div></div>'), 
@@ -35179,13 +35183,13 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/navigation/view_n_1_header.html", '<div class="col-xxs-12"><ul class="nav nav-pills"><li class=""><a class="btn btn-sm disabled"><img class="c4p-img-icon" src="l4p/img/logo_meeting_.png"></a></li><li ng-include="\'partials/navigation/header_back.html\'"></li><li class="pull-right"><a class="btn" ng-click="doAction(\'editItem\')"><span class="c4p-icon-std glyphicon glyphicon-edit"></span></a></li></ul></div>'), 
     $templateCache.put("partials/navigation/view_n_2.html", '<div class="row c4p-header-related c4p-color-a-gradient2" resize-opts="{name:\'detailed_links_header\'}"><div class="col-xxs-12"><ul class="nav nav-pills"><li ng-show="responsiveIsOnePageFormat()"><a class="btn" ng-click="setNavRelated(false)"><span class="pull-left c4p-icon-std glyphicon glyphicon-angle-left"></span><c4p-thumb width="20" height="20" text="{{getItemNameById(srvNav.item.id.dbid)}}" indic="##todo" icon="##todo" color="c4p-color-{{srvNav.itemColor}}" url="{{srvNav.item.thumb_url}}"></c4p-thumb></a></li><li ng-hide="linkStateAdd" style="width:80%"><a class="btn disabled"><h5 class="a4p-dot">{{translate(\'htmlViewNrelatedPageTitle\')}}</h5></a></li><li><a class="btn" ng-show="linkStateAdd"><span class="">{{translate(\'htmlViewNrelatedPageTitleNew\')}}</span></a></li></ul></div><div class="btn c4p-padding-w-packed c4p-color-action-transparent pull-right" ng-show="linkStateAdd" ng-click="toggleLinkStateAdd()"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div><div class="row c4p-color-a-gradient1"><article class="col-xxs-12" resizecss-height="responsivePageHeight() -getResizePathValue(\'detailed_links_header\', \'\', \'offsetHeight\')" ng-include="\'partials/navigation/view_n_2_links_item.html\'"></article></div>'), 
     $templateCache.put("partials/navigation/view_n_2_link_editor__deprecated.html", '<div sense-opts="{name:\'detailed_links_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvNav.itemRelatedGroup\', \'srvNav.item.a4p_type\']}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" resize-opts="{name:\'detailed_links_wrapper\'}" resizecss-height="responsivePageHeight() -getResizePathValue(\'detailed_links_header\', \'\', \'offsetHeight\')"><div resize-opts="{name:\'detailed_links_scroller\', watchRefresh:[\'srvNav.itemRelatedGroup\', \'srvNav.item.a4p_type\']}"><div class="c4p-related-card" ng-repeat="objectType in objectTypes()" ng-show="isPossibleLinkAction(srvNav.item.a4p_type, objectType)"><ul class="c4p-related-card-list"><li class="c4p-related-card-header c4p-color-{{objectTypeColor(objectType)}}-dark-iii"><span class="glyphicon glyphicon-{{objectTypeIcon(objectType)}}"></span> <span>{{srvLocale.translations.htmlTitleType[objectType]}}</span></li><li class="c4p-related-card-item c4p-color-{{objectTypeColor(objectType)}}-gradient3" ng-repeat="linkName in getPossibleLinkActionList(srvNav.item.a4p_type, objectType)"><div class="btn c4p-padding-w-packed">{{srvLocale.translations.htmlShortLinkName[linkName]}}</div><div class="btn c4p-padding-w-packed pull-right"><span class="c4p-icon-std glyphicon glyphicon-list c4p-color-action-transparent c4p-related-card-item-icon" ng-click="linkAddDialog(srvNav.item, linkName, objectType)"></span> <span class="c4p-icon-std glyphicon glyphicon-plus c4p-color-action-transparent c4p-related-card-item-icon" ng-click="createAndLinkDialog(srvNav.item, linkName, objectType)"></span></div></li></ul></div></div></div>'), 
-    $templateCache.put("partials/navigation/view_n_2_links_item.html", '<div class="c4p-container-scroll-y"><div class="c4p-container"><div class="c4p-related-card c4p-color-a-gradient1" ng-controller="ctrlAction" ng-init="watchSrvNav();"><ul class="c4p-related-card-list"><li id="related_suggestion" class="c4p-related-card-header c4p-color-j-dark-iii" ng-click="showAsideGroupSuggestion(!bShowAsideGroupSuggestion)"><span class="glyphicon glyphicon-fw glyphicon-ellipsis-h"></span></li><li ng-show="bShowAsideGroupSuggestion"><div class="row c4p-color-j-gradient3"><div class="col-xxs-8 col-xxs-offset-2"><div class="btn-group btn-group-justified btn-block"><a ng-show="srvData.isMethodPossibleForObject(\'createNewPicture\', srvNav.item)" class="btn close" ng-click="createNewPicture(srvNav.item)"><span class="glyphicon glyphicon-camera"></span></a> <a ng-show="srvData.isMethodPossibleForObject(\'createNewNote\', srvNav.item)" class="btn close" ng-click="createNewNote(srvNav.item)"><span class="glyphicon glyphicon-{{getTypeIcon(\'Note\')}}"></span></a> <a ng-hide="srvData.isMethodPossibleForObject(\'createNewNote\', srvNav.item) || srvData.isMethodPossibleForObject(\'createNewPicture\', srvNav.item)" class="btn" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'Suggestion\',srvLocale.translations.htmlMsgFeedbackSuggestion)"><small>{{srvLocale.translations.htmlMsgFeedbackSuggestionQuestion}}</small></a></div><div class="btn-block well well-sm" style="border-radius: 1em" ng-show="srvNav.itemRelatedGroupList.length == 0"><a class="btn" style="white-space:normal" ng-click="setAsideRootMenu()"><span>{{getHtmlLinkHowto()}}</span><br><br><span class="c4p-icon-std glyphicon glyphicon-plus"></span></a></div></div></div></li></ul></div><div class="c4p-related-card c4p-color-a-gradient1" ng-repeat="group in srvNav.itemRelatedGroupList" ng-show="group.type != \'Plan\' && group.type != \'Facet\'"><ul class="c4p-related-card-list"><li id="related_{{group.name}}" class="c4p-related-card-header c4p-color-{{group.colorType}}-dark-iii" ng-click="showAsideGroup(group,!group.show)"><span class="glyphicon glyphicon-fw glyphicon-{{group.icon}}"></span> <span>{{group.name}}</span><span class="c4p-aside-count">{{group.size}}</span> <span ng-show="isDocumentGroup(group.type) && (srvNav.imageRelatedList.length > 0)" ng-click="$event.stopPropagation();showGallery();" class="glyphicon glyphicon-eye-open pull-right"></span></li><li ng-repeat="link in srvNav.itemRelatedList[group.type]" ng-show="group.show"><div class="row c4p-color-{{group.colorType}}-gradient3 {{{true: \'c4p-related-card-item-1st\', false: \'c4p-related-card-item-others\'}[$first]}}"><div class="col-xxs-11 c4p-related-card-holder"><span ng-include="\'partials/navigation/cards/summarized_card.html\'" ng-init="item = link.item; cardItemColor = \'c4p-color-\'+group.colorType"></span></div><div class="col-xxs-1" style="text-align: center"><div ng-if="link.linkNames.length == 1"><div id="{{link.item.id.dbid}}-unlink" class="btn c4p-color-action-transparent c4p-padding-w-packed" ng-click="unlinkDialog(link.linkNames[0], link.item)"><span class="c4p-icon-std close">&times;</span></div></div><div class="dropdown" ng-if="link.linkNames.length > 1"><div id="{{link.item.id.dbid}}-unlink" class="dropdown-toggle btn c4p-color-action-transparent c4p-padding-w-packed" data-toggle="dropdown"><span class="c4p-icon-std close">&times;</span></div><ul class="dropdown-menu c4p-dropdown-menu pull-right c4p-dropdown" aria-labelledby="{{link.item.id.dbid}}-unlink"><li>{{translate(\'htmlViewNlinkItemTextRemoveLink\')}}</li><li ng-repeat="linkName in getPossibleLinkActionList(srvNav.item.a4p_type, link.item.a4p_type)" ng-show="srvData.isObjectOwnedByUser(link.item) && srvData.isObjectOwnedByUser(srvNav.item)"><div class="btn" ng-click="unlinkDialog(linkName, link.item)"><span style="vertical-align:top">{{srvLocale.translations.htmlShortLinkName[linkName]}}</span></div></li></ul></div></div></div></li></ul></div></div></div>'), 
+    $templateCache.put("partials/navigation/view_n_2_links_item.html", '<div class="c4p-container-scroll-y"><div class="c4p-container"><div class="c4p-related-card c4p-color-a-gradient1" ng-controller="ctrlAction" ng-init="watchSrvNav();"><ul class="c4p-related-card-list"><li id="related_suggestion" class="c4p-related-card-header c4p-color-j-dark-iii" ng-click="showAsideGroupSuggestion(!bShowAsideGroupSuggestion)"><span class="glyphicon glyphicon-fw glyphicon-ellipsis-h"></span></li><li ng-show="bShowAsideGroupSuggestion"><div class="row c4p-color-j-gradient3"><div class="col-xxs-8 col-xxs-offset-2"><div class="btn-group btn-group-justified btn-block"><a ng-show="srvData.isMethodPossibleForObject(\'createNewPicture\', srvNav.item)" class="btn close" ng-click="createNewPicture(srvNav.item)"><span class="glyphicon glyphicon-camera"></span></a> <a ng-show="srvData.isMethodPossibleForObject(\'createNewNote\', srvNav.item)" class="btn close" ng-click="createNewNote(srvNav.item)"><span class="glyphicon glyphicon-{{getTypeIcon(\'Note\')}}"></span></a> <a ng-hide="srvData.isMethodPossibleForObject(\'createNewNote\', srvNav.item) || srvData.isMethodPossibleForObject(\'createNewPicture\', srvNav.item)" class="btn" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'Suggestion\',srvLocale.translations.htmlMsgFeedbackSuggestion)"><small>{{srvLocale.translations.htmlMsgFeedbackSuggestionQuestion}}</small></a></div><div class="btn-block well well-sm" style="border-radius: 1em" ng-show="srvNav.itemRelatedGroupList.length == 0"><a class="btn" style="white-space:normal" ng-click="setAsideRootMenu()"><span>{{detailGetHtmlLinkHowTo}}</span><br><br><span class="c4p-icon-std glyphicon glyphicon-plus"></span></a></div></div></div></li></ul></div><div class="c4p-related-card c4p-color-a-gradient1" ng-repeat="group in srvNav.itemRelatedGroupList" ng-show="group.type != \'Plan\' && group.type != \'Facet\'"><ul class="c4p-related-card-list"><li id="related_{{group.name}}" class="c4p-related-card-header c4p-color-{{group.colorType}}-dark-iii" ng-click="showAsideGroup(group,!group.show)"><span class="glyphicon glyphicon-fw glyphicon-{{group.icon}}"></span> <span>{{group.name}}</span><span class="c4p-aside-count">{{group.size}}</span> <span ng-show="isDocumentGroup(group.type) && (srvNav.imageRelatedList.length > 0)" ng-click="$event.stopPropagation();showGallery();" class="glyphicon glyphicon-eye-open pull-right"></span></li><li ng-repeat="link in srvNav.itemRelatedList[group.type]" ng-show="group.show"><div class="row c4p-color-{{group.colorType}}-gradient3 {{{true: \'c4p-related-card-item-1st\', false: \'c4p-related-card-item-others\'}[$first]}}"><div class="col-xxs-11 c4p-related-card-holder"><span ng-include="\'partials/navigation/cards/summarized_card.html\'" ng-init="item = link.item; cardItemColor = \'c4p-color-\'+group.colorType"></span></div><div class="col-xxs-1" style="text-align: center"><div ng-if="link.linkNames.length == 1"><div id="{{link.item.id.dbid}}-unlink" class="btn c4p-color-action-transparent c4p-padding-w-packed" ng-click="unlinkDialog(link.linkNames[0], link.item)"><span class="c4p-icon-std close">&times;</span></div></div><div class="dropdown" ng-if="link.linkNames.length > 1"><div id="{{link.item.id.dbid}}-unlink" class="dropdown-toggle btn c4p-color-action-transparent c4p-padding-w-packed" data-toggle="dropdown"><span class="c4p-icon-std close">&times;</span></div><ul class="dropdown-menu c4p-dropdown-menu pull-right c4p-dropdown" aria-labelledby="{{link.item.id.dbid}}-unlink"><li>{{translate(\'htmlViewNlinkItemTextRemoveLink\')}}</li><li ng-repeat="linkName in getPossibleLinkActionList(srvNav.item.a4p_type, link.item.a4p_type)" ng-show="srvData.isObjectOwnedByUser(link.item) && srvData.isObjectOwnedByUser(srvNav.item)"><div class="btn" ng-click="unlinkDialog(linkName, link.item)"><span style="vertical-align:top">{{srvLocale.translations.htmlShortLinkName[linkName]}}</span></div></li></ul></div></div></div></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/cards/4_rating.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><c4p-check ng-model="item.value" readonly></c4p-check><span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span style="padding:0 10px 0 0">{{item.name}}</span><c4p-angular-ratings ng-model="item.value" readonly></c4p-angular-ratings></span></span>'), 
     $templateCache.put("partials/navigation/cards/4_rating_ro.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><span class="glyphicon glyphicon-unchecked icon-large"></span> <span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span class="glyphicon glyphicon-star-empty icon-large"></span> <span style="padding:0 0 0 10px">{{item.name}}</span></span></span>'), 
     $templateCache.put("partials/navigation/cards/4_rating_ro2.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><c4p-check ng-model="item.value" readonly></c4p-check><span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span style="padding:0 10px 0 0">{{item.name}}</span><c4p-angular-ratings ng-model="item.value" readonly></c4p-angular-ratings></span></span>'), 
-    $templateCache.put("partials/navigation/cards/detail_card.html", '<div class="row"><div class="c4p-card-text" ng-class="{\'col-xxs-12\': !cardHasThumb,\'col-xxs-11\' : (cardHasThumb && (cardIsAboutFile || cardIsAboutVideo || cardItem.a4p_type == \'Event\')),\'col-sm-9 col-xxs-11\' : (cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\')}"><div ng-repeat="group in cardGroups" class="col-xxs-12 c4p-size-{{group.size}}"><span ng-if="group.name && cardItem.a4p_type != \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItemName}}</span> <span ng-if="group.name && cardItem.a4p_type == \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItem.name}}</span> <span ng-if="group.title">{{group.title}}</span> <span ng-if="group.synchro" ng-init="itemSynchro = cardItem.c4p_synchro" ng-include="\'partials/navigation/cards/detail_synchro.html\'"></span> <address ng-if="group.fields.length > 1" class="col-xxs-12"><ul class="list-inline"><li ng-repeat-start="field in group.fields" ng-show="group.icon && $first && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li ng-repeat-end=""><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address><address ng-if="group.fields.length == 1" ng-init="field = group.fields[0]" class="col-xxs-12"><ul ng-class="{\'list-inline\': field.type !=\'textarea\', \'list-unstyled\': field.type ==\'textarea\'}"><li ng-show="group.icon && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address></div></div><div class="c4p-card-thumb pull-right col-sm-2 hidden-xs" ng-if="cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><c4p-thumb class="pull-right" width="70" height="70" text="{{cardItemName}}" indic="{{itemRelationCount}}" icon="glyphicon-{{itemIcon}}" color="{{cardItemColor}}" url="{{cardItem.thumb_url}}"></c4p-thumb></div><div class="c4p-card-thumb pull-right col-xxs-1" ng-if="cardHasThumb"><div class="pull-right c4p-color-action-transparent" ng-click="doAction(\'toggleFavorite\')"><span class="c4p-icon-std glyphicon c4p-outline-star" ng-class="{\'glyphicon-star\' : srvData.isTaggedFavorite(cardItem), \'glyphicon-star-o\' : !srvData.isTaggedFavorite(cardItem)}"></span></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><div class="btn c4p-card-thumb-media" ng-class="{\'disabled\': actionMap.viewDocument.disabled}" ng-click="doAction(\'viewDocument\')" style="background:url(\'{{cardItem.thumb_url}}\') no-repeat center center;-webkit-background-size: contain"></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><video controls="" ng-src="{{cardItem.url}}" class="c4p-card-thumb-media"></video></div></div>'), 
+    $templateCache.put("partials/navigation/cards/detail_card.html", '<div class="row"><div class="c4p-card-text" ng-class="{\'col-xxs-12\': !cardHasThumb,\'col-xxs-11\' : (cardHasThumb && (cardIsAboutFile || cardIsAboutVideo || cardItem.a4p_type == \'Event\')),\'col-sm-9 col-xxs-11\' : (cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\')}"><div ng-repeat="group in cardGroups" class="col-xxs-12 c4p-size-{{group.size}}"><span ng-if="group.name && cardItem.a4p_type != \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItemName}}</span> <span ng-if="group.name && cardItem.a4p_type == \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItem.name}}</span> <span ng-if="group.title">{{group.title}}</span> <address ng-if="group.fields.length > 1" class="col-xxs-12"><ul class="list-inline"><li ng-repeat-start="field in group.fields" ng-show="group.icon && $first && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li ng-repeat-end=""><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address><address ng-if="group.fields.length == 1" ng-init="field = group.fields[0]" class="col-xxs-12"><ul ng-class="{\'list-inline\': field.type !=\'textarea\', \'list-unstyled\': field.type ==\'textarea\'}"><li ng-show="group.icon && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address></div></div><div class="c4p-card-thumb pull-right col-sm-2 hidden-xs" ng-if="cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><c4p-thumb class="pull-right" width="70" height="70" text="{{cardItemName}}" indic="{{itemRelationCount}}" icon="glyphicon-{{itemIcon}}" color="{{cardItemColor}}" url="{{cardItem.thumb_url}}"></c4p-thumb></div><div class="c4p-card-thumb pull-right col-xxs-1" ng-if="cardHasThumb"><div class="pull-right c4p-color-action-transparent" ng-click="doAction(\'toggleFavorite\')"><span class="c4p-icon-std glyphicon c4p-outline-star" ng-class="{\'glyphicon-star\' : srvData.isTaggedFavorite(cardItem), \'glyphicon-star-o\' : !srvData.isTaggedFavorite(cardItem)}"></span></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><div class="btn c4p-card-thumb-media" ng-class="{\'disabled\': (actionMap.viewDocument.mustBeCreated)}" ng-click="doAction(\'viewDocument\')" style="background:url(\'{{cardItem.thumb_url}}\') no-repeat center center;-webkit-background-size: contain"></div></div>{{actionMap.viewDocument.disabled}} {{cardItem.id.dbid}} {{cardItem.thumb_url}}<div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><video controls="" ng-src="{{cardItem.url}}" class="c4p-card-thumb-media"></video></div><div class="c4p-card-progress col-xxs-12" ng-if="cardHasThumb && cardItem.c4pSynchroStatus"><div class="c4p-card-progress col-xxs-12"><div ng-init="itemSynchro = cardItem.c4pSynchroStatus" ng-include="\'partials/navigation/cards/detail_synchro.html\'"></div></div></div></div>'), 
     $templateCache.put("partials/navigation/cards/detail_field.html", ' <span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{item}}" target="_blank">{{item}}</a> <a ng-switch-when="mail" class="c4p-color-lnk" href="mailto:{{item}}" target="_blank">{{item}}</a> <a ng-switch-when="url" class="c4p-color-lnk" href="{{item}}" target="_blank">{{item}}</a> <span ng-switch-when="currency">{{item | c4pCurrency}}</span> <span ng-switch-when="percent">{{item}}%</span> <span ng-switch-when="probability">{{item}}%</span> <span ng-switch-when="datetime">{{srvLocale.formatDate(item, \'short\')}}</span> <span ng-switch-when="dateTIME">{{srvLocale.formatDate(item, \'shortDate\')}} <b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span> <span ng-switch-when="date">{{srvLocale.formatDate(item, \'shortDate\')}}</span> <span ng-switch-when="time">{{srvLocale.formatDate(item, \'shortTime\')}}</span> <span ng-switch-when="TIME"><b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span> <span ng-switch-when="number">{{item | c4pNumber}}</span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="renderHtmlText(item)"></blockquote><address ng-switch-when="address">{{item}}</address><span ng-switch-default="">{{item}}</span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank">{{field.value}}</a> <a ng-switch-when="mail" class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank">{{field.value}}</a> <a ng-switch-when="url" class="c4p-color-lnk" href="{{field.value}}" target="_blank">{{field.value}}</a> <span ng-switch-when="currency">{{field.value | c4pCurrency}}</span> <span ng-switch-when="percent">{{field.value}}%</span> <span ng-switch-when="probability">{{field.value}}%</span> <span ng-switch-when="datetime">{{srvLocale.formatDate(field.value, \'short\')}}</span> <span ng-switch-when="dateTIME">{{srvLocale.formatDate(field.value, \'shortDate\')}} <b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span> <span ng-switch-when="date">{{srvLocale.formatDate(field.value, \'shortDate\')}}</span> <span ng-switch-when="time">{{srvLocale.formatDate(field.value, \'shortTime\')}}</span> <span ng-switch-when="TIME"><b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span> <span ng-switch-when="number">{{field.value | c4pNumber}}</span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="renderHtmlText(field.value)"></blockquote><address ng-switch-when="address">{{field.value}}</address><span ng-switch-default="">{{field.value}}</span></span></span></span> <span ng-if="field.suffix">{{field.suffix}}</span>'), 
-    $templateCache.put("partials/navigation/cards/detail_synchro.html", "<div ng-if=\"itemSynchro && (itemSynchro.creating || itemSynchro.writing || itemSynchro.reading || itemSynchro.deleting)\" class=\"glyphicon\" ng-class=\"{\n	        'glyphicon-trash'    : (itemSynchro.deleting > 1),\n	        'glyphicon-times-circle' : (!itemSynchro.deleting && (itemSynchro.creating > 1)),\n	        'glyphicon-upload'   : (!itemSynchro.deleting && !itemSynchro.creating && (itemSynchro.writing > 1)),\n	        'glyphicon-download' : (!itemSynchro.deleting && !itemSynchro.creating && !itemSynchro.writing && (itemSynchro.reading > 1)),\n	        'glyphicon-spinner'  : ((itemSynchro.deleting == 1) || (itemSynchro.creating == 1) || (itemSynchro.writing == 1) || (itemSynchro.reading == 1)),\n	        'glyphicon-spin'          : ((itemSynchro.deleting == 1) || (itemSynchro.creating == 1) || (itemSynchro.writing == 1) || (itemSynchro.reading == 1))\n	      }\"></div>"), 
+    $templateCache.put("partials/navigation/cards/detail_synchro.html", '<div class="progress" style="margin-bottom:0" ng-class="{\'progress-striped active\' : 		(itemSynchro.deleting==1)\n													||(itemSynchro.creating==1)\n													||(itemSynchro.writing==1)\n													||(itemSynchro.reading==1)\n													||(itemSynchro.sharing==1)}"><div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="{{itemSynchro.cloudProgress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{itemSynchro.cloudProgress}}%"></div><i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-trash-o" ng-show="itemSynchro.deleting"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-bolt" ng-show="itemSynchro.creating"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-volume-up" ng-show="itemSynchro.sharing"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-cloud-upload" ng-show="itemSynchro.writing"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-cloud-download" ng-show="itemSynchro.reading"></i></div>deleting : {{itemSynchro.deleting}}<br>creating : {{itemSynchro.creating}}<br>writing : {{itemSynchro.writing}}<br>reading : {{itemSynchro.reading}}<br>sharing : {{itemSynchro.sharing}}<br>cloud : {{itemSynchro.cloud.status}} - {{itemSynchro.cloud.progress}} % {{itemSynchro.cloud.log}}'), 
     $templateCache.put("partials/navigation/cards/draggable_inlined_card.html", '<div ng-controller="ctrlDragObject" ng-init="init(cardItem)" sense-opts="{}" sense-longdragoverenter="dragOverEnter($event,$element)" sense-longdragoverleave="dragOverLeave($event,$element)" sense-longdragstart="dragStart($event,$element)" sense-longdragmove="dragMove($event,$element)" sense-longdragend="dragEnd($event,$element)" sense-longdragcancel="dragCancel($event,$element)" sense-holdstart="holdStart($event,$element)" sense-holdstop="holdStop($event,$element)"><div ng-include="\'partials/navigation/cards/inlined_card.html\'"></div></div>'), 
     $templateCache.put("partials/navigation/cards/draggable_summarized_card.html", '<div class="col-xxs-12 c4p-link5" ng-controller="ctrlDragObject" ng-init="init(cardItem)"><div ng-class="{\'c4p-hover-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableHover, \'c4p-border-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableBorder}" style="border-width: 1px;padding:2px" ng-include="\'partials/navigation/cards/summarized_card.html\'"></div></div>'), 
     $templateCache.put("partials/navigation/cards/inlined_card.html", '<ul class="nav nav-pills" ng-controller="ctrlInlinedObject" ng-init="init(cardItem)"><li class="" style="width:95%; text-align: left"><div ng-show="inlinedItemSecondName"><span class="pull-left a4p-dot" style="max-width: 75%">{{inlinedItemName}}</span> <small class="pull-right" style="max-width: 20%; color: rgb(172, 172, 172)">{{inlinedItemSecondName}}</small></div><div ng-hide="inlinedItemSecondName"><span class="pull-left a4p-dot" style="max-width: 95%">{{inlinedItemName}}</span></div></li><li><span ng-show="(inlinedItem.c4p_synchro.creating || inlinedItem.c4p_synchro.writing || inlinedItem.c4p_synchro.reading || inlinedItem.c4p_synchro.deleting)" class="glyphicon" ng-class="{\n            \'glyphicon-trash\'    : (inlinedItem.c4p_synchro.deleting > 1),\n            \'glyphicon-times-circle\' : (!inlinedItem.c4p_synchro.deleting && (inlinedItem.c4p_synchro.creating > 1)),\n            \'glyphicon-upload\'   : (!inlinedItem.c4p_synchro.deleting && !inlinedItem.c4p_synchro.creating && (inlinedItem.c4p_synchro.writing > 1)),\n            \'glyphicon-download\' : (!inlinedItem.c4p_synchro.deleting && !inlinedItem.c4p_synchro.creating && !inlinedItem.c4p_synchro.writing && (inlinedItem.c4p_synchro.reading > 1)),\n            \'glyphicon-spinner\'  : ((inlinedItem.c4p_synchro.deleting == 1) || (inlinedItem.c4p_synchro.creating == 1) || (inlinedItem.c4p_synchro.writing == 1) || (inlinedItem.c4p_synchro.reading == 1)),\n            \'glyphicon-spin\'          : ((inlinedItem.c4p_synchro.deleting == 1) || (inlinedItem.c4p_synchro.creating == 1) || (inlinedItem.c4p_synchro.writing == 1) || (inlinedItem.c4p_synchro.reading == 1))\n        }"></span></li></ul>'), 
@@ -35209,7 +35213,7 @@ var SrvConfig = function() {
         this.activeCrms = [ "ios", "c4p" ], this.c4pConfig = {
             exposeBetaFunctionalities: !1
         }, this.nameComposition = {}, this.sizeCss = "", this.themeCss = "c4p-cosmo", this.initBetaOptions(), 
-        this.env = "P", this.initDone = !1;
+        this.c4pConfigEnv = "P", this.initDone = !1;
     }
     var betaOptions = [ "exposeCreateAccount", "exposeRequestPassword", "exposeUserFeedback", "exposeFileStorage", "exposeDataSynchro", "exposeGoogleMap", "exposeTimeline", "exposeFacetDialog", "exposeDraggableHover", "exposeDraggableBorder", "exposeAllFacets", "phoneFormatIfSmall" ];
     return Service.prototype.initBetaOptions = function() {
@@ -35235,7 +35239,7 @@ var SrvConfig = function() {
             this.themeCss = this.srvLocalStorage.get("ThemeCss", "c4p-cosmo");
             var appVersion = "Free";
             2 == this.activeCrms.length && (appVersion = "Freemium"), this.activeCrms.length > 2 && (appVersion = "Premium"), 
-            this.srvAnalytics.setVid(this.c4pBuildDate + " " + this.env + " " + appVersion), 
+            this.srvAnalytics.setVid(this.c4pBuildDate + " " + this.c4pConfigEnv + " " + appVersion), 
             this.initDone = !0, a4p.InternalLog.log("srvConfig", "initialized");
         }
     }, Service.prototype.setC4pUrlConf = function(c4pUrlConf) {
@@ -35255,7 +35259,7 @@ var SrvConfig = function() {
             self.setUrlBase(response.data.urlBase)), a4p.isDefinedAndNotNull(response.data.trustAllHosts) && (a4p.InternalLog.log("srvConfig", "trustAllHosts=" + response.data.trustAllHosts), 
             self.setTrustAllHosts(response.data.trustAllHosts));
             var appVersion = self.activeCrms.length > 1 ? "Premium" : "Free";
-            self.srvAnalytics.setVid(self.c4pBuildDate + " " + self.env + " " + appVersion), 
+            self.srvAnalytics.setVid(self.c4pBuildDate + " " + self.c4pConfigEnv + " " + appVersion), 
             callback();
         }, onFailure = function(response) {
             var msg = "Initializing Configuration failed : use default values.";
@@ -35305,7 +35309,9 @@ var SrvConfig = function() {
         this.c4pUrlSfUpdate = this.c4pUrlBase + "/c4p_update.php", this.c4pUrlSfDelete = this.c4pUrlBase + "/c4p_delete.php", 
         this.c4pUrlErrorReport = this.c4pUrlBase + "/c4p_errorReport.php", this.c4pUrlFeedbackReport = this.c4pUrlBase + "/c4p_feedbackReport.php", 
         this.c4pUrlFeedback = this.c4pUrlBase + "/c4p_feedback.php", this.c4pUrlDownload = this.c4pUrlBase + "/c4p_download.php", 
-        this.c4pUrlPing = this.c4pUrlBase + "/c4p_ping.php", this.env = this.c4pUrlBase.indexOf("ssl15.ovh.net") > -1 ? this.c4pUrlBase.indexOf("~appsprok") > -1 ? "D" : this.c4pUrlBase.indexOf("~appspron") > -1 ? "D" : "P" : this.c4pUrlBase.indexOf("apps4pro.net") > -1 ? "D" : this.c4pUrlBase.indexOf("apps4pro.biz") > -1 ? "D" : this.c4pUrlBase.indexOf("apps4pro.com") > -1 ? "P" : this.c4pUrlBase.indexOf("apps4pro.eu") > -1 ? "P" : this.c4pUrlBase.indexOf("ssl14.ovh.net") > -1 ? "P" : this.c4pUrlBase.indexOf("http://127.0.0.1") > -1 ? "L" : this.c4pUrlBase.indexOf("https://127.0.0.1") > -1 ? "LS" : this.c4pUrlBase.indexOf("http://192.168.") > -1 ? "L" : this.c4pUrlBase.indexOf("https://192.168.") > -1 ? "LS" : "P", 
+        this.c4pUrlPing = this.c4pUrlBase + "/c4p_ping.php", this.c4pUrlBase.indexOf("ssl15.ovh.net") > -1 ? this.c4pConfigEnv = this.c4pUrlBase.indexOf("~appsprok") > -1 ? "D" : this.c4pUrlBase.indexOf("~appspron") > -1 ? "D" : "P" : this.c4pUrlBase.indexOf("apps4pro.net") > -1 ? (this.c4pConfigEnv = "D", 
+        this.c4pUrlBase.indexOf("/i") > -1 && (this.c4pConfigEnv = "I")) : this.c4pConfigEnv = this.c4pUrlBase.indexOf("apps4pro.biz") > -1 ? "D" : this.c4pUrlBase.indexOf("apps4pro.com") > -1 ? "P" : this.c4pUrlBase.indexOf("apps4pro.eu") > -1 ? "P" : this.c4pUrlBase.indexOf("ssl14.ovh.net") > -1 ? "P" : this.c4pUrlBase.indexOf("http://127.0.0.1") > -1 ? "L" : this.c4pUrlBase.indexOf("https://127.0.0.1") > -1 ? "LS" : this.c4pUrlBase.indexOf("http://192.168.") > -1 ? "L" : this.c4pUrlBase.indexOf("https://192.168.") > -1 ? "LS" : "P", 
+        "P" != this.c4pConfigEnv && "I" != this.c4pConfigEnv && this.srvAnalytics.setEnabled(!1), 
         this.srvLocalStorage.set("UrlBase", this.c4pUrlBase);
     }, Service.prototype.setNameComposition = function(objectType, idx) {
         this.nameComposition[objectType] = idx, this.srvLocalStorage.set("NameComposition", this.nameComposition);
@@ -35335,23 +35341,14 @@ var SrvConfig = function() {
     }, Service.prototype.getThemeCss = function() {
         return this.themeCss || "c4p-cosmo";
     }, Service;
-}(), c4p;
-
-c4p || (c4p = {}), c4p.Synchro = function() {
-    function Synchro() {
-        this.version = "0.1";
-    }
-    return Synchro.NEW = 3, Synchro.QUEUE = 2, Synchro.NETWORK = 1, Synchro.NONE = 0, 
-    Synchro;
-}();
-
-var SrvData = function() {
-    function Service(exceptionHandlerService, qService, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvRunning, srvSynchro, srvFileStorage, $rootScope) {
+}(), SrvData = function() {
+    function Service(exceptionHandlerService, qService, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvRunning, srvSynchro, srvSynchroStatus, srvFileStorage, $rootScope) {
         this.exceptionHandler = exceptionHandlerService, this.q = qService, this.srvLocalStorage = srvLocalStorage, 
         this.srvConfig = srvConfig, this.srvLog = srvLog, this.srvLocale = srvLocale, this.srvSecurity = srvSecurity, 
         this.dataTransfer = srvDataTransfer, this.srvRunning = srvRunning, this.srvSynchro = srvSynchro, 
-        this.srvFileStorage = srvFileStorage, this.rootScope = $rootScope, this.callbackHandle = 0, 
-        this.callbacksUpdate = [], this.a4pTypesInC4PFirst = [ "Note", "Report" ], this.a4pTypesForSF = [ "Contact", "Account", "Event", "Task", "Opportunity", "Lead", "Document", "Attendee" ], 
+        this.srvSynchroStatus = srvSynchroStatus, this.srvFileStorage = srvFileStorage, 
+        this.rootScope = $rootScope, this.callbackHandle = 0, this.callbacksUpdate = [], 
+        this.a4pTypesInC4PFirst = [ "Note", "Report" ], this.a4pTypesForSF = [ "Contact", "Account", "Event", "Task", "Opportunity", "Lead", "Document", "Attendee" ], 
         this.a4p_methods = {
             toggleFavorite: {
                 icon: "star-empty",
@@ -35545,11 +35542,11 @@ var SrvData = function() {
         self.srvLog.logInfo(self.srvConfig.c4pConfig.exposeDataSynchro, requestCtx.title + " started try#" + requestNbTry, ""), 
         a4p.isDefined(requestCtx.dbid) && a4p.safeApply(self.rootScope, function() {
             var object = self.getObject(requestCtx.dbid);
-            "Create" == requestCtx.type ? a4p.isDefined(object) && object.c4p_synchro.creating == c4p.Synchro.QUEUE && (object.c4p_synchro.creating = c4p.Synchro.NETWORK) : "Update" == requestCtx.type ? a4p.isDefined(object) && object.c4p_synchro.writing == c4p.Synchro.QUEUE && (object.c4p_synchro.writing = c4p.Synchro.NETWORK) : "Delete" == requestCtx.type ? a4p.isDefined(object) && object.c4p_synchro.deleting == c4p.Synchro.QUEUE && (object.c4p_synchro.deleting = c4p.Synchro.NETWORK) : "Share" == requestCtx.type ? a4p.isDefined(object) && object.c4p_synchro.sharing == c4p.Synchro.QUEUE && (object.c4p_synchro.sharing = c4p.Synchro.NETWORK) : "Email" == requestCtx.type ? a4p.isDefined(object) && object.c4p_synchro.writing == c4p.Synchro.QUEUE && (object.c4p_synchro.writing = c4p.Synchro.NETWORK) : "Note" == requestCtx.type ? a4p.isDefined(object) && object.c4p_synchro.writing == c4p.Synchro.QUEUE && (object.c4p_synchro.writing = c4p.Synchro.NETWORK) : "Download" == requestCtx.type ? a4p.isDefined(object) && object.c4p_synchro.reading == c4p.Synchro.QUEUE && (object.c4p_synchro.reading = c4p.Synchro.NETWORK) : "Attachment" == requestCtx.type;
+            "Create" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_CREATE, self.srvSynchroStatus.PUB.NETWORK) : "Update" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, self.srvSynchroStatus.PUB.NETWORK) : "Delete" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_DELETE, self.srvSynchroStatus.PUB.NETWORK) : "Share" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.NETWORK) : "Email" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, self.srvSynchroStatus.PUB.NETWORK) : "Note" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, self.srvSynchroStatus.PUB.NETWORK) : "Download" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_READ, self.srvSynchroStatus.PUB.NETWORK) : "Attachment" == requestCtx.type;
         });
     }
     function onSynchroCancel(self, callbackId, requestId, requestCtx, requestNbTry) {
-        self.srvLog.logInfo(self.srvConfig.c4pConfig.exposeDataSynchro, requestCtx.title + " cancelled try#" + requestNbTry, ""), 
+        a4p.InternalLog.log("srvData", "onSynchroCancel"), self.srvLog.logInfo(self.srvConfig.c4pConfig.exposeDataSynchro, requestCtx.title + " cancelled try# " + requestNbTry), 
         "Create" == requestCtx.type ? onCreateFailure(self, requestCtx) : "Update" == requestCtx.type ? onUpdateFailure(self, requestCtx) : "Delete" == requestCtx.type ? onDeleteFailure(self, requestCtx) : "Download" == requestCtx.type ? onDownloadFailure(self, requestCtx) : "Attachment" == requestCtx.type || ("Share" == requestCtx.type ? onShareFailure(self, requestCtx) : "Email" == requestCtx.type ? onEmailFailure(self, requestCtx) : "Note" == requestCtx.type && onNoteFailure(self, requestCtx));
     }
     function onSynchroError(self, callbackId, requestId, requestCtx, requestNbTry, message) {
@@ -35560,7 +35557,8 @@ var SrvData = function() {
         });
     }
     function onSynchroSuccess(self, callbackId, requestId, requestCtx, requestNbTry, responseStatus, responseData) {
-        if ("Download" != requestCtx.type) {
+        if (a4p.InternalLog.log("srvData", "onSynchroSuccess: requestNbTry=" + requestNbTry + " requestCtx=" + a4pDumpData(requestCtx, 2) + " responseStatus=" + responseStatus + " responseData=" + a4pDumpData(responseData, 3)), 
+        "Download" != requestCtx.type) {
             var diag = checkErrorData(responseData);
             if (diag) return diag.maintenance ? (self.srvSynchro.serverHs(), self.srvSynchro.tryAgainCurrentRequest()) : diag.redirect || 3 >= requestNbTry && self.srvSynchro.tryAgainCurrentRequest(), 
             void a4p.safeApply(self.rootScope, function() {
@@ -35581,44 +35579,39 @@ var SrvData = function() {
     function onCreateSuccess(self, requestCtx, responseData) {
         var object = self.getObject(requestCtx.dbid), askedCreated = responseData.askedCreated, created = responseData.created, errors = responseData.errors;
         a4p.isTrueOrNonEmpty(errors) && a4p.ErrorLog.log("srvData", "reject creating parts of item " + requestCtx.dbid + " : " + a4pDumpData(errors, 1)), 
-        a4p.isDefined(object) ? (object.c4p_synchro.creating = c4p.Synchro.NONE, createdObject(self, requestCtx.dbid, askedCreated, created)) : a4p.InternalLog.log("srvData", "create success on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        a4p.isDefined(object) ? (self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_CREATE), 
+        createdObject(self, requestCtx.dbid, askedCreated, created)) : a4p.InternalLog.log("srvData", "create success on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         sendNextObjectToSave(self);
     }
     function onCreateFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
-        if (a4p.isDefined(object)) {
-            object.c4p_synchro.creating = c4p.Synchro.NONE;
-            for (var deleted = [], askedCrms = self.srvConfig.getActiveCrms() || [], i = 0, nb = askedCrms.length; nb > i; i++) {
-                var crm = askedCrms[i], id = object.id[crm + "_id"];
-                delete self.index[crm][id], deleted.push({
-                    crm: crm,
-                    id: id
-                });
-            }
-            deletedObject(self, requestCtx.dbid, askedCrms, deleted, !1);
-        } else a4p.InternalLog.log("srvData", "create failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
+        a4p.isDefined(object) ? self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_CREATE, "create failure ?") : a4p.InternalLog.log("srvData", "create failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         sendNextObjectToSave(self);
     }
     function onUpdateSuccess(self, requestCtx, responseData) {
         var object = self.getObject(requestCtx.dbid), askedUpdated = responseData.askedUpdated, updated = responseData.updated, errors = responseData.errors;
         a4p.isTrueOrNonEmpty(errors) && a4p.ErrorLog.log("srvData", "reject updating parts of item " + requestCtx.dbid + " : " + a4pDumpData(errors, 1)), 
-        a4p.isDefined(object) ? (object.c4p_synchro.writing = c4p.Synchro.NONE, updatedObject(self, requestCtx.dbid, askedUpdated, updated)) : a4p.InternalLog.log("srvData", "update success on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        a4p.isDefined(object) ? (self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE), 
+        updatedObject(self, requestCtx.dbid, askedUpdated, updated)) : a4p.InternalLog.log("srvData", "update success on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         sendNextObjectToSave(self);
     }
     function onUpdateFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
-        a4p.isDefined(object) ? (object.c4p_synchro.writing = c4p.Synchro.NONE, self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "update failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "update failure ?"), 
+        self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "update failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         sendNextObjectToSave(self);
     }
     function onDeleteSuccess(self, requestCtx, responseData) {
         var object = self.getObject(requestCtx.dbid), askedDeleted = responseData.askedDeleted, deleted = responseData.deleted, errors = responseData.errors;
         a4p.isTrueOrNonEmpty(errors) && a4p.ErrorLog.log("srvData", "reject deleting parts of item " + requestCtx.dbid + " : " + a4pDumpData(errors, 1)), 
-        a4p.isDefined(object) ? (object.c4p_synchro.deleting = c4p.Synchro.NONE, deletedObject(self, requestCtx.dbid, askedDeleted, deleted, !1)) : a4p.InternalLog.log("srvData", "delete success on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        a4p.isDefined(object) ? (self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_DELETE), 
+        deleteObject(self, requestCtx.dbid, askedDeleted, deleted, !1)) : a4p.InternalLog.log("srvData", "delete success on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         sendNextObjectToSave(self);
     }
     function onDeleteFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
-        a4p.isDefined(object) ? (object.c4p_synchro.deleting = c4p.Synchro.NONE, self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "delete failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_DELETE, " delete failure ?"), 
+        self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "delete failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         sendNextObjectToSave(self);
     }
     function onDownloadSuccess(self, requestCtx, responseStatus) {
@@ -35629,32 +35622,35 @@ var SrvData = function() {
         updateOriginalObject(self, object, {
             fileUrl: object.fileUrl,
             thumb_url: object.thumb_url
-        }), object.c4p_synchro.reading = c4p.Synchro.NONE, self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "download success on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        }), self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_READ), 
+        self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "download success on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         getNextObjectToDownload(self, requestCtx.dbid);
     }
     function onDownloadFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
-        a4p.isDefined(object) ? (object.c4p_synchro.reading = c4p.Synchro.NONE, self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type]), 
-        a4p.InternalLog.log("srvData", "download failure //TODO : what todo with this document not downloaded ? " + requestCtx.dbid)) : a4p.InternalLog.log("srvData", "download failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_READ, "download failure ?"), 
+        self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type]), 
+        a4p.InternalLog.log("srvData", "download failure //TODO : what todo with self document not downloaded ? " + requestCtx.dbid)) : a4p.InternalLog.log("srvData", "download failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         getNextObjectToDownload(self, requestCtx.dbid);
     }
     function onShareSuccess(self, requestCtx, responseData) {
         if ("Document shared." == responseData.log && a4p.isDefined(responseData.id)) {
             var object = self.getObject(requestCtx.dbid);
-            a4p.isDefined(object) ? (delete object.feed, object.c4p_synchro.sharing = c4p.Synchro.NONE, 
+            a4p.isDefined(object) ? (delete object.feed, self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_SHARE), 
             self.setObject(object, !1), self.addObjectToSave(object.a4p_type, object.id.dbid)) : a4p.InternalLog.log("srvData", "share success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
         }
         sendNextObjectToSave(self);
     }
     function onShareFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
-        a4p.isDefined(object) ? (object.c4p_synchro.sharing = c4p.Synchro.NONE, self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "share failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "share failure ?"), 
+        self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "share failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         sendNextObjectToSave(self);
     }
     function onEmailSuccess(self, requestCtx, responseData) {
         var object = self.getObject(requestCtx.dbid);
         if (a4p.isDefined(object)) if (a4p.isDefined(responseData.nbSent)) {
-            responseData.nbSent > 0, object.c4p_synchro.writing = c4p.Synchro.NONE;
+            responseData.nbSent > 0, self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE);
             var pdfEmailExists = !1;
             if (a4p.isDefined(responseData.created)) for (var i = 0, nb = responseData.created.length; nb > i; i++) {
                 var crm = responseData.created[i].crm, id = responseData.created[i].id;
@@ -35667,19 +35663,21 @@ var SrvData = function() {
                 updateLinkedObjects(self, "Document", object.id.dbid, crm + "_id", id);
             } else a4p.isDefined(responseData.id) && a4p.isDefined(responseData.id.sf_id) && updateLinkedObjects(self, "Document", object.id.dbid, "sf_id", object.id.sf_id);
         } else "Create email success." == responseData.responseStatus && a4p.isDefined(responseData.id) && (object.id.sf_id = responseData.id.sf_id, 
-        object.c4p_synchro.writing = c4p.Synchro.NONE, self.setObject(object, !1), self.savingObject.fields.id.sf_id = object.id.sf_id, 
+        self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE), 
+        self.setObject(object, !1), self.savingObject.fields.id.sf_id = object.id.sf_id, 
         addOriginalObject(self, self.savingObject.fields, !self.isDemo), updateLinkedObjects(self, "Document", object.id.dbid, "sf_id", object.id.sf_id)); else a4p.InternalLog.log("srvData", "email success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
         sendNextObjectToSave(self);
     }
     function onEmailFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
-        a4p.isDefined(object) ? (object.c4p_synchro.writing = c4p.Synchro.NONE, self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "email failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "writing failure ?"), 
+        self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "email failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         sendNextObjectToSave(self);
     }
     function onNoteSuccess(self, requestCtx, responseData) {
         if (("Create report success." == responseData.responseStatus || "Create note success." == responseData.responseStatus) && a4p.isDefined(responseData.id)) {
             var object = self.getObject(requestCtx.dbid);
-            a4p.isDefined(object) ? (object.id.sf_id = responseData.id.sf_id, object.c4p_synchro.writing = c4p.Synchro.NONE, 
+            a4p.isDefined(object) ? (object.id.sf_id = responseData.id.sf_id, self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE), 
             self.setObject(object, !1), self.savingObject.fields.id.sf_id = object.id.sf_id, 
             addOriginalObject(self, self.savingObject.fields, !self.isDemo), updateLinkedObjects(self, "Document", object.id.dbid, "sf_id", object.id.sf_id)) : a4p.InternalLog.log("srvData", "note success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
         }
@@ -35687,7 +35685,8 @@ var SrvData = function() {
     }
     function onNoteFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
-        a4p.isDefined(object) ? (object.c4p_synchro.writing = c4p.Synchro.NONE, self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "note failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "writing failure ?"), 
+        self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "note failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         sendNextObjectToSave(self);
     }
     function checkErrorData(responseData) {
@@ -35928,59 +35927,55 @@ var SrvData = function() {
         self.lastRefreshMindMap = Math.floor(requestTimestamp / 1e3), self.srvLocalStorage.set("Data-lastRefreshMindMap", self.lastRefreshMindMap);
     }
     function saveObject(self, type, dbid) {
-        var fromObject = self.originalDbIndex[dbid], toObject = self.getObject(dbid), diffResult = diffObject(fromObject, toObject);
-        if (null == diffResult) {
-            if (a4p.isDefined(toObject)) {
-                if (toObject.c4p_synchro.creating == c4p.Synchro.QUEUE && (toObject.c4p_synchro.creating = c4p.Synchro.NONE), 
-                toObject.c4p_synchro.writing == c4p.Synchro.QUEUE && (toObject.c4p_synchro.writing = c4p.Synchro.NONE), 
-                toObject.c4p_synchro.deleting == c4p.Synchro.QUEUE && (toObject.c4p_synchro.deleting = c4p.Synchro.NONE), 
-                "Document" == type && a4p.isDefined(toObject.feed) && toObject.feed) return self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), 
-                !0) : (toObject.c4p_synchro.sharing = c4p.Synchro.NONE, toObject.toSaveWhenCrm = !0, 
-                self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), !1);
-                self.srvLocalStorage.set("Data-" + type, self.currentItems[type]);
+        a4p.InternalLog.log("srvData", "saveObject " + type + " id:" + dbid);
+        var fromObject = self.originalDbIndex[dbid], toObject = self.getObject(dbid);
+        if (!a4p.isDefined(toObject)) return !1;
+        var diffResult = diffObject(fromObject, toObject);
+        if (a4p.InternalLog.log("srvData", "saveObject diffResult:" + diffResult), "delete" == diffResult || self.srvSynchroStatus.hasToBeDeleted(toObject)) {
+            if (self.srvConfig.hasActiveRemoteCrm() && sendDeletion(self, fromObject, toObject)) return !0;
+            self.srvSynchroStatus.successChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_DELETE), 
+            toObject.toSaveWhenCrm = !0;
+            for (var oldCrmKeyId in toObject.id) if ("dbid" != oldCrmKeyId && toObject.id.hasOwnProperty(oldCrmKeyId)) {
+                var crm = oldCrmKeyId.substr(0, oldCrmKeyId.length - 3), id = toObject.id[oldCrmKeyId];
+                delete self.index[crm][id];
             }
-            return !1;
+            {
+                removeObjectFromList(self.currentItems[type], dbid);
+            }
+            return delete self.index.db[dbid], self.nbObjects--, self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), 
+            triggerUpdate(self, "remove", type, dbid), unlinkLinkedObjects(self, dbid), !1;
         }
+        if (null == diffResult) return "Document" == type && a4p.isDefined(toObject.feed) && toObject.feed ? self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.QUEUE), 
+        self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "no change and no active CRM"), 
+        toObject.toSaveWhenCrm = !0, self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), 
+        !1) : (self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), !1);
         if ("new" == diffResult) {
             var changed = !1;
             if (a4p.isDefined(toObject.email) && toObject.email.editable && (toObject.email.editable = !1, 
             changed = !0), changed && self.srvLocalStorage.set("Data-" + toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
             "Document" == type) {
-                if (a4p.isTrueOrNonEmpty(toObject.feed)) return self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? !0 : (toObject.c4p_synchro.sharing = c4p.Synchro.NONE, 
+                if (a4p.isTrueOrNonEmpty(toObject.feed)) return self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.QUEUE), 
+                !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "new but no active CRM"), 
                 toObject.toSaveWhenCrm = !0, self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), 
                 !1);
                 if (a4p.isTrueOrNonEmpty(toObject.email)) return sendEmail(self, toObject), !0;
             }
-            return self.srvConfig.hasActiveRemoteCrm() && sendCreation(self, toObject) ? !0 : (toObject.c4p_synchro.creating = c4p.Synchro.NONE, 
-            toObject.c4p_synchro.writing = c4p.Synchro.NONE, toObject.toSaveWhenCrm = !0, self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), 
+            return self.srvConfig.hasActiveRemoteCrm() && sendCreation(self, toObject) ? !0 : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_CREATE, "init because new"), 
+            self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "init because new"), 
+            toObject.toSaveWhenCrm = !0, self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), 
             !1);
-        }
-        if ("delete" == diffResult) {
-            if (self.srvConfig.hasActiveRemoteCrm() && sendDeletion(self, fromObject, toObject)) return !0;
-            if (a4p.isDefined(toObject)) {
-                toObject.c4p_synchro.deleting = c4p.Synchro.NONE, toObject.toSaveWhenCrm = !0;
-                for (var oldCrmKeyId in toObject.id) if ("dbid" != oldCrmKeyId && toObject.id.hasOwnProperty(oldCrmKeyId)) {
-                    var crm = oldCrmKeyId.substr(0, oldCrmKeyId.length - 3), id = toObject.id[oldCrmKeyId];
-                    delete self.index[crm][id];
-                }
-                {
-                    removeObjectFromList(self.currentItems[type], dbid);
-                }
-                delete self.index.db[dbid], self.nbObjects--, self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), 
-                triggerUpdate(self, "remove", type, dbid), unlinkLinkedObjects(self, dbid);
-            }
-            return !1;
         }
         var changed = !1;
         if ("Document" == toObject.a4p_type && a4p.isDefined(toObject.email) && toObject.email.editable && (toObject.email.editable = !1, 
         changed = !0), changed && self.srvLocalStorage.set("Data-" + toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
         "Document" == type) {
-            if (a4p.isTrueOrNonEmpty(toObject.feed)) return self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? !0 : (toObject.c4p_synchro.sharing = c4p.Synchro.NONE, 
+            if (a4p.isTrueOrNonEmpty(toObject.feed)) return self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.QUEUE), 
+            !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "update and no active CRM"), 
             toObject.toSaveWhenCrm = !0, self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), 
             !1);
             if (a4p.isTrueOrNonEmpty(toObject.email)) return sendEmail(self, toObject), !0;
         }
-        return self.srvConfig.hasActiveRemoteCrm() && sendUpdate(self, toObject, diffResult) ? !0 : (toObject.c4p_synchro.writing = c4p.Synchro.NONE, 
+        return self.srvConfig.hasActiveRemoteCrm() && sendUpdate(self, toObject, diffResult) ? !0 : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "NO remote CRM enabled"), 
         toObject.toSaveWhenCrm = !0, self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), 
         !1);
     }
@@ -36094,7 +36089,7 @@ var SrvData = function() {
             type: object.a4p_type,
             dbid: object.id.dbid,
             action: "create",
-            fields: angular.copy(object)
+            fields: angular.extend(object)
         }, self.srvLocalStorage.set("Data-savingObject", self.savingObject), self.isDemo) {
             var answerCreated = {
                 crm: created[0].crm,
@@ -36135,9 +36130,9 @@ var SrvData = function() {
                     type: object.a4p_type,
                     id: object.id.dbid,
                     created: created,
-                    fields: object,
+                    fields: angular.copy(object),
                     askedCrms: askedCrms
-                }, "Attachee" == object.a4p_type) {
+                }, self.srvSynchroStatus.removeStatus(params.fields), "Attachee" == object.a4p_type) {
                     var objDesc = c4p.Model.a4p_types[object.a4p_type], attachedObject = self.getObject(object[objDesc.attached].dbid);
                     params.fields.attachedName = self.srvConfig.getItemName(attachedObject);
                     var attacheeObject = self.getObject(object[objDesc.attachee].dbid);
@@ -36165,6 +36160,7 @@ var SrvData = function() {
         return !0;
     }
     function sendDeletion(self, fromObject) {
+        if (!fromObject) return !1;
         var requestCtx = {
             type: "Delete",
             title: "Delete " + fromObject.a4p_type + " " + self.srvConfig.getItemName(fromObject),
@@ -36196,7 +36192,7 @@ var SrvData = function() {
             type: fromObject.a4p_type,
             dbid: fromObject.id.dbid,
             action: "delete",
-            fields: angular.copy(fromObject)
+            fields: angular.extend(fromObject)
         }, self.srvLocalStorage.set("Data-savingObject", self.savingObject), self.isDemo ? onDeleteSuccess(self, requestCtx, {
             id: fromObject.id.dbid,
             type: fromObject.a4p_type,
@@ -36208,6 +36204,7 @@ var SrvData = function() {
         }), !0;
     }
     function sendUpdate(self, object, diffResult) {
+        if (!object) return !1;
         var requestCtx = {
             type: "Update",
             title: "Update " + object.a4p_type + " " + self.srvConfig.getItemName(object),
@@ -36233,7 +36230,7 @@ var SrvData = function() {
             type: object.a4p_type,
             dbid: object.id.dbid,
             action: "update",
-            fields: angular.copy(object)
+            fields: angular.extend(object)
         }, self.srvLocalStorage.set("Data-savingObject", self.savingObject), self.isDemo) onUpdateSuccess(self, requestCtx, {
             id: object.id.dbid,
             type: object.a4p_type,
@@ -36248,11 +36245,12 @@ var SrvData = function() {
                 id: object.id.dbid,
                 type: object.a4p_type,
                 updated: updated,
-                object: object,
+                object: angular.copy(object),
                 fields: updatedFields,
                 askedCrms: askedCrms
             };
-            if ("Report" == object.a4p_type) {
+            if (self.srvSynchroStatus.removeStatus(params.object), self.srvSynchroStatus.removeStatus(params.fields), 
+            "Report" == object.a4p_type) {
                 for (params.contacts = [], params.accounts = [], i = 0; i < object.contact_ids.length; i++) {
                     var contact = self.getObject(object.contact_ids[i].dbid);
                     if (params.contacts.push(contact), a4p.isDefined(contact.account_id)) {
@@ -36289,7 +36287,7 @@ var SrvData = function() {
             type: "Document",
             dbid: object.id.dbid,
             action: "share",
-            fields: angular.copy(object)
+            fields: angular.extend(object)
         }, self.srvLocalStorage.set("Data-savingObject", self.savingObject), self.isDemo) {
             var answerId = {};
             isValueInList(self.srvConfig.getActiveCrms(), "sf") && (answerId.sf_id = "feedSF" + object.id.dbid), 
@@ -36327,24 +36325,19 @@ var SrvData = function() {
         }
     }
     function diffObject(fromObject, toObject) {
-        if (a4p.isDefined(toObject)) {
-            if (toObject.c4p_synchro.deleting == c4p.Synchro.NEW || toObject.c4p_synchro.deleting == c4p.Synchro.QUEUE) return "delete";
-            if (a4p.isDefinedAndNotNull(fromObject)) {
-                for (var type = fromObject.a4p_type, updated = !1, updates = [], objDesc = c4p.Model.a4p_types[type], fieldIdx = 0, len = objDesc.fields.length; len > fieldIdx; fieldIdx++) {
-                    var fieldName = objDesc.fields[fieldIdx], isArrayField = a4p.isDefined(c4p.Model.objectArrays[type][fieldName]);
-                    if (isArrayField) {
-                        if (toObject[fieldName].length != fromObject[fieldName].length) updated = !0, updates.push(fieldName); else for (var valueIdx = 0, valueNb = toObject[fieldName].length; valueNb > valueIdx; valueIdx++) if (diffField(type, fieldName, fromObject[fieldName][valueIdx], toObject[fieldName][valueIdx])) {
-                            updated = !0, updates.push(fieldName);
-                            break;
-                        }
-                    } else diffField(type, fieldName, fromObject[fieldName], toObject[fieldName]) && (updated = !0, 
-                    updates.push(fieldName));
+        if (!a4p.isDefined(toObject)) return a4p.isDefinedAndNotNull(fromObject) ? "delete" : null;
+        if (!a4p.isDefinedAndNotNull(fromObject)) return "new";
+        for (var type = fromObject.a4p_type, updated = !1, updates = [], objDesc = c4p.Model.a4p_types[type], fieldIdx = 0, len = objDesc.fields.length; len > fieldIdx; fieldIdx++) {
+            var fieldName = objDesc.fields[fieldIdx], isArrayField = a4p.isDefined(c4p.Model.objectArrays[type][fieldName]);
+            if (isArrayField) {
+                if (toObject[fieldName].length != fromObject[fieldName].length) updated = !0, updates.push(fieldName); else for (var valueIdx = 0, valueNb = toObject[fieldName].length; valueNb > valueIdx; valueIdx++) if (diffField(type, fieldName, fromObject[fieldName][valueIdx], toObject[fieldName][valueIdx])) {
+                    updated = !0, updates.push(fieldName);
+                    break;
                 }
-                return updated ? updates : null;
-            }
-            return "new";
+            } else diffField(type, fieldName, fromObject[fieldName], toObject[fieldName]) && (updated = !0, 
+            updates.push(fieldName));
         }
-        return a4p.isDefinedAndNotNull(fromObject) ? "delete" : null;
+        return updated ? updates : null;
     }
     function diffField(a4p_type, fieldname, fromField, toField) {
         if (a4p.isDefined(c4p.Model.a4p_types[a4p_type].linkDescs[fieldname])) {
@@ -36459,7 +36452,7 @@ var SrvData = function() {
         setOriginalObject(self, self.savingObject.fields, !1), self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type]), 
         self.addObjectToSave(object.a4p_type, object.id.dbid);
     }
-    function deletedObject(self, itemId, askedDeleted, deleted, isOriginal) {
+    function deleteObject(self, itemId, askedDeleted, deleted, isOriginal) {
         for (var object = self.index.db[itemId], i = 0, nb = deleted.length; nb > i; i++) {
             var crm = deleted[i].crm, id = deleted[i].id;
             delete self.index[crm][id];
@@ -36510,14 +36503,13 @@ var SrvData = function() {
         a4p.isDefined(object) && (delete self.originalDbIndex[dbid], removeObjectFromList(self.originalItems[object.a4p_type], dbid) !== !1 && self.srvLocalStorage.set("Data-Original" + object.a4p_type, self.originalItems[object.a4p_type]));
     }
     function addObjectToDownload(self, type, dbid) {
-        a4p.InternalLog.log("srvData", "addObjectToDownload " + dbid);
+        a4p.InternalLog.log("srvData", "addObjectToDownload " + type + " " + dbid);
         var delayedDownload = !0;
         if (0 == self.objectsToDownload.length && (delayedDownload = !1), getLinkFromList(self.objectsToDownload, dbid) !== !1) return !1;
         var object = self.getObject(dbid);
-        return "Document" == object.a4p_type && (object.fileUrl = "", a4p.InternalLog.log("srvData", "Document " + object.filePath + " has before download an empty fileUrl"), 
-        c4p.Model.isImage(object.extension) && (object.thumb_url = object.fileUrl, a4p.InternalLog.log("srvData", "Image " + object.filePath + " has before download an empty thumb_url"))), 
-        object.c4p_synchro.reading = c4p.Synchro.QUEUE, self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type]), 
-        self.objectsToDownload.push({
+        return self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_READ, self.srvSynchroStatus.PUB.NEW), 
+        self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_READ, self.srvSynchroStatus.PUB.QUEUE), 
+        self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), self.objectsToDownload.push({
             type: type,
             dbid: dbid
         }), self.srvLocalStorage.set("Data-objectsToDownload", self.objectsToDownload), 
@@ -36532,6 +36524,7 @@ var SrvData = function() {
         a4p.InternalLog.log("srvData", "downloadObject " + dbid);
         var object = self.getObject(dbid);
         if (a4p.isDefined(object)) {
+            a4p.InternalLog.log("srvData", "downloadObject sf:" + object.id.sf_id + " c4p:" + object.id.c4p_id);
             var loadFields = c4p.Model.files[object.a4p_type];
             return a4p.isDefined(object.id.sf_id) ? (self.srvSynchro.addFileRequest("data", {
                 type: "Download",
@@ -36548,6 +36541,7 @@ var SrvData = function() {
         return removeObjectToDownload(self, dbid), !1;
     }
     return Service.prototype.isMethodPossibleForObject = function(methodName, object) {
+        if (!object || !object.a4p_type) return !1;
         var methodDesc = this.a4p_methods[methodName];
         return !!methodDesc.objectTypes[object.a4p_type];
     }, Service.prototype.getMethodIcon = function(methodName, object) {
@@ -36556,7 +36550,7 @@ var SrvData = function() {
         icon;
     }, Service.prototype.isMethodDisabledForObject = function(methodName, object) {
         var methodDesc = this.a4p_methods[methodName], disabled = !1;
-        if (methodDesc.mustBeOwner && !this.isObjectOwnedByUser(object)) disabled = !0; else if (a4p.isDefined(methodDesc.mustHaveFavorite) && !this.favoritesObject) disabled = !0; else if (a4p.isDefined(methodDesc.mustHaveBetaOption) && !this.srvConfig.c4pConfig[methodDesc.mustHaveBetaOption]) disabled = !0; else if (a4p.isDefined(methodDesc.mustBeCreated) && (object.c4p_synchro.creating || object.c4p_synchro.reading)) disabled = !0; else if (a4p.isDefined(methodDesc.mustBeInFuture) && a4p.isDefined(object.date_start)) {
+        if (methodDesc.mustBeOwner && !this.isObjectOwnedByUser(object)) disabled = !0; else if (a4p.isDefined(methodDesc.mustHaveFavorite) && !this.favoritesObject) disabled = !0; else if (a4p.isDefined(methodDesc.mustHaveBetaOption) && !this.srvConfig.c4pConfig[methodDesc.mustHaveBetaOption]) disabled = !0; else if (a4p.isDefined(methodDesc.mustBeCreated) && this.srvSynchroStatus.isInInstableMode(object)) disabled = !0; else if (a4p.isDefined(methodDesc.mustBeInFuture) && a4p.isDefined(object.date_start)) {
             var date = new Date();
             a4pDateParse(object.date_start).getTime() < date.getTime() && (disabled = !0);
         } else if (a4p.isDefinedAndNotNull(methodDesc.possibleCrms)) {
@@ -36636,24 +36630,15 @@ var SrvData = function() {
             for (i = 0; i < c4p.Model.allTypes.length; i++) {
                 for (type = c4p.Model.allTypes[i], this.currentItems[type] = this.srvLocalStorage.get("Data-" + type, []), 
                 this.nbObjects += this.currentItems[type].length, j = 0; j < this.currentItems[type].length; j++) {
-                    if (object = this.currentItems[type][j], !this.isObjectToSave(object.id.dbid)) if (object.toSaveWhenCrm) {
+                    if (object = this.currentItems[type][j], object && !this.isObjectToSave(object.id.dbid)) if (object.toSaveWhenCrm) {
                         delete object.toSaveWhenCrm;
                         var fromObject = this.originalDbIndex[object.id.dbid], diffResult = diffObject(fromObject, object);
-                        if (null == diffResult) "Document" == type && a4p.isTrueOrNonEmpty(object.feed) && object.c4p_synchro.sharing == c4p.Synchro.NONE && (object.c4p_synchro.sharing = c4p.Synchro.NEW); else if ("new" == diffResult) object.c4p_synchro.creating = c4p.Synchro.NEW, 
-                        "Document" == type && a4p.isTrueOrNonEmpty(object.feed) && object.c4p_synchro.sharing == c4p.Synchro.NONE && (object.c4p_synchro.sharing = c4p.Synchro.NEW); else if ("delete" == diffResult) {
-                            if (object.c4p_synchro.deleting == c4p.Synchro.NONE) {
-                                if (object.c4p_synchro.creating == c4p.Synchro.NEW || object.c4p_synchro.creating == c4p.Synchro.QUEUE) {
-                                    this.currentItems[type].splice(j, 1), this.nbObjects--, j--;
-                                    continue;
-                                }
-                                object.c4p_synchro.deleting = c4p.Synchro.NEW, object.c4p_synchro.writing == c4p.Synchro.NEW && (object.c4p_synchro.writing = c4p.Synchro.NONE);
-                            }
-                        } else object.c4p_synchro.writing == c4p.Synchro.NONE && (object.c4p_synchro.writing = c4p.Synchro.NEW), 
-                        "Document" == type && a4p.isTrueOrNonEmpty(object.feed) && object.c4p_synchro.sharing == c4p.Synchro.NONE && (object.c4p_synchro.sharing = c4p.Synchro.NEW);
-                        a4p.isTrueOrNonEmpty(object.feed) && object.c4p_synchro.sharing == c4p.Synchro.NEW && (object.c4p_synchro.sharing = c4p.Synchro.QUEUE), 
-                        object.c4p_synchro.creating == c4p.Synchro.NEW && (object.c4p_synchro.creating = c4p.Synchro.QUEUE), 
-                        object.c4p_synchro.writing == c4p.Synchro.NEW && (object.c4p_synchro.writing = c4p.Synchro.QUEUE), 
-                        object.c4p_synchro.deleting == c4p.Synchro.NEW && (object.c4p_synchro.deleting = c4p.Synchro.QUEUE), 
+                        this.srvSynchroStatus.hasToBeDeleted(object) || (null == diffResult || ("new" == diffResult ? this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NEW) : this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_WRITE, this.srvSynchroStatus.PUB.NEW)), 
+                        "Document" == type && a4p.isTrueOrNonEmpty(object.feed) && this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_SHARE, this.srvSynchroStatus.PUB.NEW)), 
+                        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_SHARE, this.srvSynchroStatus.PUB.QUEUE), 
+                        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.QUEUE), 
+                        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_WRITE, this.srvSynchroStatus.PUB.QUEUE), 
+                        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_DELETE, this.srvSynchroStatus.PUB.QUEUE), 
                         this.objectsToSave.push({
                             type: type,
                             dbid: object.id.dbid
@@ -36663,16 +36648,12 @@ var SrvData = function() {
                             this.currentItems[type].splice(j, 1), this.nbObjects--, j--;
                             continue;
                         }
-                        object = copyObject(this.originalDbIndex[object.id.dbid]), object.c4p_synchro = {
-                            creating: c4p.Synchro.NONE,
-                            sharing: c4p.Synchro.NONE,
-                            writing: c4p.Synchro.NONE,
-                            reading: c4p.Synchro.NONE,
-                            deleting: c4p.Synchro.NONE
-                        }, this.completeFields(object), this.isObjectToDownload(object.id.dbid) && (object.c4p_synchro.reading = c4p.Synchro.QUEUE), 
+                        object = copyObject(this.originalDbIndex[object.id.dbid]), this.srvSynchroStatus.hasChannels(object) || this.srvSynchroStatus.resetChannels(object), 
+                        this.completeFields(object), this.isObjectToDownload(object.id.dbid) && (this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_READ, this.srvSynchroStatus.PUB.NEW), 
+                        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_READ, this.srvSynchroStatus.PUB.QUEUE)), 
                         this.currentItems[type][j] = object;
                     }
-                    this.index.db[object.id.dbid] = object, a4p.isDefined(object.id) && (a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object), 
+                    object && object.id && (this.index.db[object.id.dbid] = object), object && a4p.isDefined(object.id) && (a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object), 
                     a4p.isDefined(object.id.c4p_id) && (this.index.c4p[object.id.c4p_id] = object));
                 }
                 this.srvLocalStorage.set("Data-" + type, this.currentItems[type]);
@@ -36725,13 +36706,7 @@ var SrvData = function() {
     }, Service.prototype.createObject = function(type, object) {
         if (object.a4p_type = type, a4p.isDefined(object.feed) && delete object.feed, a4p.isUndefined(object.id) && (object.id = {}), 
         a4p.isUndefined(object.id.dbid)) object.id.dbid = type + "-" + a4p.nextUid(), this.srvLocalStorage.set("Data-Uid", a4p.getUid()); else if (a4p.isDefined(this.index.db[object.id.dbid])) throw new Error("Object of type " + type + " and id " + object.id.dbid + " already exists");
-        object.c4p_synchro = {
-            creating: c4p.Synchro.NONE,
-            sharing: c4p.Synchro.NONE,
-            writing: c4p.Synchro.NONE,
-            reading: c4p.Synchro.NONE,
-            deleting: c4p.Synchro.NONE
-        }, this.completeFields(object);
+        this.srvSynchroStatus.resetChannels(object), this.completeFields(object);
         for (var now = new Date(), objDesc = c4p.Model.a4p_types[object.a4p_type], owner = this.index.db[this.userId.dbid], fieldIdx = 0, fieldNb = objDesc.fields.length; fieldNb > fieldIdx; fieldIdx++) {
             var fieldName = objDesc.fields[fieldIdx];
             if ("owner_id" == fieldName) {
@@ -36749,21 +36724,20 @@ var SrvData = function() {
         if (a4p.isDefined(object.feed) && delete object.feed, a4p.isUndefined(object.id) && (object.id = {}), 
         a4p.isUndefined(object.id.dbid)) object.id.dbid = object.a4p_type + "-" + a4p.nextUid(), 
         this.srvLocalStorage.set("Data-Uid", a4p.getUid()); else if (a4p.isDefined(this.index.db[object.id.dbid])) throw new Error("Object of type " + object.a4p_type + " and id " + object.id.dbid + " already exists");
-        return object.c4p_synchro = {
-            creating: c4p.Synchro.NONE,
-            sharing: c4p.Synchro.NONE,
-            writing: c4p.Synchro.NONE,
-            reading: c4p.Synchro.NONE,
-            deleting: c4p.Synchro.NONE
-        }, this.completeFields(object), this.index.db[object.id.dbid] = object, a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object, 
+        return isOriginal && (this.srvSynchroStatus.hasChannels(object) || this.srvSynchroStatus.resetChannels(object), 
+        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NEW), 
+        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.QUEUE), 
+        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NETWORK), 
+        this.srvSynchroStatus.successChannel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE)), 
+        this.completeFields(object), this.index.db[object.id.dbid] = object, a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object, 
         a4p.isDefined(this.userId.sf_id) && this.userId.sf_id == object.id.sf_id && (this.userId.dbid = object.id.dbid, 
         this.srvLocalStorage.set("Data-userId", this.userId), a4p.InternalLog.log("srvData", "addObject : userId=" + a4pDumpData(this.userId, 2)))), 
         a4p.isDefined(object.id.c4p_id) && (this.index.c4p[object.id.c4p_id] = object, a4p.isDefined(this.userId.c4p_id) && this.userId.c4p_id == object.id.c4p_id && (this.userId.dbid = object.id.dbid, 
         this.srvLocalStorage.set("Data-userId", this.userId), a4p.InternalLog.log("srvData", "addObject : userId=" + a4pDumpData(this.userId, 2)))), 
         a4p.isDefined(object.id.ios_id) && (this.index.ios[object.id.ios_id] = object, a4p.isDefined(this.userId.ios_id) && this.userId.ios_id == object.id.ios_id && (this.userId.dbid = object.id.dbid, 
         this.srvLocalStorage.set("Data-userId", this.userId), a4p.InternalLog.log("srvData", "addObject : userId=" + a4pDumpData(this.userId, 2)))), 
-        isOriginal || (object.c4p_synchro.creating = c4p.Synchro.NEW), this.currentItems[object.a4p_type].push(object), 
-        this.nbObjects++, this.srvLocalStorage.set("Data-" + object.a4p_type, this.currentItems[object.a4p_type]), 
+        isOriginal || this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NEW), 
+        this.currentItems[object.a4p_type].push(object), this.nbObjects++, this.srvLocalStorage.set("Data-" + object.a4p_type, this.currentItems[object.a4p_type]), 
         a4p.isDefined(isOriginal) && isOriginal && addOriginalObject(this, object, !this.isDemo), 
         triggerUpdate(this, "add", object.a4p_type, object.id.dbid), object;
     }, Service.prototype.setObject = function(object, isOriginal) {
@@ -36776,24 +36750,18 @@ var SrvData = function() {
         !1;
         if (object.a4p_type != oldObject.a4p_type) return a4p.ErrorLog.log("srvData", "reject updating object with different type"), 
         !1;
-        a4p.isUndefinedOrNull(object.c4p_synchro) && (object.c4p_synchro = {
-            creating: c4p.Synchro.NONE,
-            sharing: c4p.Synchro.NONE,
-            writing: c4p.Synchro.NONE,
-            reading: c4p.Synchro.NONE,
-            deleting: c4p.Synchro.NONE
-        }), this.completeFields(object);
+        isOriginal && (this.srvSynchroStatus.hasChannels(object) || this.srvSynchroStatus.resetChannels(object), 
+        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NEW), 
+        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.QUEUE), 
+        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NETWORK), 
+        this.srvSynchroStatus.successChannel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE)), 
+        this.completeFields(object);
         for (var type = object.a4p_type, oldObject = !1, objectIdx = this.currentItems[type].length - 1; objectIdx >= 0; objectIdx--) if (this.currentItems[type][objectIdx].id.dbid == object.id.dbid) {
             oldObject = this.currentItems[type][objectIdx];
             break;
         }
-        return a4p.isTrueOrNonEmpty(oldObject) ? isOriginal || this.isObjectOwnedByUser(oldObject) ? (object.c4p_synchro.sharing = oldObject.c4p_synchro.sharing, 
-        object.c4p_synchro.creating = oldObject.c4p_synchro.creating, object.c4p_synchro.writing = oldObject.c4p_synchro.writing, 
-        object.c4p_synchro.reading = oldObject.c4p_synchro.reading, object.c4p_synchro.deleting = oldObject.c4p_synchro.deleting, 
-        a4p.isDefined(object.feed) && object.feed && object.c4p_synchro.sharing == c4p.Synchro.NONE && (object.c4p_synchro.sharing = c4p.Synchro.NEW), 
-        a4p.isDefined(isOriginal) && isOriginal ? (object.c4p_synchro.creating = c4p.Synchro.NONE, 
-        object.c4p_synchro.writing = c4p.Synchro.NONE, object.c4p_synchro.reading = c4p.Synchro.NONE, 
-        object.c4p_synchro.deleting = c4p.Synchro.NONE) : object.c4p_synchro.creating == c4p.Synchro.NONE && object.c4p_synchro.writing == c4p.Synchro.NONE && (object.c4p_synchro.writing = c4p.Synchro.NEW), 
+        return a4p.isTrueOrNonEmpty(oldObject) ? isOriginal || this.isObjectOwnedByUser(oldObject) ? (this.srvSynchroStatus.copyChannels(object, oldObject), 
+        a4p.isDefined(object.feed) && object.feed && this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_SHARE, this.srvSynchroStatus.PUB.NEW), 
         this.completeFields(object), this.index.db[object.id.dbid] = object, a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object), 
         a4p.isDefined(object.id.c4p_id) && (this.index.c4p[object.id.c4p_id] = object), 
         a4p.isDefined(object.id.ios_id) && (this.index.ios[object.id.ios_id] = object), 
@@ -36802,37 +36770,20 @@ var SrvData = function() {
         triggerUpdate(this, "set", type, object.id.dbid), object) : !1 : !1;
     }, Service.prototype.removeObject = function(dbid, isOriginal) {
         var object = this.getObject(dbid);
-        if (a4p.isDefined(object)) {
-            if (!isOriginal && !this.isObjectOwnedByUser(object)) return !1;
-            if (a4p.isDefined(isOriginal) && isOriginal) {
-                object.c4p_synchro.creating = c4p.Synchro.NONE, object.c4p_synchro.writing = c4p.Synchro.NONE, 
-                object.c4p_synchro.reading = c4p.Synchro.NONE, object.c4p_synchro.deleting = c4p.Synchro.NONE;
-                var deleted = [];
-                deleted.push(a4p.isDefined(object.id.c4p_id) ? {
-                    crm: "c4p",
-                    id: object.id.c4p_id
-                } : a4p.isDefined(object.id.sf_id) ? {
-                    crm: "sf",
-                    id: object.id.sf_id
-                } : {
-                    crm: "ios",
-                    id: object.id.ios_id
-                }), deletedObject(this, object.id.dbid, deleted, deleted, !0);
-            } else if (object.c4p_synchro.deleting == c4p.Synchro.NONE && (object.c4p_synchro.deleting = c4p.Synchro.NEW, 
-            object.c4p_synchro.writing == c4p.Synchro.NEW && (object.c4p_synchro.writing = c4p.Synchro.NONE), 
-            object.c4p_synchro.creating == c4p.Synchro.NEW || object.c4p_synchro.creating == c4p.Synchro.QUEUE)) {
-                var deleted = [];
-                deleted.push(a4p.isDefined(object.id.c4p_id) ? {
-                    crm: "c4p",
-                    id: object.id.c4p_id
-                } : {
-                    crm: "sf",
-                    id: object.id.sf_id
-                }), deletedObject(this, object.id.dbid, deleted, deleted, !1);
-            }
-            return object;
+        if (!a4p.isDefined(object)) return !1;
+        if (!isOriginal && !this.isObjectOwnedByUser(object)) return !1;
+        var bOk = this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_DELETE, this.srvSynchroStatus.PUB.NEW);
+        if (bOk) {
+            var deleted = [];
+            a4p.isDefined(object.id.c4p_id) && deleted.push({
+                crm: "c4p",
+                id: object.id.c4p_id
+            }), a4p.isDefined(object.id.sf_id) && deleted.push({
+                crm: "sf",
+                id: object.id.sf_id
+            }), isOriginal && deleteObject(this, object.id.dbid, deleted, deleted, !1);
         }
-        return !1;
+        return object;
     }, Service.prototype.linkToObjects = function(fromLink, fromObject, toType, toObjects) {
         for (var done = !1, fromFieldIdx = 0; fromFieldIdx < c4p.Model.a4p_types[fromObject.a4p_type].linkFields.length; fromFieldIdx++) {
             var linkModel = c4p.Model.a4p_types[fromObject.a4p_type].linkFields[fromFieldIdx], fromField = linkModel.key;
@@ -37009,10 +36960,10 @@ var SrvData = function() {
     }, Service.prototype.addObjectToSave = function(type, dbid) {
         if (getLinkFromList(this.objectsToSave, dbid) !== !1) return !1;
         var delayedSave = a4p.isDefined(this.savingObject.dbid) || this.objectsToSave.length > 0 || this.objectsToDownload.length > 0, object = this.getObject(dbid);
-        return a4p.isDefined(object) && (a4p.isTrueOrNonEmpty(object.feed) && object.c4p_synchro.sharing == c4p.Synchro.NEW && (object.c4p_synchro.sharing = c4p.Synchro.QUEUE), 
-        object.c4p_synchro.creating == c4p.Synchro.NEW && (object.c4p_synchro.creating = c4p.Synchro.QUEUE), 
-        object.c4p_synchro.writing == c4p.Synchro.NEW && (object.c4p_synchro.writing = c4p.Synchro.QUEUE), 
-        object.c4p_synchro.deleting == c4p.Synchro.NEW && (object.c4p_synchro.deleting = c4p.Synchro.QUEUE), 
+        return a4p.isDefined(object) && (this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.QUEUE), 
+        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_SHARE, this.srvSynchroStatus.PUB.QUEUE), 
+        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_WRITE, this.srvSynchroStatus.PUB.QUEUE), 
+        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_DELETE, this.srvSynchroStatus.PUB.QUEUE), 
         this.srvLocalStorage.set("Data-" + object.a4p_type, this.currentItems[object.a4p_type])), 
         this.objectsToSave.push({
             type: type,
@@ -37891,7 +37842,9 @@ var SrvData = function() {
                     } else if (a4p.isDefined(fieldEditModel.defaultSetter)) {
                         var values = [];
                         a4p.isDefined(fieldEditModel.defaultSetterParam) && (values.push(this.srvLocale), 
-                        values.push(fieldEditModel.defaultSetterParam)), object[key] = c4p.Model[fieldEditModel.defaultSetter].apply(c4p.Model, values);
+                        values.push(fieldEditModel.defaultSetterParam));
+                        var setter = c4p.Model[fieldEditModel.defaultSetter];
+                        setter && key ? object[key] = setter.apply(c4p.Model, values) : a4p.ErrorLog.log("srvData", "Default setter init pb " + key);
                     }
                 }
             }
@@ -38906,7 +38859,9 @@ var SrvFacet = function() {
         if ("undefined" == typeof url || null == url) throw new Error("send requires a url parameter");
         "undefined" == typeof timeout && (timeout = null);
         var self = this, deferred = this.defer.defer(), promise = deferred.promise;
-        if (a4p.isDefinedAndNotNull(FileTransfer)) {
+        if (a4p.InternalLog.log("srvFileTransfer", "recvFile " + filePath + " from " + url), 
+        a4p.isDefinedAndNotNull(FileTransfer)) {
+            a4p.InternalLog.log("srvFileTransfer", "recvFile with FileTransfer");
             var onTransferSuccessFct = function(fileEntry) {
                 console.log("success");
                 var feUrl = fileEntry.fullPath;
@@ -38928,12 +38883,13 @@ var SrvFacet = function() {
                 });
             }, onCreateDirSuccessFct = function(fileEntry) {
                 var ft = new FileTransfer(), trustAllHosts = !0, feUrl = fileEntry.fullPath;
-                a4p.isDefined(fileEntry.toURL) && (feUrl = fileEntry.toURL()), ft.onprogress = function(progressEvent) {
-                    if (a4p.InternalLog.log("srvFileTransfer", "Loading (" + url + ") :"), progressEvent.lengthComputable) {
-                        var perc = Math.floor(progressEvent.loaded / progressEvent.total * 100);
-                        a4p.InternalLog.log("srvFileTransfer", "" + perc + "% of " + progressEvent.total);
+                a4p.isDefined(fileEntry.toURL) && (feUrl = fileEntry.toURL()), console.log("feUrl toURL : " + feUrl);
+                ft.onprogress = function(progressEvent) {
+                    if (progressEvent.lengthComputable) {
+                        Math.floor(progressEvent.loaded / progressEvent.total * 100);
                     }
-                    progressEvent.loaded == progressEvent.total && (console.log("done !"), onTransferSuccessFct(fileEntry));
+                    progressEvent.loaded == progressEvent.total && (a4p.InternalLog.log("srvFileTransfer", "done !"), 
+                    onTransferSuccessFct(fileEntry));
                 };
                 var downloadFile = function() {
                     var srcUri = url;
@@ -38972,11 +38928,13 @@ var SrvFacet = function() {
                     endings: "transparent"
                 });
                 onWriteSuccessFct = function(fileEntry) {
-                    var msg = "File write success for " + filePath + " : URL=" + fileEntry.toNativeURL();
+                    var fePath = fileEntry.fullPath;
+                    fileEntry.toNativeURL && (fePath = fileEntry.toNativeURL());
+                    var msg = "File write success for " + filePath + " : URL=" + fePath;
                     a4p.safeApply(self.rootScope, function() {
                         a4p.InternalLog.log("srvFileTransfer", msg), deferred.resolve({
                             data: "",
-                            status: fileEntry.toNativeURL()
+                            status: fePath
                         });
                     });
                 }, self.srvFileStorage.writeFile(blob, filePath, onWriteSuccessFct, fctOnWriteError);
@@ -39871,8 +39829,8 @@ var SrvFacet = function() {
         }
     }
     function sendNextRequest(self) {
-        if (self.initDone && self.serverState == Service.READY && self.state == Service.READY && !(self.pendingRequests.length <= 0)) {
-            self.state = Service.SENDING;
+        if (a4p.InternalLog.log("srvSynchro", "sendNextRequest"), self.initDone && self.serverState == Service.READY && self.state == Service.READY && !(self.pendingRequests.length <= 0)) {
+            a4p.InternalLog.log("srvSynchro", "sendNextRequest-"), self.state = Service.SENDING;
             var request = self.pendingRequests[0];
             request.nbTry++;
             var requestId = request.id, fctOnHttpSuccess = function(response) {
@@ -39880,7 +39838,7 @@ var SrvFacet = function() {
                 var request = self.pendingRequests[0];
                 self.tryAgain = !1, a4p.isDefined(request) && requestId == request.id ? (triggerSuccess(self, request, response.status, response.data, response.headers), 
                 self.state != Service.PAUSE && (self.state = Service.READY, self.serverState != Service.READY && checkServerStatus(self)), 
-                self.tryAgain && request.nbTry <= 10 ? setTimeout(function() {
+                self.tryAgain && request.nbTry <= 3 ? setTimeout(function() {
                     sendNextRequest(self);
                 }, 1e3 * request.nbTry * request.nbTry) : (self.pendingRequests.length > 0 && self.pendingRequests[0].id == requestId && self.pendingRequests.splice(0, 1), 
                 setTimeout(function() {
@@ -39895,10 +39853,7 @@ var SrvFacet = function() {
                 a4p.isDefined(request) && requestId == request.id ? (triggerError(self, request, response.data), 
                 self.state != Service.PAUSE && (self.state = Service.READY, self.serverState != Service.READY && checkServerStatus(self)), 
                 a4p.InternalLog.log("srvSynchro", "sendNextRequest retry : " + request.id + " # " + request.nbTry), 
-                request.nbTry > 10 ? (self.pendingRequests.length > 0 && self.pendingRequests[0].id == requestId && self.pendingRequests.splice(0, 1), 
-                setTimeout(function() {
-                    sendNextRequest(self);
-                }, 100)) : setTimeout(function() {
+                request.nbTry > 3 ? self.cancelRequest(request) : setTimeout(function() {
                     sendNextRequest(self);
                 }, 1e3 * request.nbTry * request.nbTry)) : (a4p.InternalLog.log("srvSynchro", "sendNextRequest cancel already done " + request.id + " # " + request.nbTry), 
                 self.state != Service.PAUSE && (self.state = Service.READY, self.serverState != Service.READY && checkServerStatus(self)), 
@@ -39971,7 +39926,8 @@ var SrvFacet = function() {
         };
         return this.pendingRequests.push(request), sendNextRequest(this), this.requestHandle;
     }, Service.prototype.addFileRequest = function(channel, ctx, url, method, params, filePath, headers, options) {
-        if (this.requestHandle++, "undefined" == typeof ctx || null == ctx) throw new Error("SrvSynchro.send requires a ctx parameter");
+        if (a4p.InternalLog.log("srvSynchro", "addFileRequest " + channel + " url:" + url), 
+        this.requestHandle++, "undefined" == typeof ctx || null == ctx) throw new Error("SrvSynchro.send requires a ctx parameter");
         if ("undefined" == typeof url || null == url) throw new Error("SrvSynchro.send requires a url parameter");
         if ("undefined" == typeof method || null == method) throw new Error("SrvSynchro.send requires a method parameter");
         "undefined" == typeof params && (params = null), "undefined" == typeof headers && (headers = null);
@@ -40015,6 +39971,77 @@ var SrvFacet = function() {
     }, Service.prototype.serverOk = function() {
         this.serverState == Service.PAUSE && (a4p.InternalLog.log("srvSynchro", "serverState resume"), 
         this.serverState = Service.READY, this.state == Service.READY && sendNextRequest(this));
+    }, Service;
+}(), SrvSynchroStatus = function() {
+    function Service() {
+        this.version = "0.2", this.PUB = {}, this.PUB.NEW = 3, this.PUB.QUEUE = 2, this.PUB.NETWORK = 1, 
+        this.PUB.NONE = 0, this.PUB.CLOUD_WAITFOR = 0, this.PUB.CLOUD_PB = 1, this.PUB.CLOUD_INPROGRESS = 2, 
+        this.PUB.CLOUD_IN = 3, this.PUB.CHANNEL_CREATE = "creating", this.PUB.CHANNEL_SHARE = "sharing", 
+        this.PUB.CHANNEL_WRITE = "writing", this.PUB.CHANNEL_READ = "reading", this.PUB.CHANNEL_DELETE = "deleting", 
+        this.PUB.CHANNEL_CLOUD = "cloud";
+    }
+    return Service.prototype.resetChannels = function(object) {
+        return object ? (object.c4pSynchroStatus = {}, object.c4pSynchroStatus[this.PUB.CHANNEL_CREATE] = this.PUB.NONE, 
+        object.c4pSynchroStatus[this.PUB.CHANNEL_SHARE] = this.PUB.NONE, object.c4pSynchroStatus[this.PUB.CHANNEL_WRITE] = this.PUB.NONE, 
+        object.c4pSynchroStatus[this.PUB.CHANNEL_READ] = this.PUB.NONE, object.c4pSynchroStatus[this.PUB.CHANNEL_DELETE] = this.PUB.NONE, 
+        object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = {
+            progress: 0,
+            status: this.PUB.CLOUD_WAITFOR,
+            log: "init"
+        }, !0) : !1;
+    }, Service.prototype.hasChannels = function(object) {
+        return object && object.c4pSynchroStatus && !a4p.isUndefinedOrNull(object.c4pSynchroStatus) ? !0 : !1;
+    }, Service.prototype.removeStatus = function(object) {
+        return object && object.c4pSynchroStatus && !a4p.isUndefinedOrNull(object.c4pSynchroStatus) ? (delete object.c4pSynchroStatus, 
+        !0) : !0;
+    }, Service.prototype.isInInstableMode = function(object) {
+        return object && object.c4pSynchroStatus && !a4p.isUndefinedOrNull(object.c4pSynchroStatus) ? object.c4pSynchroStatus[this.PUB.CHANNEL_CREATE] || object.c4pSynchroStatus[this.PUB.CHANNEL_READ] || object.c4pSynchroStatus[this.PUB.CHANNEL_DELETE] ? !0 : !1 : !0;
+    }, Service.prototype.hasToBeDeleted = function(object) {
+        if (!object || !object.c4pSynchroStatus || a4p.isUndefinedOrNull(object.c4pSynchroStatus)) return !1;
+        var deleteChanel = this.PUB.CHANNEL_DELETE;
+        return object.c4pSynchroStatus[deleteChanel] != this.PUB.NONE ? !0 : !1;
+    }, Service.prototype.copyChannels = function(object, objectToCopy) {
+        return object ? a4p.isUndefinedOrNull(objectToCopy.c4pSynchroStatus) ? this.resetChannels(object) : (object.c4pSynchroStatus[this.PUB.CHANNEL_CREATE] = objectToCopy.c4pSynchroStatus[this.PUB.CHANNEL_CREATE], 
+        object.c4pSynchroStatus[this.PUB.CHANNEL_SHARE] = objectToCopy.c4pSynchroStatus[this.PUB.CHANNEL_SHARE], 
+        object.c4pSynchroStatus[this.PUB.CHANNEL_WRITE] = objectToCopy.c4pSynchroStatus[this.PUB.CHANNEL_WRITE], 
+        object.c4pSynchroStatus[this.PUB.CHANNEL_READ] = objectToCopy.c4pSynchroStatus[this.PUB.CHANNEL_READ], 
+        object.c4pSynchroStatus[this.PUB.CHANNEL_DELETE] = objectToCopy.c4pSynchroStatus[this.PUB.CHANNEL_DELETE], 
+        object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = angular.copy(objectToCopy.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD]), 
+        !0) : !1;
+    }, Service.prototype.pushChannelToLevel = function(object, channel, level) {
+        if (!(object && channel && a4p.isDefined(object.c4pSynchroStatus) && a4p.isDefined(object.c4pSynchroStatus[channel]))) return !1;
+        var previous = object.c4pSynchroStatus[channel], doChange = !1;
+        return level == this.PUB.NEW && previous == this.PUB.NONE ? doChange = !0 : level == this.PUB.QUEUE && previous == this.PUB.NEW ? doChange = !0 : level == this.PUB.NETWORK && previous == this.PUB.QUEUE ? doChange = !0 : level == this.PUB.NONE && previous == this.PUB.NETWORK && (doChange = !0), 
+        doChange || a4p.InternalLog.log("SrvSynchroStatus", "pushChannelToLevel pb doChange:" + channel + " from " + previous + " to " + level), 
+        doChange && channel == this.PUB.CHANNEL_DELETE && this.resetChannels(object), doChange && (object.c4pSynchroStatus[channel] = level), 
+        doChange && level == this.PUB.NETWORK && (object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = {
+            progress: 0,
+            status: this.PUB.CLOUD_WAITFOR,
+            log: "wait..."
+        }), doChange;
+    }, Service.prototype.successChannel = function(object, channel) {
+        if (!(object && channel && a4p.isDefined(object.c4pSynchroStatus) && a4p.isDefined(object.c4pSynchroStatus[channel]))) return !1;
+        var previous = object.c4pSynchroStatus[channel];
+        previous == this.PUB.NETWORK && (object.c4pSynchroStatus[channel] = this.PUB.NONE);
+        var sumChannel = (object.c4pSynchroStatus[this.PUB.CHANNEL_CREATE] == this.PUB.NONE) + (object.c4pSynchroStatus[this.PUB.CHANNEL_SHARE] == this.PUB.NONE) + (object.c4pSynchroStatus[this.PUB.CHANNEL_WRITE] == this.PUB.NONE) + (object.c4pSynchroStatus[this.PUB.CHANNEL_READ] == this.PUB.NONE) + (object.c4pSynchroStatus[this.PUB.CHANNEL_DELETE] == this.PUB.NONE), percent = sumChannel / 5 * 100;
+        return 100 == percent ? object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = {
+            progress: percent,
+            status: this.PUB.CLOUD_IN,
+            log: "in!"
+        } : percent > 0 && (object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = {
+            progress: percent,
+            status: this.PUB.CLOUD_INPROGRESS,
+            log: "in progress..."
+        }), !0;
+    }, Service.prototype.cancelChannel = function(object, channel, log) {
+        if (!(object && channel && a4p.isDefined(object.c4pSynchroStatus) && a4p.isDefined(object.c4pSynchroStatus[channel]))) return !1;
+        var doChange = !1, previous = object.c4pSynchroStatus[channel];
+        return previous != this.PUB.NONE && (object.c4pSynchroStatus[channel] = this.PUB.NONE, 
+        object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = {
+            progress: 0,
+            status: this.PUB.CLOUD_PB,
+            log: ":" + log
+        }, doChange = !0), doChange;
     }, Service;
 }(), SrvTime = function() {
     function setNow(self, now) {
@@ -40228,8 +40255,10 @@ serviceModule.factory("srvOpenUrl", [ "$exceptionHandler", function($exceptionHa
     return new SrvLocale($http, srvLoad, srvLocalStorage);
 } ]), serviceModule.factory("srvSynchro", [ "$q", "srvDataTransfer", "srvFileTransfer", "$exceptionHandler", "srvRunning", "srvLocalStorage", "srvSecurity", function($q, srvDataTransfer, srvFileTransfer, $exceptionHandler, srvRunning, srvLocalStorage, srvSecurity) {
     return new SrvSynchro($q, srvDataTransfer, srvFileTransfer, $exceptionHandler, srvRunning, srvLocalStorage, srvSecurity);
-} ]), serviceModule.factory("srvData", [ "$exceptionHandler", "$q", "srvLocalStorage", "srvConfig", "srvLog", "srvLocale", "srvSecurity", "srvDataTransfer", "srvRunning", "srvSynchro", "srvFileStorage", "$rootScope", function($exceptionHandler, $q, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvRunning, srvSynchro, srvFileStorage, $rootScope) {
-    return new SrvData($exceptionHandler, $q, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvRunning, srvSynchro, srvFileStorage, $rootScope);
+} ]), serviceModule.factory("srvSynchroStatus", [ "$q", function($q) {
+    return new SrvSynchroStatus($q);
+} ]), serviceModule.factory("srvData", [ "$exceptionHandler", "$q", "srvLocalStorage", "srvConfig", "srvLog", "srvLocale", "srvSecurity", "srvDataTransfer", "srvRunning", "srvSynchro", "srvSynchroStatus", "srvFileStorage", "$rootScope", function($exceptionHandler, $q, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvRunning, srvSynchro, srvSynchroStatus, srvFileStorage, $rootScope) {
+    return new SrvData($exceptionHandler, $q, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvRunning, srvSynchro, srvSynchroStatus, srvFileStorage, $rootScope);
 } ]), serviceModule.factory("srvFacet", [ "srvData", "srvLocale", "srvConfig", function(srvData, srvLocale, srvConfig) {
     var srvFacet = new SrvFacet(srvData, srvLocale, srvConfig);
     return srvFacet.addPossibleOrganizerFacet(c4p.Organizer.objects), srvFacet.addPossibleOrganizerFacet(c4p.Organizer.top20), 
