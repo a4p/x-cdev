@@ -1,4 +1,4 @@
-/*! c4p.client 2014-05-05 12:07 */
+/*! c4p.client 2014-05-05 15:03 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -79,7 +79,6 @@ function calcMD5(str) {
 }
 
 function openChildBrowser(url, extension, onLocationChange, onClose) {
-    a4p.InternalLog.log("openChildBrowser", url + " extension:" + extension);
     var closeChildBrowserAfterLocationChange = !1;
     if (!window.device) {
         a4p.InternalLog.log("openChildBrowser", "window.open");
@@ -3015,7 +3014,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
                 scope.filteredOpportunities = [], scope.filteredDocuments = [], scope.setFirstConfigDone(!0), 
                 scope.$broadcast("mindMapUpdated"), a4p.InternalLog.log("ctrlNavigation", "MindMap updated"), 
                 endSynchronization(scope), deferred.resolve(), scope.lastRefresh = 1e3 * (srvData.lastRefreshMindMap ? srvData.lastRefreshMindMap || 0 : 0), 
-                srvSynchro.clearChannel("data"), srvAnalytics.run();
+                srvData.resume(), srvAnalytics.run();
             });
         }, function(response) {
             if (response.error) a4p.safeApply(scope, function() {
@@ -18299,19 +18298,16 @@ a4p.idNext = {
         a4p.promiseWakeupNb > 0 && (a4p.safeApply(scope), a4p.promiseWakeupTimeout = setTimeout(tick, 1e3));
     }
     var promiseWakeupOnHttpSuccess = function(response) {
-        a4p.InternalLog.log("a4p.promiseWakeup.tick", "promiseWakeupOnHttpSuccess?"), a4p.promiseWakeupNb--, 
-        a4p.promiseWakeupNb <= 0 && (a4p.InternalLog.log("a4p.promiseWakeup.tick", "stop"), 
+        a4p.promiseWakeupNb--, a4p.promiseWakeupNb <= 0 && (a4p.InternalLog.log("a4p.promiseWakeup.tick", "stop"), 
         a4p.promiseWakeupNb = 0, clearTimeout(a4p.promiseWakeupTimeout), a4p.promiseWakeupTimeout = null), 
         fctOnHttpSuccess(response);
     }, promiseWakeupOnHttpError = function(response) {
-        a4p.InternalLog.log("a4p.promiseWakeup.tick", "promiseWakeupOnHttpError?"), a4p.promiseWakeupNb--, 
-        a4p.promiseWakeupNb <= 0 && (a4p.InternalLog.log("a4p.promiseWakeup.tick", "stop"), 
+        a4p.promiseWakeupNb--, a4p.promiseWakeupNb <= 0 && (a4p.InternalLog.log("a4p.promiseWakeup.tick", "stop"), 
         a4p.promiseWakeupNb = 0, clearTimeout(a4p.promiseWakeupTimeout), a4p.promiseWakeupTimeout = null), 
         fctOnHttpError(response);
     };
-    0 == a4p.promiseWakeupNb && (a4p.InternalLog.log("a4p.promiseWakeup.tick", "start"), 
-    a4p.promiseWakeupTimeout = setTimeout(tick, 1e3)), a4p.promiseWakeupNb++, a4p.InternalLog.log("a4p.promiseWakeup.tick", "before?"), 
-    httpPromise.then(promiseWakeupOnHttpSuccess, promiseWakeupOnHttpError), a4p.InternalLog.log("a4p.promiseWakeup.tick", "after?");
+    0 == a4p.promiseWakeupNb && (a4p.promiseWakeupTimeout = setTimeout(tick, 1e3)), 
+    a4p.promiseWakeupNb++, httpPromise.then(promiseWakeupOnHttpSuccess, promiseWakeupOnHttpError);
 };
 
 var cache = window.applicationCache, cacheStatusValues = [], a4pTranslateDatesToPxSize = function(date_start, date_end, totalSize) {
@@ -35342,13 +35338,13 @@ var SrvConfig = function() {
         return this.themeCss || "c4p-cosmo";
     }, Service;
 }(), SrvData = function() {
-    function Service(exceptionHandlerService, qService, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvRunning, srvSynchro, srvSynchroStatus, srvFileStorage, $rootScope) {
+    function Service(exceptionHandlerService, qService, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvDataStore, srvRunning, srvSynchro, srvSynchroStatus, srvFileStorage, $rootScope) {
         this.exceptionHandler = exceptionHandlerService, this.q = qService, this.srvLocalStorage = srvLocalStorage, 
         this.srvConfig = srvConfig, this.srvLog = srvLog, this.srvLocale = srvLocale, this.srvSecurity = srvSecurity, 
         this.dataTransfer = srvDataTransfer, this.srvRunning = srvRunning, this.srvSynchro = srvSynchro, 
         this.srvSynchroStatus = srvSynchroStatus, this.srvFileStorage = srvFileStorage, 
-        this.rootScope = $rootScope, this.callbackHandle = 0, this.callbacksUpdate = [], 
-        this.a4pTypesInC4PFirst = [ "Note", "Report" ], this.a4pTypesForSF = [ "Contact", "Account", "Event", "Task", "Opportunity", "Lead", "Document", "Attendee" ], 
+        this.srvDataStore = srvDataStore, this.rootScope = $rootScope, this.callbackHandle = 0, 
+        this.callbacksUpdate = [], this.a4pTypesInC4PFirst = [ "Note", "Report" ], this.a4pTypesForSF = [ "Contact", "Account", "Event", "Task", "Opportunity", "Lead", "Document", "Attendee" ], 
         this.a4p_methods = {
             toggleFavorite: {
                 icon: "star-empty",
@@ -35526,15 +35522,15 @@ var SrvConfig = function() {
     }
     function onRunningPause(self, callbackId, value) {
         if (value) {
-            a4p.InternalLog.log("srvData", "pause begin"), self.srvLocalStorage.set("Data-Uid", a4p.getUid()), 
-            self.srvLocalStorage.set("Data-isDemo", self.isDemo), self.srvLocalStorage.set("Data-userId", self.userId), 
-            self.srvLocalStorage.set("Data-userObject", self.userObject), self.srvLocalStorage.set("Data-favoritesObject", self.favoritesObject);
+            a4p.InternalLog.log("srvData", "pause begin"), self.srvDataStore.setConfig("Uid", a4p.getUid()), 
+            self.srvDataStore.setConfig("isDemo", self.isDemo), self.srvDataStore.setConfig("userId", self.userId), 
+            self.srvDataStore.setConfig("userObject", self.userObject), self.srvDataStore.setConfig("favoritesObject", self.favoritesObject);
             for (var i = 0; i < c4p.Model.allTypes.length; i++) {
                 var type = c4p.Model.allTypes[i];
-                self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), self.srvLocalStorage.set("Data-Original" + type, self.originalItems[type]);
+                self.srvDataStore.setItems(type, self.originalItems[type], !0), self.srvDataStore.setItems(type, self.currentItems[type]);
             }
-            self.srvLocalStorage.set("Data-lastRefreshMindMap", self.lastRefreshMindMap), self.srvLocalStorage.set("Data-objectsToSave", self.objectsToSave), 
-            self.srvLocalStorage.set("Data-objectsToDownload", self.objectsToDownload), self.srvLocalStorage.set("Data-savingObject", self.savingObject), 
+            self.srvDataStore.setConfig("lastRefreshMindMap", self.lastRefreshMindMap), self.srvDataStore.setItems("objectsToSave", self.objectsToSave), 
+            self.srvDataStore.setItems("objectsToDownload", self.objectsToDownload), self.srvDataStore.setConfig("savingObject", self.savingObject), 
             a4p.InternalLog.log("srvData", "data saved in srvLocalStorage");
         } else a4p.InternalLog.log("srvData", "pause ended");
     }
@@ -35598,7 +35594,7 @@ var SrvConfig = function() {
     function onUpdateFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
         a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "update failure ?"), 
-        self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "update failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "update failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         sendNextObjectToSave(self);
     }
     function onDeleteSuccess(self, requestCtx, responseData) {
@@ -35611,7 +35607,7 @@ var SrvConfig = function() {
     function onDeleteFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
         a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_DELETE, " delete failure ?"), 
-        self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "delete failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "delete failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         sendNextObjectToSave(self);
     }
     function onDownloadSuccess(self, requestCtx, responseStatus) {
@@ -35623,13 +35619,13 @@ var SrvConfig = function() {
             fileUrl: object.fileUrl,
             thumb_url: object.thumb_url
         }), self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_READ), 
-        self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "download success on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "download success on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         getNextObjectToDownload(self, requestCtx.dbid);
     }
     function onDownloadFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
         a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_READ, "download failure ?"), 
-        self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type]), 
+        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type]), 
         a4p.InternalLog.log("srvData", "download failure //TODO : what todo with self document not downloaded ? " + requestCtx.dbid)) : a4p.InternalLog.log("srvData", "download failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         getNextObjectToDownload(self, requestCtx.dbid);
     }
@@ -35644,7 +35640,7 @@ var SrvConfig = function() {
     function onShareFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
         a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "share failure ?"), 
-        self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "share failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "share failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         sendNextObjectToSave(self);
     }
     function onEmailSuccess(self, requestCtx, responseData) {
@@ -35671,7 +35667,7 @@ var SrvConfig = function() {
     function onEmailFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
         a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "writing failure ?"), 
-        self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "email failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "email failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         sendNextObjectToSave(self);
     }
     function onNoteSuccess(self, requestCtx, responseData) {
@@ -35686,7 +35682,7 @@ var SrvConfig = function() {
     function onNoteFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
         a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "writing failure ?"), 
-        self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "note failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
+        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "note failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
         sendNextObjectToSave(self);
     }
     function checkErrorData(responseData) {
@@ -35744,7 +35740,7 @@ var SrvConfig = function() {
                     object.id[crm + "_id"] = id, a4p.isUndefined(index[crm]) && (index[crm] = {}), index[crm][id] = object;
                 }
             }
-            self.srvLocalStorage.set("Data-Uid", a4p.getUid());
+            self.srvDataStore.setConfig("Uid", a4p.getUid());
             for (var i = 0; i < fullmap.objects.length; i++) item = fullmap.objects[i], updateLinkIds(self.index, index, item);
         }
         var login = self.srvSecurity.getA4pLogin();
@@ -35816,7 +35812,7 @@ var SrvConfig = function() {
             a4p.isDefined(self.index.db[self.userId.dbid]) ? self.setAndSaveObject(self.userObject) : (self.userObject = self.createObject("Contact", self.userObject), 
             self.addAndSaveObject(self.userObject)), self.userId.dbid = self.userObject.id.dbid;
         }
-        if (self.srvLocalStorage.set("Data-userId", self.userId), self.srvLocalStorage.set("Data-userObject", self.userObject), 
+        if (self.srvDataStore.setConfig("userId", self.userId), self.srvDataStore.setConfig("userObject", self.userObject), 
         a4p.InternalLog.log("srvData", "downloadFullMap : userId=" + a4pDumpData(self.userId, 2) + " userObject=" + a4pDumpData(self.userObject, 2)), 
         fullmap.objects) for (var i = 0; i < fullmap.objects.length; i++) {
             item = fullmap.objects[i];
@@ -35846,8 +35842,8 @@ var SrvConfig = function() {
             name: self.srvLocale.translations.htmlFavorites
         }), self.addObject(self.favoritesObject), self.linkToItem(self.favoritesObject.a4p_type, "owner", [ self.favoritesObject ], self.userObject), 
         self.addObjectToSave(self.favoritesObject.a4p_type, self.favoritesObject.id.dbid)), 
-        self.srvLocalStorage.set("Data-favoritesObject", self.favoritesObject), self.lastRefreshMindMap = Math.floor(requestTimestamp / 1e3), 
-        self.srvLocalStorage.set("Data-lastRefreshMindMap", self.lastRefreshMindMap);
+        self.srvDataStore.setConfig("favoritesObject", self.favoritesObject), self.lastRefreshMindMap = Math.floor(requestTimestamp / 1e3), 
+        self.srvDataStore.setConfig("lastRefreshMindMap", self.lastRefreshMindMap);
     }
     function deleteOldDbLinkIds(item) {
         for (var mergeIdx = 0; mergeIdx < item.crmObjects.length; mergeIdx++) for (var object = item.crmObjects[mergeIdx].data, crm = item.crmObjects[mergeIdx].crmId.crm, type = item.a4p_type, objDesc = c4p.Model.a4p_types[type], j = 0; j < objDesc.linkFields.length; j++) {
@@ -35902,7 +35898,7 @@ var SrvConfig = function() {
                     }, object.id[crm + "_id"] = id, index[crm][id] = object);
                 }
             }
-            for (self.srvLocalStorage.set("Data-Uid", a4p.getUid()), i = 0; i < refreshMap.updates.length; i++) item = refreshMap.updates[i], 
+            for (self.srvDataStore.setConfig("Uid", a4p.getUid()), i = 0; i < refreshMap.updates.length; i++) item = refreshMap.updates[i], 
             deleteOldDbLinkIds(item), updateLinkIds(self.index, index, item);
             for (i = 0; i < refreshMap.updates.length; i++) {
                 item = refreshMap.updates[i];
@@ -35924,7 +35920,7 @@ var SrvConfig = function() {
                 a4p.isDefined(oldItem) && self.removeObject(oldItem.id.dbid, !0);
             }
         }
-        self.lastRefreshMindMap = Math.floor(requestTimestamp / 1e3), self.srvLocalStorage.set("Data-lastRefreshMindMap", self.lastRefreshMindMap);
+        self.lastRefreshMindMap = Math.floor(requestTimestamp / 1e3), self.srvDataStore.setConfig("lastRefreshMindMap", self.lastRefreshMindMap);
     }
     function saveObject(self, type, dbid) {
         a4p.InternalLog.log("srvData", "saveObject " + type + " id:" + dbid);
@@ -35942,41 +35938,41 @@ var SrvConfig = function() {
             {
                 removeObjectFromList(self.currentItems[type], dbid);
             }
-            return delete self.index.db[dbid], self.nbObjects--, self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), 
+            return delete self.index.db[dbid], self.nbObjects--, self.srvDataStore.setItems(type, self.currentItems[type]), 
             triggerUpdate(self, "remove", type, dbid), unlinkLinkedObjects(self, dbid), !1;
         }
         if (null == diffResult) return "Document" == type && a4p.isDefined(toObject.feed) && toObject.feed ? self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.QUEUE), 
-        self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "no change and no active CRM"), 
-        toObject.toSaveWhenCrm = !0, self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), 
-        !1) : (self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), !1);
+        self.srvDataStore.setItems(type, self.currentItems[type]), !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "no change and no active CRM"), 
+        toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
+        !1) : (self.srvDataStore.setItems(type, self.currentItems[type]), !1);
         if ("new" == diffResult) {
             var changed = !1;
             if (a4p.isDefined(toObject.email) && toObject.email.editable && (toObject.email.editable = !1, 
-            changed = !0), changed && self.srvLocalStorage.set("Data-" + toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
+            changed = !0), changed && self.srvDataStore.setItems(toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
             "Document" == type) {
                 if (a4p.isTrueOrNonEmpty(toObject.feed)) return self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.QUEUE), 
                 !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "new but no active CRM"), 
-                toObject.toSaveWhenCrm = !0, self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), 
+                toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
                 !1);
                 if (a4p.isTrueOrNonEmpty(toObject.email)) return sendEmail(self, toObject), !0;
             }
             return self.srvConfig.hasActiveRemoteCrm() && sendCreation(self, toObject) ? !0 : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_CREATE, "init because new"), 
             self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "init because new"), 
-            toObject.toSaveWhenCrm = !0, self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), 
+            toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
             !1);
         }
         var changed = !1;
         if ("Document" == toObject.a4p_type && a4p.isDefined(toObject.email) && toObject.email.editable && (toObject.email.editable = !1, 
-        changed = !0), changed && self.srvLocalStorage.set("Data-" + toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
+        changed = !0), changed && self.srvDataStore.setItems(toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
         "Document" == type) {
             if (a4p.isTrueOrNonEmpty(toObject.feed)) return self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.QUEUE), 
             !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "update and no active CRM"), 
-            toObject.toSaveWhenCrm = !0, self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), 
+            toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
             !1);
             if (a4p.isTrueOrNonEmpty(toObject.email)) return sendEmail(self, toObject), !0;
         }
         return self.srvConfig.hasActiveRemoteCrm() && sendUpdate(self, toObject, diffResult) ? !0 : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "NO remote CRM enabled"), 
-        toObject.toSaveWhenCrm = !0, self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), 
+        toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
         !1);
     }
     function sendEmail(self, object) {
@@ -36002,7 +35998,7 @@ var SrvConfig = function() {
             dbid: object.id.dbid,
             action: "create",
             fields: angular.copy(object)
-        }, self.srvLocalStorage.set("Data-savingObject", self.savingObject), self.isDemo) {
+        }, self.srvDataStore.setConfig("savingObject", self.savingObject), self.isDemo) {
             for (var createdIds = [], i = 0; i < askedCrms.length; i++) createdIds.push({
                 crm: askedCrms[i],
                 id: "demo" + askedCrms[i].toUpperCase() + object.id.dbid
@@ -36090,7 +36086,7 @@ var SrvConfig = function() {
             dbid: object.id.dbid,
             action: "create",
             fields: angular.extend(object)
-        }, self.srvLocalStorage.set("Data-savingObject", self.savingObject), self.isDemo) {
+        }, self.srvDataStore.setConfig("savingObject", self.savingObject), self.isDemo) {
             var answerCreated = {
                 crm: created[0].crm,
                 tmpId: created[0].id
@@ -36193,7 +36189,7 @@ var SrvConfig = function() {
             dbid: fromObject.id.dbid,
             action: "delete",
             fields: angular.extend(fromObject)
-        }, self.srvLocalStorage.set("Data-savingObject", self.savingObject), self.isDemo ? onDeleteSuccess(self, requestCtx, {
+        }, self.srvDataStore.setConfig("savingObject", self.savingObject), self.isDemo ? onDeleteSuccess(self, requestCtx, {
             id: fromObject.id.dbid,
             type: fromObject.a4p_type,
             askedDeleted: deleted,
@@ -36231,7 +36227,7 @@ var SrvConfig = function() {
             dbid: object.id.dbid,
             action: "update",
             fields: angular.extend(object)
-        }, self.srvLocalStorage.set("Data-savingObject", self.savingObject), self.isDemo) onUpdateSuccess(self, requestCtx, {
+        }, self.srvDataStore.setConfig("savingObject", self.savingObject), self.isDemo) onUpdateSuccess(self, requestCtx, {
             id: object.id.dbid,
             type: object.a4p_type,
             askedUpdated: updated,
@@ -36288,7 +36284,7 @@ var SrvConfig = function() {
             dbid: object.id.dbid,
             action: "share",
             fields: angular.extend(object)
-        }, self.srvLocalStorage.set("Data-savingObject", self.savingObject), self.isDemo) {
+        }, self.srvDataStore.setConfig("savingObject", self.savingObject), self.isDemo) {
             var answerId = {};
             isValueInList(self.srvConfig.getActiveCrms(), "sf") && (answerId.sf_id = "feedSF" + object.id.dbid), 
             onShareSuccess(self, requestCtx, {
@@ -36375,16 +36371,16 @@ var SrvConfig = function() {
         var sentRequest = !1;
         if (a4p.isDefined(self.savingObject.dbid)) {
             if (sentRequest = saveObject(self, self.savingObject.type, self.savingObject.dbid)) return;
-            self.savingObject = {}, self.srvLocalStorage.set("Data-savingObject", self.savingObject);
+            self.savingObject = {}, self.srvDataStore.setConfig("savingObject", self.savingObject);
         }
         for (;0 == sentRequest && self.objectsToSave.length > 0; ) {
             var removedObject = self.objectsToSave.shift();
-            self.srvLocalStorage.set("Data-objectsToSave", self.objectsToSave), sentRequest = saveObject(self, removedObject.type, removedObject.dbid);
+            self.srvDataStore.setConfig("objectsToSave", self.objectsToSave), sentRequest = saveObject(self, removedObject.type, removedObject.dbid);
         }
-        0 == sentRequest && (self.savingObject = {}, self.srvLocalStorage.set("Data-savingObject", self.savingObject));
+        0 == sentRequest && (self.savingObject = {}, self.srvDataStore.setConfig("savingObject", self.savingObject));
     }
     function sendNextObjectToSave(self) {
-        self.savingObject = {}, self.srvLocalStorage.set("Data-savingObject", self.savingObject), 
+        self.savingObject = {}, self.srvDataStore.setConfig("savingObject", self.savingObject), 
         0 == self.objectsToDownload.length && sendFirstObjectToSave(self);
     }
     function getFirstObjectToDownload(self) {
@@ -36407,26 +36403,6 @@ var SrvConfig = function() {
             }
         }
     }
-    function copyObject(object) {
-        if (a4p.isDefined(object)) {
-            var i, len, fieldname, copyObject = {
-                a4p_type: object.a4p_type
-            };
-            copyObject.id = {};
-            for (var k in object.id) object.id.hasOwnProperty(k) && (copyObject.id[k] = object.id[k]);
-            var objDesc = c4p.Model.a4p_types[object.a4p_type];
-            for (i = 0, len = objDesc.fields.length; len > i; i++) {
-                fieldname = objDesc.fields[i];
-                var isArrayField = a4p.isDefined(c4p.Model.objectArrays[object.a4p_type][fieldname]);
-                if (isArrayField) {
-                    copyObject[fieldname] = [];
-                    for (var valueIdx = 0, valueNb = object[fieldname].length; valueNb > valueIdx; valueIdx++) copyObject[fieldname].push(copyField(object.a4p_type, fieldname, object[fieldname][valueIdx]));
-                } else copyObject[fieldname] = copyField(object.a4p_type, fieldname, object[fieldname]);
-            }
-            return copyObject;
-        }
-        return void 0;
-    }
     function copyField(a4p_type, fieldname, fromField) {
         if (a4p.isDefined(c4p.Model.a4p_types[a4p_type].linkDescs[fieldname]) || fromField instanceof Object) {
             var copyField = {};
@@ -36442,14 +36418,14 @@ var SrvConfig = function() {
             object.id[crm + "_id"] = id, created[i].tmpId && delete self.index[crm][created[i].tmpId], 
             self.index[crm][id] = object, self.savingObject.fields.id[crm + "_id"] = id, updateLinkedObjects(self, object.a4p_type, itemId, crm + "_id", id);
         }
-        addOriginalObject(self, self.savingObject.fields, !1), self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type]), 
+        addOriginalObject(self, self.savingObject.fields, !1), self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type]), 
         self.addObjectToSave(object.a4p_type, itemId);
     }
     function updatedObject(self, itemId, askedUpdated, updated) {
         for (var object = self.index.db[itemId], i = 0, nb = updated.length; nb > i; i++) {
             updated[i].crm, updated[i].id;
         }
-        setOriginalObject(self, self.savingObject.fields, !1), self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type]), 
+        setOriginalObject(self, self.savingObject.fields, !1), self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type]), 
         self.addObjectToSave(object.a4p_type, object.id.dbid);
     }
     function deleteObject(self, itemId, askedDeleted, deleted, isOriginal) {
@@ -36463,15 +36439,15 @@ var SrvConfig = function() {
             }
             delete self.index.db[itemId], self.nbObjects--;
         }
-        self.srvLocalStorage.set("Data-" + object.a4p_type, self.currentItems[object.a4p_type]), 
+        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type]), 
         removeOriginalObject(self, itemId), triggerUpdate(self, "remove", object.a4p_type, object.id.dbid), 
         unlinkLinkedObjects(self, itemId, isOriginal);
     }
     function addOriginalObject(self, object, downloadFile) {
         a4p.InternalLog.log("srvData", "addOriginalObject " + object.id.dbid);
-        var copy = copyObject(object);
+        var copy = angular.extend(object);
         a4p.isDefined(copy) && (self.originalDbIndex[object.id.dbid] = copy, self.originalItems[copy.a4p_type].push(copy), 
-        self.srvLocalStorage.set("Data-Original" + copy.a4p_type, self.originalItems[copy.a4p_type])), 
+        self.srvDataStore.setItems(copy.a4p_type, self.originalItems[copy.a4p_type], !0)), 
         a4p.isDefined(c4p.Model.files[object.a4p_type]) && (a4p.isDefined(object.id.sf_id) || a4p.isDefined(object.id.c4p_id)) && downloadFile && addObjectToDownload(self, object.a4p_type, object.id.dbid);
     }
     function updateOriginalObject(self, object, fields) {
@@ -36488,19 +36464,19 @@ var SrvConfig = function() {
                     } else original[fieldname] = copyField(object.a4p_type, fieldname, fields[fieldname]);
                 }
             }
-            self.srvLocalStorage.set("Data-Original" + object.a4p_type, self.originalItems[object.a4p_type]);
+            self.srvDataStore.setItems(object.a4p_type, self.originalItems[object.a4p_type], !0);
         }
     }
     function setOriginalObject(self, object, downloadFile) {
         a4p.InternalLog.log("srvData", "setOriginalObject " + object.id.dbid);
-        var copy = copyObject(object);
-        a4p.isDefined(copy) && (self.originalDbIndex[object.id.dbid] = copy, replaceObjectFromList(self.originalItems[copy.a4p_type], object.id.dbid, copy) !== !1 && self.srvLocalStorage.set("Data-Original" + copy.a4p_type, self.originalItems[copy.a4p_type])), 
+        var copy = angular.extend(object);
+        a4p.isDefined(copy) && (self.originalDbIndex[object.id.dbid] = copy, replaceObjectFromList(self.originalItems[copy.a4p_type], object.id.dbid, copy) !== !1 && self.srvDataStore.setItems(copy.a4p_type, self.originalItems[copy.a4p_type], !0)), 
         a4p.isDefined(c4p.Model.files[object.a4p_type]) && (a4p.isDefined(object.id.sf_id) || a4p.isDefined(object.id.c4p_id)) && downloadFile && addObjectToDownload(self, object.a4p_type, object.id.dbid);
     }
     function removeOriginalObject(self, dbid) {
         a4p.InternalLog.log("srvData", "removeOriginalObject " + dbid);
         var object = self.originalDbIndex[dbid];
-        a4p.isDefined(object) && (delete self.originalDbIndex[dbid], removeObjectFromList(self.originalItems[object.a4p_type], dbid) !== !1 && self.srvLocalStorage.set("Data-Original" + object.a4p_type, self.originalItems[object.a4p_type]));
+        a4p.isDefined(object) && (delete self.originalDbIndex[dbid], removeObjectFromList(self.originalItems[object.a4p_type], dbid) !== !1 && self.srvDataStore.setItems(object.a4p_type, self.originalItems[object.a4p_type], !0));
     }
     function addObjectToDownload(self, type, dbid) {
         a4p.InternalLog.log("srvData", "addObjectToDownload " + type + " " + dbid);
@@ -36509,15 +36485,14 @@ var SrvConfig = function() {
         var object = self.getObject(dbid);
         return self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_READ, self.srvSynchroStatus.PUB.NEW), 
         self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_READ, self.srvSynchroStatus.PUB.QUEUE), 
-        self.srvLocalStorage.set("Data-" + type, self.currentItems[type]), self.objectsToDownload.push({
+        self.srvDataStore.setItems(type, self.currentItems[type]), self.objectsToDownload.push({
             type: type,
             dbid: dbid
-        }), self.srvLocalStorage.set("Data-objectsToDownload", self.objectsToDownload), 
-        delayedDownload || getFirstObjectToDownload(self) || sendFirstObjectToSave(self), 
+        }), self.srvDataStore.setItems("objectsToDownload", self.objectsToDownload), delayedDownload || getFirstObjectToDownload(self) || sendFirstObjectToSave(self), 
         !0;
     }
     function removeObjectToDownload(self, dbid) {
-        return a4p.InternalLog.log("srvData", "removeObjectToDownload " + dbid), removeLinkFromList(self.objectsToDownload, dbid) !== !1 ? (self.srvLocalStorage.set("Data-objectsToDownload", self.objectsToDownload), 
+        return a4p.InternalLog.log("srvData", "removeObjectToDownload " + dbid), removeLinkFromList(self.objectsToDownload, dbid) !== !1 ? (self.srvDataStore.setItems("objectsToDownload", self.objectsToDownload), 
         !0) : !1;
     }
     function downloadObject(self, dbid) {
@@ -36578,7 +36553,7 @@ var SrvConfig = function() {
         return removeIdFromList(this.callbacksUpdate, callbackHandle) !== !1;
     }, Service.prototype.clear = function() {
         a4p.InternalLog.log("srvData", "clearData : " + this.nbObjects + " objects"), this.srvSynchro.clearChannel("data"), 
-        a4p.initUid(), this.isDemo = !1, this.srvLocalStorage.set("Data-isDemo", this.isDemo), 
+        a4p.initUid(), this.isDemo = !1, this.srvDataStore.setConfig("isDemo", this.isDemo), 
         this.originalDbIndex = {}, this.index = {
             db: {},
             sf: {},
@@ -36587,17 +36562,17 @@ var SrvConfig = function() {
         }, this.userId = {
             sf_id: "005i0000000I8c5AAC",
             c4p_id: "demo@apps4pro.com"
-        }, this.userObject = void 0, this.favoritesObject = void 0, this.srvLocalStorage.set("Data-userId", this.userId), 
+        }, this.userObject = void 0, this.favoritesObject = void 0, this.srvDataStore.setConfig("userId", this.userId), 
         a4p.InternalLog.log("srvData", "clear : userId=" + a4pDumpData(this.userId, 2)), 
         this.currentItems = {}, this.originalItems = {};
         var i, type;
         for (i = 0; i < c4p.Model.allTypes.length; i++) type = c4p.Model.allTypes[i], this.currentItems[type] = [], 
-        this.srvLocalStorage.set("Data-" + type, this.currentItems[type]), this.originalItems[type] = [], 
-        this.srvLocalStorage.set("Data-Original" + type, this.originalItems[type]);
-        this.lastRefreshMindMap = 0, this.srvLocalStorage.set("Data-lastRefreshMindMap", this.lastRefreshMindMap), 
-        this.nbObjects = 0, this.objectsToSave = [], this.srvLocalStorage.set("Data-objectsToSave", this.objectsToSave), 
-        this.objectsToDownload = [], this.srvLocalStorage.set("Data-objectsToDownload", this.objectsToDownload), 
-        this.savingObject = {}, this.srvLocalStorage.set("Data-savingObject", this.savingObject);
+        this.originalItems[type] = [], this.srvDataStore.setItems(type, this.originalItems[type], !0), 
+        this.srvDataStore.setItems(type, this.currentItems[type], !1);
+        this.lastRefreshMindMap = 0, this.srvDataStore.setConfig("lastRefreshMindMap", this.lastRefreshMindMap), 
+        this.nbObjects = 0, this.objectsToSave = [], this.srvDataStore.setItems("objectsToSave", this.objectsToSave), 
+        this.objectsToDownload = [], this.srvDataStore.setItems("objectsToDownload", this.objectsToDownload), 
+        this.savingObject = {}, this.srvDataStore.setConfig("savingObject", this.savingObject);
         var self = this, onRemoveSuccess = function() {
             var msg = "File storage successfully cleared";
             self.srvLog.logSuccess(self.srvConfig.c4pConfig.exposeFileStorage, self.srvLocale.translations.htmlMsgClearFileStorageOK, msg);
@@ -36610,25 +36585,24 @@ var SrvConfig = function() {
     }, Service.prototype.init = function() {
         if (!this.initDone) {
             var i, j, type, object, self = this;
-            for (a4p.initUid(this.srvLocalStorage.get("Data-Uid", "000")), this.isDemo = this.srvLocalStorage.get("Data-isDemo", !1), 
+            for (a4p.initUid(this.srvDataStore.getConfig("Uid", "000")), this.isDemo = this.srvDataStore.getConfig("isDemo", !1), 
             this.originalDbIndex = {}, this.index = {
                 db: {},
                 sf: {},
                 ios: {},
                 c4p: {}
-            }, this.userId = this.srvLocalStorage.get("Data-userId", {
+            }, this.userId = this.srvDataStore.getConfig("userId", {
                 sf_id: "005i0000000I8c5AAC",
                 c4p_id: "demo@apps4pro.com"
             }), a4p.InternalLog.log("srvData", "init : a4p.uid=" + a4p.getUid() + " userId=" + a4pDumpData(this.userId, 2)), 
-            this.userObject = this.srvLocalStorage.get("Data-userObject", void 0), this.favoritesObject = this.srvLocalStorage.get("Data-favoritesObject", void 0), 
-            this.currentItems = {}, this.originalItems = {}, this.nbObjects = 0, this.lastRefreshMindMap = this.srvLocalStorage.get("Data-lastRefreshMindMap", 0), 
-            this.objectsToSave = this.srvLocalStorage.get("Data-objectsToSave", []), this.objectsToDownload = this.srvLocalStorage.get("Data-objectsToDownload", []), 
-            this.savingObject = this.srvLocalStorage.get("Data-savingObject", {}), i = 0; i < c4p.Model.allTypes.length; i++) for (type = c4p.Model.allTypes[i], 
-            this.originalItems[type] = this.srvLocalStorage.get("Data-Original" + type, []), 
-            j = 0; j < this.originalItems[type].length; j++) object = this.originalItems[type][j], 
+            this.userObject = this.srvDataStore.getConfig("userObject", void 0), this.favoritesObject = this.srvDataStore.getConfig("favoritesObject", void 0), 
+            this.currentItems = {}, this.originalItems = {}, this.nbObjects = 0, this.lastRefreshMindMap = this.srvDataStore.getConfig("lastRefreshMindMap", 0), 
+            this.objectsToSave = this.srvDataStore.getItems("objectsToSave"), this.objectsToDownload = this.srvDataStore.getItems("objectsToDownload"), 
+            this.savingObject = this.srvDataStore.getConfig("savingObject", {}), i = 0; i < c4p.Model.allTypes.length; i++) for (type = c4p.Model.allTypes[i], 
+            this.originalItems[type] = this.srvDataStore.getItems(type, !0), j = 0; j < this.originalItems[type].length; j++) object = this.originalItems[type][j], 
             this.originalDbIndex[object.id.dbid] = object;
             for (i = 0; i < c4p.Model.allTypes.length; i++) {
-                for (type = c4p.Model.allTypes[i], this.currentItems[type] = this.srvLocalStorage.get("Data-" + type, []), 
+                for (type = c4p.Model.allTypes[i], this.currentItems[type] = this.srvDataStore.getItems(type, !1), 
                 this.nbObjects += this.currentItems[type].length, j = 0; j < this.currentItems[type].length; j++) {
                     if (object = this.currentItems[type][j], object && !this.isObjectToSave(object.id.dbid)) if (object.toSaveWhenCrm) {
                         delete object.toSaveWhenCrm;
@@ -36642,13 +36616,13 @@ var SrvConfig = function() {
                         this.objectsToSave.push({
                             type: type,
                             dbid: object.id.dbid
-                        }), this.srvLocalStorage.set("Data-objectsToSave", this.objectsToSave);
+                        }), this.srvDataStore.setItems("objectsToSave", this.objectsToSave);
                     } else {
                         if (a4p.isEmptyOrFalse(this.originalDbIndex[object.id.dbid])) {
                             this.currentItems[type].splice(j, 1), this.nbObjects--, j--;
                             continue;
                         }
-                        object = copyObject(this.originalDbIndex[object.id.dbid]), this.srvSynchroStatus.hasChannels(object) || this.srvSynchroStatus.resetChannels(object), 
+                        object = angular.extend(this.originalDbIndex[object.id.dbid]), this.srvSynchroStatus.hasChannels(object) || this.srvSynchroStatus.resetChannels(object), 
                         this.completeFields(object), this.isObjectToDownload(object.id.dbid) && (this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_READ, this.srvSynchroStatus.PUB.NEW), 
                         this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_READ, this.srvSynchroStatus.PUB.QUEUE)), 
                         this.currentItems[type][j] = object;
@@ -36656,15 +36630,15 @@ var SrvConfig = function() {
                     object && object.id && (this.index.db[object.id.dbid] = object), object && a4p.isDefined(object.id) && (a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object), 
                     a4p.isDefined(object.id.c4p_id) && (this.index.c4p[object.id.c4p_id] = object));
                 }
-                this.srvLocalStorage.set("Data-" + type, this.currentItems[type]);
+                this.srvDataStore.setItems(type, this.currentItems[type]);
             }
             for (i = 0; i < c4p.Model.allTypes.length; i++) {
                 for (type = c4p.Model.allTypes[i], j = 0; j < this.originalItems[type].length; j++) {
                     var originalObject = this.originalItems[type][j];
-                    object = this.index.db[originalObject.id.dbid], a4p.isUndefined(object) && !this.isObjectToSave(originalObject.id.dbid) && (object = copyObject(originalObject), 
+                    object = this.index.db[originalObject.id.dbid], a4p.isUndefined(object) && !this.isObjectToSave(originalObject.id.dbid) && (object = angular.extend(originalObject), 
                     this.currentItems[type].push(object), this.nbObjects++);
                 }
-                this.srvLocalStorage.set("Data-" + type, this.currentItems[type]);
+                this.srvDataStore.setItems(type, this.currentItems[type]);
             }
             this.userObject = a4p.isDefinedAndNotNull(this.userObject) ? this.index.db[this.userObject.id.dbid] : void 0, 
             this.favoritesObject = a4p.isDefinedAndNotNull(this.favoritesObject) ? this.index.db[this.favoritesObject.id.dbid] : void 0, 
@@ -36684,6 +36658,8 @@ var SrvConfig = function() {
         }
     }, Service.prototype.start = function() {
         this.init(), getFirstObjectToDownload(this) || sendFirstObjectToSave(this);
+    }, Service.prototype.resume = function() {
+        getFirstObjectToDownload(this) || sendFirstObjectToSave(this);
     }, Service.prototype.destroy = function() {
         this.srvSynchro.cancelListener(this.synchroListenerOnStart), this.srvSynchro.cancelListener(this.synchroListenerOnCancel), 
         this.srvSynchro.cancelListener(this.synchroListenerOnError), this.srvSynchro.cancelListener(this.synchroListenerOnSuccess), 
@@ -36705,7 +36681,7 @@ var SrvConfig = function() {
         this.setDefaultFields(object), this.convertFields(object), this.setCalculatedFields(object);
     }, Service.prototype.createObject = function(type, object) {
         if (object.a4p_type = type, a4p.isDefined(object.feed) && delete object.feed, a4p.isUndefined(object.id) && (object.id = {}), 
-        a4p.isUndefined(object.id.dbid)) object.id.dbid = type + "-" + a4p.nextUid(), this.srvLocalStorage.set("Data-Uid", a4p.getUid()); else if (a4p.isDefined(this.index.db[object.id.dbid])) throw new Error("Object of type " + type + " and id " + object.id.dbid + " already exists");
+        a4p.isUndefined(object.id.dbid)) object.id.dbid = type + "-" + a4p.nextUid(), this.srvDataStore.setConfig("Uid", a4p.getUid()); else if (a4p.isDefined(this.index.db[object.id.dbid])) throw new Error("Object of type " + type + " and id " + object.id.dbid + " already exists");
         this.srvSynchroStatus.resetChannels(object), this.completeFields(object);
         for (var now = new Date(), objDesc = c4p.Model.a4p_types[object.a4p_type], owner = this.index.db[this.userId.dbid], fieldIdx = 0, fieldNb = objDesc.fields.length; fieldNb > fieldIdx; fieldIdx++) {
             var fieldName = objDesc.fields[fieldIdx];
@@ -36723,7 +36699,7 @@ var SrvConfig = function() {
         if (a4p.isUndefined(object.a4p_type)) throw new Error("Object must have a type");
         if (a4p.isDefined(object.feed) && delete object.feed, a4p.isUndefined(object.id) && (object.id = {}), 
         a4p.isUndefined(object.id.dbid)) object.id.dbid = object.a4p_type + "-" + a4p.nextUid(), 
-        this.srvLocalStorage.set("Data-Uid", a4p.getUid()); else if (a4p.isDefined(this.index.db[object.id.dbid])) throw new Error("Object of type " + object.a4p_type + " and id " + object.id.dbid + " already exists");
+        this.srvDataStore.setConfig("Uid", a4p.getUid()); else if (a4p.isDefined(this.index.db[object.id.dbid])) throw new Error("Object of type " + object.a4p_type + " and id " + object.id.dbid + " already exists");
         return isOriginal && (this.srvSynchroStatus.hasChannels(object) || this.srvSynchroStatus.resetChannels(object), 
         this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NEW), 
         this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.QUEUE), 
@@ -36731,13 +36707,13 @@ var SrvConfig = function() {
         this.srvSynchroStatus.successChannel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE)), 
         this.completeFields(object), this.index.db[object.id.dbid] = object, a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object, 
         a4p.isDefined(this.userId.sf_id) && this.userId.sf_id == object.id.sf_id && (this.userId.dbid = object.id.dbid, 
-        this.srvLocalStorage.set("Data-userId", this.userId), a4p.InternalLog.log("srvData", "addObject : userId=" + a4pDumpData(this.userId, 2)))), 
+        this.srvDataStore.setConfig("userId", this.userId), a4p.InternalLog.log("srvData", "addObject : userId=" + a4pDumpData(this.userId, 2)))), 
         a4p.isDefined(object.id.c4p_id) && (this.index.c4p[object.id.c4p_id] = object, a4p.isDefined(this.userId.c4p_id) && this.userId.c4p_id == object.id.c4p_id && (this.userId.dbid = object.id.dbid, 
-        this.srvLocalStorage.set("Data-userId", this.userId), a4p.InternalLog.log("srvData", "addObject : userId=" + a4pDumpData(this.userId, 2)))), 
+        this.srvDataStore.setConfig("userId", this.userId), a4p.InternalLog.log("srvData", "addObject : userId=" + a4pDumpData(this.userId, 2)))), 
         a4p.isDefined(object.id.ios_id) && (this.index.ios[object.id.ios_id] = object, a4p.isDefined(this.userId.ios_id) && this.userId.ios_id == object.id.ios_id && (this.userId.dbid = object.id.dbid, 
-        this.srvLocalStorage.set("Data-userId", this.userId), a4p.InternalLog.log("srvData", "addObject : userId=" + a4pDumpData(this.userId, 2)))), 
+        this.srvDataStore.setConfig("userId", this.userId), a4p.InternalLog.log("srvData", "addObject : userId=" + a4pDumpData(this.userId, 2)))), 
         isOriginal || this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NEW), 
-        this.currentItems[object.a4p_type].push(object), this.nbObjects++, this.srvLocalStorage.set("Data-" + object.a4p_type, this.currentItems[object.a4p_type]), 
+        this.currentItems[object.a4p_type].push(object), this.nbObjects++, this.srvDataStore.setItems(object.a4p_type, this.currentItems[object.a4p_type]), 
         a4p.isDefined(isOriginal) && isOriginal && addOriginalObject(this, object, !this.isDemo), 
         triggerUpdate(this, "add", object.a4p_type, object.id.dbid), object;
     }, Service.prototype.setObject = function(object, isOriginal) {
@@ -36765,7 +36741,7 @@ var SrvConfig = function() {
         this.completeFields(object), this.index.db[object.id.dbid] = object, a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object), 
         a4p.isDefined(object.id.c4p_id) && (this.index.c4p[object.id.c4p_id] = object), 
         a4p.isDefined(object.id.ios_id) && (this.index.ios[object.id.ios_id] = object), 
-        this.currentItems[type][objectIdx] = object, this.srvLocalStorage.set("Data-" + type, this.currentItems[type]), 
+        this.currentItems[type][objectIdx] = object, this.srvDataStore.setItems(type, this.currentItems[type]), 
         a4p.isDefined(isOriginal) && isOriginal && setOriginalObject(this, object, !this.isDemo), 
         triggerUpdate(this, "set", type, object.id.dbid), object) : !1 : !1;
     }, Service.prototype.removeObject = function(dbid, isOriginal) {
@@ -36964,11 +36940,11 @@ var SrvConfig = function() {
         this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_SHARE, this.srvSynchroStatus.PUB.QUEUE), 
         this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_WRITE, this.srvSynchroStatus.PUB.QUEUE), 
         this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_DELETE, this.srvSynchroStatus.PUB.QUEUE), 
-        this.srvLocalStorage.set("Data-" + object.a4p_type, this.currentItems[object.a4p_type])), 
+        this.srvDataStore.setItems(object.a4p_type, this.currentItems[object.a4p_type])), 
         this.objectsToSave.push({
             type: type,
             dbid: dbid
-        }), this.srvLocalStorage.set("Data-objectsToSave", this.objectsToSave), delayedSave || sendFirstObjectToSave(this), 
+        }), this.srvDataStore.setItems("objectsToSave", this.objectsToSave), delayedSave || sendFirstObjectToSave(this), 
         !0;
     }, Service.prototype.isObjectToSave = function(dbid) {
         return this.savingObject.dbid == dbid ? !0 : getLinkFromList(this.objectsToSave, dbid) !== !1;
@@ -36994,11 +36970,11 @@ var SrvConfig = function() {
         return data;
     }, Service.prototype.loginUser = function(isDemo, userEmail, userPassword, c4pToken, keepCrmLogin, userFeedback, appVersion) {
         var deferred = this.q.defer();
-        if (isDemo) this.isDemo = !0, this.srvLocalStorage.set("Data-isDemo", this.isDemo), 
+        if (isDemo) this.isDemo = !0, this.srvDataStore.setConfig("isDemo", this.isDemo), 
         deferred.resolve(); else {
             var self = this, fctOnHttpSuccess = function(response) {
                 var data = response.data;
-                self.isDemo = !1, self.srvLocalStorage.set("Data-isDemo", self.isDemo), a4p.isTrueOrNonEmpty(data.infoMessage) && self.srvLog.userLogPersistentMessage(data.infoMessage);
+                self.isDemo = !1, self.srvDataStore.setConfig("isDemo", self.isDemo), a4p.isTrueOrNonEmpty(data.infoMessage) && self.srvLog.userLogPersistentMessage(data.infoMessage);
                 var c4pToken = data.c4pToken;
                 a4p.isDefined(c4pToken) && "" != c4pToken && (self.srvSecurity.setA4pLogin(userEmail), 
                 self.srvSecurity.setA4pPassword(userPassword), self.srvSecurity.setC4pServerToken(c4pToken));
@@ -37874,6 +37850,37 @@ var SrvConfig = function() {
             a4p.InternalLog.log("srvData", "Document " + object.filePath + " has url=" + object.url + " and fileUrl=" + object.fileUrl), 
             c4p.Model.isImage(object.extension) && (object.thumb_url = object.fileUrl, a4p.InternalLog.log("srvData", "Image " + object.filePath + " has thumb_url=" + object.thumb_url));
         }
+    }, Service;
+}(), SrvDataStore = function() {
+    function Service(qService, srvLocalStorage, srvFileStorage, $rootScope) {
+        this.q = qService, this.srvLocalStorage = srvLocalStorage, this.srvFileStorage = srvFileStorage, 
+        this.rootScope = $rootScope, this.initDone = !1, this.md5Items = [];
+    }
+    return Service.prototype.init = function() {
+        this.initDone || (a4p.InternalLog.log("srvData", "init is not needed"), this.initDone = !0);
+    }, Service.prototype.setItems = function(type, items, asOfficialSynchronizedItems) {
+        if (!type || !items || !a4p.isDefined(items.length)) return !1;
+        a4p.InternalLog.log("srvDataStorage", "setItems " + asOfficialSynchronizedItems + " t:" + type + " nb:" + items.length);
+        var oI = "C4P-data-" + type, lI = "C4P-data-local-" + type, itemsListName = lI;
+        asOfficialSynchronizedItems && (itemsListName = oI);
+        var itemsAsString = a4p.Json.object2String(items), fullItemsMd5 = calcMD5(itemsAsString), fullPreviousItemsMd5 = this.md5Items[itemsListName];
+        "undefined" != typeof fullPreviousItemsMd5 && fullItemsMd5 == fullPreviousItemsMd5 ? a4p.InternalLog.log("srvDataStorage", "setItems : same md5 do not need to store") : (a4p.InternalLog.log("srvDataStorage", "setItems : well done ! md5 are different"), 
+        this.srvLocalStorage.set(itemsListName, items), this.md5Items[itemsListName] = fullItemsMd5);
+        var oMd5 = this.md5Items[oI], lMd5 = this.md5Items[lI];
+        return "undefined" == typeof oMd5 || oMd5 == lMd5 ? a4p.InternalLog.log("srvDataStorage", "original and local are the same") : a4p.InternalLog.log("srvDataStorage", "original and local are now different"), 
+        !0;
+    }, Service.prototype.getItems = function(type, asOfficialSynchronizedItems) {
+        if (!type) return [];
+        var items = [], itemsListName = "C4P-data-local-" + type;
+        return asOfficialSynchronizedItems && (itemsListName = "C4P-data-" + type), items = this.srvLocalStorage.get(itemsListName, []), 
+        items && a4p.isDefined(items.length) && a4p.InternalLog.log("srvDataStorage", "getItems :" + type + " nb:" + items.length), 
+        items;
+    }, Service.prototype.setConfig = function(key, value) {
+        return key ? (this.srvLocalStorage.set("C4P-config-local-" + key, value), !0) : !1;
+    }, Service.prototype.getConfig = function(key, defaultValue) {
+        if (!key) return null;
+        var value = this.srvLocalStorage.get("C4P-config-local-" + key, defaultValue);
+        return value;
     }, Service;
 }(), SrvDataTransfer = function() {
     function Service(deferService, httpService, $rootScope) {
@@ -40247,6 +40254,8 @@ serviceModule.factory("srvOpenUrl", [ "$exceptionHandler", function($exceptionHa
     return new SrvSecurity(srvLocalStorage);
 } ]), serviceModule.factory("srvDataTransfer", [ "$q", "$http", "$rootScope", function($q, $http, $rootScope) {
     return new SrvDataTransfer($q, $http, $rootScope);
+} ]), serviceModule.factory("srvDataStore", [ "$q", "srvLocalStorage", "srvFileStorage", "$rootScope", function($q, srvLocalStorage, srvFileStorage, $rootScope) {
+    return new SrvDataStore($q, srvLocalStorage, srvFileStorage, $rootScope);
 } ]), serviceModule.factory("srvFileTransfer", [ "$q", "$http", "srvFileStorage", "$rootScope", function($q, $http, srvFileStorage, $rootScope) {
     return new SrvFileTransfer($q, $http, srvFileStorage, $rootScope);
 } ]), serviceModule.factory("srvConfig", [ "srvDataTransfer", "srvLoad", "srvLocalStorage", "srvAnalytics", function(srvDataTransfer, srvLoad, srvLocalStorage, srvAnalytics) {
@@ -40257,8 +40266,8 @@ serviceModule.factory("srvOpenUrl", [ "$exceptionHandler", function($exceptionHa
     return new SrvSynchro($q, srvDataTransfer, srvFileTransfer, $exceptionHandler, srvRunning, srvLocalStorage, srvSecurity);
 } ]), serviceModule.factory("srvSynchroStatus", [ "$q", function($q) {
     return new SrvSynchroStatus($q);
-} ]), serviceModule.factory("srvData", [ "$exceptionHandler", "$q", "srvLocalStorage", "srvConfig", "srvLog", "srvLocale", "srvSecurity", "srvDataTransfer", "srvRunning", "srvSynchro", "srvSynchroStatus", "srvFileStorage", "$rootScope", function($exceptionHandler, $q, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvRunning, srvSynchro, srvSynchroStatus, srvFileStorage, $rootScope) {
-    return new SrvData($exceptionHandler, $q, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvRunning, srvSynchro, srvSynchroStatus, srvFileStorage, $rootScope);
+} ]), serviceModule.factory("srvData", [ "$exceptionHandler", "$q", "srvLocalStorage", "srvConfig", "srvLog", "srvLocale", "srvSecurity", "srvDataTransfer", "srvDataStore", "srvRunning", "srvSynchro", "srvSynchroStatus", "srvFileStorage", "$rootScope", function($exceptionHandler, $q, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvDataStore, srvRunning, srvSynchro, srvSynchroStatus, srvFileStorage, $rootScope) {
+    return new SrvData($exceptionHandler, $q, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvDataStore, srvRunning, srvSynchro, srvSynchroStatus, srvFileStorage, $rootScope);
 } ]), serviceModule.factory("srvFacet", [ "srvData", "srvLocale", "srvConfig", function(srvData, srvLocale, srvConfig) {
     var srvFacet = new SrvFacet(srvData, srvLocale, srvConfig);
     return srvFacet.addPossibleOrganizerFacet(c4p.Organizer.objects), srvFacet.addPossibleOrganizerFacet(c4p.Organizer.top20), 
