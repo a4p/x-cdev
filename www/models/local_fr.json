@@ -386,7 +386,7 @@
     "htmlMsgFileImport":"Import de fichier",
     "htmlMsgSynchronizationOK":"Synchronisation OK.",
     "htmlMsgInvalidPassword":"Mot de passe invalide.",
-    "htmlMsgSynchronizationClientPb":"Probl\u00E8me de Synchronisation sur le client.\nDo you have internet available ?",
+    "htmlMsgSynchronizationClientPb":"Probl\u00E8me de synchronisation.\nUn probl\u00E8me r\u00E9seau ?  Ecrivez nous : team@apps4pro.com",
     "htmlMsgMaintenancePb":"Serveur temporairement arr\u00EAt\u00E9. Essayez plus tard.",
     "htmlMsgSendingEmailPb":"Le courriel n'a pas \u00E9t\u00E9 envoy\u00E9 depuis le serveur.",
     "htmlMsgTakePicturePb":"Pas de photo.",

@@ -9343,6 +9343,48 @@ ul.noty_cont.noty_layout_bottomRight {
   background: transparent;
   border: 0;
 }
+.c4p-card-synchronized {
+  border-bottom: 1px solid #c9a734;
+}
+.c4p-card-synchronized:after {
+  color: #c9a734;
+  font-family: "fa-a4p";
+  font-size: 2em;
+  content: "\F0DA";
+  -webkit-transform: rotate(45deg);
+  position: relative;
+  top: -0.5em;
+  right: -0.6em;
+  float: right;
+}
+.c4p-card-synchronized-not {
+  border-bottom: 1px solid #e6e6e6;
+}
+.c4p-card-synchronized-not:after {
+  color: #e6e6e6;
+  font-family: "fa-a4p";
+  font-size: 2em;
+  content: "\F0DA";
+  -webkit-transform: rotate(45deg);
+  position: relative;
+  top: -0.5em;
+  right: -0.6em;
+  float: right;
+}
+.c4p-card-synchronized-pb {
+  border-bottom: 1px dashed #e51400;
+}
+.c4p-card-synchronized-pb:after {
+  color: #e51400;
+  font-family: "fa-a4p";
+  font-size: 2em;
+  content: "\F0DA";
+  -webkit-transform: rotate(45deg);
+  position: relative;
+  top: -0.5em;
+  right: -0.6em;
+  float: right;
+}
 .c4p-card-summarized {
   font-size: 1em;
   min-height: 70px;

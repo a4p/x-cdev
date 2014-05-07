@@ -1,4 +1,4 @@
-/*! c4p.client 2014-05-07 16:06 */
+/*! c4p.client 2014-05-08 00:50 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -1236,7 +1236,7 @@ function ctrlAction($scope, $q, $modal, srvData, srvNav, srvFacet, srvConfig, sr
                     for (var attachees = srvData.getTypedRemoteLinks(object, "attachee", "Document"), attacheeIdx = 0, attacheeNb = attachees.length; attacheeNb > attacheeIdx; attacheeIdx++) srvData.newAndSaveAttachment("Attachee", attachees[attacheeIdx], meeting);
                 }
                 if (result.dupAttendee) for (var attendees = srvData.getTypedRemoteLinks(object, "attendee", "Contact"), attendeeIdx = 0, attendeeNb = attendees.length; attendeeNb > attendeeIdx; attendeeIdx++) srvData.newAndSaveAttachment("Attendee", attendees[attendeeIdx], meeting);
-                srvData.addObjectToSave(meeting.a4p_type, meeting.id.dbid);
+                srvData.addObjectToSave(meeting);
             });
         });
     };
@@ -1311,7 +1311,7 @@ function ctrlAside($scope, $location, $anchorScroll, $timeout, srvFacet, srvLoca
                             var parentObject = srvData.userObject;
                             srvData.linkToItem(type, "parent", [ result ], parentObject);
                         }
-                        srvData.addObjectToSave(result.a4p_type, result.id.dbid), srvAnalytics.add("Once", "Aside - add " + result.a4p_type), 
+                        srvData.addObjectToSave(result), srvAnalytics.add("Once", "Aside - add " + result.a4p_type), 
                         $scope.asideScrollToItem(result), $scope.updateScroller && $scope.updateScroller();
                     });
                 });
@@ -3492,7 +3492,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
             description: "Email" + (share ? " to share " + itemName : "") + " for " + parent.a4p_type + " " + parentName
         });
         return email.editable = !0, documentInsert.email = email, srvData.addObject(documentInsert), 
-        srvData.linkToItem("Document", "parent", [ documentInsert ], parent), srvData.addObjectToSave(documentInsert.a4p_type, documentInsert.id.dbid), 
+        srvData.linkToItem("Document", "parent", [ documentInsert ], parent), srvData.addObjectToSave(documentInsert), 
         documentInsert;
     }, $scope.promiseDialog = function(dialogOptions) {
         return $modal.open(dialogOptions).result;
@@ -3657,8 +3657,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
             a4p.safeApply($scope, function() {
                 window.device || srvLog.logSuccess(!0, srvLocale.translations.htmlMsgDummyPicture), 
                 srvLog.logSuccess(!0, srvLocale.translations.htmlMsgTakePictureOK, msg), srvData.addObject(document), 
-                srvData.linkToItem(document.a4p_type, "parent", [ document ], parentObject), srvData.addObjectToSave(document.a4p_type, document.id.dbid), 
-                srvAnalytics.add("Once", "Create " + document.a4p_type), deferred.resolve(document);
+                srvData.linkToItem(document.a4p_type, "parent", [ document ], parentObject), srvAnalytics.add("Once", "Create " + document.a4p_type), 
+                deferred.resolve(document);
             });
         }, function(diag) {
             a4p.safeApply($scope, function() {
@@ -3897,7 +3897,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
                     console.log("importNewFile importFile success");
                     var msg = "File " + document.name + " imported and written to " + document.filePath;
                     srvLog.logSuccess(!0, srvLocale.translations.htmlMsgFileImportOK, msg), srvData.addObject(document), 
-                    srvData.linkToItem(document.a4p_type, "parent", [ document ], contact), srvData.addObjectToSave(document.a4p_type, document.id.dbid), 
+                    srvData.linkToItem(document.a4p_type, "parent", [ document ], contact), srvData.addObjectToSave(document), 
                     $scope.setItemAndGoDetail(document);
                 });
             }, onFailure = function(diag) {
@@ -3918,13 +3918,13 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
         if (parent || (parent = srvNav.item), !parent) return void 0;
         var document = srvData.createObject("Note", note);
         return srvData.addObject(document), srvData.linkToItem(document.a4p_type, "parent", [ document ], parent), 
-        srvData.addObjectToSave(document.a4p_type, document.id.dbid), srvAnalytics.add("Once", "Create " + document.a4p_type), 
+        srvData.addObjectToSave(document), srvAnalytics.add("Once", "Create " + document.a4p_type), 
         document;
     }, $scope.addNewReport = function(report, parent) {
         if (parent || (parent = srvNav.item), !parent) return void 0;
         var document = srvData.createObject("Report", report);
         return srvData.addObject(document), srvData.linkToItem(document.a4p_type, "parent", [ document ], parent), 
-        srvData.addObjectToSave(document.a4p_type, document.id.dbid), srvAnalytics.add("Once", "Create " + document.a4p_type), 
+        srvData.addObjectToSave(document), srvAnalytics.add("Once", "Create " + document.a4p_type), 
         document;
     }, $scope.shareByEmail = function(item, parent) {
         var postTitle, deferred = $q.defer(), itemName = srvConfig.getItemName(item), parentName = srvConfig.getItemName(parent);
@@ -23169,8 +23169,14 @@ c4p || (c4p = {}), c4p.Model = function() {
                 email: {
                     title: "htmlFormEmail",
                     type: "mail",
-                    defaultValue: "",
+                    defaultValue: "need@mail.com",
                     validations: [ {
+                        expr: "object.email",
+                        errorKey: "Model.createErrMsg(scope, 'htmlErrorRequired', ['htmlFormEmail'])"
+                    }, {
+                        expr: "object.email.length > 0",
+                        errorKey: "Model.createErrMsg(scope, 'htmlErrorRequired', ['htmlFormEmail'])"
+                    }, {
                         expr: "object.email.length < 80",
                         errorKey: "Model.createErrMsg(scope, 'htmlErrorMaxLength', ['htmlFormEmail', 80])"
                     }, {
@@ -23183,6 +23189,9 @@ c4p || (c4p = {}), c4p.Model = function() {
                     type: "mail",
                     defaultValue: "",
                     validations: [ {
+                        expr: "object.email_home",
+                        errorKey: "Model.createErrMsg(scope, 'htmlErrorRequired', ['htmlFormEmail'])"
+                    }, {
                         expr: "object.email_home.length < 80",
                         errorKey: "Model.createErrMsg(scope, 'htmlErrorMaxLength', ['htmlFormHome', 80])"
                     }, {
@@ -23195,6 +23204,9 @@ c4p || (c4p = {}), c4p.Model = function() {
                     type: "mail",
                     defaultValue: "",
                     validations: [ {
+                        expr: "object.email_list",
+                        errorKey: "Model.createErrMsg(scope, 'htmlErrorRequired', ['htmlFormEmail'])"
+                    }, {
                         expr: "object.email_list.length < 80",
                         errorKey: "Model.createErrMsg(scope, 'htmlErrorMaxLength', ['htmlFormList', 80])"
                     }, {
@@ -23207,6 +23219,9 @@ c4p || (c4p = {}), c4p.Model = function() {
                     type: "mail",
                     defaultValue: "",
                     validations: [ {
+                        expr: "object.email_other",
+                        errorKey: "Model.createErrMsg(scope, 'htmlErrorRequired', ['htmlFormEmail'])"
+                    }, {
                         expr: "object.email_other.length < 80",
                         errorKey: "Model.createErrMsg(scope, 'htmlErrorMaxLength', ['htmlFormOther', 80])"
                     }, {
@@ -25907,8 +25922,7 @@ c4p || (c4p = {}), c4p.Model = function() {
                 key: "parent_id",
                 one: "parent",
                 many: "child",
-                types: [ "Account", "Contact", "Event", "Opportunity" ],
-                cascadeDelete: "many"
+                types: [ "Account", "Contact", "Event", "Opportunity" ]
             }, {
                 key: "created_by_id",
                 one: "creator",
@@ -26108,8 +26122,7 @@ c4p || (c4p = {}), c4p.Model = function() {
                 key: "parent_id",
                 one: "parent",
                 many: "child",
-                types: [ "Account", "Contact", "Event", "Opportunity" ],
-                cascadeDelete: "many"
+                types: [ "Account", "Contact", "Event", "Opportunity" ]
             }, {
                 key: "created_by_id",
                 one: "creator",
@@ -26266,8 +26279,7 @@ c4p || (c4p = {}), c4p.Model = function() {
                 key: "parent_id",
                 one: "parent",
                 many: "child",
-                types: [ "Account", "Contact", "Event", "Opportunity" ],
-                cascadeDelete: "many"
+                types: [ "Account", "Contact", "Event", "Opportunity" ]
             }, {
                 key: "contact_ids",
                 one: "mail_to",
@@ -28467,7 +28479,7 @@ c4p || (c4p = {}), c4p.Locale = {
         htmlMsgFileImport: "File import",
         htmlMsgSynchronizationOK: "Synchronization OK.",
         htmlMsgInvalidPassword: "User password is invalid.",
-        htmlMsgSynchronizationClientPb: "Synchronization client problem.\nDo you have internet available ?",
+        htmlMsgSynchronizationClientPb: "Synchronization client problem.\nDo you have internet available ? Mail us : team@apps4pro.com",
         htmlMsgMaintenancePb: "Server is momentarily stopped. Please retry later.",
         htmlMsgSendingEmailPb: "Sending email failure in server.",
         htmlMsgTakePicturePb: "No picture.",
@@ -29190,7 +29202,7 @@ c4p || (c4p = {}), c4p.Locale = {
         htmlMsgFileImport: "Import de fichier",
         htmlMsgSynchronizationOK: "Synchronisation OK.",
         htmlMsgInvalidPassword: "Mot de passe invalide.",
-        htmlMsgSynchronizationClientPb: "Problème de Synchronisation sur le client.\nDo you have internet available ?",
+        htmlMsgSynchronizationClientPb: "Problème de synchronisation.\nUn problème réseau ?  Ecrivez nous : team@apps4pro.com",
         htmlMsgMaintenancePb: "Serveur temporairement arrêté. Essayez plus tard.",
         htmlMsgSendingEmailPb: "Le courriel n'a pas été envoyé depuis le serveur.",
         htmlMsgTakePicturePb: "Pas de photo.",
@@ -35126,7 +35138,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/dialog/dialogNote_report.html", '<div class="row" ng-show="modeEdit"><div class="col-xxs-12"><form class="c4p-color-a-gradient{{objectGroups.length}}"><marker ng-repeat="group in objectGroups"><div class="c4p-color-a-gradient{{$index+1}} c4p-form-group"><span class="c4p-form-group-title">{{group.title}}</span><fieldset ng-repeat="field in group.groupFields"><c4p-input warn-var="field.warn" title-var="field.title" ng-model="note[field.key]" type-var="field.type" rows="5" cols="20" ng-change="onFieldChanged(field)"></c4p-input></fieldset></div></marker></form><div class="col-xxs-12 c4p-form-group"><span class="c4p-form-group-title"><c4p-pluralize count="toolboxContacts.length" when="srvLocale.translations.pluralHtmlTextReportPeople"></span><ul class="nav nav-pills" ng-repeat="item in toolboxContacts"><li ng-controller="ctrlNamedObject" ng-init="init(item)"><span class="c4p-detail-c-bg"><span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> {{itemName}}</span> <span class="glyphicon glyphicon-times-circle c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeContact($index)"></span> </li></ul></div><div class="col-xxs-12 c4p-form-group"><span class="c4p-form-group-title"><c4p-pluralize count="toolboxDocs.length" when="srvLocale.translations.pluralHtmlTextReportDoc"></span><ul class="nav nav-pills" ng-repeat="item in toolboxDocs"><li ng-controller="ctrlNamedObject" ng-init="init(item)"><span class="c4p-detail-c-bg"><span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> {{itemName}}</span> <span class="glyphicon glyphicon-remove c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeDoc($index)"></span> </li></ul></div><div class="col-xxs-12 c4p-form-group"><span class="c4p-form-group-title">{{srvLocale.translations.htmlDialogNoteReportObservation}}</span><ul class="nav nav-pills" ng-repeat="item in toolboxRatings"><span ng-show="modeEdit" ng-include="\'partials/navigation/cards/4_rating.html\'" style="padding:0 10px"></span> <span ng-hide="modeEdit" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span> <span class="glyphicon glyphicon-remove c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeRating($index)"></span></ul></div></div><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div><div class="row" ng-controller="ctrlDetailedObject" ng-init="init(note)" c4p-show="!modeEdit"><div class="col-xxs-12"><div class="c4p-color-a-gradient{{$index}}" ng-repeat="card in cards"><div class="c4p-card"><div ng-show="isFile && $first" class="btn" ng-class="{\'disabled\': actionMap.viewDocument.disabled}" ng-click="doAction(\'viewDocument\')" style="background: url(\'{{item.thumb_url}}\') no-repeat center center;width:100%;height: 250px;-webkit-background-size: contain"></div><span ng-repeat="group in card.groups" style="margin:0;padding:0" class="c4p-size-{{group.size}}"><br ng-show="card.brSeparated && ($index > 0)"><span><span ng-show="group.synchro && (item.c4p_synchro.creating || item.c4p_synchro.writing || item.c4p_synchro.reading || item.c4p_synchro.deleting)" class="glyphicon" ng-class="{\r\n                                    \'glyphicon-trash\'    : (item.c4p_synchro.deleting > 1),\r\n                                    \'glyphicon-remove\'   : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),\r\n                                    \'glyphicon-upload\'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),\r\n                                    \'glyphicon-download\' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),\r\n                                    \'glyphicon-spinner\'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),\r\n                                    \'icon-spin\'          : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))\r\n                                  }"></span>  <span ng-show="group.name">{{itemName}}</span> <span ng-show="group.title">{{group.title}}</span></span> <span ng-repeat="field in group.fields" class="c4p-size-{{field.size}}"><span ng-show="($index > 0)"></span> <span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="currency"><span>{{item | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{item}}%</span></span> <span ng-switch-when="probability"><span>{{item}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(item, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(item, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(item, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{item | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{item}}</span></span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="currency"><span>{{field.value | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{field.value}}%</span></span> <span ng-switch-when="probability"><span>{{field.value}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(field.value, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(field.value, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(field.value, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{field.value | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{field.value}}</span></span></span></span></span> <span ng-show="field.suffix">{{field.suffix}}</span></span></span></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogSelectCrms.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogSelectCrmUse}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="validateDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:\'visibleElements.length\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="crm in possibleCrms"><div ng-click="toggleItem(crm)" class="clearfix c4p-link5"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':!selectedCrms[crm]}"></span><label class="pull-left" ng-class="{scrollTop:element.scrollTo}"><span>{{srvLocale.translations.htmlConfigCrmList[crm]}}</span></label></div></li></ul></div></div>'), 
     $templateCache.put("partials/dialog/dialogSelectObjects.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed c4p-color-action-transparent c4p-stroke" ng-show="createButton" ng-click="createObject()"><span class="c4p-icon-std glyphicon glyphicon-plus"></span></div><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlTitleSelection[type]}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="validateDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div class="c4p-dialog-search-container c4p-color-a-dark-iii"><div class="row"><div class="col-xxs-12"><span>{{srvLocale.translations.htmlTitleSelection[type]}}</span></div></div><div class="row" ng-show="suggestedOptions.length"><div class="col-xxs-12 btn-group dropdown"><button class="btn dropdown-toggle" data-toggle="dropdown" style="text-align: left"><span class="c4p-n_1">{{srvLocale.translations.htmlTypeName[type]}}</span><span class="glyphicon glyphicon-caret-down"></span></button><ul class="dropdown-menu" style="width:100%"><li ng-repeat="suggestedOption in suggestedOptions"><a ng-click="toggleSuggestion($index)"><span class="glyphicon glyphicon-ok" ng-show="suggestedOption.selected"></span> <span style="vertical-align:top">{{srvLocale.translations.htmlSuggestionName[suggestedOption.name]}}</span> <span class="badge glyphicon glyphicon-{{suggestedOption.icon}}" style="vertical-align:bottom" ng-show="suggestedOption.icon"></span></a></li></ul></div></div><div class="row"><div class="controls controls-row col-xxs-12" style="position: relative"><input style="width:90%" placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}" ng-model="showFilter"><span style="position: absolute; right: 10px" ng-show="forceSearch" ng-click="search()"><span class="glyphicon glyphicon-search"></span></span></div></div><div class="row"><div class="col-xxs-12" ng-show="(suggestedOptions | filter:{selected:true}).length">{{srvLocale.translations.htmlDialogSelectObjectsSugestionFilterIn}} <span ng-repeat="suggestedOption in suggestedOptions | filter:{selected:true}"><a class="active">{{srvLocale.translations.htmlSuggestionName[suggestedOption.name]}}</a> <span ng-hide="$last">,</span></span></div></div><div class="row"><div class="col-xxs-12" ng-show="(suggestedOptions | filter:{selected:true}).length == 0">{{srvLocale.translations.htmlDialogSelectObjectsSugestionFilterIn}} <a>{{srvLocale.translations.htmlSuggestionName[\'all\']}}</a></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:\'visibleElements.length\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="element in (visibleElements = ( elements | listFilter:showFilter:false:\'selected\' | orderBy:\'showName\':false ))"><div ng-click="toggleItem(element.id)" class="clearfix c4p-link5 c4p-select-objects-item"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':!selectedIndex[element.id].selected}"></span> <div class="pull-left" ng-controller="ctrlNamedObject" ng-init="init(element.object)" ng-class="{scrollTop:element.scrollTo}"><span>{{itemName}}</span></div><span ng-repeat="suggestedOption in suggestedOptions" class="badge glyphicon glyphicon-{{suggestedOption.icon}}" ng-show="selectedIndex[element.id][suggestedOption.name]"></span></div></li></ul></div></div>'), 
-    $templateCache.put("partials/dialog/dialogShowImage.html", '<div class="c4p-modal-img"><div class="c4p-modal-close btn" ng-click="close()"><span class="close">&times;</span></div><div class="c4p-modal-img-container" sense-opts="{name:\'dialog_ctrlShowImage\', axeX:\'swipe\', axeY:\'\', init:\'setSensePanel($sense);\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', wheelAction:\'zoom\', zoom: true, momentum: 0, zoomMin: 1, zoomMax: 10}" sense-swipeend="onImageSwipe($event)"><div class="center-block" style="width:100%;text-align: center"><img ng-src="{{imageObject.fileUrl}}"></div>FIX:{{imageObject.fileUrl}}</div></div>'), 
+    $templateCache.put("partials/dialog/dialogShowImage.html", '<div class="c4p-modal-img"><div class="c4p-modal-close btn btn-default" ng-click="close()"><span class="close">&times;</span></div><div class="c4p-modal-img-container" sense-opts="{name:\'dialog_ctrlShowImage\', axeX:\'swipe\', axeY:\'\', init:\'setSensePanel($sense);\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', wheelAction:\'zoom\', zoom: true, momentum: 0, zoomMin: 1, zoomMax: 10}" sense-swipeend="onImageSwipe($event)"><div class="center-block" style="width:100%;text-align: center"><img ng-src="{{imageObject.fileUrl}}"></div></div></div>'), 
     $templateCache.put("partials/dialog/edit_object.html", '<div ng-controller="ctrlEditFocus"><div class="modal-header col-xxs-12 c4p-color-gradient0"><ul class="nav nav-pills"><li class="hidden-xs" ng-hide="removeEnabled"><a class="btn disabled"><h5>{{srvLocale.translations.htmlTitleNewObject[objectTypeLocale]}}</h5></a></li><li class="hidden-xs" ng-show="removeEnabled"><a class="btn disabled"><h5>{{srvLocale.translations.htmlTitleEditObject[objectTypeLocale]}}</h5></a></li><li ng-show="removeEnabled"><a class="btn c4p-color-cancel-transparent" ng-click="remove()" ng-disabled="isEditFocused"><span class="glyphicon glyphicon-trash-o"></span></a></li><li class="pull-right"><a class="btn" ng-click="close()" ng-disabled="isEditFocused"><span class="">&times;</span></a></li><li class="pull-right"><a class="btn" ng-click="submit()" ng-disabled="isEditFocused"><div ng-class="{\'c4p-color-ok-transparent\' : objectValidated, \'c4p-color-cancel-transparent\' : !objectValidated}"><span class="glyphicon glyphicon-check"></span></div></a></li><li class="pull-right" ng-show="hasOpenImportContactDialog && !removeEnabled"><a class="btn btn-link" ng-click="openImportContactDialog()" ng-disabled="isEditFocused"><span>{{srvLocale.translations.htmlDialogTextImport}}</span></a></li></ul></div><div class="hidden-xs col-sm-4 c4p-color-gradient0" style="position: absolute;right: 0;top: 70px; z-index: 1052"><div class=""><ul class="nav nav-tabs nav-stacked"><li class="" ng-repeat="group in objectGroups"><a class="btn btn-link" ng-click="editScrollTo(\'group_\'+$index)" ng-disabled="isEditFocused" ng-class="{\'c4p-field-error-message\': (group.warn.length > 0)}" style="text-align: left">{{group.title}}</a></li></ul></div></div><div class="modal-body col-xxs-12 col-sm-8 c4p-color-gradient0"><div class="c4p-container-scroll-y"><div class="c4p-container"><form class=""><marker ng-repeat="group in objectGroups" ng-init="groupIndex = $index"><div class="well c4p-form-group" ng-class-even="\'c4p-color-a-gradient1\'" ng-class-odd="\'c4p-color-gradient0\'"><h5 id="group_{{groupIndex}}" class="c4p-form-group-title">{{group.title}}</h5><fieldset id="field_{{groupIndex}}_{{$index}}" ng-repeat="field in group.groupFields"><c4p-input warn-var="field.warn" title-var="field.title" ng-model="object[field.key]" type-var="field.type" options-var="field.optionList" rows="5" cols="20" ng-change="onFieldChanged(field)" ng-disabled="isEditFocused"></c4p-input></fieldset></div></marker></form></div></div></div></div>'), 
     $templateCache.put("partials/dialog/message.html", '<div class="modal-body c4p-vertical-container"><div class="c4p-dialog c4p-vertical-align"><div class="row"><div class="col-xxs-offset-1 col-xxs-10 col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 c4p-modal-confirm-container"><div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-padding-w-packed"><span>{{text}}</span></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="startSpinner();close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div class="row"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><ul><li ng-repeat="item in textArray"><span>{{item}}</span></li></ul></div></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/pin_init.html", '<div class="modal-body vertical-container"><div class="c4p-dialog vertical-align"><div class="row"><div class="col-xxs-offset-1 col-xxs-10 col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 c4p-modal-confirm-container"><div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogPINModePageTitle}}</span></div><div class="pull-right" ng-hide="false"><div class="row c4p-modal-confirm-btns"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="submit()"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div><div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><form class="form-horizontal c4p-color-a-gradient1" name="pinForm" novalidate><div class="form-group row c4p-color-a-gradient1" ng-class="{\'has-error\':(pinForm.code.$dirty && pinForm.code.$invalid)}"><span class="help-inline" ng-show="!pinForm.code.$dirty || !pinForm.code.$invalid">{{srvLocale.translations.htmlDialogPINModeInit}}</span> <span ng-show="pinForm.code.$dirty && pinForm.code.$invalid"><span class="help-inline c4p-field-error-message" ng-show="pinForm.code.$error.required">{{srvLocale.translations.htmlDialogPINModeRequired}}</span></span><input id="code" name="code" class="form-control" type="password" ng-model="pinCode" required></div></form></div></div><div ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div></div></div></div></div>'), 
@@ -35175,7 +35187,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/navigation/main.html", '<div ng-controller="ctrlAside"><div class="c4p-ltr c4p-height-full" ng-style="{width:(responsiveToolbarWidth())+\'px\'}"><div id="" class="col-xxs-12 c4p-height-full" ng-style="{width:(responsiveAsideWidth()+ responsiveToolbarWidth())+\'px\'}" resize-opts="{name:\'navigation_ctrlAside\'}" ng-include="\'partials/navigation/aside_root.html\'"></div></div><div class="c4p-ltr c4p-click-intercepted" ng-style="{height:(responsivePageHeight() - 44)+\'px\'}" style="z-index: 3; width: 0px" ng-switch="" on="asideRootMenuUp"><div ng-switch-when="false" class="c4p-click-intercepted" ng-style="{height:(responsivePageHeight() - 44)+\'px\', width:responsiveAsideWidth()+\'px\'}" style="position: relative"><div ng-include="\'partials/navigation/aside_search.html\'"></div></div></div><div class="c4p-ltr c4p-height-full c4p-click-through" ng-style="{height:(responsivePageHeight())+\'px\',width:responsiveCentralContainerWidth()+\'px\'}" resize-opts="{name:\'navigation_ctrlPanelMove\'}" sense-opts="{name:\'navigation_ctrlPanelMove\', axeX:\'scroll\', init:\'setSensePanel($sense)\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', hScrollbar : false, x:getPanelX(), momentum: 0}" sense-afterscrollend="onPanelAfterScrollEnd($x, $y)" style="z-index: 5"><div class="c4p-ltr c4p-height-full" resize-opts="{name:\'navigation_panel_scroller\'}" ng-style="{width:(responsiveAsideWidth() + responsiveDetailWidth() + responsiveRelatedWidth())+\'px\'}"><div id="a4pAside" class="c4p-ltr c4p-click-through" ng-style="{height:(responsivePageHeight() - 44)+\'px\', width:responsiveAsideWidth()+\'px\'}" resize-opts="{name:\'navigation_translucent\'}" ontouchstart="a4pBlockMove(event)"><div ng-include="\'partials/navigation/translucent_panel.html\'"></div></div><div id="a4pPage" class="c4p-ltr c4p-click-intercepted"><div ng-switch="" on="getSlideFromNavIndex()"><div ng-switch-when="config"><div ng-controller="ctrlConfig" ng-include="\'partials/navigation/config.html\'" ng-style="{width:(responsiveMainWidth() + (!responsiveIsOnePageFormat() * responsiveRelatedWidth()))+\'px\'}"></div></div><div ng-switch-when="calendar"><div ng-controller="ctrlCalendar" ng-include="\'partials/navigation/calendar.html\'" ng-style="{width:(responsiveMainWidth() + (!responsiveIsOnePageFormat() * responsiveRelatedWidth()))+\'px\'}"></div></div><div ng-switch-default=""><div ng-controller="ctrlDetail" ng-include="\'partials/navigation/view_n.html\'" ng-style="{width:(responsiveDetailWidth() + responsiveRelatedWidth())+\'px\'}"></div></div></div></div></div></div><div ng-controller="ctrlRightToolbar" class="c4p-ltr c4p-toolbar c4p-height-full" ng-if="!responsiveIsOnePageFormat()" ng-style="{width:(responsiveToolbarWidth())+\'px\'}" resize-opts="{name:\'right_toolbar\'}" style="box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.2);z-index: 6"><div class="c4p-toolbar-header c4p-color-a-gradient1" resize-opts="{name:\'right_toolbar_header\'}" ng-show="(getSlideFromNavIndex() != \'calendar\')"><div class="btn c4p-color-action-transparent c4p-padding-w-packed" ng-click="toggleNavRelated()"><span class="c4p-icon-std glyphicon glyphicon-link"></span></div></div><div class="c4p-color-a-gradient2 row" sense-opts="{name:\'right_toolbar_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedGroupList\']}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" resize-opts="{name:\'right_toolbar_wrapper\'}" resizecss-height="responsivePageHeight() - getResizePathValue(\'right_toolbar_header\', \'\', \'offsetHeight\')"><div class="col-xxs-12" resize-opts="{name:\'right_toolbar_scroller\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedGroupList\']}"><div ng-if="!detailLoadingSpinner" ng-click="setNavRelated(true);showAsideGroupSuggestion(true);" ng-show="(getSlideFromNavIndex() != \'calendar\')"><div class="c4p-color-j-dark-iii"><div class="c4p-related-square-icon"><span class="c4p-icon-std glyphicon glyphicon-ellipsis-h"></span></div><div class="c4p-related-square-text"><span>&nbsp;</span></div></div></div><div ng-if="!detailLoadingSpinner" ng-repeat="group in srvNav.itemRelatedGroupList" ng-show="group.type != \'Plan\' && group.type != \'Facet\'" ng-class="{\'active\': linksPageY == $index}" ng-click="setNavRelated(true);showAsideGroup(group, true);"><div class="c4p-color-{{group.colorType}}-dark-iii"><div class="c4p-related-square-icon"><span class="c4p-icon-std glyphicon glyphicon-{{group.icon}}"></span></div><div class="c4p-related-square-text"><span>{{group.size}}</span></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/navigation/translucent_panel.html", '<div class="btn c4p-padding-w-packed c4p-color-gradient0 c4p-click-intercepted" style="position:absolute; top:50%; right: 0;height:2em; margin-top:-1em;box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.5);z-index: 5" ng-click="setNavAside(false)" ng-show="responsiveIsOnePageFormat() && (srvNav.current == null) "><span class="c4p-icon-std glyphicon glyphicon-ellipsis-v"></span></div><div class="half-circle-left c4p-color-gradient0 c4p-click-intercepted" style="position:absolute; top:50%; right: 0; margin-top:-4em;box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.5);z-index: 8" ng-show="responsiveIsOnePageFormat() && (srvNav.current!=null) " ng-class="{\'c4p-dropzone-active\': dndActive, \'c4p-dropzone-active-hover\': dropOver}" ng-controller="ctrlLinkActions" ng-click="setNavAside(false)" sense-opts="{name:\'navigation_detail_small_drop_zone\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropstart="dropStart($event)" sense-dropend="dropEnd($event)" sense-dropcancel="dropCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)"><div class="c4p-icn-side-drop"><span class="c4p-icon-std glyphicon glyphicon-{{srvNav.current.itemIcon}}"></span></div><div class="c4p-txt-side-drop"><div class="rotate-txt"><div class="c4p-no-dot-container"><small class="a4p-dot">{{srvNav.current.itemName}}</small></div></div></div></div>'), 
     $templateCache.put("partials/navigation/view_n.html", '<div class="c4p-container c4p-color-gradient0" resize-opts="{name:\'navigation_view_n\'}"><div class="c4p-waiting" ng-show="detailLoadingSpinner" ng-style="{\'max-width\':(responsivePageWidth())+\'px\'}" c4p-animateshow="detailLoadingSpinner" after-hide="afterDetailSpinnerHide()" after-show="afterDetailSpinnerShow()"><div ng-include="\'partials/spinner.html\'"></div></div><div ng-if="!detailLoadingSpinner"><div class="c4p-ltr c4p-height-full ng-cloak" ng-style="{width:responsiveDetailWidth()+\'px\'}" resize-opts="{name:\'navigation_view_detailed\'}"><div class="btn c4p-padding-w-packed c4p-color-gradient0" style="position:absolute; top:50%; right: 0;height:2em; margin-top:-1em;box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.5);z-index: 10" ng-click="setNavRelated(true)" ng-show="responsiveIsOnePageFormat()"><span class="c4p-icon-std glyphicon glyphicon-ellipsis-v"></span></div><div ng-include="\'partials/navigation/view_n_1.html\'"></div></div><div class="c4p-ltr c4p-height-full ng-cloak" ng-style="{width:responsiveRelatedWidth()+\'px\'}" resize-opts="{name:\'navigation_view_links\'}"><div ng-include="\'partials/navigation/view_n_2.html\'"></div></div></div></div>'), 
-    $templateCache.put("partials/navigation/view_n_1.html", '<div ng-controller="ctrlDetailedObject" class="c4p-color-a-gradient{{cards.length}}"><div ng-controller="ctrlAction" ng-init="watchSrvNav();"><div class="col-xxs-12 c4p-header-std c4p-header-details c4p-color-gradient0" resize-opts="{name:\'navigation_detail_title\'}" ng-include="\'partials/navigation/view_n_1_header.html\'"></div><div class="col-xxs-12" sense-opts="{name:\'detailed_item_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedList[srvNav.itemRelatedGroup.type]\']}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', momentum:0}" resize-opts="{name:\'detailed_item_wrapper\'}" resizecss-height="responsivePageHeight() - getResizePathValue(\'navigation_detail_title\', \'\', \'offsetHeight\') - getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetHeight\')"><div class="col-xxs-12 c4p-color-gradient0" resize-opts="{name:\'detailed_item_scroller\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedList[srvNav.itemRelatedGroup.type]\']}"><div ng-repeat="card in cards" class="c4p-color-a-gradient{{$index}} c4p-card row" ng-class="{\'c4p-card-thumb\': $first}" ng-init="cardItem = srvNav.item; cardGroups = card.groups; cardHasThumb = ($first == true); cardItemName = itemName; cardIsAboutVideo = isVideo; cardIsAboutFile = isFile; cardItemColor = \'c4p-color-\'+itemColor" ng-include="\'partials/navigation/cards/detail_card.html\'"></div></div><div ng-controller="ctrlLinkActions"><div ng-show="dndActive" style="position: absolute; z-index: 1041; top: 0; left: 0; bottom:0; right:0" ng-class="{\'c4p-dropzone-active\': dndActive, \'c4p-dropzone-active-hover\': dropOver}" resize-opts="{name:\'navigation_detail_link_drop_zone\', watchRefresh:[\'getSensePanelScrollX()\', \'srvNav.item.id.dbid\']}" resizecss-height="getResizePathValue(\'detailed_item_wrapper\', \'\', \'offsetHeight\')" sense-opts="{name:\'navigation_detail_link_drop_zone\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropstart="dropStart($event)" sense-dropend="dropEnd($event)" sense-dropcancel="dropCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)"><div><div>&nbsp;</div></div></div></div></div></div></div>'), 
+    $templateCache.put("partials/navigation/view_n_1.html", '<div ng-controller="ctrlDetailedObject" class="c4p-color-a-gradient{{cards.length}}"><div ng-controller="ctrlAction" ng-init="watchSrvNav();"><div class="col-xxs-12 c4p-header-std c4p-header-details c4p-color-gradient0" resize-opts="{name:\'navigation_detail_title\'}" ng-include="\'partials/navigation/view_n_1_header.html\'"></div><div class="col-xxs-12" sense-opts="{name:\'detailed_item_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedList[srvNav.itemRelatedGroup.type]\']}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', momentum:0}" resize-opts="{name:\'detailed_item_wrapper\'}" resizecss-height="responsivePageHeight() - getResizePathValue(\'navigation_detail_title\', \'\', \'offsetHeight\') - getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetHeight\')"><div class="col-xxs-12 c4p-color-gradient0" resize-opts="{name:\'detailed_item_scroller\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedList[srvNav.itemRelatedGroup.type]\']}"><div ng-repeat="card in cards" class="c4p-color-a-gradient{{$index}} c4p-card row" ng-class="{\'c4p-card-thumb\': $first, \'c4p-card-synchronized\' : $first && (srvNav.item.c4pSynchroStatus.cloud.progress == 100), \'c4p-card-synchronized-not\' : $first && (srvNav.item.c4pSynchroStatus.cloud.progress < 100), \'c4p-card-synchronized-pb\' : $first && (srvNav.item.c4pSynchroStatus.cloud.status == 1)}" ng-init="cardItem = srvNav.item; cardGroups = card.groups; cardHasThumb = ($first == true); cardItemName = itemName; cardIsAboutVideo = isVideo; cardIsAboutFile = isFile; cardItemColor = \'c4p-color-\'+itemColor" ng-include="\'partials/navigation/cards/detail_card.html\'"></div></div><div ng-controller="ctrlLinkActions"><div ng-show="dndActive" style="position: absolute; z-index: 1041; top: 0; left: 0; bottom:0; right:0" ng-class="{\'c4p-dropzone-active\': dndActive, \'c4p-dropzone-active-hover\': dropOver}" resize-opts="{name:\'navigation_detail_link_drop_zone\', watchRefresh:[\'getSensePanelScrollX()\', \'srvNav.item.id.dbid\']}" resizecss-height="getResizePathValue(\'detailed_item_wrapper\', \'\', \'offsetHeight\')" sense-opts="{name:\'navigation_detail_link_drop_zone\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropstart="dropStart($event)" sense-dropend="dropEnd($event)" sense-dropcancel="dropCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)"><div><div>&nbsp;</div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/navigation/view_n_1_header.html", '<div class="col-xxs-12"><ul class="nav nav-pills"><li class=""><a class="btn btn-sm disabled"><img class="c4p-img-icon" src="l4p/img/logo_meeting_.png"></a></li><li ng-include="\'partials/navigation/header_back.html\'"></li><li class="pull-right"><a class="btn" ng-click="doAction(\'editItem\')"><span class="c4p-icon-std glyphicon glyphicon-edit"></span></a></li></ul></div>'), 
     $templateCache.put("partials/navigation/view_n_2.html", '<div class="row c4p-header-related c4p-color-a-gradient2" resize-opts="{name:\'detailed_links_header\'}"><div class="col-xxs-12"><ul class="nav nav-pills"><li ng-show="responsiveIsOnePageFormat()"><a class="btn" ng-click="setNavRelated(false)"><span class="pull-left c4p-icon-std glyphicon glyphicon-angle-left"></span><c4p-thumb width="20" height="20" text="{{getItemNameById(srvNav.item.id.dbid)}}" indic="##todo" icon="##todo" color="c4p-color-{{srvNav.itemColor}}" url="{{srvNav.item.thumb_url}}"></c4p-thumb></a></li><li ng-hide="linkStateAdd" style="width:80%"><a class="btn disabled"><h5 class="a4p-dot">{{translate(\'htmlViewNrelatedPageTitle\')}}</h5></a></li><li><a class="btn" ng-show="linkStateAdd"><span class="">{{translate(\'htmlViewNrelatedPageTitleNew\')}}</span></a></li></ul></div><div class="btn c4p-padding-w-packed c4p-color-action-transparent pull-right" ng-show="linkStateAdd" ng-click="toggleLinkStateAdd()"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div><div class="row c4p-color-a-gradient1"><article class="col-xxs-12" resizecss-height="responsivePageHeight() -getResizePathValue(\'detailed_links_header\', \'\', \'offsetHeight\')" ng-include="\'partials/navigation/view_n_2_links_item.html\'"></article></div>'), 
     $templateCache.put("partials/navigation/view_n_2_link_editor__deprecated.html", '<div sense-opts="{name:\'detailed_links_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvNav.itemRelatedGroup\', \'srvNav.item.a4p_type\']}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" resize-opts="{name:\'detailed_links_wrapper\'}" resizecss-height="responsivePageHeight() -getResizePathValue(\'detailed_links_header\', \'\', \'offsetHeight\')"><div resize-opts="{name:\'detailed_links_scroller\', watchRefresh:[\'srvNav.itemRelatedGroup\', \'srvNav.item.a4p_type\']}"><div class="c4p-related-card" ng-repeat="objectType in objectTypes()" ng-show="isPossibleLinkAction(srvNav.item.a4p_type, objectType)"><ul class="c4p-related-card-list"><li class="c4p-related-card-header c4p-color-{{objectTypeColor(objectType)}}-dark-iii"><span class="glyphicon glyphicon-{{objectTypeIcon(objectType)}}"></span> <span>{{srvLocale.translations.htmlTitleType[objectType]}}</span></li><li class="c4p-related-card-item c4p-color-{{objectTypeColor(objectType)}}-gradient3" ng-repeat="linkName in getPossibleLinkActionList(srvNav.item.a4p_type, objectType)"><div class="btn c4p-padding-w-packed">{{srvLocale.translations.htmlShortLinkName[linkName]}}</div><div class="btn c4p-padding-w-packed pull-right"><span class="c4p-icon-std glyphicon glyphicon-list c4p-color-action-transparent c4p-related-card-item-icon" ng-click="linkAddDialog(srvNav.item, linkName, objectType)"></span> <span class="c4p-icon-std glyphicon glyphicon-plus c4p-color-action-transparent c4p-related-card-item-icon" ng-click="createAndLinkDialog(srvNav.item, linkName, objectType)"></span></div></li></ul></div></div></div>'), 
@@ -35183,9 +35195,9 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/navigation/cards/4_rating.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><c4p-check ng-model="item.value" readonly></c4p-check><span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span style="padding:0 10px 0 0">{{item.name}}</span><c4p-angular-ratings ng-model="item.value" readonly></c4p-angular-ratings></span></span>'), 
     $templateCache.put("partials/navigation/cards/4_rating_ro.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><span class="glyphicon glyphicon-unchecked icon-large"></span> <span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span class="glyphicon glyphicon-star-empty icon-large"></span> <span style="padding:0 0 0 10px">{{item.name}}</span></span></span>'), 
     $templateCache.put("partials/navigation/cards/4_rating_ro2.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><c4p-check ng-model="item.value" readonly></c4p-check><span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span style="padding:0 10px 0 0">{{item.name}}</span><c4p-angular-ratings ng-model="item.value" readonly></c4p-angular-ratings></span></span>'), 
-    $templateCache.put("partials/navigation/cards/detail_card.html", '<div class="row"><div class="c4p-card-text" ng-class="{\'col-xxs-12\': !cardHasThumb,\'col-xxs-11\' : (cardHasThumb && (cardIsAboutFile || cardIsAboutVideo || cardItem.a4p_type == \'Event\')),\'col-sm-9 col-xxs-11\' : (cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\')}"><div ng-repeat="group in cardGroups" class="col-xxs-12 c4p-size-{{group.size}}"><span ng-if="group.name && cardItem.a4p_type != \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItemName}}</span> <span ng-if="group.name && cardItem.a4p_type == \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItem.name}}</span> <span ng-if="group.title">{{group.title}}</span> <address ng-if="group.fields.length > 1" class="col-xxs-12"><ul class="list-inline"><li ng-repeat-start="field in group.fields" ng-show="group.icon && $first && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li ng-repeat-end=""><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address><address ng-if="group.fields.length == 1" ng-init="field = group.fields[0]" class="col-xxs-12"><ul ng-class="{\'list-inline\': field.type !=\'textarea\', \'list-unstyled\': field.type ==\'textarea\'}"><li ng-show="group.icon && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address></div></div><div class="c4p-card-thumb pull-right col-sm-2 hidden-xs" ng-if="cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><c4p-thumb class="pull-right" width="70" height="70" text="{{cardItemName}}" indic="{{itemRelationCount}}" icon="glyphicon-{{itemIcon}}" color="{{cardItemColor}}" url="{{cardItem.thumb_url}}"></c4p-thumb></div><div class="c4p-card-thumb pull-right col-xxs-1" ng-if="cardHasThumb"><div class="pull-right c4p-color-action-transparent" ng-click="doAction(\'toggleFavorite\')"><span class="c4p-icon-std glyphicon c4p-outline-star" ng-class="{\'glyphicon-star\' : srvData.isTaggedFavorite(cardItem), \'glyphicon-star-o\' : !srvData.isTaggedFavorite(cardItem)}"></span></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><div class="btn c4p-card-thumb-media" ng-class="{\'disabled\': (actionMap.viewDocument.mustBeCreated)}" ng-click="doAction(\'viewDocument\')" style="background:url(\'{{cardItem.thumb_url}}\') no-repeat center center;-webkit-background-size: contain"></div></div>{{actionMap.viewDocument.disabled}} {{cardItem.id.dbid}} {{cardItem.thumb_url}}<div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><video controls="" ng-src="{{cardItem.url}}" class="c4p-card-thumb-media"></video></div><div class="c4p-card-progress col-xxs-12" ng-if="cardHasThumb && cardItem.c4pSynchroStatus"><div class="c4p-card-progress col-xxs-12"><div ng-init="itemSynchro = cardItem.c4pSynchroStatus" ng-include="\'partials/navigation/cards/detail_synchro.html\'"></div></div></div></div>'), 
+    $templateCache.put("partials/navigation/cards/detail_card.html", '<div class="row"><div class="c4p-card-text" ng-class="{\'col-xxs-12\': !cardHasThumb,\'col-xxs-11\' : (cardHasThumb && (cardIsAboutFile || cardIsAboutVideo || cardItem.a4p_type == \'Event\')),\'col-sm-9 col-xxs-11\' : (cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\')}"><div ng-repeat="group in cardGroups" class="col-xxs-12 c4p-size-{{group.size}}"><span ng-if="group.name && cardItem.a4p_type != \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItemName}}</span> <span ng-if="group.name && cardItem.a4p_type == \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItem.name}}</span> <span ng-if="group.title">{{group.title}}</span> <address ng-if="group.fields.length > 1" class="col-xxs-12"><ul class="list-inline"><li ng-repeat-start="field in group.fields" ng-show="group.icon && $first && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li ng-repeat-end=""><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address><address ng-if="group.fields.length == 1" ng-init="field = group.fields[0]" class="col-xxs-12"><ul ng-class="{\'list-inline\': field.type !=\'textarea\', \'list-unstyled\': field.type ==\'textarea\'}"><li ng-show="group.icon && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address></div></div><div class="c4p-card-thumb pull-right col-sm-2 hidden-xs" ng-if="cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><c4p-thumb class="pull-right" width="70" height="70" text="{{cardItemName}}" indic="{{itemRelationCount}}" icon="glyphicon-{{itemIcon}}" color="{{cardItemColor}}" url="{{cardItem.thumb_url}}"></c4p-thumb></div><div class="c4p-card-thumb pull-right col-xxs-1" ng-if="cardHasThumb"><div class="pull-right c4p-color-action-transparent" ng-click="doAction(\'toggleFavorite\')"><span class="c4p-icon-std glyphicon c4p-outline-star" ng-class="{\'glyphicon-star\' : srvData.isTaggedFavorite(cardItem), \'glyphicon-star-o\' : !srvData.isTaggedFavorite(cardItem)}"></span></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><div class="btn c4p-card-thumb-media" ng-class="{\'disabled\': (actionMap.viewDocument.mustBeCreated)}" ng-click="doAction(\'viewDocument\')" style="background:url(\'{{cardItem.thumb_url}}\') no-repeat center center;-webkit-background-size: contain"></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><video controls="" ng-src="{{cardItem.url}}" class="c4p-card-thumb-media"></video></div><div class="c4p-card-progress col-xxs-12" ng-if="cardHasThumb && cardItem.c4pSynchroStatus"></div></div>'), 
     $templateCache.put("partials/navigation/cards/detail_field.html", ' <span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{item}}" target="_blank">{{item}}</a> <a ng-switch-when="mail" class="c4p-color-lnk" href="mailto:{{item}}" target="_blank">{{item}}</a> <a ng-switch-when="url" class="c4p-color-lnk" href="{{item}}" target="_blank">{{item}}</a> <span ng-switch-when="currency">{{item | c4pCurrency}}</span> <span ng-switch-when="percent">{{item}}%</span> <span ng-switch-when="probability">{{item}}%</span> <span ng-switch-when="datetime">{{srvLocale.formatDate(item, \'short\')}}</span> <span ng-switch-when="dateTIME">{{srvLocale.formatDate(item, \'shortDate\')}} <b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span> <span ng-switch-when="date">{{srvLocale.formatDate(item, \'shortDate\')}}</span> <span ng-switch-when="time">{{srvLocale.formatDate(item, \'shortTime\')}}</span> <span ng-switch-when="TIME"><b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span> <span ng-switch-when="number">{{item | c4pNumber}}</span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="renderHtmlText(item)"></blockquote><address ng-switch-when="address">{{item}}</address><span ng-switch-default="">{{item}}</span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank">{{field.value}}</a> <a ng-switch-when="mail" class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank">{{field.value}}</a> <a ng-switch-when="url" class="c4p-color-lnk" href="{{field.value}}" target="_blank">{{field.value}}</a> <span ng-switch-when="currency">{{field.value | c4pCurrency}}</span> <span ng-switch-when="percent">{{field.value}}%</span> <span ng-switch-when="probability">{{field.value}}%</span> <span ng-switch-when="datetime">{{srvLocale.formatDate(field.value, \'short\')}}</span> <span ng-switch-when="dateTIME">{{srvLocale.formatDate(field.value, \'shortDate\')}} <b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span> <span ng-switch-when="date">{{srvLocale.formatDate(field.value, \'shortDate\')}}</span> <span ng-switch-when="time">{{srvLocale.formatDate(field.value, \'shortTime\')}}</span> <span ng-switch-when="TIME"><b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span> <span ng-switch-when="number">{{field.value | c4pNumber}}</span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="renderHtmlText(field.value)"></blockquote><address ng-switch-when="address">{{field.value}}</address><span ng-switch-default="">{{field.value}}</span></span></span></span> <span ng-if="field.suffix">{{field.suffix}}</span>'), 
-    $templateCache.put("partials/navigation/cards/detail_synchro.html", '<div class="progress" style="margin-bottom:0" ng-class="{\'progress-striped active\' : 		(itemSynchro.deleting==1)\n													||(itemSynchro.creating==1)\n													||(itemSynchro.writing==1)\n													||(itemSynchro.reading==1)\n													||(itemSynchro.sharing==1)}"><div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="{{itemSynchro.cloudProgress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{itemSynchro.cloudProgress}}%"></div><i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-trash-o" ng-show="itemSynchro.deleting"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-bolt" ng-show="itemSynchro.creating"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-volume-up" ng-show="itemSynchro.sharing"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-cloud-upload" ng-show="itemSynchro.writing"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-cloud-download" ng-show="itemSynchro.reading"></i></div>deleting : {{itemSynchro.deleting}}<br>creating : {{itemSynchro.creating}}<br>writing : {{itemSynchro.writing}}<br>reading : {{itemSynchro.reading}}<br>sharing : {{itemSynchro.sharing}}<br>cloud : {{itemSynchro.cloud.status}} - {{itemSynchro.cloud.progress}} % {{itemSynchro.cloud.log}}'), 
+    $templateCache.put("partials/navigation/cards/detail_synchro.html", ' <i class="pull-right glyphicon glyphicon-caret-right glyphicon-lg" style="-webkit-transform: rotate(45deg);color:green" ng-style="{\'opacity\': itemSynchro.cloud.progress+\'%\'}"></i><div class="progress" style="margin-bottom:0; height:2px; opacity:0.4" ng-class="{\'progress-striped active\' : 		(itemSynchro.deleting==1)\n													||(itemSynchro.creating==1)\n													||(itemSynchro.writing==1)\n													||(itemSynchro.reading==1)\n													||(itemSynchro.sharing==1)}"><div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="{{itemSynchro.cloud.progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{itemSynchro.cloud.progress}}%"></div><i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-trash-o" ng-show="itemSynchro.deleting"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-bolt" ng-show="itemSynchro.creating"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-volume-up" ng-show="itemSynchro.sharing"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-cloud-upload" ng-show="itemSynchro.writing"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-cloud-download" ng-show="itemSynchro.reading"></i></div>deleting : {{itemSynchro.deleting}}<br>creating : {{itemSynchro.creating}}<br>writing : {{itemSynchro.writing}}<br>reading : {{itemSynchro.reading}}<br>sharing : {{itemSynchro.sharing}}<br>cloud : {{itemSynchro.cloud.status}} - {{itemSynchro.cloud.progress}} % {{itemSynchro.cloud.log}}'), 
     $templateCache.put("partials/navigation/cards/draggable_inlined_card.html", '<div ng-controller="ctrlDragObject" ng-init="init(cardItem)" sense-opts="{}" sense-longdragoverenter="dragOverEnter($event,$element)" sense-longdragoverleave="dragOverLeave($event,$element)" sense-longdragstart="dragStart($event,$element)" sense-longdragmove="dragMove($event,$element)" sense-longdragend="dragEnd($event,$element)" sense-longdragcancel="dragCancel($event,$element)" sense-holdstart="holdStart($event,$element)" sense-holdstop="holdStop($event,$element)"><div ng-include="\'partials/navigation/cards/inlined_card.html\'"></div></div>'), 
     $templateCache.put("partials/navigation/cards/draggable_summarized_card.html", '<div class="col-xxs-12 c4p-link5" ng-controller="ctrlDragObject" ng-init="init(cardItem)"><div ng-class="{\'c4p-hover-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableHover, \'c4p-border-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableBorder}" style="border-width: 1px;padding:2px" ng-include="\'partials/navigation/cards/summarized_card.html\'"></div></div>'), 
     $templateCache.put("partials/navigation/cards/inlined_card.html", '<ul class="nav nav-pills" ng-controller="ctrlInlinedObject" ng-init="init(cardItem)"><li class="" style="width:95%; text-align: left"><div ng-show="inlinedItemSecondName"><span class="pull-left a4p-dot" style="max-width: 75%">{{inlinedItemName}}</span> <small class="pull-right" style="max-width: 20%; color: rgb(172, 172, 172)">{{inlinedItemSecondName}}</small></div><div ng-hide="inlinedItemSecondName"><span class="pull-left a4p-dot" style="max-width: 95%">{{inlinedItemName}}</span></div></li><li><span ng-show="(inlinedItem.c4p_synchro.creating || inlinedItem.c4p_synchro.writing || inlinedItem.c4p_synchro.reading || inlinedItem.c4p_synchro.deleting)" class="glyphicon" ng-class="{\n            \'glyphicon-trash\'    : (inlinedItem.c4p_synchro.deleting > 1),\n            \'glyphicon-times-circle\' : (!inlinedItem.c4p_synchro.deleting && (inlinedItem.c4p_synchro.creating > 1)),\n            \'glyphicon-upload\'   : (!inlinedItem.c4p_synchro.deleting && !inlinedItem.c4p_synchro.creating && (inlinedItem.c4p_synchro.writing > 1)),\n            \'glyphicon-download\' : (!inlinedItem.c4p_synchro.deleting && !inlinedItem.c4p_synchro.creating && !inlinedItem.c4p_synchro.writing && (inlinedItem.c4p_synchro.reading > 1)),\n            \'glyphicon-spinner\'  : ((inlinedItem.c4p_synchro.deleting == 1) || (inlinedItem.c4p_synchro.creating == 1) || (inlinedItem.c4p_synchro.writing == 1) || (inlinedItem.c4p_synchro.reading == 1)),\n            \'glyphicon-spin\'          : ((inlinedItem.c4p_synchro.deleting == 1) || (inlinedItem.c4p_synchro.creating == 1) || (inlinedItem.c4p_synchro.writing == 1) || (inlinedItem.c4p_synchro.reading == 1))\n        }"></span></li></ul>'), 
@@ -35338,13 +35350,14 @@ var SrvConfig = function() {
         return this.themeCss || "c4p-cosmo";
     }, Service;
 }(), SrvData = function() {
-    function Service(exceptionHandlerService, qService, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvDataStore, srvRunning, srvSynchro, srvSynchroStatus, srvFileStorage, $rootScope) {
+    function Service(exceptionHandlerService, qService, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvDataStore, srvRunning, srvSynchro, srvSynchroStatus, srvQueue, srvFileStorage, $rootScope) {
         this.exceptionHandler = exceptionHandlerService, this.q = qService, this.srvLocalStorage = srvLocalStorage, 
         this.srvConfig = srvConfig, this.srvLog = srvLog, this.srvLocale = srvLocale, this.srvSecurity = srvSecurity, 
         this.dataTransfer = srvDataTransfer, this.srvRunning = srvRunning, this.srvSynchro = srvSynchro, 
         this.srvSynchroStatus = srvSynchroStatus, this.srvFileStorage = srvFileStorage, 
-        this.srvDataStore = srvDataStore, this.rootScope = $rootScope, this.callbackHandle = 0, 
-        this.callbacksUpdate = [], this.a4pTypesInC4PFirst = [ "Note", "Report" ], this.a4pTypesForSF = [ "Contact", "Account", "Event", "Task", "Opportunity", "Lead", "Document", "Attendee" ], 
+        this.srvDataStore = srvDataStore, this.srvQueue = srvQueue, this.rootScope = $rootScope, 
+        this.callbackHandle = 0, this.callbacksUpdate = [], this.a4pTypesInC4PFirst = [ "Note", "Report" ], 
+        this.a4pTypesForSF = [ "Contact", "Account", "Event", "Task", "Opportunity", "Lead", "Document", "Attendee" ], 
         this.a4p_methods = {
             toggleFavorite: {
                 icon: "star-empty",
@@ -35510,8 +35523,7 @@ var SrvConfig = function() {
         var i, type;
         for (i = 0; i < c4p.Model.allTypes.length; i++) type = c4p.Model.allTypes[i], this.currentItems[type] = [], 
         this.originalItems[type] = [];
-        this.lastRefreshMindMap = 0, this.nbObjects = 0, this.objectsToSave = [], this.objectsToDownload = [], 
-        this.savingObject = {}, this.initDone = !1;
+        this.lastRefreshMindMap = 0, this.nbObjects = 0, this.initDone = !1;
     }
     function triggerUpdate(self, action, type, id) {
         for (var callbacks = self.callbacksUpdate.slice(0), idx = 0, max = callbacks.length; max > idx; idx++) try {
@@ -35529,16 +35541,58 @@ var SrvConfig = function() {
                 var type = c4p.Model.allTypes[i];
                 self.srvDataStore.setItems(type, self.originalItems[type], !0), self.srvDataStore.setItems(type, self.currentItems[type]);
             }
-            self.srvDataStore.setConfig("lastRefreshMindMap", self.lastRefreshMindMap), self.srvDataStore.setItems("objectsToSave", self.objectsToSave), 
-            self.srvDataStore.setItems("objectsToDownload", self.objectsToDownload), self.srvDataStore.setConfig("savingObject", self.savingObject), 
+            self.srvDataStore.setConfig("lastRefreshMindMap", self.lastRefreshMindMap), this.srvQueue.stop(), 
             a4p.InternalLog.log("srvData", "data saved in srvLocalStorage");
         } else a4p.InternalLog.log("srvData", "pause ended");
+    }
+    function queueServiceInit(self) {
+        self.srvQueue.start();
+        var cancelSynchroListeners = function(self, objectDbid) {
+            var i, listeners = self.srvQueue.getSynchroListeners(objectDbid);
+            for (i = 0; i < listeners.length; i++) self.srvSynchro.cancelListener(listeners[i]);
+        }, startQueueListenerOnSave = function(queueId, requestId, objectDbid, params, requestNbTry, callbackSuccessFct, callbackErrorFct) {
+            var successListener = self.srvSynchro.addListenerOnSuccess("data", function(callbackId, requestId_, requestCtx, requestNbTry, responseStatus, responseData) {
+                if (a4p.isDefined(requestCtx.dbid) && requestCtx.dbid == objectDbid) {
+                    var diag = checkErrorData(responseData);
+                    diag || (callbackSuccessFct(self.srvQueue), cancelSynchroListeners(self, objectDbid));
+                }
+            }), cancelListener = self.srvSynchro.addListenerOnCancel("data", function(callbackId, requestId_, requestCtx) {
+                a4p.isDefined(requestCtx.dbid) && requestCtx.dbid == objectDbid && (callbackErrorFct(self.srvQueue), 
+                cancelSynchroListeners(self, objectDbid));
+            }), errorListener = self.srvSynchro.addListenerOnError("data", function(callbackId, requestId_, requestCtx) {
+                a4p.isDefined(requestCtx.dbid) && requestCtx.dbid == objectDbid && (callbackErrorFct(self.srvQueue), 
+                cancelSynchroListeners(self, objectDbid));
+            });
+            self.srvQueue.addSynchroListener(objectDbid, successListener), self.srvQueue.addSynchroListener(objectDbid, cancelListener), 
+            self.srvQueue.addSynchroListener(objectDbid, errorListener);
+            var bOk = saveObjectAndSendToSynchro(self, objectDbid);
+            bOk || (callbackErrorFct(self.srvQueue), cancelSynchroListeners(self, objectDbid));
+        }, startQueueListenerOnDownload = function(queueId, requestId, objectDbid, params, requestNbTry, callbackSuccessFct, callbackErrorFct) {
+            var successListener = self.srvSynchro.addListenerOnSuccess("data", function(callbackId, requestId, requestCtx, requestNbTry, responseStatus, responseData) {
+                if (a4p.isDefined(requestCtx.dbid) && requestCtx.dbid == objectDbid) {
+                    var diag = checkErrorData(responseData);
+                    diag || (callbackSuccessFct(self.srvQueue), cancelSynchroListeners(self, objectDbid));
+                }
+            }), cancelListener = self.srvSynchro.addListenerOnCancel("data", function(callbackId, requestId, requestCtx) {
+                a4p.isDefined(requestCtx.dbid) && requestCtx.dbid == objectDbid && (callbackErrorFct(self.srvQueue), 
+                cancelSynchroListeners(self, objectDbid));
+            }), errorListener = self.srvSynchro.addListenerOnError("data", function(callbackId, requestId, requestCtx) {
+                a4p.isDefined(requestCtx.dbid) && requestCtx.dbid == objectDbid && (callbackErrorFct(self.srvQueue), 
+                cancelSynchroListeners(self, objectDbid));
+            });
+            self.srvQueue.addSynchroListener(objectDbid, successListener), self.srvQueue.addSynchroListener(objectDbid, cancelListener), 
+            self.srvQueue.addSynchroListener(objectDbid, errorListener);
+            var bOk = downloadObjectAndSendToSynchro(self, objectDbid);
+            bOk || (callbackErrorFct(self.srvQueue), cancelSynchroListeners(self, objectDbid));
+        };
+        self.queueListenerOnStart = self.srvQueue.addListenerOnStart(self.srvQueue.PUB.QUEUE_SAVE, startQueueListenerOnSave), 
+        self.queueListenerOnDownload = self.srvQueue.addListenerOnStart(self.srvQueue.PUB.QUEUE_DOWNLOAD, startQueueListenerOnDownload);
     }
     function onSynchroStart(self, callbackId, requestId, requestCtx, requestNbTry) {
         self.srvLog.logInfo(self.srvConfig.c4pConfig.exposeDataSynchro, requestCtx.title + " started try#" + requestNbTry, ""), 
         a4p.isDefined(requestCtx.dbid) && a4p.safeApply(self.rootScope, function() {
             var object = self.getObject(requestCtx.dbid);
-            "Create" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_CREATE, self.srvSynchroStatus.PUB.NETWORK) : "Update" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, self.srvSynchroStatus.PUB.NETWORK) : "Delete" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_DELETE, self.srvSynchroStatus.PUB.NETWORK) : "Share" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.NETWORK) : "Email" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, self.srvSynchroStatus.PUB.NETWORK) : "Note" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, self.srvSynchroStatus.PUB.NETWORK) : "Download" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_READ, self.srvSynchroStatus.PUB.NETWORK) : "Attachment" == requestCtx.type;
+            "Create" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_CREATE, self.srvSynchroStatus.PUB.NETWORK, !0) : "Update" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, self.srvSynchroStatus.PUB.NETWORK, !0) : "Delete" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_DELETE, self.srvSynchroStatus.PUB.NETWORK, !0) : "Share" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.NETWORK, !0) : "Email" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, self.srvSynchroStatus.PUB.NETWORK, !0) : "Note" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, self.srvSynchroStatus.PUB.NETWORK, !0) : "Download" == requestCtx.type ? self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_READ, self.srvSynchroStatus.PUB.NETWORK, !0) : "Attachment" == requestCtx.type;
         });
     }
     function onSynchroCancel(self, callbackId, requestId, requestCtx, requestNbTry) {
@@ -35548,67 +35602,67 @@ var SrvConfig = function() {
     function onSynchroError(self, callbackId, requestId, requestCtx, requestNbTry, message) {
         self.srvSynchro.serverHs(), a4p.safeApply(self.rootScope, function() {
             a4p.InternalLog.log("srvData", "onSynchroError: requestNbTry=" + requestNbTry + " requestCtx=" + a4pDumpData(requestCtx, 2) + "message=" + message), 
-            requestNbTry > 3 ? (self.srvLog.logWarning(self.srvConfig.c4pConfig.exposeDataSynchro, requestCtx.title + " failed try#" + requestNbTry + " : cancelled", message), 
-            self.srvSynchro.cancelRequest(requestId)) : self.srvLog.logWarning(self.srvConfig.c4pConfig.exposeDataSynchro, requestCtx.title + " failed try#" + requestNbTry + " : retry", message);
+            self.srvLog.logWarning(self.srvConfig.c4pConfig.exposeDataSynchro, requestCtx.title + " failed try#" + requestNbTry + " : retry", message);
         });
     }
     function onSynchroSuccess(self, callbackId, requestId, requestCtx, requestNbTry, responseStatus, responseData) {
         if (a4p.InternalLog.log("srvData", "onSynchroSuccess: requestNbTry=" + requestNbTry + " requestCtx=" + a4pDumpData(requestCtx, 2) + " responseStatus=" + responseStatus + " responseData=" + a4pDumpData(responseData, 3)), 
         "Download" != requestCtx.type) {
             var diag = checkErrorData(responseData);
-            if (diag) return diag.maintenance ? (self.srvSynchro.serverHs(), self.srvSynchro.tryAgainCurrentRequest()) : diag.redirect || 3 >= requestNbTry && self.srvSynchro.tryAgainCurrentRequest(), 
-            void a4p.safeApply(self.rootScope, function() {
-                if (diag.maintenance) self.srvLog.logWarning(self.srvConfig.c4pConfig.exposeDataSynchro, requestCtx.title + " failed try#" + requestNbTry + ' (server in status "' + diag.maintenance + '") : retry', diag.log); else if (diag.redirect) self.srvLog.logWarning(self.srvConfig.c4pConfig.exposeDataSynchro, requestCtx.title + " redirected try#" + requestNbTry + " : cancelled", diag.log), 
-                sendNextObjectToSave(self); else {
+            if (diag) return diag.maintenance ? self.srvSynchro.serverHs() : diag.redirect, 
+            a4p.safeApply(self.rootScope, function() {
+                if (diag.maintenance) self.srvLog.logWarning(self.srvConfig.c4pConfig.exposeDataSynchro, requestCtx.title + " failed try#" + requestNbTry + ' (server in status "' + diag.maintenance + '") : retry', diag.log); else if (diag.redirect) self.srvLog.logWarning(self.srvConfig.c4pConfig.exposeDataSynchro, requestCtx.title + " redirected try#" + requestNbTry + " : cancelled", diag.log); else {
                     var errorMsg = "";
                     errorMsg = a4p.isDefined(diag.error) && a4p.isDefined(self.srvLocale.translations[diag.error]) ? self.srvLocale.translations[diag.error] : diag.error, 
-                    requestNbTry > 3 ? (self.srvLog.logWarning(self.srvConfig.c4pConfig.exposeDataSynchro, requestCtx.title + " failed try#" + requestNbTry + " (" + errorMsg + ") : cancelled", diag.log), 
-                    sendNextObjectToSave(self)) : self.srvLog.logWarning(self.srvConfig.c4pConfig.exposeDataSynchro, requestCtx.title + " failed try#" + requestNbTry + " (" + errorMsg + ") : retry", diag.log);
+                    self.srvLog.logWarning(self.srvConfig.c4pConfig.exposeDataSynchro, requestCtx.title + " failed try#" + requestNbTry + " (" + errorMsg + ") : retry", diag.log);
                 }
-            });
+            }), self.srvSynchro.tryAgainCurrentRequest(), !1;
         }
-        a4p.safeApply(self.rootScope, function() {
+        return a4p.safeApply(self.rootScope, function() {
             self.srvLog.logSuccess(self.srvConfig.c4pConfig.exposeDataSynchro, requestCtx.title + " success", ""), 
             "Create" == requestCtx.type ? onCreateSuccess(self, requestCtx, responseData) : "Update" == requestCtx.type ? onUpdateSuccess(self, requestCtx, responseData) : "Delete" == requestCtx.type ? onDeleteSuccess(self, requestCtx, responseData) : "Download" == requestCtx.type ? onDownloadSuccess(self, requestCtx, responseStatus) : "Attachment" == requestCtx.type || ("Share" == requestCtx.type ? onShareSuccess(self, requestCtx, responseData) : "Email" == requestCtx.type ? onEmailSuccess(self, requestCtx, responseData) : "Note" == requestCtx.type && onNoteSuccess(self, requestCtx, responseData));
-        });
+        }), !0;
     }
     function onCreateSuccess(self, requestCtx, responseData) {
         var object = self.getObject(requestCtx.dbid), askedCreated = responseData.askedCreated, created = responseData.created, errors = responseData.errors;
         a4p.isTrueOrNonEmpty(errors) && a4p.ErrorLog.log("srvData", "reject creating parts of item " + requestCtx.dbid + " : " + a4pDumpData(errors, 1)), 
         a4p.isDefined(object) ? (self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_CREATE), 
-        createdObject(self, requestCtx.dbid, askedCreated, created)) : a4p.InternalLog.log("srvData", "create success on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
-        sendNextObjectToSave(self);
+        createdObject(self, requestCtx.dbid, askedCreated, created)) : a4p.InternalLog.log("srvData", "create success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onCreateFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
-        a4p.isDefined(object) ? self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_CREATE, "create failure ?") : a4p.InternalLog.log("srvData", "create failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
-        sendNextObjectToSave(self);
+        a4p.isDefined(object) ? self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_CREATE, "create failure ?") : a4p.InternalLog.log("srvData", "create failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onUpdateSuccess(self, requestCtx, responseData) {
         var object = self.getObject(requestCtx.dbid), askedUpdated = responseData.askedUpdated, updated = responseData.updated, errors = responseData.errors;
         a4p.isTrueOrNonEmpty(errors) && a4p.ErrorLog.log("srvData", "reject updating parts of item " + requestCtx.dbid + " : " + a4pDumpData(errors, 1)), 
         a4p.isDefined(object) ? (self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE), 
-        updatedObject(self, requestCtx.dbid, askedUpdated, updated)) : a4p.InternalLog.log("srvData", "update success on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
-        sendNextObjectToSave(self);
+        updatedObject(self, requestCtx.dbid, askedUpdated, updated)) : a4p.InternalLog.log("srvData", "update success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onUpdateFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
         a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "update failure ?"), 
-        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "update failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
-        sendNextObjectToSave(self);
+        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "update failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onDeleteSuccess(self, requestCtx, responseData) {
         var object = self.getObject(requestCtx.dbid), askedDeleted = responseData.askedDeleted, deleted = responseData.deleted, errors = responseData.errors;
         a4p.isTrueOrNonEmpty(errors) && a4p.ErrorLog.log("srvData", "reject deleting parts of item " + requestCtx.dbid + " : " + a4pDumpData(errors, 1)), 
         a4p.isDefined(object) ? (self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_DELETE), 
-        deleteObject(self, requestCtx.dbid, askedDeleted, deleted, !1)) : a4p.InternalLog.log("srvData", "delete success on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
-        sendNextObjectToSave(self);
+        deletedObject(self, requestCtx.dbid, askedDeleted, deleted, !1)) : a4p.InternalLog.log("srvData", "delete success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onDeleteFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
-        a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_DELETE, " delete failure ?"), 
-        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "delete failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
-        sendNextObjectToSave(self);
+        if (a4p.isDefined(object)) {
+            a4p.ErrorLog.log("srvData", "delete failure on object " + requestCtx.dbid);
+            var deleted = [];
+            a4p.isDefined(object.id.c4p_id) && deleted.push({
+                crm: "c4p",
+                id: object.id.c4p_id
+            }), a4p.isDefined(object.id.sf_id) && deleted.push({
+                crm: "sf",
+                id: object.id.sf_id
+            }), deletedObject(self, requestCtx.dbid, deleted, deleted, !1);
+        } else a4p.InternalLog.log("srvData", "delete failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onDownloadSuccess(self, requestCtx, responseStatus) {
         var object = self.getObject(requestCtx.dbid);
@@ -35619,29 +35673,25 @@ var SrvConfig = function() {
             fileUrl: object.fileUrl,
             thumb_url: object.thumb_url
         }), self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_READ), 
-        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "download success on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
-        getNextObjectToDownload(self, requestCtx.dbid);
+        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "download success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onDownloadFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
         a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_READ, "download failure ?"), 
         self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type]), 
-        a4p.InternalLog.log("srvData", "download failure //TODO : what todo with self document not downloaded ? " + requestCtx.dbid)) : a4p.InternalLog.log("srvData", "download failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
-        getNextObjectToDownload(self, requestCtx.dbid);
+        a4p.InternalLog.log("srvData", "download failure //TODO : what todo with self document not downloaded ? " + requestCtx.dbid)) : a4p.InternalLog.log("srvData", "download failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onShareSuccess(self, requestCtx, responseData) {
         if ("Document shared." == responseData.log && a4p.isDefined(responseData.id)) {
             var object = self.getObject(requestCtx.dbid);
             a4p.isDefined(object) ? (delete object.feed, self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_SHARE), 
-            self.setObject(object, !1), self.addObjectToSave(object.a4p_type, object.id.dbid)) : a4p.InternalLog.log("srvData", "share success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
+            self.setObject(object, !1), self.addObjectToSave(object)) : a4p.InternalLog.log("srvData", "share success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
         }
-        sendNextObjectToSave(self);
     }
     function onShareFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
         a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "share failure ?"), 
-        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "share failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
-        sendNextObjectToSave(self);
+        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "share failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onEmailSuccess(self, requestCtx, responseData) {
         var object = self.getObject(requestCtx.dbid);
@@ -35650,40 +35700,34 @@ var SrvConfig = function() {
             var pdfEmailExists = !1;
             if (a4p.isDefined(responseData.created)) for (var i = 0, nb = responseData.created.length; nb > i; i++) {
                 var crm = responseData.created[i].crm, id = responseData.created[i].id;
-                object.id[crm + "_id"] = id, self.savingObject.fields.id[crm + "_id"] = id, pdfEmailExists = !0;
+                object.id[crm + "_id"] = id, pdfEmailExists = !0;
             } else a4p.isDefined(responseData.id) && a4p.isDefined(responseData.id.sf_id) && (object.id.sf_id = responseData.id.sf_id, 
-            self.savingObject.fields.id.sf_id = object.id.sf_id, pdfEmailExists = !0);
-            if (self.setObject(object, !1), addOriginalObject(self, self.savingObject.fields, !self.isDemo && pdfEmailExists), 
+            pdfEmailExists = !0);
+            if (self.setObject(object, !1), addOriginalObject(self, object, !self.isDemo && pdfEmailExists), 
             a4p.isDefined(responseData.created)) for (var i = 0, nb = responseData.created.length; nb > i; i++) {
                 var crm = responseData.created[i].crm, id = responseData.created[i].id;
                 updateLinkedObjects(self, "Document", object.id.dbid, crm + "_id", id);
             } else a4p.isDefined(responseData.id) && a4p.isDefined(responseData.id.sf_id) && updateLinkedObjects(self, "Document", object.id.dbid, "sf_id", object.id.sf_id);
         } else "Create email success." == responseData.responseStatus && a4p.isDefined(responseData.id) && (object.id.sf_id = responseData.id.sf_id, 
         self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE), 
-        self.setObject(object, !1), self.savingObject.fields.id.sf_id = object.id.sf_id, 
-        addOriginalObject(self, self.savingObject.fields, !self.isDemo), updateLinkedObjects(self, "Document", object.id.dbid, "sf_id", object.id.sf_id)); else a4p.InternalLog.log("srvData", "email success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
-        sendNextObjectToSave(self);
+        self.setObject(object, !1), addOriginalObject(self, object, !self.isDemo), updateLinkedObjects(self, "Document", object.id.dbid, "sf_id", object.id.sf_id)); else a4p.InternalLog.log("srvData", "email success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onEmailFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
         a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "writing failure ?"), 
-        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "email failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
-        sendNextObjectToSave(self);
+        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "email failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onNoteSuccess(self, requestCtx, responseData) {
         if (("Create report success." == responseData.responseStatus || "Create note success." == responseData.responseStatus) && a4p.isDefined(responseData.id)) {
             var object = self.getObject(requestCtx.dbid);
             a4p.isDefined(object) ? (object.id.sf_id = responseData.id.sf_id, self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE), 
-            self.setObject(object, !1), self.savingObject.fields.id.sf_id = object.id.sf_id, 
-            addOriginalObject(self, self.savingObject.fields, !self.isDemo), updateLinkedObjects(self, "Document", object.id.dbid, "sf_id", object.id.sf_id)) : a4p.InternalLog.log("srvData", "note success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
+            self.setObject(object, !1), addOriginalObject(self, object, !self.isDemo), updateLinkedObjects(self, "Document", object.id.dbid, "sf_id", object.id.sf_id)) : a4p.InternalLog.log("srvData", "note success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
         }
-        sendNextObjectToSave(self);
     }
     function onNoteFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
         a4p.isDefined(object) ? (self.srvSynchroStatus.cancelChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "writing failure ?"), 
-        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "note failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request"), 
-        sendNextObjectToSave(self);
+        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "note failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function checkErrorData(responseData) {
         if (a4p.isUndefined(responseData)) return {
@@ -35841,9 +35885,8 @@ var SrvConfig = function() {
             prefix: "",
             name: self.srvLocale.translations.htmlFavorites
         }), self.addObject(self.favoritesObject), self.linkToItem(self.favoritesObject.a4p_type, "owner", [ self.favoritesObject ], self.userObject), 
-        self.addObjectToSave(self.favoritesObject.a4p_type, self.favoritesObject.id.dbid)), 
-        self.srvDataStore.setConfig("favoritesObject", self.favoritesObject), self.lastRefreshMindMap = Math.floor(requestTimestamp / 1e3), 
-        self.srvDataStore.setConfig("lastRefreshMindMap", self.lastRefreshMindMap);
+        self.addObjectToSave(self.favoritesObject)), self.srvDataStore.setConfig("favoritesObject", self.favoritesObject), 
+        self.lastRefreshMindMap = Math.floor(requestTimestamp / 1e3), self.srvDataStore.setConfig("lastRefreshMindMap", self.lastRefreshMindMap);
     }
     function deleteOldDbLinkIds(item) {
         for (var mergeIdx = 0; mergeIdx < item.crmObjects.length; mergeIdx++) for (var object = item.crmObjects[mergeIdx].data, crm = item.crmObjects[mergeIdx].crmId.crm, type = item.a4p_type, objDesc = c4p.Model.a4p_types[type], j = 0; j < objDesc.linkFields.length; j++) {
@@ -35922,26 +35965,17 @@ var SrvConfig = function() {
         }
         self.lastRefreshMindMap = Math.floor(requestTimestamp / 1e3), self.srvDataStore.setConfig("lastRefreshMindMap", self.lastRefreshMindMap);
     }
-    function saveObject(self, type, dbid) {
-        a4p.InternalLog.log("srvData", "saveObject " + type + " id:" + dbid);
+    function saveObjectAndSendToSynchro(self, dbid) {
+        a4p.InternalLog.log("srvData", "saveObjectAndSendToSynchro " + type + " id:" + dbid);
         var fromObject = self.originalDbIndex[dbid], toObject = self.getObject(dbid);
         if (!a4p.isDefined(toObject)) return !1;
-        var diffResult = diffObject(fromObject, toObject);
-        if (a4p.InternalLog.log("srvData", "saveObject diffResult:" + diffResult), "delete" == diffResult || self.srvSynchroStatus.hasToBeDeleted(toObject)) {
-            if (self.srvConfig.hasActiveRemoteCrm() && sendDeletion(self, fromObject, toObject)) return !0;
-            self.srvSynchroStatus.successChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_DELETE), 
-            toObject.toSaveWhenCrm = !0;
-            for (var oldCrmKeyId in toObject.id) if ("dbid" != oldCrmKeyId && toObject.id.hasOwnProperty(oldCrmKeyId)) {
-                var crm = oldCrmKeyId.substr(0, oldCrmKeyId.length - 3), id = toObject.id[oldCrmKeyId];
-                delete self.index[crm][id];
-            }
-            {
-                removeObjectFromList(self.currentItems[type], dbid);
-            }
-            return delete self.index.db[dbid], self.nbObjects--, self.srvDataStore.setItems(type, self.currentItems[type]), 
-            triggerUpdate(self, "remove", type, dbid), unlinkLinkedObjects(self, dbid), !1;
-        }
-        if (null == diffResult) return "Document" == type && a4p.isDefined(toObject.feed) && toObject.feed ? self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.QUEUE), 
+        var type = toObject.a4p_type, diffResult = diffObject(fromObject, toObject);
+        if (a4p.InternalLog.log("srvData", "saveObjectAndSendToSynchro diffResult:" + diffResult), 
+        "delete" == diffResult || self.srvSynchroStatus.hasToBeDeleted(toObject)) return self.srvConfig.hasActiveRemoteCrm() && sendDeletion(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_DELETE, self.srvSynchroStatus.PUB.QUEUE, !0), 
+        self.srvDataStore.setItems(type, self.currentItems[type]), !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_DELETE, "no change and no active CRM"), 
+        toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
+        !1);
+        if (null == diffResult) return "Document" == type && a4p.isDefined(toObject.feed) && toObject.feed ? self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.QUEUE, !0), 
         self.srvDataStore.setItems(type, self.currentItems[type]), !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "no change and no active CRM"), 
         toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
         !1) : (self.srvDataStore.setItems(type, self.currentItems[type]), !1);
@@ -35950,14 +35984,20 @@ var SrvConfig = function() {
             if (a4p.isDefined(toObject.email) && toObject.email.editable && (toObject.email.editable = !1, 
             changed = !0), changed && self.srvDataStore.setItems(toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
             "Document" == type) {
-                if (a4p.isTrueOrNonEmpty(toObject.feed)) return self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.QUEUE), 
+                if (a4p.isTrueOrNonEmpty(toObject.feed)) return self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.QUEUE, !0), 
+                self.srvDataStore.setItems(toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
                 !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "new but no active CRM"), 
                 toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
                 !1);
-                if (a4p.isTrueOrNonEmpty(toObject.email)) return sendEmail(self, toObject), !0;
+                if (a4p.isTrueOrNonEmpty(toObject.email)) return sendEmail(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_WRITE, self.srvSynchroStatus.PUB.QUEUE, !0), 
+                self.srvDataStore.setItems(toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
+                !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "init because new"), 
+                toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
+                !1);
             }
-            return self.srvConfig.hasActiveRemoteCrm() && sendCreation(self, toObject) ? !0 : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_CREATE, "init because new"), 
-            self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "init because new"), 
+            return self.srvConfig.hasActiveRemoteCrm() && sendCreation(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_CREATE, self.srvSynchroStatus.PUB.QUEUE, !0), 
+            self.srvDataStore.setItems(toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
+            !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_CREATE, "init because new"), 
             toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
             !1);
         }
@@ -35965,13 +36005,16 @@ var SrvConfig = function() {
         if ("Document" == toObject.a4p_type && a4p.isDefined(toObject.email) && toObject.email.editable && (toObject.email.editable = !1, 
         changed = !0), changed && self.srvDataStore.setItems(toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
         "Document" == type) {
-            if (a4p.isTrueOrNonEmpty(toObject.feed)) return self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.QUEUE), 
+            if (a4p.isTrueOrNonEmpty(toObject.feed)) return self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.QUEUE, !0), 
+            self.srvDataStore.setItems(toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
             !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "update and no active CRM"), 
             toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
             !1);
             if (a4p.isTrueOrNonEmpty(toObject.email)) return sendEmail(self, toObject), !0;
         }
-        return self.srvConfig.hasActiveRemoteCrm() && sendUpdate(self, toObject, diffResult) ? !0 : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "NO remote CRM enabled"), 
+        return self.srvConfig.hasActiveRemoteCrm() && sendUpdate(self, toObject, diffResult) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_WRITE, self.srvSynchroStatus.PUB.QUEUE, !0), 
+        self.srvDataStore.setItems(toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
+        !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "NO remote CRM enabled"), 
         toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
         !1);
     }
@@ -35993,12 +36036,7 @@ var SrvConfig = function() {
             title: "Send Email body for " + event.a4p_type + " " + self.srvConfig.getItemName(event),
             dbid: object.id.dbid
         };
-        if (self.savingObject = {
-            type: "Document",
-            dbid: object.id.dbid,
-            action: "create",
-            fields: angular.copy(object)
-        }, self.srvDataStore.setConfig("savingObject", self.savingObject), self.isDemo) {
+        if (self.isDemo) {
             for (var createdIds = [], i = 0; i < askedCrms.length; i++) createdIds.push({
                 crm: askedCrms[i],
                 id: "demo" + askedCrms[i].toUpperCase() + object.id.dbid
@@ -36081,12 +36119,7 @@ var SrvConfig = function() {
             crm: "c4p",
             id: object.id.c4p_id
         }), created.length <= 0) return !1;
-        if (self.savingObject = {
-            type: object.a4p_type,
-            dbid: object.id.dbid,
-            action: "create",
-            fields: angular.extend(object)
-        }, self.srvDataStore.setConfig("savingObject", self.savingObject), self.isDemo) {
+        if (self.isDemo) {
             var answerCreated = {
                 crm: created[0].crm,
                 tmpId: created[0].id
@@ -36184,12 +36217,7 @@ var SrvConfig = function() {
             deleted: deleted,
             askedCrms: askedCrms
         };
-        return self.savingObject = {
-            type: fromObject.a4p_type,
-            dbid: fromObject.id.dbid,
-            action: "delete",
-            fields: angular.extend(fromObject)
-        }, self.srvDataStore.setConfig("savingObject", self.savingObject), self.isDemo ? onDeleteSuccess(self, requestCtx, {
+        return self.isDemo ? onDeleteSuccess(self, requestCtx, {
             id: fromObject.id.dbid,
             type: fromObject.a4p_type,
             askedDeleted: deleted,
@@ -36222,12 +36250,7 @@ var SrvConfig = function() {
             crm: "c4p",
             id: object.id.c4p_id
         }), updated.length <= 0) return !1;
-        if (self.savingObject = {
-            type: object.a4p_type,
-            dbid: object.id.dbid,
-            action: "update",
-            fields: angular.extend(object)
-        }, self.srvDataStore.setConfig("savingObject", self.savingObject), self.isDemo) onUpdateSuccess(self, requestCtx, {
+        if (self.isDemo) onUpdateSuccess(self, requestCtx, {
             id: object.id.dbid,
             type: object.a4p_type,
             askedUpdated: updated,
@@ -36279,12 +36302,7 @@ var SrvConfig = function() {
             title: "Share Document " + self.srvConfig.getItemName(object),
             dbid: object.id.dbid
         };
-        if (self.savingObject = {
-            type: "Document",
-            dbid: object.id.dbid,
-            action: "share",
-            fields: angular.extend(object)
-        }, self.srvDataStore.setConfig("savingObject", self.savingObject), self.isDemo) {
+        if (self.isDemo) {
             var answerId = {};
             isValueInList(self.srvConfig.getActiveCrms(), "sf") && (answerId.sf_id = "feedSF" + object.id.dbid), 
             onShareSuccess(self, requestCtx, {
@@ -36312,12 +36330,12 @@ var SrvConfig = function() {
             if (isArrayField) {
                 for (var valueIdx = 0, valueNb = otherObject[fromOtherField].length; valueNb > valueIdx; valueIdx++) if (otherObject[fromOtherField][valueIdx].dbid == dbid) {
                     otherObject[fromOtherField].splice(valueIdx, 1), otherObject[fromOtherField].length <= 0 && "many" == linkOtherModel.cascadeDelete ? self.removeObject(otherId, isOriginal) : self.setObject(otherObject, isOriginal), 
-                    isOriginal || self.addObjectToSave(fromOtherType, otherId);
+                    isOriginal || self.addObjectToSave(otherObject);
                     break;
                 }
             } else otherObject[fromOtherField].dbid == dbid && (otherObject[fromOtherField] = {}, 
             "many" == linkOtherModel.cascadeDelete ? self.removeObject(otherId, isOriginal) : self.setObject(otherObject, isOriginal), 
-            isOriginal || self.addObjectToSave(fromOtherType, otherId));
+            isOriginal || self.addObjectToSave(otherObject));
         }
     }
     function diffObject(fromObject, toObject) {
@@ -36367,33 +36385,6 @@ var SrvConfig = function() {
         }
         return "undefined" == typeof value ? "" : value && "string" != typeof value ? value.toString() : value;
     }
-    function sendFirstObjectToSave(self) {
-        var sentRequest = !1;
-        if (a4p.isDefined(self.savingObject.dbid)) {
-            if (sentRequest = saveObject(self, self.savingObject.type, self.savingObject.dbid)) return;
-            self.savingObject = {}, self.srvDataStore.setConfig("savingObject", self.savingObject);
-        }
-        for (;0 == sentRequest && self.objectsToSave.length > 0; ) {
-            var removedObject = self.objectsToSave.shift();
-            self.srvDataStore.setConfig("objectsToSave", self.objectsToSave), sentRequest = saveObject(self, removedObject.type, removedObject.dbid);
-        }
-        0 == sentRequest && (self.savingObject = {}, self.srvDataStore.setConfig("savingObject", self.savingObject));
-    }
-    function sendNextObjectToSave(self) {
-        self.savingObject = {}, self.srvDataStore.setConfig("savingObject", self.savingObject), 
-        0 == self.objectsToDownload.length && sendFirstObjectToSave(self);
-    }
-    function getFirstObjectToDownload(self) {
-        if (self.objectsToDownload.length > 0) {
-            for (var sentRequest = !1; 0 == sentRequest && self.objectsToDownload.length > 0; ) sentRequest = downloadObject(self, self.objectsToDownload[0].dbid);
-            return sentRequest;
-        }
-        return !1;
-    }
-    function getNextObjectToDownload(self, dbid) {
-        self.objectsToDownload.length > 0 && self.objectsToDownload[0].dbid == dbid && (removeObjectToDownload(self, self.objectsToDownload[0].dbid), 
-        getFirstObjectToDownload(self) || sendFirstObjectToSave(self));
-    }
     function updateLinkedObjects(self, type, dbid, idKey, idValue) {
         for (var typeIdx = 0; typeIdx < c4p.Model.allTypes.length; typeIdx++) for (var fromOtherType = c4p.Model.allTypes[typeIdx], objDesc = c4p.Model.a4p_types[fromOtherType], fromFieldIdx = 0; fromFieldIdx < objDesc.linkFields.length; fromFieldIdx++) for (var linkModel = objDesc.linkFields[fromFieldIdx], fromField = linkModel.key, isArrayField = a4p.isDefined(c4p.Model.objectArrays[fromOtherType][fromField]), toTypeIdx = 0; toTypeIdx < linkModel.types.length; toTypeIdx++) {
             var toType = linkModel.types[toTypeIdx];
@@ -36416,19 +36407,19 @@ var SrvConfig = function() {
         if (a4p.isDefinedAndNotNull(created)) for (var i = 0, nb = created.length; nb > i; i++) {
             var crm = created[i].crm, id = created[i].id;
             object.id[crm + "_id"] = id, created[i].tmpId && delete self.index[crm][created[i].tmpId], 
-            self.index[crm][id] = object, self.savingObject.fields.id[crm + "_id"] = id, updateLinkedObjects(self, object.a4p_type, itemId, crm + "_id", id);
+            self.index[crm][id] = object, updateLinkedObjects(self, object.a4p_type, itemId, crm + "_id", id);
         }
-        addOriginalObject(self, self.savingObject.fields, !1), self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type]), 
-        self.addObjectToSave(object.a4p_type, itemId);
+        addOriginalObject(self, object, !1), self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type]), 
+        self.addObjectToSave(object);
     }
     function updatedObject(self, itemId, askedUpdated, updated) {
         for (var object = self.index.db[itemId], i = 0, nb = updated.length; nb > i; i++) {
             updated[i].crm, updated[i].id;
         }
-        setOriginalObject(self, self.savingObject.fields, !1), self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type]), 
-        self.addObjectToSave(object.a4p_type, object.id.dbid);
+        setOriginalObject(self, object, !1), self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type]), 
+        self.addObjectToSave(object);
     }
-    function deleteObject(self, itemId, askedDeleted, deleted, isOriginal) {
+    function deletedObject(self, itemId, askedDeleted, deleted, isOriginal) {
         for (var object = self.index.db[itemId], i = 0, nb = deleted.length; nb > i; i++) {
             var crm = deleted[i].crm, id = deleted[i].id;
             delete self.index[crm][id];
@@ -36444,11 +36435,13 @@ var SrvConfig = function() {
         unlinkLinkedObjects(self, itemId, isOriginal);
     }
     function addOriginalObject(self, object, downloadFile) {
-        a4p.InternalLog.log("srvData", "addOriginalObject " + object.id.dbid);
-        var copy = angular.extend(object);
-        a4p.isDefined(copy) && (self.originalDbIndex[object.id.dbid] = copy, self.originalItems[copy.a4p_type].push(copy), 
-        self.srvDataStore.setItems(copy.a4p_type, self.originalItems[copy.a4p_type], !0)), 
-        a4p.isDefined(c4p.Model.files[object.a4p_type]) && (a4p.isDefined(object.id.sf_id) || a4p.isDefined(object.id.c4p_id)) && downloadFile && addObjectToDownload(self, object.a4p_type, object.id.dbid);
+        if (self && object) {
+            a4p.InternalLog.log("srvData", "addOriginalObject " + object.id.dbid);
+            var copy = angular.extend(object);
+            a4p.isDefined(copy) && (self.originalDbIndex[object.id.dbid] = copy, self.originalItems[copy.a4p_type].push(copy), 
+            self.srvDataStore.setItems(copy.a4p_type, self.originalItems[copy.a4p_type], !0)), 
+            a4p.isDefined(c4p.Model.files[object.a4p_type]) && (a4p.isDefined(object.id.sf_id) || a4p.isDefined(object.id.c4p_id)) && downloadFile && addObjectToDownload(self, object);
+        }
     }
     function updateOriginalObject(self, object, fields) {
         a4p.InternalLog.log("srvData", "updateOriginalObject " + object.id.dbid);
@@ -36471,49 +36464,38 @@ var SrvConfig = function() {
         a4p.InternalLog.log("srvData", "setOriginalObject " + object.id.dbid);
         var copy = angular.extend(object);
         a4p.isDefined(copy) && (self.originalDbIndex[object.id.dbid] = copy, replaceObjectFromList(self.originalItems[copy.a4p_type], object.id.dbid, copy) !== !1 && self.srvDataStore.setItems(copy.a4p_type, self.originalItems[copy.a4p_type], !0)), 
-        a4p.isDefined(c4p.Model.files[object.a4p_type]) && (a4p.isDefined(object.id.sf_id) || a4p.isDefined(object.id.c4p_id)) && downloadFile && addObjectToDownload(self, object.a4p_type, object.id.dbid);
+        a4p.isDefined(c4p.Model.files[object.a4p_type]) && (a4p.isDefined(object.id.sf_id) || a4p.isDefined(object.id.c4p_id)) && downloadFile && addObjectToDownload(self, object);
     }
     function removeOriginalObject(self, dbid) {
         a4p.InternalLog.log("srvData", "removeOriginalObject " + dbid);
         var object = self.originalDbIndex[dbid];
         a4p.isDefined(object) && (delete self.originalDbIndex[dbid], removeObjectFromList(self.originalItems[object.a4p_type], dbid) !== !1 && self.srvDataStore.setItems(object.a4p_type, self.originalItems[object.a4p_type], !0));
     }
-    function addObjectToDownload(self, type, dbid) {
-        a4p.InternalLog.log("srvData", "addObjectToDownload " + type + " " + dbid);
-        var delayedDownload = !0;
-        if (0 == self.objectsToDownload.length && (delayedDownload = !1), getLinkFromList(self.objectsToDownload, dbid) !== !1) return !1;
-        var object = self.getObject(dbid);
-        return self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_READ, self.srvSynchroStatus.PUB.NEW), 
-        self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_READ, self.srvSynchroStatus.PUB.QUEUE), 
-        self.srvDataStore.setItems(type, self.currentItems[type]), self.objectsToDownload.push({
-            type: type,
-            dbid: dbid
-        }), self.srvDataStore.setItems("objectsToDownload", self.objectsToDownload), delayedDownload || getFirstObjectToDownload(self) || sendFirstObjectToSave(self), 
-        !0;
+    function addObjectToDownload(self, object) {
+        var bOk = !1;
+        return object && object.id && object.id.dbid ? (a4p.InternalLog.log("srvData", "addObjectToDownload " + object.id.dbid), 
+        bOk = self.srvQueue.addRequest(self.srvQueue.PUB.QUEUE_DOWNLOAD, object)) : bOk;
     }
-    function removeObjectToDownload(self, dbid) {
-        return a4p.InternalLog.log("srvData", "removeObjectToDownload " + dbid), removeLinkFromList(self.objectsToDownload, dbid) !== !1 ? (self.srvDataStore.setItems("objectsToDownload", self.objectsToDownload), 
-        !0) : !1;
-    }
-    function downloadObject(self, dbid) {
-        a4p.InternalLog.log("srvData", "downloadObject " + dbid);
+    function downloadObjectAndSendToSynchro(self, dbid) {
+        a4p.InternalLog.log("srvData", "downloadObjectAndSendToSynchro " + dbid);
         var object = self.getObject(dbid);
         if (a4p.isDefined(object)) {
-            a4p.InternalLog.log("srvData", "downloadObject sf:" + object.id.sf_id + " c4p:" + object.id.c4p_id);
+            a4p.InternalLog.log("srvData", "downloadObjectAndSendToSynchro sf:" + object.id.sf_id + " c4p:" + object.id.c4p_id);
             var loadFields = c4p.Model.files[object.a4p_type];
-            return a4p.isDefined(object.id.sf_id) ? (self.srvSynchro.addFileRequest("data", {
+            if (a4p.isDefined(object.id.sf_id)) return self.srvSynchro.addFileRequest("data", {
                 type: "Download",
                 title: "Download " + object.a4p_type + " " + self.srvConfig.getItemName(object),
                 dbid: object.id.dbid
             }, self.srvConfig.c4pUrlDownload + "?type=" + encodeURIComponent(object.a4p_type) + "&dbid=" + encodeURIComponent(dbid) + "&sf_id=" + encodeURIComponent(object.id.sf_id) + "&mimetype=" + encodeURIComponent(object.mimetype), "GET", null, object[loadFields.filePath], null, null), 
-            !0) : a4p.isDefined(object.id.c4p_id) ? (self.srvSynchro.addFileRequest("data", {
+            !0;
+            if (a4p.isDefined(object.id.c4p_id)) return self.srvSynchro.addFileRequest("data", {
                 type: "Download",
                 title: "Download " + object.a4p_type + " " + self.srvConfig.getItemName(object),
                 dbid: object.id.dbid
             }, self.srvConfig.c4pUrlDownload + "?type=" + encodeURIComponent(object.a4p_type) + "&dbid=" + encodeURIComponent(dbid) + "&c4p_id=" + encodeURIComponent(object.id.c4p_id) + "&mimetype=" + encodeURIComponent(object.mimetype), "GET", null, object[loadFields.filePath], null, null), 
-            !0) : (removeObjectToDownload(self, dbid), !1);
+            !0;
         }
-        return removeObjectToDownload(self, dbid), !1;
+        return !1;
     }
     return Service.prototype.isMethodPossibleForObject = function(methodName, object) {
         if (!object || !object.a4p_type) return !1;
@@ -36551,37 +36533,6 @@ var SrvConfig = function() {
         }), this.callbackHandle;
     }, Service.prototype.cancelListener = function(callbackHandle) {
         return removeIdFromList(this.callbacksUpdate, callbackHandle) !== !1;
-    }, Service.prototype.clear = function() {
-        a4p.InternalLog.log("srvData", "clearData : " + this.nbObjects + " objects"), this.srvSynchro.clearChannel("data"), 
-        a4p.initUid(), this.isDemo = !1, this.srvDataStore.setConfig("isDemo", this.isDemo), 
-        this.originalDbIndex = {}, this.index = {
-            db: {},
-            sf: {},
-            ios: {},
-            c4p: {}
-        }, this.userId = {
-            sf_id: "005i0000000I8c5AAC",
-            c4p_id: "demo@apps4pro.com"
-        }, this.userObject = void 0, this.favoritesObject = void 0, this.srvDataStore.setConfig("userId", this.userId), 
-        a4p.InternalLog.log("srvData", "clear : userId=" + a4pDumpData(this.userId, 2)), 
-        this.currentItems = {}, this.originalItems = {};
-        var i, type;
-        for (i = 0; i < c4p.Model.allTypes.length; i++) type = c4p.Model.allTypes[i], this.currentItems[type] = [], 
-        this.originalItems[type] = [], this.srvDataStore.setItems(type, this.originalItems[type], !0), 
-        this.srvDataStore.setItems(type, this.currentItems[type], !1);
-        this.lastRefreshMindMap = 0, this.srvDataStore.setConfig("lastRefreshMindMap", this.lastRefreshMindMap), 
-        this.nbObjects = 0, this.objectsToSave = [], this.srvDataStore.setItems("objectsToSave", this.objectsToSave), 
-        this.objectsToDownload = [], this.srvDataStore.setItems("objectsToDownload", this.objectsToDownload), 
-        this.savingObject = {}, this.srvDataStore.setConfig("savingObject", this.savingObject);
-        var self = this, onRemoveSuccess = function() {
-            var msg = "File storage successfully cleared";
-            self.srvLog.logSuccess(self.srvConfig.c4pConfig.exposeFileStorage, self.srvLocale.translations.htmlMsgClearFileStorageOK, msg);
-        }, onRemoveFailure = function(message) {
-            var msg = "File storage clearing failure : " + message;
-            self.srvLog.logInfo(self.srvConfig.c4pConfig.exposeFileStorage, self.srvLocale.translations.htmlMsgClearFileStoragePb, msg);
-        };
-        this.srvFileStorage.deleteFullDir("/a4p/c4p/doc", onRemoveSuccess, onRemoveFailure), 
-        triggerUpdate(this, "clear");
     }, Service.prototype.init = function() {
         if (!this.initDone) {
             var i, j, type, object, self = this;
@@ -36597,34 +36548,23 @@ var SrvConfig = function() {
             }), a4p.InternalLog.log("srvData", "init : a4p.uid=" + a4p.getUid() + " userId=" + a4pDumpData(this.userId, 2)), 
             this.userObject = this.srvDataStore.getConfig("userObject", void 0), this.favoritesObject = this.srvDataStore.getConfig("favoritesObject", void 0), 
             this.currentItems = {}, this.originalItems = {}, this.nbObjects = 0, this.lastRefreshMindMap = this.srvDataStore.getConfig("lastRefreshMindMap", 0), 
-            this.objectsToSave = this.srvDataStore.getItems("objectsToSave"), this.objectsToDownload = this.srvDataStore.getItems("objectsToDownload"), 
-            this.savingObject = this.srvDataStore.getConfig("savingObject", {}), i = 0; i < c4p.Model.allTypes.length; i++) for (type = c4p.Model.allTypes[i], 
-            this.originalItems[type] = this.srvDataStore.getItems(type, !0), j = 0; j < this.originalItems[type].length; j++) object = this.originalItems[type][j], 
+            i = 0; i < c4p.Model.allTypes.length; i++) for (type = c4p.Model.allTypes[i], this.originalItems[type] = this.srvDataStore.getItems(type, !0), 
+            j = 0; j < this.originalItems[type].length; j++) object = this.originalItems[type][j], 
             this.originalDbIndex[object.id.dbid] = object;
             for (i = 0; i < c4p.Model.allTypes.length; i++) {
                 for (type = c4p.Model.allTypes[i], this.currentItems[type] = this.srvDataStore.getItems(type, !1), 
                 this.nbObjects += this.currentItems[type].length, j = 0; j < this.currentItems[type].length; j++) {
                     if (object = this.currentItems[type][j], object && !this.isObjectToSave(object.id.dbid)) if (object.toSaveWhenCrm) {
                         delete object.toSaveWhenCrm;
-                        var fromObject = this.originalDbIndex[object.id.dbid], diffResult = diffObject(fromObject, object);
-                        this.srvSynchroStatus.hasToBeDeleted(object) || (null == diffResult || ("new" == diffResult ? this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NEW) : this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_WRITE, this.srvSynchroStatus.PUB.NEW)), 
-                        "Document" == type && a4p.isTrueOrNonEmpty(object.feed) && this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_SHARE, this.srvSynchroStatus.PUB.NEW)), 
-                        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_SHARE, this.srvSynchroStatus.PUB.QUEUE), 
-                        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.QUEUE), 
-                        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_WRITE, this.srvSynchroStatus.PUB.QUEUE), 
-                        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_DELETE, this.srvSynchroStatus.PUB.QUEUE), 
-                        this.objectsToSave.push({
-                            type: type,
-                            dbid: object.id.dbid
-                        }), this.srvDataStore.setItems("objectsToSave", this.objectsToSave);
+                        {
+                            saveObjectAndSendToSynchro(self, object.id.dbid);
+                        }
                     } else {
                         if (a4p.isEmptyOrFalse(this.originalDbIndex[object.id.dbid])) {
                             this.currentItems[type].splice(j, 1), this.nbObjects--, j--;
                             continue;
                         }
-                        object = angular.extend(this.originalDbIndex[object.id.dbid]), this.srvSynchroStatus.hasChannels(object) || this.srvSynchroStatus.resetChannels(object), 
-                        this.completeFields(object), this.isObjectToDownload(object.id.dbid) && (this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_READ, this.srvSynchroStatus.PUB.NEW), 
-                        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_READ, this.srvSynchroStatus.PUB.QUEUE)), 
+                        object = angular.extend(this.originalDbIndex[object.id.dbid]), this.completeFields(object), 
                         this.currentItems[type][j] = object;
                     }
                     object && object.id && (this.index.db[object.id.dbid] = object), object && a4p.isDefined(object.id) && (a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object), 
@@ -36654,16 +36594,17 @@ var SrvConfig = function() {
                 onSynchroSuccess(self, callbackId, requestId, requestCtx, requestNbTry, responseStatus, responseData, responseHeaders);
             }), this.runningListenerOnPause = this.srvRunning.addListenerOnPause(function(callbackId, value) {
                 onRunningPause(self, callbackId, value);
-            }), this.initDone = !0, a4p.InternalLog.log("srvData", "initialized"), triggerUpdate(this, "init");
+            }), queueServiceInit(this), this.initDone = !0, a4p.InternalLog.log("srvData", "initialized"), 
+            triggerUpdate(this, "init");
         }
     }, Service.prototype.start = function() {
-        this.init(), getFirstObjectToDownload(this) || sendFirstObjectToSave(this);
+        this.init();
     }, Service.prototype.resume = function() {
-        getFirstObjectToDownload(this) || sendFirstObjectToSave(this);
+        this.srvSynchro.reset(), this.srvQueue.start();
     }, Service.prototype.destroy = function() {
         this.srvSynchro.cancelListener(this.synchroListenerOnStart), this.srvSynchro.cancelListener(this.synchroListenerOnCancel), 
         this.srvSynchro.cancelListener(this.synchroListenerOnError), this.srvSynchro.cancelListener(this.synchroListenerOnSuccess), 
-        this.srvRunning.cancelListener(this.runningListenerOnPause);
+        this.srvRunning.cancelListener(this.runningListenerOnPause), this.srvQueue.stop();
     }, Service.prototype.getObject = function(dbid) {
         return this.index.db[dbid];
     }, Service.prototype.getObjectCount = function(type) {
@@ -36678,11 +36619,12 @@ var SrvConfig = function() {
         }
         return !0;
     }, Service.prototype.completeFields = function(object) {
+        this.srvSynchroStatus.hasChannels(object) || this.srvSynchroStatus.resetChannels(object), 
         this.setDefaultFields(object), this.convertFields(object), this.setCalculatedFields(object);
     }, Service.prototype.createObject = function(type, object) {
         if (object.a4p_type = type, a4p.isDefined(object.feed) && delete object.feed, a4p.isUndefined(object.id) && (object.id = {}), 
         a4p.isUndefined(object.id.dbid)) object.id.dbid = type + "-" + a4p.nextUid(), this.srvDataStore.setConfig("Uid", a4p.getUid()); else if (a4p.isDefined(this.index.db[object.id.dbid])) throw new Error("Object of type " + type + " and id " + object.id.dbid + " already exists");
-        this.srvSynchroStatus.resetChannels(object), this.completeFields(object);
+        this.completeFields(object);
         for (var now = new Date(), objDesc = c4p.Model.a4p_types[object.a4p_type], owner = this.index.db[this.userId.dbid], fieldIdx = 0, fieldNb = objDesc.fields.length; fieldNb > fieldIdx; fieldIdx++) {
             var fieldName = objDesc.fields[fieldIdx];
             if ("owner_id" == fieldName) {
@@ -36700,21 +36642,15 @@ var SrvConfig = function() {
         if (a4p.isDefined(object.feed) && delete object.feed, a4p.isUndefined(object.id) && (object.id = {}), 
         a4p.isUndefined(object.id.dbid)) object.id.dbid = object.a4p_type + "-" + a4p.nextUid(), 
         this.srvDataStore.setConfig("Uid", a4p.getUid()); else if (a4p.isDefined(this.index.db[object.id.dbid])) throw new Error("Object of type " + object.a4p_type + " and id " + object.id.dbid + " already exists");
-        return isOriginal && (this.srvSynchroStatus.hasChannels(object) || this.srvSynchroStatus.resetChannels(object), 
-        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NEW), 
-        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.QUEUE), 
-        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NETWORK), 
-        this.srvSynchroStatus.successChannel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE)), 
-        this.completeFields(object), this.index.db[object.id.dbid] = object, a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object, 
+        return this.completeFields(object), this.index.db[object.id.dbid] = object, a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object, 
         a4p.isDefined(this.userId.sf_id) && this.userId.sf_id == object.id.sf_id && (this.userId.dbid = object.id.dbid, 
         this.srvDataStore.setConfig("userId", this.userId), a4p.InternalLog.log("srvData", "addObject : userId=" + a4pDumpData(this.userId, 2)))), 
         a4p.isDefined(object.id.c4p_id) && (this.index.c4p[object.id.c4p_id] = object, a4p.isDefined(this.userId.c4p_id) && this.userId.c4p_id == object.id.c4p_id && (this.userId.dbid = object.id.dbid, 
         this.srvDataStore.setConfig("userId", this.userId), a4p.InternalLog.log("srvData", "addObject : userId=" + a4pDumpData(this.userId, 2)))), 
         a4p.isDefined(object.id.ios_id) && (this.index.ios[object.id.ios_id] = object, a4p.isDefined(this.userId.ios_id) && this.userId.ios_id == object.id.ios_id && (this.userId.dbid = object.id.dbid, 
         this.srvDataStore.setConfig("userId", this.userId), a4p.InternalLog.log("srvData", "addObject : userId=" + a4pDumpData(this.userId, 2)))), 
-        isOriginal || this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NEW), 
+        isOriginal ? this.srvSynchroStatus.successChannel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, !0) : this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NEW), 
         this.currentItems[object.a4p_type].push(object), this.nbObjects++, this.srvDataStore.setItems(object.a4p_type, this.currentItems[object.a4p_type]), 
-        a4p.isDefined(isOriginal) && isOriginal && addOriginalObject(this, object, !this.isDemo), 
         triggerUpdate(this, "add", object.a4p_type, object.id.dbid), object;
     }, Service.prototype.setObject = function(object, isOriginal) {
         if (!object.a4p_type) return a4p.ErrorLog.log("srvData", "reject updating object without type"), 
@@ -36726,11 +36662,7 @@ var SrvConfig = function() {
         !1;
         if (object.a4p_type != oldObject.a4p_type) return a4p.ErrorLog.log("srvData", "reject updating object with different type"), 
         !1;
-        isOriginal && (this.srvSynchroStatus.hasChannels(object) || this.srvSynchroStatus.resetChannels(object), 
-        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NEW), 
-        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.QUEUE), 
-        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NETWORK), 
-        this.srvSynchroStatus.successChannel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE)), 
+        isOriginal && this.srvSynchroStatus.successChannel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, !0), 
         this.completeFields(object);
         for (var type = object.a4p_type, oldObject = !1, objectIdx = this.currentItems[type].length - 1; objectIdx >= 0; objectIdx--) if (this.currentItems[type][objectIdx].id.dbid == object.id.dbid) {
             oldObject = this.currentItems[type][objectIdx];
@@ -36738,7 +36670,7 @@ var SrvConfig = function() {
         }
         return a4p.isTrueOrNonEmpty(oldObject) ? isOriginal || this.isObjectOwnedByUser(oldObject) ? (this.srvSynchroStatus.copyChannels(object, oldObject), 
         a4p.isDefined(object.feed) && object.feed && this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_SHARE, this.srvSynchroStatus.PUB.NEW), 
-        this.completeFields(object), this.index.db[object.id.dbid] = object, a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object), 
+        this.index.db[object.id.dbid] = object, a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object), 
         a4p.isDefined(object.id.c4p_id) && (this.index.c4p[object.id.c4p_id] = object), 
         a4p.isDefined(object.id.ios_id) && (this.index.ios[object.id.ios_id] = object), 
         this.currentItems[type][objectIdx] = object, this.srvDataStore.setItems(type, this.currentItems[type]), 
@@ -36748,18 +36680,15 @@ var SrvConfig = function() {
         var object = this.getObject(dbid);
         if (!a4p.isDefined(object)) return !1;
         if (!isOriginal && !this.isObjectOwnedByUser(object)) return !1;
-        var bOk = this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_DELETE, this.srvSynchroStatus.PUB.NEW);
-        if (bOk) {
-            var deleted = [];
-            a4p.isDefined(object.id.c4p_id) && deleted.push({
-                crm: "c4p",
-                id: object.id.c4p_id
-            }), a4p.isDefined(object.id.sf_id) && deleted.push({
-                crm: "sf",
-                id: object.id.sf_id
-            }), isOriginal && deleteObject(this, object.id.dbid, deleted, deleted, !1);
-        }
-        return object;
+        var deleted = (this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_DELETE, this.srvSynchroStatus.PUB.NEW), 
+        []);
+        return a4p.isDefined(object.id.c4p_id) && deleted.push({
+            crm: "c4p",
+            id: object.id.c4p_id
+        }), a4p.isDefined(object.id.sf_id) && deleted.push({
+            crm: "sf",
+            id: object.id.sf_id
+        }), isOriginal && deletedObject(this, object.id.dbid, deleted, deleted, !1), object;
     }, Service.prototype.linkToObjects = function(fromLink, fromObject, toType, toObjects) {
         for (var done = !1, fromFieldIdx = 0; fromFieldIdx < c4p.Model.a4p_types[fromObject.a4p_type].linkFields.length; fromFieldIdx++) {
             var linkModel = c4p.Model.a4p_types[fromObject.a4p_type].linkFields[fromFieldIdx], fromField = linkModel.key;
@@ -36928,31 +36857,20 @@ var SrvConfig = function() {
         }
         return null;
     }, Service.prototype.addAndSaveObject = function(object) {
-        this.addObject(object), this.addObjectToSave(object.a4p_type, object.id.dbid);
+        this.addObject(object), this.addObjectToSave(object);
     }, Service.prototype.setAndSaveObject = function(object) {
-        this.setObject(object), this.addObjectToSave(object.a4p_type, object.id.dbid);
+        this.setObject(object), this.addObjectToSave(object);
     }, Service.prototype.removeAndSaveObject = function(object) {
-        this.removeObject(object.id.dbid), this.addObjectToSave(object.a4p_type, object.id.dbid);
-    }, Service.prototype.addObjectToSave = function(type, dbid) {
-        if (getLinkFromList(this.objectsToSave, dbid) !== !1) return !1;
-        var delayedSave = a4p.isDefined(this.savingObject.dbid) || this.objectsToSave.length > 0 || this.objectsToDownload.length > 0, object = this.getObject(dbid);
-        return a4p.isDefined(object) && (this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.QUEUE), 
-        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_SHARE, this.srvSynchroStatus.PUB.QUEUE), 
-        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_WRITE, this.srvSynchroStatus.PUB.QUEUE), 
-        this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_DELETE, this.srvSynchroStatus.PUB.QUEUE), 
-        this.srvDataStore.setItems(object.a4p_type, this.currentItems[object.a4p_type])), 
-        this.objectsToSave.push({
-            type: type,
-            dbid: dbid
-        }), this.srvDataStore.setItems("objectsToSave", this.objectsToSave), delayedSave || sendFirstObjectToSave(this), 
-        !0;
+        this.removeObject(object.id.dbid), this.addObjectToSave(object);
+    }, Service.prototype.addObjectToSave = function(object) {
+        var bOk = this.srvQueue.addRequest(this.srvQueue.PUB.QUEUE_SAVE, object);
+        return bOk;
     }, Service.prototype.isObjectToSave = function(dbid) {
-        return this.savingObject.dbid == dbid ? !0 : getLinkFromList(this.objectsToSave, dbid) !== !1;
+        return this.srvQueue.isInQueue(this.srvQueue.PUB.QUEUE_SAVE, dbid) > 0;
     }, Service.prototype.isObjectToDownload = function(dbid) {
-        return getLinkFromList(this.objectsToDownload, dbid) !== !1;
+        return this.srvQueue.isInQueue(this.srvQueue.PUB.QUEUE_DOWNLOAD, dbid) > 0;
     }, Service.prototype.getObjectOrderToDownload = function(dbid) {
-        for (var i = 0, len = this.objectsToDownload.length; len > i; i++) if (this.objectsToDownload[i].dbid == dbid) return i + 1;
-        return !1;
+        return this.srvQueue.isInQueue(this.srvQueue.PUB.QUEUE_DOWNLOAD, dbid);
     }, Service.prototype.adjustDate = function(data, from, to) {
         for (var timestampDif = to.getTime() - from.getTime() - 1e3 * (60 * (60 * to.getHours() + to.getMinutes()) + to.getSeconds()), keysToAdjust = new Array("date_start", "date_end", "date_reminder"), typesToAdjust = new Array("Event", "Task"), i = 0; i < typesToAdjust.length; i++) {
             typesToAdjust[i];
@@ -37235,8 +37153,7 @@ var SrvConfig = function() {
                 description: "Description of Demo-" + num
             });
             return this.addObject(obj), 0 == this.demoDataCreation.nbFacet.done ? this.demoDataCreation.firstFacet = obj : this.linkToItem(obj.a4p_type, "parent", [ obj ], this.demoDataCreation.firstFacet), 
-            this.addObjectToSave(obj.a4p_type, obj.id.dbid), this.demoDataCreation.nbFacet.done = num, 
-            void window.setTimeout(function() {
+            this.addObjectToSave(obj), this.demoDataCreation.nbFacet.done = num, void window.setTimeout(function() {
                 self.createMoreDemoData();
             }, 10);
         }
@@ -37255,8 +37172,7 @@ var SrvConfig = function() {
                 nb_employees: 10
             });
             return this.addObject(obj), 0 == this.demoDataCreation.nbAccount.done ? this.demoDataCreation.firstAccount = obj : this.linkToItem(obj.a4p_type, "parent", [ obj ], this.demoDataCreation.firstAccount), 
-            this.addObjectToSave(obj.a4p_type, obj.id.dbid), this.demoDataCreation.nbAccount.done = num, 
-            void window.setTimeout(function() {
+            this.addObjectToSave(obj), this.demoDataCreation.nbAccount.done = num, void window.setTimeout(function() {
                 self.createMoreDemoData();
             }, 10);
         }
@@ -37282,8 +37198,7 @@ var SrvConfig = function() {
             });
             return this.addObject(obj), 0 == this.demoDataCreation.nbContact.done ? this.demoDataCreation.firstContact = obj : this.linkToItem(obj.a4p_type, "manager", [ obj ], this.demoDataCreation.firstContact), 
             a4p.isTrueOrNonEmpty(this.demoDataCreation.firstAccount) && this.linkToItem(obj.a4p_type, "accounter", [ obj ], this.demoDataCreation.firstAccount), 
-            this.addObjectToSave(obj.a4p_type, obj.id.dbid), this.demoDataCreation.nbContact.done = num, 
-            void window.setTimeout(function() {
+            this.addObjectToSave(obj), this.demoDataCreation.nbContact.done = num, void window.setTimeout(function() {
                 self.createMoreDemoData();
             }, 10);
         }
@@ -37298,8 +37213,7 @@ var SrvConfig = function() {
             return this.addObject(obj), 0 == this.demoDataCreation.nbEvent.done && (this.demoDataCreation.firstEvent = obj), 
             a4p.isTrueOrNonEmpty(this.demoDataCreation.firstContact) && (this.linkToItem(obj.a4p_type, "leader", [ obj ], this.demoDataCreation.firstContact), 
             this.demoDataCreation.nbAttendee.done < this.demoDataCreation.nbAttendee.ask && this.newAndSaveAttachment("Attendee", this.demoDataCreation.firstContact, obj)), 
-            this.addObjectToSave(obj.a4p_type, obj.id.dbid), this.demoDataCreation.nbEvent.done = num, 
-            void window.setTimeout(function() {
+            this.addObjectToSave(obj), this.demoDataCreation.nbEvent.done = num, void window.setTimeout(function() {
                 self.createMoreDemoData();
             }, 10);
         }
@@ -37311,8 +37225,7 @@ var SrvConfig = function() {
             });
             return this.addObject(obj), 0 == this.demoDataCreation.nbTask.done && (this.demoDataCreation.firstTask = obj), 
             a4p.isTrueOrNonEmpty(this.demoDataCreation.firstContact) && this.linkToItem(obj.a4p_type, "leader", [ obj ], this.demoDataCreation.firstContact), 
-            this.addObjectToSave(obj.a4p_type, obj.id.dbid), this.demoDataCreation.nbTask.done = num, 
-            void window.setTimeout(function() {
+            this.addObjectToSave(obj), this.demoDataCreation.nbTask.done = num, void window.setTimeout(function() {
                 self.createMoreDemoData();
             }, 10);
         }
@@ -37326,8 +37239,7 @@ var SrvConfig = function() {
             return this.addObject(obj), 0 == this.demoDataCreation.nbOpportunity.done && (this.demoDataCreation.firstOpportunity = obj), 
             a4p.isTrueOrNonEmpty(this.demoDataCreation.firstContact) && this.linkToItem(obj.a4p_type, "accounter", [ obj ], this.demoDataCreation.firstContact), 
             a4p.isTrueOrNonEmpty(this.demoDataCreation.firstAccount) && this.linkToItem(obj.a4p_type, "accounter", [ obj ], this.demoDataCreation.firstAccount), 
-            this.addObjectToSave(obj.a4p_type, obj.id.dbid), this.demoDataCreation.nbOpportunity.done = num, 
-            void window.setTimeout(function() {
+            this.addObjectToSave(obj), this.demoDataCreation.nbOpportunity.done = num, void window.setTimeout(function() {
                 self.createMoreDemoData();
             }, 10);
         }
@@ -37342,8 +37254,7 @@ var SrvConfig = function() {
             return this.addObject(obj), 0 == this.demoDataCreation.nbLead.done && (this.demoDataCreation.firstLead = obj), 
             a4p.isTrueOrNonEmpty(this.demoDataCreation.firstContact) && this.linkToItem(obj.a4p_type, "accounter", [ obj ], this.demoDataCreation.firstContact), 
             a4p.isTrueOrNonEmpty(this.demoDataCreation.firstAccount) && this.linkToItem(obj.a4p_type, "accounter", [ obj ], this.demoDataCreation.firstAccount), 
-            this.addObjectToSave(obj.a4p_type, obj.id.dbid), this.demoDataCreation.nbLead.done = num, 
-            void window.setTimeout(function() {
+            this.addObjectToSave(obj), this.demoDataCreation.nbLead.done = num, void window.setTimeout(function() {
                 self.createMoreDemoData();
             }, 10);
         }
@@ -37354,8 +37265,7 @@ var SrvConfig = function() {
             });
             return this.addObject(obj), 0 == this.demoDataCreation.nbPlan.done ? (this.demoDataCreation.firstPlan = obj, 
             a4p.isTrueOrNonEmpty(this.demoDataCreation.firstEvent) && this.linkToItem(obj.a4p_type, "parent", [ obj ], this.demoDataCreation.firstEvent)) : this.linkToItem(obj.a4p_type, "parent", [ obj ], this.demoDataCreation.firstPlan), 
-            this.addObjectToSave(obj.a4p_type, obj.id.dbid), this.demoDataCreation.nbPlan.done = num, 
-            void window.setTimeout(function() {
+            this.addObjectToSave(obj), this.demoDataCreation.nbPlan.done = num, void window.setTimeout(function() {
                 self.createMoreDemoData();
             }, 10);
         }
@@ -37364,7 +37274,7 @@ var SrvConfig = function() {
             this.takePicture(this.demoDataCreation.firstEvent, "pictureName").then(function(document) {
                 a4p.safeApply(self.rootScope, function() {
                     self.addObject(document), self.linkToItem(document.a4p_type, "parent", [ document ], self.demoDataCreation.firstEvent), 
-                    self.addObjectToSave(document.a4p_type, document.id.dbid), self.demoDataCreation.nbAttachee.done < self.demoDataCreation.nbAttachee.ask && (self.newAndSaveAttachment("Attachee", document, self.demoDataCreation.firstEvent), 
+                    self.addObjectToSave(document), self.demoDataCreation.nbAttachee.done < self.demoDataCreation.nbAttachee.ask && (self.newAndSaveAttachment("Attachee", document, self.demoDataCreation.firstEvent), 
                     self.demoDataCreation.nbAttachee.done = 1 + self.demoDataCreation.nbAttachee.done), 
                     self.demoDataCreation.nbDocument.done = num, self.createMoreDemoData();
                 });
@@ -37382,8 +37292,7 @@ var SrvConfig = function() {
             return this.addObject(obj), 0 == this.demoDataCreation.nbNote.done && (this.demoDataCreation.firstNote = obj), 
             a4p.isTrueOrNonEmpty(this.demoDataCreation.firstEvent) && this.linkToItem(obj.a4p_type, "parent", [ obj ], this.demoDataCreation.firstEvent), 
             a4p.isTrueOrNonEmpty(this.demoDataCreation.firstPlan) && this.demoDataCreation.nbPlannee.done < this.demoDataCreation.nbPlannee.ask && this.newAndSaveAttachment("Plannee", obj, this.demoDataCreation.firstPlan), 
-            this.addObjectToSave(obj.a4p_type, obj.id.dbid), this.demoDataCreation.nbNote.done = num, 
-            void window.setTimeout(function() {
+            this.addObjectToSave(obj), this.demoDataCreation.nbNote.done = num, void window.setTimeout(function() {
                 self.createMoreDemoData();
             }, 10);
         }
@@ -37395,8 +37304,7 @@ var SrvConfig = function() {
             });
             return this.addObject(obj), 0 == this.demoDataCreation.nbReport.done && (this.demoDataCreation.firstReport = obj), 
             a4p.isTrueOrNonEmpty(this.demoDataCreation.firstEvent) && this.linkToItem(obj.a4p_type, "parent", [ obj ], this.demoDataCreation.firstEvent), 
-            this.addObjectToSave(obj.a4p_type, obj.id.dbid), this.demoDataCreation.nbReport.done = num, 
-            void window.setTimeout(function() {
+            this.addObjectToSave(obj), this.demoDataCreation.nbReport.done = num, void window.setTimeout(function() {
                 self.createMoreDemoData();
             }, 10);
         }
@@ -37861,7 +37769,7 @@ var SrvConfig = function() {
     }, Service.prototype.setItems = function(type, items, asOfficialSynchronizedItems) {
         if (!type || !items || !a4p.isDefined(items.length)) return !1;
         a4p.InternalLog.log("srvDataStorage", "setItems " + asOfficialSynchronizedItems + " t:" + type + " nb:" + items.length);
-        var oI = "C4P-data-" + type, lI = "C4P-data-local-" + type, itemsListName = lI;
+        var oI = "C4P-data-" + type, lI = "C4P-data-" + type + "-local", itemsListName = lI;
         asOfficialSynchronizedItems && (itemsListName = oI);
         var itemsAsString = a4p.Json.object2String(items), fullItemsMd5 = calcMD5(itemsAsString), fullPreviousItemsMd5 = this.md5Items[itemsListName];
         "undefined" != typeof fullPreviousItemsMd5 && fullItemsMd5 == fullPreviousItemsMd5 ? a4p.InternalLog.log("srvDataStorage", "setItems : same md5 do not need to store") : (a4p.InternalLog.log("srvDataStorage", "setItems : well done ! md5 are different"), 
@@ -37871,15 +37779,15 @@ var SrvConfig = function() {
         !0;
     }, Service.prototype.getItems = function(type, asOfficialSynchronizedItems) {
         if (!type) return [];
-        var items = [], itemsListName = "C4P-data-local-" + type;
+        var items = [], itemsListName = "C4P-data-" + type + "-local";
         return asOfficialSynchronizedItems && (itemsListName = "C4P-data-" + type), items = this.srvLocalStorage.get(itemsListName, []), 
         items && a4p.isDefined(items.length) && a4p.InternalLog.log("srvDataStorage", "getItems :" + type + " nb:" + items.length), 
         items;
     }, Service.prototype.setConfig = function(key, value) {
-        return key ? (this.srvLocalStorage.set("C4P-config-local-" + key, value), !0) : !1;
+        return key ? (this.srvLocalStorage.set("C4P-config-" + key + "-local", value), !0) : !1;
     }, Service.prototype.getConfig = function(key, defaultValue) {
         if (!key) return null;
-        var value = this.srvLocalStorage.get("C4P-config-local-" + key, defaultValue);
+        var value = this.srvLocalStorage.get("C4P-config-" + key + "-local", defaultValue);
         return value;
     }, Service;
 }(), SrvDataTransfer = function() {
@@ -39676,6 +39584,86 @@ var SrvFacet = function() {
             this.exceptionHandler(e, "SrvOpenUrl.callbacks#" + idx);
         }
     }, Service;
+}(), SrvQueue = function() {
+    function Service(qService, srvExceptionHandler, srvDataStore, srvSecurity) {
+        this.q = qService, this.srvExceptionHandler = srvExceptionHandler, this.srvSecurity = srvSecurity, 
+        this.srvDataStore = srvDataStore, this.state = Service.STOP, this.pendingQueueRequests = [], 
+        this.callbacksStart = [], this.callbackHandle = 0, this.requestHandle = 0, this.synchroListeners = {}, 
+        this.PUB = {}, this.PUB.QUEUE_DOWNLOAD = "queue-download", this.PUB.QUEUE_SAVE = "queue-save";
+    }
+    function triggerStart(self, request) {
+        for (var callbacks = self.callbacksStart.slice(0), idx = 0, max = callbacks.length; max > idx; idx++) if (request.queue == callbacks[idx].queue) try {
+            callbacks[idx].callback(callbacks[idx].id, request.id, request.objectDbid, request.params, request.nbTry, callbackSuccessFct, callbackErrorFct);
+        } catch (e) {
+            self.srvExceptionHandler(e, "SrvQueue.callbacksStart#" + idx);
+        }
+    }
+    function sendCurrentRequest(self) {
+        if (a4p.InternalLog.log("SrvQueue", "sendCurrentRequest: " + self.pendingQueueRequests.length), 
+        self.state == Service.READY && !(self.pendingQueueRequests.length <= 0)) {
+            self.state = Service.SENDING;
+            var requests = self.pendingQueueRequests.sort(function(r1, r2) {
+                var keyA = r1.queue == self.PUB.QUEUE_DOWNLOAD, keyB = r2.queue == self.PUB.QUEUE_DOWNLOAD;
+                return keyA == keyB ? 0 : keyA ? -1 : 1;
+            }), request = requests[0];
+            request.nbTry++, triggerStart(self, request);
+        }
+    }
+    Service.READY = 1, Service.SENDING = 2, Service.STOP = 3, Service.TRY_COUNTMAX = 3, 
+    Service.prototype.start = function() {
+        this.state == Service.SENDING && this.stop(), this.state != Service.READY && (a4p.InternalLog.log("SrvQueue", "start"), 
+        this.pendingQueueRequests = this.srvDataStore.getItems("queue"), this.requestHandle = this.pendingQueueRequests.length > 0 ? this.pendingQueueRequests[this.pendingQueueRequests.length - 1].id : 0, 
+        this.state = Service.READY, sendCurrentRequest(this));
+    }, Service.prototype.stop = function() {
+        this.state != Service.STOP && (a4p.InternalLog.log("SrvQueue", "stop"), this.srvDataStore.setItems("queue", this.pendingQueueRequests), 
+        this.state = Service.STOP);
+    }, Service.prototype.addListenerOnStart = function(queueName, callbackFct) {
+        return this.callbackHandle++, this.callbacksStart.push({
+            id: this.callbackHandle,
+            queue: queueName,
+            callback: callbackFct
+        }), this.callbackHandle;
+    }, Service.prototype.cancelListener = function(callbackHandle) {
+        return removeIdFromList(this.callbacksStart, callbackHandle) !== !1;
+    }, Service.prototype.addRequest = function(queueName, object, params) {
+        if (this.requestHandle++, "undefined" == typeof object || !object || !object.id || !object.id.dbid) throw new Error("SrvQueue.addRequest requires a valid object");
+        var request = {
+            id: this.requestHandle,
+            queue: queueName,
+            objectDbid: object.id.dbid,
+            params: params ? angular.copy(params) : null,
+            nbTry: 0
+        };
+        return this.pendingQueueRequests.push(request), sendCurrentRequest(this), this.requestHandle;
+    }, Service.prototype.isInQueue = function(queueName, objectDbid) {
+        a4p.InternalLog.log("SrvQueue", "isInQueue: " + queueName + " id:" + objectDbid);
+        var i;
+        for (i = 0; i < this.pendingQueueRequests.length; i++) if (this.pendingQueueRequests[i].queue == queueName && this.pendingQueueRequests[i].objectDbid == objectDbid) return i;
+        return !1;
+    }, Service.prototype.addSynchroListener = function(objectDbid, listener) {
+        a4p.InternalLog.log("SrvQueue", "addSynchroListener: " + objectDbid), this.synchroListeners[objectDbid] || (this.synchroListeners[objectDbid] = []), 
+        this.synchroListeners[objectDbid].push(listener);
+    }, Service.prototype.getSynchroListeners = function(objectDbid) {
+        return a4p.InternalLog.log("SrvQueue", "getSynchroListeners: " + objectDbid), this.synchroListeners[objectDbid];
+    };
+    var callbackSuccessFct = function(self) {
+        if (self.pendingQueueRequests && self.pendingQueueRequests.length) {
+            var request = self.pendingQueueRequests[0];
+            a4p.isDefined(request) && (a4p.InternalLog.log("SrvQueue", "callbackSuccessFct : " + request.id), 
+            self.pendingQueueRequests.shift(), self.state = Service.READY, setTimeout(function() {
+                sendCurrentRequest(self);
+            }, 100));
+        }
+    }, callbackErrorFct = function(self) {
+        if (self.pendingQueueRequests && self.pendingQueueRequests.length) {
+            var request = self.pendingQueueRequests[0];
+            a4p.isDefined(request) && (a4p.InternalLog.log("SrvQueue", "callbackErrorFct : " + request.id + " # " + request.nbTry), 
+            self.pendingQueueRequests.shift(), self.state = Service.READY, setTimeout(function() {
+                sendCurrentRequest(self);
+            }, 100));
+        }
+    };
+    return Service;
 }(), SrvRunning = function() {
     function Service(exceptionHandlerService) {
         this.exceptionHandler = exceptionHandlerService, this.refresh = !1, this.pause = !1, 
@@ -39778,7 +39766,7 @@ var SrvFacet = function() {
         this.srvSecurity = srvSecurity, this.pingUrl = "", this.pinging = !1, this.initDone = !1, 
         this.state = Service.READY, this.serverState = Service.READY, this.pendingRequests = [], 
         this.requestHandle = 0, this.callbacksStart = [], this.callbacksError = [], this.callbacksCancel = [], 
-        this.callbacksSuccess = [], this.callbackHandle = 0;
+        this.callbacksSuccess = [], this.callbackHandle = 0, this.TRY_COUNTMAX = 3;
     }
     function triggerStart(self, request) {
         for (var callbacks = self.callbacksStart.slice(0), idx = 0, max = callbacks.length; max > idx; idx++) if (request.channel == callbacks[idx].channel) try {
@@ -39845,9 +39833,9 @@ var SrvFacet = function() {
                 var request = self.pendingRequests[0];
                 self.tryAgain = !1, a4p.isDefined(request) && requestId == request.id ? (triggerSuccess(self, request, response.status, response.data, response.headers), 
                 self.state != Service.PAUSE && (self.state = Service.READY, self.serverState != Service.READY && checkServerStatus(self)), 
-                self.tryAgain && request.nbTry <= 3 ? setTimeout(function() {
+                self.tryAgain ? request.nbTry <= self.TRY_COUNTMAX ? setTimeout(function() {
                     sendNextRequest(self);
-                }, 1e3 * request.nbTry * request.nbTry) : (self.pendingRequests.length > 0 && self.pendingRequests[0].id == requestId && self.pendingRequests.splice(0, 1), 
+                }, 1e3 * request.nbTry * request.nbTry) : self.cancelRequest(request) : (self.pendingRequests.shift(), 
                 setTimeout(function() {
                     sendNextRequest(self);
                 }, 100))) : (self.state != Service.PAUSE && (self.state = Service.READY, self.serverState != Service.READY && checkServerStatus(self)), 
@@ -39860,7 +39848,7 @@ var SrvFacet = function() {
                 a4p.isDefined(request) && requestId == request.id ? (triggerError(self, request, response.data), 
                 self.state != Service.PAUSE && (self.state = Service.READY, self.serverState != Service.READY && checkServerStatus(self)), 
                 a4p.InternalLog.log("srvSynchro", "sendNextRequest retry : " + request.id + " # " + request.nbTry), 
-                request.nbTry > 3 ? self.cancelRequest(request) : setTimeout(function() {
+                request.nbTry > self.TRY_COUNTMAX ? self.cancelRequest(request) : setTimeout(function() {
                     sendNextRequest(self);
                 }, 1e3 * request.nbTry * request.nbTry)) : (a4p.InternalLog.log("srvSynchro", "sendNextRequest cancel already done " + request.id + " # " + request.nbTry), 
                 self.state != Service.PAUSE && (self.state = Service.READY, self.serverState != Service.READY && checkServerStatus(self)), 
@@ -39886,8 +39874,8 @@ var SrvFacet = function() {
             a4p.InternalLog.log("srvSynchro", "initialized");
         }
     }, Service.prototype.reset = function() {
-        this.initDone && (this.srvRunning.cancelListener(this.onlineHandle), this.initDone = !1, 
-        this.state = Service.READY, this.serverState = Service.READY);
+        this.initDone && (this.srvRunning.cancelListener(this.onlineHandle), this.state = Service.READY, 
+        this.serverState = Service.READY);
     }, Service.prototype.setPingUrl = function(pingUrl) {
         this.pingUrl = pingUrl, checkServerStatus(this);
     }, Service.prototype.addListenerOnStart = function(channel, fct) {
@@ -39951,8 +39939,8 @@ var SrvFacet = function() {
             nbTry: 0
         };
         return this.pendingRequests.push(request), sendNextRequest(this), this.requestHandle;
-    }, Service.prototype.cancelRequest = function(requestHandle) {
-        for (var idx = this.pendingRequests.length - 1; idx >= 0; idx--) if (this.pendingRequests[idx].id == requestHandle) {
+    }, Service.prototype.cancelRequest = function(requestToCancel) {
+        for (var idx = this.pendingRequests.length - 1; idx >= 0; idx--) if (this.pendingRequests[idx].id == requestToCancel.id) {
             var request = this.pendingRequests[idx];
             return this.pendingRequests.splice(idx, 1), triggerCancel(this, request), 0 == idx && setTimeout(function() {
                 sendNextRequest(this);
@@ -40015,21 +40003,21 @@ var SrvFacet = function() {
         object.c4pSynchroStatus[this.PUB.CHANNEL_DELETE] = objectToCopy.c4pSynchroStatus[this.PUB.CHANNEL_DELETE], 
         object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = angular.copy(objectToCopy.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD]), 
         !0) : !1;
-    }, Service.prototype.pushChannelToLevel = function(object, channel, level) {
+    }, Service.prototype.pushChannelToLevel = function(object, channel, level, bForce) {
         if (!(object && channel && a4p.isDefined(object.c4pSynchroStatus) && a4p.isDefined(object.c4pSynchroStatus[channel]))) return !1;
         var previous = object.c4pSynchroStatus[channel], doChange = !1;
         return level == this.PUB.NEW && previous == this.PUB.NONE ? doChange = !0 : level == this.PUB.QUEUE && previous == this.PUB.NEW ? doChange = !0 : level == this.PUB.NETWORK && previous == this.PUB.QUEUE ? doChange = !0 : level == this.PUB.NONE && previous == this.PUB.NETWORK && (doChange = !0), 
         doChange || a4p.InternalLog.log("SrvSynchroStatus", "pushChannelToLevel pb doChange:" + channel + " from " + previous + " to " + level), 
-        doChange && channel == this.PUB.CHANNEL_DELETE && this.resetChannels(object), doChange && (object.c4pSynchroStatus[channel] = level), 
-        doChange && level == this.PUB.NETWORK && (object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = {
+        (doChange || bForce) && channel == this.PUB.CHANNEL_DELETE && this.resetChannels(object), 
+        (doChange || bForce) && (object.c4pSynchroStatus[channel] = level), (doChange || bForce) && level == this.PUB.NETWORK && (object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = {
             progress: 0,
             status: this.PUB.CLOUD_WAITFOR,
             log: "wait..."
         }), doChange;
-    }, Service.prototype.successChannel = function(object, channel) {
+    }, Service.prototype.successChannel = function(object, channel, bForce) {
         if (!(object && channel && a4p.isDefined(object.c4pSynchroStatus) && a4p.isDefined(object.c4pSynchroStatus[channel]))) return !1;
         var previous = object.c4pSynchroStatus[channel];
-        previous == this.PUB.NETWORK && (object.c4pSynchroStatus[channel] = this.PUB.NONE);
+        (previous == this.PUB.NETWORK || bForce) && (object.c4pSynchroStatus[channel] = this.PUB.NONE);
         var sumChannel = (object.c4pSynchroStatus[this.PUB.CHANNEL_CREATE] == this.PUB.NONE) + (object.c4pSynchroStatus[this.PUB.CHANNEL_SHARE] == this.PUB.NONE) + (object.c4pSynchroStatus[this.PUB.CHANNEL_WRITE] == this.PUB.NONE) + (object.c4pSynchroStatus[this.PUB.CHANNEL_READ] == this.PUB.NONE) + (object.c4pSynchroStatus[this.PUB.CHANNEL_DELETE] == this.PUB.NONE), percent = sumChannel / 5 * 100;
         return 100 == percent ? object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = {
             progress: percent,
@@ -40040,10 +40028,10 @@ var SrvFacet = function() {
             status: this.PUB.CLOUD_INPROGRESS,
             log: "in progress..."
         }), !0;
-    }, Service.prototype.cancelChannel = function(object, channel, log) {
+    }, Service.prototype.cancelChannel = function(object, channel, log, bForce) {
         if (!(object && channel && a4p.isDefined(object.c4pSynchroStatus) && a4p.isDefined(object.c4pSynchroStatus[channel]))) return !1;
         var doChange = !1, previous = object.c4pSynchroStatus[channel];
-        return previous != this.PUB.NONE && (object.c4pSynchroStatus[channel] = this.PUB.NONE, 
+        return (previous != this.PUB.NONE || bForce) && (object.c4pSynchroStatus[channel] = this.PUB.NONE, 
         object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = {
             progress: 0,
             status: this.PUB.CLOUD_PB,
@@ -40262,12 +40250,14 @@ serviceModule.factory("srvOpenUrl", [ "$exceptionHandler", function($exceptionHa
     return new SrvConfig(srvDataTransfer, srvLoad, srvLocalStorage, srvAnalytics);
 } ]), serviceModule.factory("srvLocale", [ "$http", "srvLoad", "srvLocalStorage", function($http, srvLoad, srvLocalStorage) {
     return new SrvLocale($http, srvLoad, srvLocalStorage);
+} ]), serviceModule.factory("srvQueue", [ "$q", "$exceptionHandler", "srvDataStore", "srvSecurity", function($q, $exceptionHandler, srvDataStore, srvSecurity) {
+    return new SrvQueue($q, $exceptionHandler, srvDataStore, srvSecurity);
 } ]), serviceModule.factory("srvSynchro", [ "$q", "srvDataTransfer", "srvFileTransfer", "$exceptionHandler", "srvRunning", "srvLocalStorage", "srvSecurity", function($q, srvDataTransfer, srvFileTransfer, $exceptionHandler, srvRunning, srvLocalStorage, srvSecurity) {
     return new SrvSynchro($q, srvDataTransfer, srvFileTransfer, $exceptionHandler, srvRunning, srvLocalStorage, srvSecurity);
 } ]), serviceModule.factory("srvSynchroStatus", [ "$q", function($q) {
     return new SrvSynchroStatus($q);
-} ]), serviceModule.factory("srvData", [ "$exceptionHandler", "$q", "srvLocalStorage", "srvConfig", "srvLog", "srvLocale", "srvSecurity", "srvDataTransfer", "srvDataStore", "srvRunning", "srvSynchro", "srvSynchroStatus", "srvFileStorage", "$rootScope", function($exceptionHandler, $q, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvDataStore, srvRunning, srvSynchro, srvSynchroStatus, srvFileStorage, $rootScope) {
-    return new SrvData($exceptionHandler, $q, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvDataStore, srvRunning, srvSynchro, srvSynchroStatus, srvFileStorage, $rootScope);
+} ]), serviceModule.factory("srvData", [ "$exceptionHandler", "$q", "srvLocalStorage", "srvConfig", "srvLog", "srvLocale", "srvSecurity", "srvDataTransfer", "srvDataStore", "srvRunning", "srvSynchro", "srvSynchroStatus", "srvQueue", "srvFileStorage", "$rootScope", function($exceptionHandler, $q, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvDataStore, srvRunning, srvSynchro, srvSynchroStatus, srvQueue, srvFileStorage, $rootScope) {
+    return new SrvData($exceptionHandler, $q, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvDataStore, srvRunning, srvSynchro, srvSynchroStatus, srvQueue, srvFileStorage, $rootScope);
 } ]), serviceModule.factory("srvFacet", [ "srvData", "srvLocale", "srvConfig", function(srvData, srvLocale, srvConfig) {
     var srvFacet = new SrvFacet(srvData, srvLocale, srvConfig);
     return srvFacet.addPossibleOrganizerFacet(c4p.Organizer.objects), srvFacet.addPossibleOrganizerFacet(c4p.Organizer.top20), 

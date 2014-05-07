@@ -386,7 +386,7 @@
     "htmlMsgFileImport":"File import",
     "htmlMsgSynchronizationOK":"Synchronization OK.",
     "htmlMsgInvalidPassword":"User password is invalid.",
-    "htmlMsgSynchronizationClientPb":"Synchronization client problem.\nDo you have internet available ?",
+    "htmlMsgSynchronizationClientPb":"Synchronization client problem.\nDo you have internet available ? Mail us : team@apps4pro.com",
     "htmlMsgMaintenancePb":"Server is momentarily stopped. Please retry later.",
     "htmlMsgSendingEmailPb":"Sending email failure in server.",
     "htmlMsgTakePicturePb":"No picture.",
