@@ -374,13 +374,17 @@
     "htmlMsgFeedbackContactEmpty":"Merci d'indiquer une mail valide",
     "htmlMsgFeedbackEmail":"Merci pour votre retour !",
     "htmlMsgFeedbackPhone":"Si vous pouvez \u00EAtre joint par t\u00E9l\u00E9phone",
-    "htmlMsgFeedbackMoreObjects":"Bonjour\nJ'ai besoin de plus d'objets :\n ... comme ?", 
+
+    "htmlMsgFeedbackMoreObjects":"Bonjour\nJ'ai besoin de plus d'objets :\n ... comme ?",
     "htmlMsgFeedbackMoreObjectsQuestion":"... besoin d'un autre objet ?",
-    "htmlMsgFeedbackSFConnector":"Bonjour\nJe veux me connecter a mes donnees Salesforce.com.", 
-    "htmlMsgFeedbackOtherConnector":"Bonjour\nJe veux me connecter a mon CRM :\n ... lequel ? ", 
-    "htmlMsgFeedbackOtherConnectorQuestion":"Vous voulez vous connecter avec votre CRM ?",  
-    "htmlMsgFeedbackSuggestion":"Bonjour\nJ'adorerais avoir des infos sur :\n ... lesquelles ?", 
-    "htmlMsgFeedbackSuggestionQuestion":"Plus de suggestion ?", 
+    "htmlMsgFeedbackSFConnector":"Bonjour\nJe veux me connecter a mes donnees Salesforce.com.",
+    "htmlMsgFeedbackSuggestion":"Bonjour\nJ'adorerais avoir des infos sur :\n ... lesquelles ?",
+    "htmlMsgFeedbackSuggestionQuestion":"Plus de suggestion ?",
+    "htmlMsgFeedbackOtherConnector":"Bonjour\nJe veux me connecter a mon CRM :\n ... lequel ? ",
+    "htmlMsgFeedbackOtherConnectorQuestion":"Vous voulez vous connecter avec votre CRM ?",
+    "htmlMsgFeedbackUploadFile":"Bonjour,\nJe ne peux pas synchroniser mon document sur cette version.\nJe serais int\u00E9ress\u00E9 d'avoir des informations sur les comptes sup\u00E9rieurs.",
+    "htmlMsgFeedbackUploadFileQuestion":"Nous ne pouvons pas synchroniser ce fichier car votre compte est limit\u00E9 pour l'instant \u00E0 2MB",
+
     "htmlMsgRejectImportNotLogged":"Import rejet\u00E9 : vous n'\u00EAtes pas connect\u00E9.",
     "htmlMsgImportFile":"Import du fichier {0}",
     "htmlMsgFileImport":"Import de fichier",
@@ -577,7 +581,7 @@
     "htmlTextInitializingData":"Initialisation des donn\u00E9es...",
 
     "htmlTextDemoModeImpossible":"Certaines fonctionnalit\u00E9s ne sont pas disponibles en mode d\u00E9mo.",
-    "htmlTextDemoModeMoreData":"Plus de data ?", 
+    "htmlTextDemoModeMoreData":"Plus de data ?",
 
     "htmlTextHours":"Heures",
     "htmlTextMinutes":"Minutes",
@@ -683,7 +687,7 @@
         "c4p-amelia": "App4pro Amelia",
         "c4p-apps4pro": "App4pro Officiel"
     },
- 
+
     "htmlTextGuiderSlide01":"<h5>Organiser. Partager. Vendre.</h5><p>Vos donn&eacute;es CRM sur le terrain. Travaillez avec ou sans connexion. <br />Organisez votre agenda, pr&eacute;parez soigneusement vos rendez-vous.<br>Collectez des informations, prenez des notes, suivez vos prospects et vos clients &#8230; sur votre tablette ou sur votre smartphone.</p>",
     "htmlTextGuiderSlide02":"<h5>Votre CRM interactif.</h5><p>Visualisation et manipulation intuitive de vos donn&eacute;es <br />Contacts, comptes, opportunit&eacute;s, etc. <br />Biblioth&egrave;que de documents, d&rsquo;images, de vid&eacute;os<br />Connexion s&eacute;curis&eacute;e et stockage local crypt&eacute;<br />Utilisation compl&egrave;te hors connexion.</p>",
     "htmlTextGuiderSlide03":"<h5>Planifier vos r&eacute;unions.</h5><p><br />Associez y vos participants, vos documents, etc. <br />R&eacute;digez des notes, prenez des photos.<br /><br />Partagez et vendez !</p>",

@@ -1,4 +1,4 @@
-/*! c4p.client 2014-05-08 14:06 */
+/*! c4p.client 2014-05-09 10:01 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -2006,6 +2006,7 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
 }
 
 function ctrlDetail($scope, $timeout, $modal, version, srvData, srvFacet, srvLocale, srvLink, srvNav, srvConfig) {
+    "use strict";
     function createSameCompanyFilter(companyId) {
         return function(object) {
             return object.account_id.dbid == companyId;
@@ -2388,6 +2389,7 @@ function ctrlDetailLink($scope, srvData, srvLocale, srvNav) {
 }
 
 function ctrlDetailedObject($scope, $sce, srvLocale, srvData, srvNav, srvLink, srvConfig, srvAnalytics) {
+    "use strict";
     $scope.srvLocale = srvLocale, $scope.linkedItems = {}, $scope.init = function(item) {
         if (item) {
             $scope.item = item, $scope.itemIcon = c4p.Model.getItemIcon(item), $scope.itemColor = c4p.Model.getItemColor(item), 
@@ -6171,6 +6173,7 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
 }
 
 function ctrlEditDialogObject($scope, $location, $anchorScroll, srvData, srvLocale, srvConfig, objectItem, removeFct, startSpinner, stopSpinner, openDialogFct, $modalInstance) {
+    "use strict";
     function initFields(scope) {
         scope.object = angular.copy(objectItem), scope.hasOpenImportContactDialog = "Contact" == objectItem.a4p_type && navigator && a4p.isDefined(window.plugins.ContactPicker), 
         scope.hasOpenImportAccountDialog = "Account" == objectItem.a4p_type && navigator && navigator.contacts, 
@@ -6342,9 +6345,7 @@ function ctrlEditDialogObject($scope, $location, $anchorScroll, srvData, srvLoca
             result && ($scope.removeFct(objectItem), $modalInstance.close());
         });
     }, $scope.editScrollTo = function(id) {
-        $timeout(function() {
-            $location.hash(id), $anchorScroll();
-        }, 200);
+        $location.hash(id), $anchorScroll();
     }, $scope.getTypeColor = function(type) {
         return c4p.Model.getTypeColor(type);
     };
@@ -6978,7 +6979,7 @@ function addOther(items, item) {
 
 function handleOpenURL(url) {
     console.log("handleOpenURL " + url), window.setTimeout(function() {
-        if (null != srvOpenUrlSingleton) srvOpenUrlSingleton.openUrl(url); else {
+        if (null !== srvOpenUrlSingleton) srvOpenUrlSingleton.openUrl(url); else {
             var msg = "Application not yet started to import the file " + url;
             console.log(msg);
         }
@@ -25912,7 +25913,7 @@ c4p || (c4p = {}), c4p.Model = function() {
             isAttachment: !1,
             icon: "book",
             colorType: "j",
-            fields: [ "document_type", "name", "mimetype", "description", "length", "path", "extension", "rootname", "filePath", "fileUrl", "parent_id", "owner_id", "created_by_id", "created_date", "last_modified_by_id", "last_modified_date" ],
+            fields: [ "document_type", "name", "mimetype", "description", "fileSize", "path", "extension", "rootname", "filePath", "fileUrl", "parent_id", "owner_id", "created_by_id", "created_date", "last_modified_by_id", "last_modified_date" ],
             linkFields: [ {
                 key: "owner_id",
                 one: "owner",
@@ -27257,13 +27258,13 @@ c4p || (c4p = {}), c4p.Model = function() {
     Model.allTypes = [], Model.objectTypes = [], Model.attachTypes = [], Model.isAttachType = {}, 
     Model.isAutonomousType = {};
     for (var a4p_type in Model.a4p_types) if (Model.a4p_types.hasOwnProperty(a4p_type)) {
-        var desc = Model.a4p_types[a4p_type];
-        desc.displayName = desc.displayNameList[0] || [], desc.isAttachment ? (Model.attachTypes.push(a4p_type), 
+        var descT = Model.a4p_types[a4p_type];
+        descT.displayName = descT.displayNameList[0] || [], descT.isAttachment ? (Model.attachTypes.push(a4p_type), 
         Model.isAttachType[a4p_type] = !0) : (Model.objectTypes.push(a4p_type), Model.isAttachType[a4p_type] = !1), 
-        Model.allTypes.push(a4p_type), desc.isAutonomousType = !0, desc.linkDescs = {};
-        for (var linkIdx = 0; linkIdx < desc.linkFields.length; linkIdx++) {
-            var linkDesc = desc.linkFields[linkIdx];
-            desc.linkDescs[linkDesc.key] = linkDesc, "many" != linkDesc.cascadeDelete || 1 == linkDesc.types.length && linkDesc.types[0] == a4p_type || (desc.isAutonomousType = !1);
+        Model.allTypes.push(a4p_type), descT.isAutonomousType = !0, descT.linkDescs = {};
+        for (var linkIdx = 0; linkIdx < descT.linkFields.length; linkIdx++) {
+            var linkDesc = descT.linkFields[linkIdx];
+            descT.linkDescs[linkDesc.key] = linkDesc, "many" != linkDesc.cascadeDelete || 1 == linkDesc.types.length && linkDesc.types[0] == a4p_type || (descT.isAutonomousType = !1);
         }
     }
     return Model.formatEventName = function(date_start, name) {
@@ -27279,15 +27280,15 @@ c4p || (c4p = {}), c4p.Model = function() {
         result;
     }, Model.getItemIcon = function(item) {
         var result = "";
-        return null != item && a4p.isDefined(Model.a4p_types[item.a4p_type]) && (result = Model.a4p_types[item.a4p_type].icon), 
+        return item && a4p.isDefined(Model.a4p_types[item.a4p_type]) && (result = Model.a4p_types[item.a4p_type].icon), 
         result;
     }, Model.getItemColor = function(item) {
         var result = "";
-        return null != item && a4p.isDefined(Model.a4p_types[item.a4p_type]) && (result = Model.a4p_types[item.a4p_type].colorType), 
+        return item && a4p.isDefined(Model.a4p_types[item.a4p_type]) && (result = Model.a4p_types[item.a4p_type].colorType), 
         result;
     }, Model.getItemHtmlDescription = function(item) {
         var result = "";
-        if (null != item && a4p.isDefined(Model.a4p_types[item.a4p_type])) {
+        if (item && a4p.isDefined(Model.a4p_types[item.a4p_type])) {
             for (var fieldNameIdx = 0; fieldNameIdx < Model.a4p_types[item.a4p_type].displayDescription.length; fieldNameIdx++) {
                 var fieldName = Model.a4p_types[item.a4p_type].displayDescription[fieldNameIdx];
                 result = result + " " + item[fieldName];
@@ -27780,7 +27781,7 @@ c4p || (c4p = {}), c4p.Model = function() {
         return errMsg;
     }, Model.translate = function(scope, key) {
         var translated = scope.srvLocale.translations[key];
-        return void 0 != translated ? translated : key;
+        return void 0 !== translated ? translated : key;
     }, Model.validateObject = function(object, expr) {
         return eval(expr);
     }, Model.firstOptionItem = function(srvLocale, defaultSetterParam) {
@@ -27818,10 +27819,10 @@ c4p || (c4p = {}), c4p.Model = function() {
         var dateStart = a4pDateParse(date_start), dateStop = a4pDateParse(date_end), minutes = Math.floor((dateStop.getTime() - dateStart.getTime()) / 1e3 / 60);
         return minutes % 60;
     }, Model.httpPrefixUrl = function(url) {
-        if (a4p.isUndefined(url) || 0 == url.length) return url;
+        if (a4p.isUndefined(url) || 0 === url.length) return url;
         var i = url.indexOf("http:");
-        return 0 == i ? url : (i = url.indexOf("https:"), 0 == i ? url : (i = url.indexOf("//"), 
-        0 == i ? "http:" + url : "http://" + url));
+        return 0 === i ? url : (i = url.indexOf("https:"), 0 === i ? url : (i = url.indexOf("//"), 
+        0 === i ? "http:" + url : "http://" + url));
     }, Model.fileFirstMimetype = function(filename) {
         var extension = Model.fileExtension(filename), mimetypes = Model.mimetypes[extension.toLowerCase()];
         return a4p.isDefined(mimetypes) ? mimetypes[0] : "application/octet-stream";
@@ -27837,10 +27838,12 @@ c4p || (c4p = {}), c4p.Model = function() {
     }, Model.fileName = function(rootname, extension) {
         return rootname && rootname.length > 0 ? extension && extension.length > 0 ? rootname + "." + extension : rootname : extension && extension.length > 0 ? "." + extension : "";
     }, Model.fileLastname = function(filename) {
+        if (!filename) return "";
         var i = filename.lastIndexOf("/");
         return i >= 0 && (filename = filename.substr(1 + i)), i = filename.lastIndexOf("\\"), 
         i >= 0 && (filename = filename.substr(1 + i)), filename;
     }, Model.fileDirname = function(filename) {
+        if (!filename) return "";
         var i = filename.lastIndexOf("/"), j = filename.lastIndexOf("\\");
         return i >= 0 ? filename = j > i ? filename.substr(0, j) : filename.substr(0, i) : j >= 0 && (filename = filename.substr(0, j)), 
         "";
@@ -28474,6 +28477,8 @@ c4p || (c4p = {}), c4p.Locale = {
         htmlMsgFeedbackOtherConnectorQuestion: "Do you want to connect to your system ?",
         htmlMsgFeedbackSuggestion: "Hi team!\nI need some helpfull topics like :\n ... which one ?",
         htmlMsgFeedbackSuggestionQuestion: "Need more suggestion ?",
+        htmlMsgFeedbackUploadFile: "Hi team!\nI can't synchronize my document because of my app version.\nI'm interested by upgrading my account.",
+        htmlMsgFeedbackUploadFileQuestion: "App can't synchronize this doc; File should be less than 2MB here",
         htmlMsgRejectImportNotLogged: "Import rejected: you are not logged in.",
         htmlMsgImportFile: "Import of file {0}",
         htmlMsgFileImport: "File import",
@@ -29193,10 +29198,12 @@ c4p || (c4p = {}), c4p.Locale = {
         htmlMsgFeedbackMoreObjects: "Bonjour\nJ'ai besoin de plus d'objets :\n ... comme ?",
         htmlMsgFeedbackMoreObjectsQuestion: "... besoin d'un autre objet ?",
         htmlMsgFeedbackSFConnector: "Bonjour\nJe veux me connecter a mes donnees Salesforce.com.",
-        htmlMsgFeedbackOtherConnector: "Bonjour\nJe veux me connecter a mon CRM :\n ... lequel ? ",
-        htmlMsgFeedbackOtherConnectorQuestion: "Vous voulez vous connecter avec votre CRM ?",
         htmlMsgFeedbackSuggestion: "Bonjour\nJ'adorerais avoir des infos sur :\n ... lesquelles ?",
         htmlMsgFeedbackSuggestionQuestion: "Plus de suggestion ?",
+        htmlMsgFeedbackOtherConnector: "Bonjour\nJe veux me connecter a mon CRM :\n ... lequel ? ",
+        htmlMsgFeedbackOtherConnectorQuestion: "Vous voulez vous connecter avec votre CRM ?",
+        htmlMsgFeedbackUploadFile: "Bonjour,\nJe ne peux pas synchroniser mon document sur cette version.\nJe serais intéressé d'avoir des informations sur les comptes supérieurs.",
+        htmlMsgFeedbackUploadFileQuestion: "Nous ne pouvons pas synchroniser ce fichier car votre compte est limité pour l'instant à 2MB",
         htmlMsgRejectImportNotLogged: "Import rejeté : vous n'êtes pas connecté.",
         htmlMsgImportFile: "Import du fichier {0}",
         htmlMsgFileImport: "Import de fichier",
@@ -34213,7 +34220,7 @@ var directiveModule = angular.module("c4pDirectives", [ "c4pFilters", "ui.bootst
 });
 
 a4p.Sense.declareDirectives(directiveModule), a4p.Resize.declareDirectives(directiveModule), 
-console.log("a4p.Sense.declareDirectives"), angular.module("a4p/carousel/carousel.html", []).run([ "$templateCache", function($templateCache) {
+angular.module("a4p/carousel/carousel.html", []).run([ "$templateCache", function($templateCache) {
     $templateCache.put("a4p/carousel/carousel.html", '<div ng-mouseenter="pause()" ng-mouseleave="play()" class="carousel" sense-opts="{name:\'slide\', axeX:\'scroll\', axeY:\'swipe\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" sense-scrollend="scrollEnd($event)"><div class="carousel-inner" ng-transclude></div></div>');
 } ]), angular.module("a4p/carousel/slide.html", []).run([ "$templateCache", function($templateCache) {
     $templateCache.put("a4p/carousel/slide.html", "<div ng-class=\"{    'active': leaving || (active && !entering),    'prev': (next || active) && direction=='prev',    'next': (next || active) && direction=='next',    'right': direction=='prev',    'left': direction=='next'  }\" class=\"item\" ng-transclude></div>");
@@ -35179,7 +35186,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/navigation/calendar_events.html", '<div class="row col-xxs-12"><div ng-style="{width:(getMainWidth() + getAsideWidth())+\'px\'}" resize-opts="{name:\'calendar_events\', watchRefresh:\'navAside\'}" resizecss-height="getResizeHeight() -getResizePathValue(\'calendar_header\', \'\', \'offsetHeight\')" sense-opts="{name:\'calendar_events\', axeY:\'scroll\', watchRefresh:\'calendarEventsGroupsByDaySinceToday\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div id="calendar-cards"><div class="row c4p-color-a-gradient1"><div class="col-xxs-12 c4p-details hidden-xs hidden-sm"><h2>{{translate(\'htmlCalendarListPageTitle\')}}</h2></div><div class="col-xxs-12 c4p-details hidden-md hidden-lg"><h4>{{translate(\'htmlCalendarListPageTitle\')}}</h4></div></div><ul class="nav nav-pills nav-stacked c4p-details-title" ng-repeat="group in calendarEventsGroupsByDaySinceToday" ng-show="group.events.length || group.eventsAllDay.length"><li class="c4p-details c4p-color-a-gradient2"><span class="">{{translateDateDayToFullString(group.date)}}</span></li><li ng-repeat="item in group.eventsAllDay" class="c4p-details c4p-color-a-gradient3"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li><li ng-repeat="item in group.events" class="c4p-details c4p-color-a-gradient4"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/calendar_header.html", '<div class="c4p-header-std" resize-opts="{name:\'calendar_header\', watchRefresh:\'navAside\'}"><div class="row"><div class="col-xxs-12"><ul class="nav nav-pills"><li class=""><a class="btn disabled"><img class="c4p-img-icon" src="l4p/img/logo_meeting_.png"></a></li><li ng-include="\'partials/navigation/header_back.html\'"></li><li class="pull-right" ng-show="configStateAdd"><a class="btn" ng-click="addItemDialog()"><span class="c4p-icon-std glyphicon glyphicon-plus"></span></a></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/calendar_month.html", '<div class="ng-cloak"><table class="table c4p-table-calendar-month" style="width:100%;table-layout: fixed"><thead resize-opts="{name:\'calendar_month_header\'}"><tr style="color:whitesmoke"><th class="empty" style="width:20px"></th><th class="c4p-link5" ng-click="gotoPreviousYear()"><span class="glyphicon glyphicon-angle-double-left"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousYear}}</h5></th><th class="c4p-link5" ng-click="gotoPreviousMonth()"><span class="glyphicon glyphicon-angle-left"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousMonthName}}</h5></th><th class="disabled" colspan="3" style="text-align:center;vertical-align:middle"><h4 ng-hide="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</h4><span ng-show="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</span></th><th class="c4p-link5" ng-click="gotoNextMonth()"><span class="glyphicon glyphicon-angle-right"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextMonthName}}</h5></th><th class="c4p-link5" ng-click="gotoNextYear()"><span class="glyphicon glyphicon-angle-double-right"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextYear}}</h5></th></tr><tr style="height:20px;line-height:20px" resize-opts="{name:\'calendar_month_week_header\'}"><th style="height:20px;line-height:20px" class="disabled"><small>{{translate(\'htmlCalendarMonthTextWeekAbrev\')}}</small></th><th ng-repeat="day in calendarMonthWeeks[0].days" class="disabled" style="height:20px;line-height:20px; width:{{(width - 20) / calendarMonthWeeks[0].days.length}}px"><small>{{day.shortName}}</small></th></tr></thead><tbody><tr ng-repeat="week in calendarMonthWeeks"><td class="disabled" style="text-align: center;vertical-align: middle"><small>{{week.id}}</small></td><td ng-repeat="day in week.days" class="c4p-link5 c4p-table-cell" ng-click="onDayClick(day.date)" style="height:{{calendarMonthCellHeight}}px" ng-class="{	\'c4p-cell-initial\': translateDateDayToString(day.date) == translateDateDayToString(calendarNow),\r\n								\'c4p-cell-selected\': translateDateDayToString(day.date) == translateDateDayToString(calendarSelected),\r\n								\'c4p-cell-weekend\': day.isWeekend,\r\n								\'c4p-cell-disabled\': day.date.getMonth() != calendarMonth}"><div style="width:100%;height:100%"><div class="pull-left" style="position:relative; height:100%;width:8%"><div ng-repeat="position in day.group.eventsPosition" class="label c4p-label-calendar-notallday-inverse" style="position:absolute; width:90%; padding:2px 0; border:1px solid gray; top:{{position.posPercent}}%; height:{{position.lengthPercent}}%" ng-class="position.event.id">&nbsp;</div></div><div class="pull-right" style="position:relative; height:100%;width:90%"><div style="height:{{(calendarMonthHeight / calendarMonthWeeks.length) - 20}}px;overflow:hidden;text-overflow:ellipsis;display:block"><span ng-repeat="position in day.group.eventsAllDayPosition" style="width:{{position.lengthPercent}}%; margin-left:{{position.posPercent}}%; margin-top:1px; min-height:2px" class="label c4p-label-calendar-all-day a4p-dot"><span class="hidden-xs">{{position.event.name}}</span></span>  <span ng-repeat="event in day.group.events" style="width:100%; margin-top: 1px" class="label c4p-label-calendar-day a4p-dot hidden-xs">{{getEventTime(event.date_start)}} {{event.name}}</span></div><small class="pull-left label c4p-label-calendar-light hidden-xs" style="padding:0" ng-show="(20*(day.group.eventsAllDay.length + day.group.events.length)) > (((calendarMonthHeight -24)/ calendarMonthWeeks.length) - 20)">{{translate(\'htmlCalendarMonthTextMore\')}}</small>  <small class="pull-right label c4p-label-calendar" style="padding:0 3px">{{day.date.getDate()}}</small></div></div></td></tr></tbody></table></div>'), 
-    $templateCache.put("partials/navigation/config.html", '<header class="row c4p-color-gradient0" ng-include="\'partials/navigation/config_header.html\'"></header><div class="row c4p-config-panel"><div sense-opts="{name:\'config_main\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" class="col-xxs-12 col-sm-11 col-sm-offset-1" resize-opts="{name:\'config_main\'}" resizecss-height="responsivePageHeight() -getResizePathValue(\'config_header\', \'\', \'offsetHeight\') -getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetHeight\')"><div class="col-xxs-12"><div class="row hidden-xs hidden-sm"><div class="col-xxs-12 col-xs-8 col-xs-offset-2 navbar"><h2 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{configEmail}}</h2><h2 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h2></div></div><div class="row hidden-md hidden-lg"><div class="col-xxs-12 col-xs-8 col-xs-offset-2 navbar"><h5 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{configEmail}}</h5><h5 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h5></div></div><div class="row"><button class="col-xxs-12 col-xs-8 col-xs-offset-2 btn btn-primary" ng-click="switchUser()">{{translate(\'htmlButtonChangeUser\')}}</button> </div><div class="row"><div class="col-xxs-12 col-xs-8 col-xs-offset-2"><button type="button" class="btn btn-link col-xxs-12" style="padding-top: 20px;padding-bottom: 40px" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'OtherConnector\',srvLocale.translations.htmlMsgFeedbackOtherConnector)"><span style="white-space:normal">{{srvLocale.translations.htmlMsgFeedbackOtherConnectorQuestion}}</span></button></div></div><div class="row"><div class="col-xxs-12 col-xs-8 col-xs-offset-2"><button type="button" class="btn btn-info col-xxs-12 dropdown-toggle" data-toggle="dropdown"><span>{{srvLocale.lang.title}}</span></button><ul class="dropdown-menu col-xxs-12" role="menu"><li ng-repeat="lang in srvLocale.langs"><a class="" ng-click="srvLocale.setLang(lang)">{{lang.title}}</a></li></ul></div></div><div class="row" ng-show="isDemo"><div class="col-xxs-12 col-xs-8 col-xs-offset-2 well"><a class="btn btn-warning col-xxs-12" ng-click="addMoreDataInDemoMode()">{{srvLocale.translations.htmlTextDemoModeMoreData}}</a></div></div><div class="row"><div class="col-xxs-12"><div class="row"><label class="col-xxs-12 control-label">&nbsp;</label><div class="col-xxs-12 controls">&nbsp;</div></div></div></div><div class="row"><div class="col-xxs-12"><small>{{translate(\'htmlConfigTextAppVersion\')}} v<span id="a4pDeviceDetectorWidth" app-version=""></span> <span id="a4pDeviceDetectorHeight">{{srvConfig.c4pBuildDate}} {{srvConfig.c4pConfigEnv}}</span> <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span></small></div></div></div></div></div>'), 
+    $templateCache.put("partials/navigation/config.html", '<!doctype html><header class="row c4p-color-gradient0" ng-include="\'partials/navigation/config_header.html\'"></header><div class="row c4p-config-panel"><div sense-opts="{name:\'config_main\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" class="col-xxs-12 col-sm-11 col-sm-offset-1" resize-opts="{name:\'config_main\'}" resizecss-height="responsivePageHeight() -getResizePathValue(\'config_header\', \'\', \'offsetHeight\') -getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetHeight\')"><div class="col-xxs-12"><div class="row hidden-xs hidden-sm"><div class="col-xxs-12 col-xs-8 col-xs-offset-2 navbar"><h2 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{configEmail}}</h2><h2 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h2></div></div><div class="row hidden-md hidden-lg"><div class="col-xxs-12 col-xs-8 col-xs-offset-2 navbar"><h5 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{configEmail}}</h5><h5 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h5></div></div><div class="row"><button class="col-xxs-12 col-xs-8 col-xs-offset-2 btn btn-primary" ng-click="switchUser()">{{translate(\'htmlButtonChangeUser\')}}</button> </div><div class="row"><div class="col-xxs-12 col-xs-8 col-xs-offset-2"><button type="button" class="btn btn-link col-xxs-12" style="padding-top: 20px;padding-bottom: 40px" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'OtherConnector\',srvLocale.translations.htmlMsgFeedbackOtherConnector)"><span style="white-space:normal">{{srvLocale.translations.htmlMsgFeedbackOtherConnectorQuestion}}</span></button></div></div><div class="row"><div class="col-xxs-12 col-xs-8 col-xs-offset-2"><button type="button" class="btn btn-info col-xxs-12 dropdown-toggle" data-toggle="dropdown"><span>{{srvLocale.lang.title}}</span></button><ul class="dropdown-menu col-xxs-12" role="menu"><li ng-repeat="lang in srvLocale.langs"><a class="" ng-click="srvLocale.setLang(lang)">{{lang.title}}</a></li></ul></div></div><div class="row" ng-show="isDemo"><div class="col-xxs-12 col-xs-8 col-xs-offset-2 well"><a class="btn btn-warning col-xxs-12" ng-click="addMoreDataInDemoMode()">{{srvLocale.translations.htmlTextDemoModeMoreData}}</a></div></div><div class="row"><div class="col-xxs-12"><div class="row"><label class="col-xxs-12 control-label">&nbsp;</label><div class="col-xxs-12 controls">&nbsp;</div></div></div></div><div class="row"><div class="col-xxs-12"><small>{{translate(\'htmlConfigTextAppVersion\')}} v<span id="a4pDeviceDetectorWidth" app-version=""></span> <span id="a4pDeviceDetectorHeight">{{srvConfig.c4pBuildDate}} {{srvConfig.c4pConfigEnv}}</span> <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span></small></div></div></div></div></div>'), 
     $templateCache.put("partials/navigation/config_header.html", '<div class="c4p-header-std" resize-opts="{name:\'config_header\'}"><div class="row"><div class="col-xxs-12"><ul class="nav nav-pills"><li class=""><a class="btn disabled"><img class="c4p-img-icon" src="l4p/img/logo_meeting_.png"></a></li><li ng-include="\'partials/navigation/header_back.html\'"></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/footer_detail.html", '<div class="c4p-footer-details c4p-color-gradient0" style="position:relative" resize-opts="{name:\'navigation_footer_detail\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}" resizecss-width="getPathValue(\'parentNode\', \'offsetWidth\')"><div class="btn c4p-color-action-transparent" ng-click="gotoBack()" resize-opts="{name:\'navigation_footer_detail_back\'}"><span class="c4p-icon-std glyphicon glyphicon-arrow-left"></span></div><div class="btn btn-xs" ng-controller="ctrlNavObject" resize-opts="{name:\'navigation_footer_detail_history\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}" resizecss-width="getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetWidth\') -1 -getResizePathValue(\'navigation_footer_detail_back\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_detail_spacer\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_detail_lock\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_detail_meeting\', \'\', \'offsetWidth\')"><ul style="overflow-x:hidden" class="c4p-list-footer-details"><li class="c4p-item-list-footer-details" ng-repeat="back in srvNav.history | limitTo:3" ng-class="{\'c4p-item-list-ftr-footer-details\':$last}" style="opacity: {{1-(0.33*$index)}}"><small><span class="glyphicon glyphicon-{{back.itemIcon}}"></span> <span ng-switch="!back.itemName"><span ng-switch-when="true">{{srvLocale.translations.htmlSlideName[back.slide]}}</span> <span ng-switch-default="">{{back.itemName}}</span></span></small></li></ul></div><div class="c4p-hf-spacer" resize-opts="{name:\'navigation_footer_detail_spacer\'}"><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div></div><div class="btn" ng-show="srvSecurity.isSecured()" ng-click="openDialogLocked()" resize-opts="{name:\'navigation_footer_detail_lock\'}"><a class="c4p-link2"><span class="glyphicon glyphicon-lock"></span></a></div><div class="btn btn-danger" ng-class="{\'active\' : dropOver}" ng-show="dndActive" ng-controller="ctrlTrashObject" sense-opts="{name:\'dropObjectTrash\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)" sense-dropend="dropEnd($event)" style="position:absolute;z-index:1041;top:0;left:0"><span class="c4p-icon-std glyphicon glyphicon-trash"></span></div></div>'), 
     $templateCache.put("partials/navigation/footer_related.html", '<div class="c4p-footer-details c4p-color-{{getTypeColor(srvNav.item.a4p_type)}}-gradient2" resize-opts="{name:\'navigation_footer_related\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}"><div class="btn c4p-color-action-transparent" ng-show="responsiveIsOnePageFormat()" ng-click="gotoBack()" resize-opts="{name:\'navigation_footer_related_back\'}"><span class="c4p-icon-std glyphicon glyphicon-arrow-left"></span></div><div class="btn btn-xs" ng-show="responsiveIsOnePageFormat()" ng-controller="ctrlNavObject" resize-opts="{name:\'navigation_footer_related_history\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}" resizecss-width="getResizePathValue(\'navigation_footer_related\', \'\', \'offsetWidth\') -1 -getResizePathValue(\'navigation_footer_related_back\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_related_lock\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_related_spacer\', \'\', \'offsetWidth\') - getResizePathValue(\'navigation_footer_related_meeting\', \'\', \'offsetWidth\')"><ul style="overflow-x:hidden" class="c4p-list-footer-details"><li class="c4p-item-list-footer-details" ng-repeat="back in srvNav.history | limitTo:3" ng-class="{\'c4p-item-list-ftr-footer-details\':$last}" style="opacity: {{1-(0.33*$index)}}"><small><span class="glyphicon glyphicon-{{back.itemIcon}}"></span> <span ng-switch="!back.itemName"><span ng-switch-when="true">{{srvLocale.translations.htmlSlideName[back.slide]}}</span> <span ng-switch-default="">{{back.itemName}}</span></span></small></li></ul></div><div class="c4p-hf-spacer" resize-opts="{name:\'navigation_footer_related_spacer\'}"><div class="btn"><div class="c4p-icon-std glyphicon">&nbsp;</div></div></div><div class="btn" ng-show="responsiveIsOnePageFormat() && srvSecurity.isSecured()" ng-click="openDialogLocked()" resize-opts="{name:\'navigation_footer_related_lock\'}"><a class="c4p-link2"><span class="glyphicon glyphicon-lock"></span></a></div></div>'), 
@@ -35187,15 +35194,15 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/navigation/main.html", '<div ng-controller="ctrlAside"><div class="c4p-ltr c4p-height-full" ng-style="{width:(responsiveToolbarWidth())+\'px\'}"><div id="" class="col-xxs-12 c4p-height-full" ng-style="{width:(responsiveAsideWidth()+ responsiveToolbarWidth())+\'px\'}" resize-opts="{name:\'navigation_ctrlAside\'}" ng-include="\'partials/navigation/aside_root.html\'"></div></div><div class="c4p-ltr c4p-click-intercepted" ng-style="{height:(responsivePageHeight() - 44)+\'px\'}" style="z-index: 3; width: 0px" ng-switch="" on="asideRootMenuUp"><div ng-switch-when="false" class="c4p-click-intercepted" ng-style="{height:(responsivePageHeight() - 44)+\'px\', width:responsiveAsideWidth()+\'px\'}" style="position: relative"><div ng-include="\'partials/navigation/aside_search.html\'"></div></div></div><div class="c4p-ltr c4p-height-full c4p-click-through" ng-style="{height:(responsivePageHeight())+\'px\',width:responsiveCentralContainerWidth()+\'px\'}" resize-opts="{name:\'navigation_ctrlPanelMove\'}" sense-opts="{name:\'navigation_ctrlPanelMove\', axeX:\'scroll\', init:\'setSensePanel($sense)\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', hScrollbar : false, x:getPanelX(), momentum: 0}" sense-afterscrollend="onPanelAfterScrollEnd($x, $y)" style="z-index: 5"><div class="c4p-ltr c4p-height-full" resize-opts="{name:\'navigation_panel_scroller\'}" ng-style="{width:(responsiveAsideWidth() + responsiveDetailWidth() + responsiveRelatedWidth())+\'px\'}"><div id="a4pAside" class="c4p-ltr c4p-click-through" ng-style="{height:(responsivePageHeight() - 44)+\'px\', width:responsiveAsideWidth()+\'px\'}" resize-opts="{name:\'navigation_translucent\'}" ontouchstart="a4pBlockMove(event)"><div ng-include="\'partials/navigation/translucent_panel.html\'"></div></div><div id="a4pPage" class="c4p-ltr c4p-click-intercepted"><div ng-switch="" on="getSlideFromNavIndex()"><div ng-switch-when="config"><div ng-controller="ctrlConfig" ng-include="\'partials/navigation/config.html\'" ng-style="{width:(responsiveMainWidth() + (!responsiveIsOnePageFormat() * responsiveRelatedWidth()))+\'px\'}"></div></div><div ng-switch-when="calendar"><div ng-controller="ctrlCalendar" ng-include="\'partials/navigation/calendar.html\'" ng-style="{width:(responsiveMainWidth() + (!responsiveIsOnePageFormat() * responsiveRelatedWidth()))+\'px\'}"></div></div><div ng-switch-default=""><div ng-controller="ctrlDetail" ng-include="\'partials/navigation/view_n.html\'" ng-style="{width:(responsiveDetailWidth() + responsiveRelatedWidth())+\'px\'}"></div></div></div></div></div></div><div ng-controller="ctrlRightToolbar" class="c4p-ltr c4p-toolbar c4p-height-full" ng-if="!responsiveIsOnePageFormat()" ng-style="{width:(responsiveToolbarWidth())+\'px\'}" resize-opts="{name:\'right_toolbar\'}" style="box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.2);z-index: 6"><div class="c4p-toolbar-header c4p-color-a-gradient1" resize-opts="{name:\'right_toolbar_header\'}" ng-show="(getSlideFromNavIndex() != \'calendar\')"><div class="btn c4p-color-action-transparent c4p-padding-w-packed" ng-click="toggleNavRelated()"><span class="c4p-icon-std glyphicon glyphicon-link"></span></div></div><div class="c4p-color-a-gradient2 row" sense-opts="{name:\'right_toolbar_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedGroupList\']}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" resize-opts="{name:\'right_toolbar_wrapper\'}" resizecss-height="responsivePageHeight() - getResizePathValue(\'right_toolbar_header\', \'\', \'offsetHeight\')"><div class="col-xxs-12" resize-opts="{name:\'right_toolbar_scroller\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedGroupList\']}"><div ng-if="!detailLoadingSpinner" ng-click="setNavRelated(true);showAsideGroupSuggestion(true);" ng-show="(getSlideFromNavIndex() != \'calendar\')"><div class="c4p-color-j-dark-iii"><div class="c4p-related-square-icon"><span class="c4p-icon-std glyphicon glyphicon-ellipsis-h"></span></div><div class="c4p-related-square-text"><span>&nbsp;</span></div></div></div><div ng-if="!detailLoadingSpinner" ng-repeat="group in srvNav.itemRelatedGroupList" ng-show="group.type != \'Plan\' && group.type != \'Facet\'" ng-class="{\'active\': linksPageY == $index}" ng-click="setNavRelated(true);showAsideGroup(group, true);"><div class="c4p-color-{{group.colorType}}-dark-iii"><div class="c4p-related-square-icon"><span class="c4p-icon-std glyphicon glyphicon-{{group.icon}}"></span></div><div class="c4p-related-square-text"><span>{{group.size}}</span></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/navigation/translucent_panel.html", '<div class="btn c4p-padding-w-packed c4p-color-gradient0 c4p-click-intercepted" style="position:absolute; top:50%; right: 0;height:2em; margin-top:-1em;box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.5);z-index: 5" ng-click="setNavAside(false)" ng-show="responsiveIsOnePageFormat() && (srvNav.current == null) "><span class="c4p-icon-std glyphicon glyphicon-ellipsis-v"></span></div><div class="half-circle-left c4p-color-gradient0 c4p-click-intercepted" style="position:absolute; top:50%; right: 0; margin-top:-4em;box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.5);z-index: 8" ng-show="responsiveIsOnePageFormat() && (srvNav.current!=null) " ng-class="{\'c4p-dropzone-active\': dndActive, \'c4p-dropzone-active-hover\': dropOver}" ng-controller="ctrlLinkActions" ng-click="setNavAside(false)" sense-opts="{name:\'navigation_detail_small_drop_zone\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropstart="dropStart($event)" sense-dropend="dropEnd($event)" sense-dropcancel="dropCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)"><div class="c4p-icn-side-drop"><span class="c4p-icon-std glyphicon glyphicon-{{srvNav.current.itemIcon}}"></span></div><div class="c4p-txt-side-drop"><div class="rotate-txt"><div class="c4p-no-dot-container"><small class="a4p-dot">{{srvNav.current.itemName}}</small></div></div></div></div>'), 
     $templateCache.put("partials/navigation/view_n.html", '<div class="c4p-container c4p-color-gradient0" resize-opts="{name:\'navigation_view_n\'}"><div class="c4p-waiting" ng-show="detailLoadingSpinner" ng-style="{\'max-width\':(responsivePageWidth())+\'px\'}" c4p-animateshow="detailLoadingSpinner" after-hide="afterDetailSpinnerHide()" after-show="afterDetailSpinnerShow()"><div ng-include="\'partials/spinner.html\'"></div></div><div ng-if="!detailLoadingSpinner"><div class="c4p-ltr c4p-height-full ng-cloak" ng-style="{width:responsiveDetailWidth()+\'px\'}" resize-opts="{name:\'navigation_view_detailed\'}"><div class="btn c4p-padding-w-packed c4p-color-gradient0" style="position:absolute; top:50%; right: 0;height:2em; margin-top:-1em;box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.5);z-index: 10" ng-click="setNavRelated(true)" ng-show="responsiveIsOnePageFormat()"><span class="c4p-icon-std glyphicon glyphicon-ellipsis-v"></span></div><div ng-include="\'partials/navigation/view_n_1.html\'"></div></div><div class="c4p-ltr c4p-height-full ng-cloak" ng-style="{width:responsiveRelatedWidth()+\'px\'}" resize-opts="{name:\'navigation_view_links\'}"><div ng-include="\'partials/navigation/view_n_2.html\'"></div></div></div></div>'), 
-    $templateCache.put("partials/navigation/view_n_1.html", '<div ng-controller="ctrlDetailedObject" class="c4p-color-a-gradient{{cards.length}}"><div ng-controller="ctrlAction" ng-init="watchSrvNav();"><div class="col-xxs-12 c4p-header-std c4p-header-details c4p-color-gradient0" resize-opts="{name:\'navigation_detail_title\'}" ng-include="\'partials/navigation/view_n_1_header.html\'"></div><div class="col-xxs-12" sense-opts="{name:\'detailed_item_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedList[srvNav.itemRelatedGroup.type]\']}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', momentum:0}" resize-opts="{name:\'detailed_item_wrapper\'}" resizecss-height="responsivePageHeight() - getResizePathValue(\'navigation_detail_title\', \'\', \'offsetHeight\') - getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetHeight\')"><div class="col-xxs-12 c4p-color-gradient0" resize-opts="{name:\'detailed_item_scroller\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedList[srvNav.itemRelatedGroup.type]\']}"><div ng-repeat="card in cards" class="c4p-color-a-gradient{{$index}} c4p-card row" ng-class="{\'c4p-card-thumb\': $first, \'c4p-card-synchronized\' : $first && (srvNav.item.c4pSynchroStatus.cloud.progress == 100), \'c4p-card-synchronized-not\' : $first && (srvNav.item.c4pSynchroStatus.cloud.progress < 100), \'c4p-card-synchronized-pb\' : $first && (srvNav.item.c4pSynchroStatus.cloud.status == 1)}" ng-init="cardItem = srvNav.item; cardGroups = card.groups; cardHasThumb = ($first == true); cardItemName = itemName; cardIsAboutVideo = isVideo; cardIsAboutFile = isFile; cardItemColor = \'c4p-color-\'+itemColor" ng-include="\'partials/navigation/cards/detail_card.html\'"></div></div><div ng-controller="ctrlLinkActions"><div ng-show="dndActive" style="position: absolute; z-index: 1041; top: 0; left: 0; bottom:0; right:0" ng-class="{\'c4p-dropzone-active\': dndActive, \'c4p-dropzone-active-hover\': dropOver}" resize-opts="{name:\'navigation_detail_link_drop_zone\', watchRefresh:[\'getSensePanelScrollX()\', \'srvNav.item.id.dbid\']}" resizecss-height="getResizePathValue(\'detailed_item_wrapper\', \'\', \'offsetHeight\')" sense-opts="{name:\'navigation_detail_link_drop_zone\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropstart="dropStart($event)" sense-dropend="dropEnd($event)" sense-dropcancel="dropCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)"><div><div>&nbsp;</div></div></div></div></div></div></div>'), 
+    $templateCache.put("partials/navigation/view_n_1.html", '<!doctype html><div ng-controller="ctrlDetailedObject" class="c4p-color-a-gradient{{cards.length}}"><div ng-controller="ctrlAction" ng-init="watchSrvNav();"><div class="col-xxs-12 c4p-header-std c4p-header-details c4p-color-gradient0" resize-opts="{name:\'navigation_detail_title\'}" ng-include="\'partials/navigation/view_n_1_header.html\'"></div><div class="col-xxs-12" sense-opts="{name:\'detailed_item_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedList[srvNav.itemRelatedGroup.type]\']}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', momentum:0}" resize-opts="{name:\'detailed_item_wrapper\'}" resizecss-height="responsivePageHeight() - getResizePathValue(\'navigation_detail_title\', \'\', \'offsetHeight\') - getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetHeight\')"><div class="col-xxs-12 c4p-color-gradient0" resize-opts="{name:\'detailed_item_scroller\', watchRefresh:[\'srvNav.item\', \'srvNav.itemRelatedList[srvNav.itemRelatedGroup.type]\']}"><div ng-repeat="card in cards" class="c4p-color-a-gradient{{$index}} c4p-card row" ng-class="{\'c4p-card-thumb\': $first, \'c4p-card-synchronized\' : $first && (srvNav.item.c4pSynchroStatus.cloud.progress == 100), \'c4p-card-synchronized-not\' : $first && (srvNav.item.c4pSynchroStatus.cloud.progress < 100), \'c4p-card-synchronized-pb\' : $first && (srvNav.item.c4pSynchroStatus.cloud.status == 1)}" ng-init="cardItem = srvNav.item; cardGroups = card.groups; cardHasThumb = ($first == true); cardItemName = itemName; cardIsAboutVideo = isVideo; cardIsAboutFile = isFile; cardItemColor = \'c4p-color-\'+itemColor" ng-include="\'partials/navigation/cards/detail_card.html\'"></div></div><div ng-controller="ctrlLinkActions"><div ng-show="dndActive" style="position: absolute; z-index: 1041; top: 0; left: 0; bottom:0; right:0" ng-class="{\'c4p-dropzone-active\': dndActive, \'c4p-dropzone-active-hover\': dropOver}" resize-opts="{name:\'navigation_detail_link_drop_zone\', watchRefresh:[\'getSensePanelScrollX()\', \'srvNav.item.id.dbid\']}" resizecss-height="getResizePathValue(\'detailed_item_wrapper\', \'\', \'offsetHeight\')" sense-opts="{name:\'navigation_detail_link_drop_zone\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropstart="dropStart($event)" sense-dropend="dropEnd($event)" sense-dropcancel="dropCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)"><div><div>&nbsp;</div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/navigation/view_n_1_header.html", '<div class="col-xxs-12"><ul class="nav nav-pills"><li class=""><a class="btn btn-sm disabled"><img class="c4p-img-icon" src="l4p/img/logo_meeting_.png"></a></li><li ng-include="\'partials/navigation/header_back.html\'"></li><li class="pull-right"><a class="btn" ng-click="doAction(\'editItem\')"><span class="c4p-icon-std glyphicon glyphicon-edit"></span></a></li></ul></div>'), 
     $templateCache.put("partials/navigation/view_n_2.html", '<div class="row c4p-header-related c4p-color-a-gradient2" resize-opts="{name:\'detailed_links_header\'}"><div class="col-xxs-12"><ul class="nav nav-pills"><li ng-show="responsiveIsOnePageFormat()"><a class="btn" ng-click="setNavRelated(false)"><span class="pull-left c4p-icon-std glyphicon glyphicon-angle-left"></span><c4p-thumb width="20" height="20" text="{{getItemNameById(srvNav.item.id.dbid)}}" indic="##todo" icon="##todo" color="c4p-color-{{srvNav.itemColor}}" url="{{srvNav.item.thumb_url}}"></c4p-thumb></a></li><li ng-hide="linkStateAdd" style="width:80%"><a class="btn disabled"><h5 class="a4p-dot">{{translate(\'htmlViewNrelatedPageTitle\')}}</h5></a></li><li><a class="btn" ng-show="linkStateAdd"><span class="">{{translate(\'htmlViewNrelatedPageTitleNew\')}}</span></a></li></ul></div><div class="btn c4p-padding-w-packed c4p-color-action-transparent pull-right" ng-show="linkStateAdd" ng-click="toggleLinkStateAdd()"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div><div class="row c4p-color-a-gradient1"><article class="col-xxs-12" resizecss-height="responsivePageHeight() -getResizePathValue(\'detailed_links_header\', \'\', \'offsetHeight\')" ng-include="\'partials/navigation/view_n_2_links_item.html\'"></article></div>'), 
     $templateCache.put("partials/navigation/view_n_2_link_editor__deprecated.html", '<div sense-opts="{name:\'detailed_links_wrapper\', axeY:\'scroll\', watchRefresh:[\'srvNav.itemRelatedGroup\', \'srvNav.item.a4p_type\']}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" resize-opts="{name:\'detailed_links_wrapper\'}" resizecss-height="responsivePageHeight() -getResizePathValue(\'detailed_links_header\', \'\', \'offsetHeight\')"><div resize-opts="{name:\'detailed_links_scroller\', watchRefresh:[\'srvNav.itemRelatedGroup\', \'srvNav.item.a4p_type\']}"><div class="c4p-related-card" ng-repeat="objectType in objectTypes()" ng-show="isPossibleLinkAction(srvNav.item.a4p_type, objectType)"><ul class="c4p-related-card-list"><li class="c4p-related-card-header c4p-color-{{objectTypeColor(objectType)}}-dark-iii"><span class="glyphicon glyphicon-{{objectTypeIcon(objectType)}}"></span> <span>{{srvLocale.translations.htmlTitleType[objectType]}}</span></li><li class="c4p-related-card-item c4p-color-{{objectTypeColor(objectType)}}-gradient3" ng-repeat="linkName in getPossibleLinkActionList(srvNav.item.a4p_type, objectType)"><div class="btn c4p-padding-w-packed">{{srvLocale.translations.htmlShortLinkName[linkName]}}</div><div class="btn c4p-padding-w-packed pull-right"><span class="c4p-icon-std glyphicon glyphicon-list c4p-color-action-transparent c4p-related-card-item-icon" ng-click="linkAddDialog(srvNav.item, linkName, objectType)"></span> <span class="c4p-icon-std glyphicon glyphicon-plus c4p-color-action-transparent c4p-related-card-item-icon" ng-click="createAndLinkDialog(srvNav.item, linkName, objectType)"></span></div></li></ul></div></div></div>'), 
-    $templateCache.put("partials/navigation/view_n_2_links_item.html", '<div class="c4p-container-scroll-y"><div class="c4p-container"><div class="c4p-related-card c4p-color-a-gradient1" ng-controller="ctrlAction" ng-init="watchSrvNav();"><ul class="c4p-related-card-list"><li id="related_suggestion" class="c4p-related-card-header c4p-color-j-dark-iii" ng-click="showAsideGroupSuggestion(!bShowAsideGroupSuggestion)"><span class="glyphicon glyphicon-fw glyphicon-ellipsis-h"></span></li><li ng-show="bShowAsideGroupSuggestion"><div class="row c4p-color-j-gradient3"><div class="col-xxs-8 col-xxs-offset-2"><div class="btn-group btn-group-justified btn-block"><a ng-show="srvData.isMethodPossibleForObject(\'createNewPicture\', srvNav.item)" class="btn close" ng-click="createNewPicture(srvNav.item)"><span class="glyphicon glyphicon-camera"></span></a> <a ng-show="srvData.isMethodPossibleForObject(\'createNewNote\', srvNav.item)" class="btn close" ng-click="createNewNote(srvNav.item)"><span class="glyphicon glyphicon-{{getTypeIcon(\'Note\')}}"></span></a> <a ng-hide="srvData.isMethodPossibleForObject(\'createNewNote\', srvNav.item) || srvData.isMethodPossibleForObject(\'createNewPicture\', srvNav.item)" class="btn" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'Suggestion\',srvLocale.translations.htmlMsgFeedbackSuggestion)"><small>{{srvLocale.translations.htmlMsgFeedbackSuggestionQuestion}}</small></a></div><div class="btn-block well well-sm" style="border-radius: 1em" ng-show="srvNav.itemRelatedGroupList.length == 0"><a class="btn" style="white-space:normal" ng-click="setAsideRootMenu()"><span>{{detailGetHtmlLinkHowTo}}</span><br><br><span class="c4p-icon-std glyphicon glyphicon-plus"></span></a></div></div></div></li></ul></div><div class="c4p-related-card c4p-color-a-gradient1" ng-repeat="group in srvNav.itemRelatedGroupList" ng-show="group.type != \'Plan\' && group.type != \'Facet\'"><ul class="c4p-related-card-list"><li id="related_{{group.name}}" class="c4p-related-card-header c4p-color-{{group.colorType}}-dark-iii" ng-click="showAsideGroup(group,!group.show)"><span class="glyphicon glyphicon-fw glyphicon-{{group.icon}}"></span> <span>{{group.name}}</span><span class="c4p-aside-count">{{group.size}}</span> <span ng-show="isDocumentGroup(group.type) && (srvNav.imageRelatedList.length > 0)" ng-click="$event.stopPropagation();showGallery();" class="glyphicon glyphicon-eye-open pull-right"></span></li><li ng-repeat="link in srvNav.itemRelatedList[group.type]" ng-show="group.show"><div class="row c4p-color-{{group.colorType}}-gradient3 {{{true: \'c4p-related-card-item-1st\', false: \'c4p-related-card-item-others\'}[$first]}}"><div class="col-xxs-11 c4p-related-card-holder"><span ng-include="\'partials/navigation/cards/summarized_card.html\'" ng-init="item = link.item; cardItemColor = \'c4p-color-\'+group.colorType"></span></div><div class="col-xxs-1" style="text-align: center"><div ng-if="link.linkNames.length == 1"><div id="{{link.item.id.dbid}}-unlink" class="btn c4p-color-action-transparent c4p-padding-w-packed" ng-click="unlinkDialog(link.linkNames[0], link.item)"><span class="c4p-icon-std close">&times;</span></div></div><div class="dropdown" ng-if="link.linkNames.length > 1"><div id="{{link.item.id.dbid}}-unlink" class="dropdown-toggle btn c4p-color-action-transparent c4p-padding-w-packed" data-toggle="dropdown"><span class="c4p-icon-std close">&times;</span></div><ul class="dropdown-menu c4p-dropdown-menu pull-right c4p-dropdown" aria-labelledby="{{link.item.id.dbid}}-unlink"><li>{{translate(\'htmlViewNlinkItemTextRemoveLink\')}}</li><li ng-repeat="linkName in getPossibleLinkActionList(srvNav.item.a4p_type, link.item.a4p_type)" ng-show="srvData.isObjectOwnedByUser(link.item) && srvData.isObjectOwnedByUser(srvNav.item)"><div class="btn" ng-click="unlinkDialog(linkName, link.item)"><span style="vertical-align:top">{{srvLocale.translations.htmlShortLinkName[linkName]}}</span></div></li></ul></div></div></div></li></ul></div></div></div>'), 
+    $templateCache.put("partials/navigation/view_n_2_links_item.html", '<!doctype html><div class="c4p-container-scroll-y"><div class="c4p-container"><div class="c4p-related-card c4p-color-a-gradient1" ng-controller="ctrlAction" ng-init="watchSrvNav();"><ul class="c4p-related-card-list"><li id="related_suggestion" class="c4p-related-card-header c4p-color-j-dark-iii" ng-click="showAsideGroupSuggestion(!bShowAsideGroupSuggestion)"><span class="glyphicon glyphicon-fw glyphicon-ellipsis-h"></span></li><li ng-show="bShowAsideGroupSuggestion"><div class="row c4p-color-j-gradient3"><div class="col-xxs-8 col-xxs-offset-2"><div class="btn-group btn-group-justified btn-block"><a ng-show="srvData.isMethodPossibleForObject(\'createNewPicture\', srvNav.item)" class="btn close" ng-click="createNewPicture(srvNav.item)"><span class="glyphicon glyphicon-camera"></span></a> <a ng-show="srvData.isMethodPossibleForObject(\'createNewNote\', srvNav.item)" class="btn close" ng-click="createNewNote(srvNav.item)"><span class="glyphicon glyphicon-{{getTypeIcon(\'Note\')}}"></span></a> </div><div class="btn-block well well-sm" style="border-radius: 1em" ng-show="srvNav.itemRelatedGroupList.length == 0"><a class="btn" style="white-space:normal" ng-click="setAsideRootMenu()"><span>{{detailGetHtmlLinkHowTo}}</span><br><br><span class="c4p-icon-std glyphicon glyphicon-plus"></span></a></div></div></div></li></ul></div><div class="c4p-related-card c4p-color-a-gradient1" ng-repeat="group in srvNav.itemRelatedGroupList" ng-show="group.type != \'Plan\' && group.type != \'Facet\'"><ul class="c4p-related-card-list"><li id="related_{{group.name}}" class="c4p-related-card-header c4p-color-{{group.colorType}}-dark-iii" ng-click="showAsideGroup(group,!group.show)"><span class="glyphicon glyphicon-fw glyphicon-{{group.icon}}"></span> <span>{{group.name}}</span><span class="c4p-aside-count">{{group.size}}</span> <span ng-show="isDocumentGroup(group.type) && (srvNav.imageRelatedList.length > 0)" ng-click="$event.stopPropagation();showGallery();" class="glyphicon glyphicon-eye-open pull-right"></span></li><li ng-repeat="link in srvNav.itemRelatedList[group.type]" ng-show="group.show"><div class="row c4p-color-{{group.colorType}}-gradient3 {{{true: \'c4p-related-card-item-1st\', false: \'c4p-related-card-item-others\'}[$first]}}"><div class="col-xxs-11 c4p-related-card-holder"><span ng-include="\'partials/navigation/cards/summarized_card.html\'" ng-init="item = link.item; cardItemColor = \'c4p-color-\'+group.colorType"></span></div><div class="col-xxs-1" style="text-align: center"><div ng-if="link.linkNames.length == 1"><div id="{{link.item.id.dbid}}-unlink" class="btn c4p-color-action-transparent c4p-padding-w-packed" ng-click="unlinkDialog(link.linkNames[0], link.item)"><span class="c4p-icon-std close">&times;</span></div></div><div class="dropdown" ng-if="link.linkNames.length > 1"><div id="{{link.item.id.dbid}}-unlink" class="dropdown-toggle btn c4p-color-action-transparent c4p-padding-w-packed" data-toggle="dropdown"><span class="c4p-icon-std close">&times;</span></div><ul class="dropdown-menu c4p-dropdown-menu pull-right c4p-dropdown" aria-labelledby="{{link.item.id.dbid}}-unlink"><li>{{translate(\'htmlViewNlinkItemTextRemoveLink\')}}</li><li ng-repeat="linkName in getPossibleLinkActionList(srvNav.item.a4p_type, link.item.a4p_type)" ng-show="srvData.isObjectOwnedByUser(link.item) && srvData.isObjectOwnedByUser(srvNav.item)"><div class="btn" ng-click="unlinkDialog(linkName, link.item)"><span style="vertical-align:top">{{srvLocale.translations.htmlShortLinkName[linkName]}}</span></div></li></ul></div></div></div></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/cards/4_rating.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><c4p-check ng-model="item.value" readonly></c4p-check><span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span style="padding:0 10px 0 0">{{item.name}}</span><c4p-angular-ratings ng-model="item.value" readonly></c4p-angular-ratings></span></span>'), 
     $templateCache.put("partials/navigation/cards/4_rating_ro.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><span class="glyphicon glyphicon-unchecked icon-large"></span> <span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span class="glyphicon glyphicon-star-empty icon-large"></span> <span style="padding:0 0 0 10px">{{item.name}}</span></span></span>'), 
     $templateCache.put("partials/navigation/cards/4_rating_ro2.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><c4p-check ng-model="item.value" readonly></c4p-check><span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span style="padding:0 10px 0 0">{{item.name}}</span><c4p-angular-ratings ng-model="item.value" readonly></c4p-angular-ratings></span></span>'), 
-    $templateCache.put("partials/navigation/cards/detail_card.html", '<div class="row"><div class="c4p-card-text" ng-class="{\'col-xxs-12\': !cardHasThumb,\'col-xxs-11\' : (cardHasThumb && (cardIsAboutFile || cardIsAboutVideo || cardItem.a4p_type == \'Event\')),\'col-sm-9 col-xxs-11\' : (cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\')}"><div ng-repeat="group in cardGroups" class="col-xxs-12 c4p-size-{{group.size}}"><span ng-if="group.name && cardItem.a4p_type != \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItemName}}</span> <span ng-if="group.name && cardItem.a4p_type == \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItem.name}}</span> <span ng-if="group.title">{{group.title}}</span> <address ng-if="group.fields.length > 1" class="col-xxs-12"><ul class="list-inline"><li ng-repeat-start="field in group.fields" ng-show="group.icon && $first && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li ng-repeat-end=""><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address><address ng-if="group.fields.length == 1" ng-init="field = group.fields[0]" class="col-xxs-12"><ul ng-class="{\'list-inline\': field.type !=\'textarea\', \'list-unstyled\': field.type ==\'textarea\'}"><li ng-show="group.icon && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address></div></div><div class="c4p-card-thumb pull-right col-sm-2 hidden-xs" ng-if="cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><c4p-thumb class="pull-right" width="70" height="70" text="{{cardItemName}}" indic="{{itemRelationCount}}" icon="glyphicon-{{itemIcon}}" color="{{cardItemColor}}" url="{{cardItem.thumb_url}}"></c4p-thumb></div><div class="c4p-card-thumb pull-right col-xxs-1" ng-if="cardHasThumb"><div class="pull-right c4p-color-action-transparent" ng-click="doAction(\'toggleFavorite\')"><span class="c4p-icon-std glyphicon c4p-outline-star" ng-class="{\'glyphicon-star\' : srvData.isTaggedFavorite(cardItem), \'glyphicon-star-o\' : !srvData.isTaggedFavorite(cardItem)}"></span></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><div class="btn c4p-card-thumb-media" ng-class="{\'disabled\': (actionMap.viewDocument.mustBeCreated)}" ng-click="doAction(\'viewDocument\')" style="background:url(\'{{cardItem.thumb_url}}\') no-repeat center center;-webkit-background-size: contain"></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><video controls="" ng-src="{{cardItem.url}}" class="c4p-card-thumb-media"></video></div><div class="c4p-card-progress col-xxs-12" ng-if="cardHasThumb && cardItem.c4pSynchroStatus"></div></div>'), 
+    $templateCache.put("partials/navigation/cards/detail_card.html", '<!doctype html><div class="row"><div class="c4p-card-text" ng-class="{\'col-xxs-12\': !cardHasThumb,\'col-xxs-11\' : (cardHasThumb && (cardIsAboutFile || cardIsAboutVideo || cardItem.a4p_type == \'Event\')),\'col-sm-9 col-xxs-11\' : (cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\')}"><div ng-repeat="group in cardGroups" class="col-xxs-12 c4p-size-{{group.size}}"><span ng-if="group.name && cardItem.a4p_type != \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItemName}}</span> <span ng-if="group.name && cardItem.a4p_type == \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItem.name}}</span> <span ng-if="group.title">{{group.title}}</span> <address ng-if="group.fields.length > 1" class="col-xxs-12"><ul class="list-inline"><li ng-repeat-start="field in group.fields" ng-show="group.icon && $first && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li ng-repeat-end=""><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address><address ng-if="group.fields.length == 1" ng-init="field = group.fields[0]" class="col-xxs-12"><ul ng-class="{\'list-inline\': field.type !=\'textarea\', \'list-unstyled\': field.type ==\'textarea\'}"><li ng-show="group.icon && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address></div></div><div class="c4p-card-thumb pull-right col-sm-2 hidden-xs" ng-if="cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><c4p-thumb class="pull-right" width="70" height="70" text="{{cardItemName}}" indic="{{itemRelationCount}}" icon="glyphicon-{{itemIcon}}" color="{{cardItemColor}}" url="{{cardItem.thumb_url}}"></c4p-thumb></div><div class="c4p-card-thumb pull-right col-xxs-1" ng-if="cardHasThumb"><div class="pull-right c4p-color-action-transparent" ng-click="doAction(\'toggleFavorite\')"><span class="c4p-icon-std glyphicon c4p-outline-star" ng-class="{\'glyphicon-star\' : srvData.isTaggedFavorite(cardItem), \'glyphicon-star-o\' : !srvData.isTaggedFavorite(cardItem)}"></span></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><div class="btn c4p-card-thumb-media" ng-class="{\'disabled\': (actionMap.viewDocument.mustBeCreated)}" ng-click="doAction(\'viewDocument\')" style="background:url(\'{{cardItem.thumb_url}}\') no-repeat center center;-webkit-background-size: contain"></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><video controls="" ng-src="{{cardItem.url}}" class="c4p-card-thumb-media"></video></div><div class="c4p-card-progress col-xxs-12" ng-if="cardHasThumb"><div ng-if="cardIsAboutFile && srvNav.item.c4pSynchroStatus.cloud.status == 1" style="font-size: 0.5em;margin-bottom: 0;text-align: right">{{srvLocale.translations.htmlMsgFeedbackUploadFileQuestion}} <i class="glyphicon glyphicon-question-circle" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'UploadFile\',srvLocale.translations.htmlMsgFeedbackUploadFile)"></i></div></div></div>'), 
     $templateCache.put("partials/navigation/cards/detail_field.html", ' <span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{item}}" target="_blank">{{item}}</a> <a ng-switch-when="mail" class="c4p-color-lnk" href="mailto:{{item}}" target="_blank">{{item}}</a> <a ng-switch-when="url" class="c4p-color-lnk" href="{{item}}" target="_blank">{{item}}</a> <span ng-switch-when="currency">{{item | c4pCurrency}}</span> <span ng-switch-when="percent">{{item}}%</span> <span ng-switch-when="probability">{{item}}%</span> <span ng-switch-when="datetime">{{srvLocale.formatDate(item, \'short\')}}</span> <span ng-switch-when="dateTIME">{{srvLocale.formatDate(item, \'shortDate\')}} <b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span> <span ng-switch-when="date">{{srvLocale.formatDate(item, \'shortDate\')}}</span> <span ng-switch-when="time">{{srvLocale.formatDate(item, \'shortTime\')}}</span> <span ng-switch-when="TIME"><b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span> <span ng-switch-when="number">{{item | c4pNumber}}</span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="renderHtmlText(item)"></blockquote><address ng-switch-when="address">{{item}}</address><span ng-switch-default="">{{item}}</span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank">{{field.value}}</a> <a ng-switch-when="mail" class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank">{{field.value}}</a> <a ng-switch-when="url" class="c4p-color-lnk" href="{{field.value}}" target="_blank">{{field.value}}</a> <span ng-switch-when="currency">{{field.value | c4pCurrency}}</span> <span ng-switch-when="percent">{{field.value}}%</span> <span ng-switch-when="probability">{{field.value}}%</span> <span ng-switch-when="datetime">{{srvLocale.formatDate(field.value, \'short\')}}</span> <span ng-switch-when="dateTIME">{{srvLocale.formatDate(field.value, \'shortDate\')}} <b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span> <span ng-switch-when="date">{{srvLocale.formatDate(field.value, \'shortDate\')}}</span> <span ng-switch-when="time">{{srvLocale.formatDate(field.value, \'shortTime\')}}</span> <span ng-switch-when="TIME"><b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span> <span ng-switch-when="number">{{field.value | c4pNumber}}</span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="renderHtmlText(field.value)"></blockquote><address ng-switch-when="address">{{field.value}}</address><span ng-switch-default="">{{field.value}}</span></span></span></span> <span ng-if="field.suffix">{{field.suffix}}</span>'), 
     $templateCache.put("partials/navigation/cards/detail_synchro.html", ' <i class="pull-right glyphicon glyphicon-caret-right glyphicon-lg" style="-webkit-transform: rotate(45deg);color:green" ng-style="{\'opacity\': itemSynchro.cloud.progress+\'%\'}"></i><div class="progress" style="margin-bottom:0; height:2px; opacity:0.4" ng-class="{\'progress-striped active\' : 		(itemSynchro.deleting==1)\n													||(itemSynchro.creating==1)\n													||(itemSynchro.writing==1)\n													||(itemSynchro.reading==1)\n													||(itemSynchro.sharing==1)}"><div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="{{itemSynchro.cloud.progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{itemSynchro.cloud.progress}}%"></div><i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-trash-o" ng-show="itemSynchro.deleting"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-bolt" ng-show="itemSynchro.creating"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-volume-up" ng-show="itemSynchro.sharing"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-cloud-upload" ng-show="itemSynchro.writing"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-cloud-download" ng-show="itemSynchro.reading"></i></div>deleting : {{itemSynchro.deleting}}<br>creating : {{itemSynchro.creating}}<br>writing : {{itemSynchro.writing}}<br>reading : {{itemSynchro.reading}}<br>sharing : {{itemSynchro.sharing}}<br>cloud : {{itemSynchro.cloud.status}} - {{itemSynchro.cloud.progress}} % {{itemSynchro.cloud.log}}'), 
     $templateCache.put("partials/navigation/cards/draggable_inlined_card.html", '<div ng-controller="ctrlDragObject" ng-init="init(cardItem)" sense-opts="{}" sense-longdragoverenter="dragOverEnter($event,$element)" sense-longdragoverleave="dragOverLeave($event,$element)" sense-longdragstart="dragStart($event,$element)" sense-longdragmove="dragMove($event,$element)" sense-longdragend="dragEnd($event,$element)" sense-longdragcancel="dragCancel($event,$element)" sense-holdstart="holdStart($event,$element)" sense-holdstop="holdStop($event,$element)"><div ng-include="\'partials/navigation/cards/inlined_card.html\'"></div></div>'), 
@@ -35350,6 +35357,7 @@ var SrvConfig = function() {
         return this.themeCss || "c4p-cosmo";
     }, Service;
 }(), SrvData = function() {
+    "use strict";
     function Service(exceptionHandlerService, qService, srvLocalStorage, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTransfer, srvDataStore, srvRunning, srvSynchro, srvSynchroStatus, srvQueue, srvFileStorage, $rootScope) {
         this.exceptionHandler = exceptionHandlerService, this.q = qService, this.srvLocalStorage = srvLocalStorage, 
         this.srvConfig = srvConfig, this.srvLog = srvLog, this.srvLocale = srvLocale, this.srvSecurity = srvSecurity, 
@@ -35534,14 +35542,14 @@ var SrvConfig = function() {
     }
     function onRunningPause(self, callbackId, value) {
         if (value) {
-            a4p.InternalLog.log("srvData", "pause begin"), self.srvDataStore.setConfig("Uid", a4p.getUid()), 
+            a4p.InternalLog.log("srvData", "pause begin "), self.srvDataStore.setConfig("Uid", a4p.getUid()), 
             self.srvDataStore.setConfig("isDemo", self.isDemo), self.srvDataStore.setConfig("userId", self.userId), 
             self.srvDataStore.setConfig("userObject", self.userObject), self.srvDataStore.setConfig("favoritesObject", self.favoritesObject);
             for (var i = 0; i < c4p.Model.allTypes.length; i++) {
                 var type = c4p.Model.allTypes[i];
                 self.srvDataStore.setItems(type, self.originalItems[type], !0), self.srvDataStore.setItems(type, self.currentItems[type]);
             }
-            self.srvDataStore.setConfig("lastRefreshMindMap", self.lastRefreshMindMap), this.srvQueue.stop(), 
+            self.srvDataStore.setConfig("lastRefreshMindMap", self.lastRefreshMindMap), self.srvQueue.stop(), 
             a4p.InternalLog.log("srvData", "data saved in srvLocalStorage");
         } else a4p.InternalLog.log("srvData", "pause ended");
     }
@@ -37760,6 +37768,7 @@ var SrvConfig = function() {
         }
     }, Service;
 }(), SrvDataStore = function() {
+    "use strict";
     function Service(qService, srvLocalStorage, srvFileStorage, $rootScope) {
         this.q = qService, this.srvLocalStorage = srvLocalStorage, this.srvFileStorage = srvFileStorage, 
         this.rootScope = $rootScope, this.initDone = !1, this.md5Items = [];
@@ -37791,17 +37800,17 @@ var SrvConfig = function() {
         return value;
     }, Service;
 }(), SrvDataTransfer = function() {
+    "use strict";
     function Service(deferService, httpService, $rootScope) {
         this.defer = deferService, this.http = httpService, this.rootScope = $rootScope;
     }
     return Service.prototype.sendData = function(url, params, headers, timeout) {
-        if ("undefined" == typeof url || null == url) throw new Error("send requires a url parameter");
+        if ("undefined" == typeof url || !url) throw new Error("send requires a url parameter");
         "undefined" == typeof params && (params = null), "undefined" == typeof headers && (headers = null), 
         "undefined" == typeof timeout && (timeout = null);
         var self = this, deferred = this.defer.defer(), promise = deferred.promise;
-        null == params && (params = {}), ("undefined" == typeof params.time || null == params.time) && (params.time = new Date().getTime()), 
-        ("undefined" == typeof params.cache || null == params.cache) && (params.cache = !1), 
-        null != headers ? ("undefined" == typeof headers["Content-Type"] || null == headers["Content-Type"]) && (headers["Content-Type"] = "application/x-www-form-urlencoded") : (headers = {}, 
+        params || (params = {}), "undefined" != typeof params.time && params.time || (params.time = new Date().getTime()), 
+        "undefined" != typeof params.cache && params.cache || (params.cache = !1), headers ? "undefined" != typeof headers["Content-Type"] && headers["Content-Type"] || (headers["Content-Type"] = "application/x-www-form-urlencoded") : (headers = {}, 
         headers["Content-Type"] = "application/x-www-form-urlencoded");
         var fctOnHttpSuccess = function(response) {
             a4p.safeApply(self.rootScope, function() {
@@ -37821,20 +37830,22 @@ var SrvConfig = function() {
             headers: headers,
             data: a4p.Json.uriEncode(params)
         };
-        return null != timeout && (urlData.timeout = timeout), a4p.InternalLog.log("srvDataTransfer", "Data uploading to " + url), 
+        return a4p.InternalLog.log("srvDataTransfer", "Send params:" + a4pDumpData(params, 3)), 
+        timeout && (urlData.timeout = timeout), a4p.InternalLog.log("srvDataTransfer", "Data uploading to " + url), 
         a4p.promiseWakeup(this.rootScope, this.http(urlData), fctOnHttpSuccess, fctOnHttpError), 
         promise;
     }, Service.prototype.recvData = function(url, timeout) {
-        if ("undefined" == typeof url || null == url) throw new Error("send requires a url parameter");
+        if ("undefined" == typeof url || !url) throw new Error("send requires a url parameter");
         "undefined" == typeof timeout && (timeout = null);
         var self = this, deferred = this.defer.defer(), promise = deferred.promise, fctOnHttpSuccess = function(response) {
-            a4p.safeApply(self.rootScope, function() {
+            var msg = "Data download success : response=" + a4pDumpData(response.data, 3) + " (status=" + response.status + ")";
+            a4p.InternalLog.log("srvDataTransfer", msg), a4p.safeApply(self.rootScope, function() {
                 deferred.resolve(response);
             });
         }, fctOnHttpError = function(response) {
             var msg = "Data download failure : response=" + a4pDumpData(response.data, 3) + " (status=" + response.status + ")";
-            a4p.safeApply(self.rootScope, function() {
-                a4p.ErrorLog.log("srvDataTransfer", msg), deferred.reject({
+            a4p.ErrorLog.log("srvDataTransfer", msg), a4p.safeApply(self.rootScope, function() {
+                deferred.reject({
                     data: msg,
                     status: "error"
                 });
@@ -37843,7 +37854,7 @@ var SrvConfig = function() {
             method: "GET",
             url: url
         };
-        return null != timeout && (urlData.timeout = timeout), a4p.InternalLog.log("srvDataTransfer", "Data downloading from " + url), 
+        return timeout && (urlData.timeout = timeout), a4p.InternalLog.log("srvDataTransfer", "Data downloading from " + url), 
         a4p.promiseWakeup(this.rootScope, this.http(urlData), fctOnHttpSuccess, fctOnHttpError), 
         promise;
     }, Service;
@@ -38614,6 +38625,7 @@ var SrvFacet = function() {
         return filteredList;
     }, Service;
 }(), SrvFileTransfer = function() {
+    "use strict";
     function Service(deferService, httpService, srvFileStorage, $rootScope) {
         this.defer = deferService, this.http = httpService, this.srvFileStorage = srvFileStorage, 
         this.rootScope = $rootScope;
@@ -38639,12 +38651,12 @@ var SrvFacet = function() {
         return msg;
     }
     return Service.prototype.sendFile = function(filePath, options, url, params, headers, timeout) {
-        if ("undefined" == typeof url || null == url) throw new Error("send requires a url parameter");
+        if ("undefined" == typeof url || !url) throw new Error("send requires a url parameter");
         "undefined" == typeof params && (params = null), "undefined" == typeof headers && (headers = null), 
         "undefined" == typeof timeout && (timeout = null);
         var self = this, deferred = this.defer.defer(), promise = deferred.promise;
-        if (null == params && (params = {}), ("undefined" == typeof params.time || null == params.time) && (params.time = new Date().getTime()), 
-        ("undefined" == typeof params.cache || null == params.cache) && (params.cache = !1), 
+        if (params || (params = {}), "undefined" != typeof params.time && params.time || (params.time = new Date().getTime()), 
+        ("undefined" == typeof params.cache || null == !params.cache) && (params.cache = !1), 
         a4p.isDefinedAndNotNull(FileTransfer)) {
             var onTransferSuccessFct = function(fileUploadResult) {
                 a4p.safeApply(self.rootScope, function() {
@@ -38771,24 +38783,34 @@ var SrvFacet = function() {
         }
         return promise;
     }, Service.prototype.recvFile = function(filePath, url, timeout) {
-        if ("undefined" == typeof url || null == url) throw new Error("send requires a url parameter");
+        if ("undefined" == typeof url || !url) throw new Error("send requires a url parameter");
         "undefined" == typeof timeout && (timeout = null);
         var self = this, deferred = this.defer.defer(), promise = deferred.promise;
         if (a4p.InternalLog.log("srvFileTransfer", "recvFile " + filePath + " from " + url), 
         a4p.isDefinedAndNotNull(FileTransfer)) {
             a4p.InternalLog.log("srvFileTransfer", "recvFile with FileTransfer");
-            var onTransferSuccessFct = function(fileEntry) {
-                console.log("success");
-                var feUrl = fileEntry.fullPath;
-                a4p.isDefined(fileEntry.toURL) && (feUrl = fileEntry.toURL()), a4p.InternalLog.log("srvFileTransfer", "File downloading sucess " + feUrl), 
+            var onFileFailureFct = function(fileError) {
+                var msg = "File download and get failure for " + filePath + " : " + fileError.code;
                 a4p.safeApply(self.rootScope, function() {
-                    deferred.resolve({
-                        data: "",
-                        status: feUrl
+                    a4p.ErrorLog.log("srvFileTransfer", msg), deferred.reject({
+                        data: msg,
+                        status: "error"
                     });
                 });
+            }, onTransferSuccessFct = function(fileEntry) {
+                console.log("success");
+                var feUrl = fileEntry.fullPath;
+                a4p.isDefined(fileEntry.toURL) && (feUrl = fileEntry.toURL()), a4p.InternalLog.log("srvFileTransfer", "File downloading success " + feUrl), 
+                fileEntry.file(function(fileObj) {
+                    var fileSize = fileObj.size;
+                    console.log("Size = " + fileObj.size), a4p.safeApply(self.rootScope, function() {
+                        deferred.resolve({
+                            data: fileSize,
+                            status: feUrl
+                        });
+                    });
+                }, onFileFailureFct);
             }, onTransferFailureFct = function(fileTransferError) {
-                console.log("error");
                 var msg = "File download failure for " + filePath + " : " + transferErrorMessage(fileTransferError) + "(source=" + fileTransferError.source + ", target=" + fileTransferError.target + ")";
                 a4p.safeApply(self.rootScope, function() {
                     a4p.ErrorLog.log("srvFileTransfer", msg), deferred.reject({
@@ -38903,6 +38925,7 @@ var SrvFacet = function() {
         }
     }, Service;
 }(), SrvLink = function() {
+    "use strict";
     function Service(srvData, srvNav, srvLocale) {
         this.srvData = srvData, this.srvNav = srvNav, this.srvLocale = srvLocale;
     }
@@ -39585,6 +39608,7 @@ var SrvFacet = function() {
         }
     }, Service;
 }(), SrvQueue = function() {
+    "use strict";
     function Service(qService, srvExceptionHandler, srvDataStore, srvSecurity) {
         this.q = qService, this.srvExceptionHandler = srvExceptionHandler, this.srvSecurity = srvSecurity, 
         this.srvDataStore = srvDataStore, this.state = Service.STOP, this.pendingQueueRequests = [], 
@@ -39760,6 +39784,7 @@ var SrvFacet = function() {
         return time + "|" + md5 + "|" + this.serverToken;
     }, Service;
 }(), SrvSynchro = function() {
+    "use strict";
     function Service(qService, srvDataTransfer, srvFileTransfer, exceptionHandlerService, srvRunning, srvLocalStorage, srvSecurity) {
         this.q = qService, this.dataTransfer = srvDataTransfer, this.fileTransfer = srvFileTransfer, 
         this.exceptionHandler = exceptionHandlerService, this.srvRunning = srvRunning, this.srvLocalStorage = srvLocalStorage, 
@@ -39823,12 +39848,20 @@ var SrvFacet = function() {
             a4p.InternalLog.log("srvSynchro", "pinging server"), self.dataTransfer.recvData(self.pingUrl).then(fctOnHttpSuccess, fctOnHttpError);
         }
     }
+    function sendNextRequestWithTimer(self) {
+        var sendNextFct = function() {
+            sendNextRequest(self);
+        };
+        setTimeout(sendNextFct, 100);
+    }
     function sendNextRequest(self) {
         if (a4p.InternalLog.log("srvSynchro", "sendNextRequest"), self.initDone && self.serverState == Service.READY && self.state == Service.READY && !(self.pendingRequests.length <= 0)) {
-            a4p.InternalLog.log("srvSynchro", "sendNextRequest-"), self.state = Service.SENDING;
+            self.state = Service.SENDING;
             var request = self.pendingRequests[0];
             request.nbTry++;
-            var requestId = request.id, fctOnHttpSuccess = function(response) {
+            var requestId = request.id;
+            a4p.InternalLog.log("srvSynchro", "sendNextRequest after check with data: " + a4pDumpData(request, 2));
+            var fctOnHttpSuccess = function(response) {
                 a4p.InternalLog.log("srvSynchro", "sendNextRequest success : " + response.status + " : " + response.data);
                 var request = self.pendingRequests[0];
                 self.tryAgain = !1, a4p.isDefined(request) && requestId == request.id ? (triggerSuccess(self, request, response.status, response.data, response.headers), 
@@ -39836,12 +39869,8 @@ var SrvFacet = function() {
                 self.tryAgain ? request.nbTry <= self.TRY_COUNTMAX ? setTimeout(function() {
                     sendNextRequest(self);
                 }, 1e3 * request.nbTry * request.nbTry) : self.cancelRequest(request) : (self.pendingRequests.shift(), 
-                setTimeout(function() {
-                    sendNextRequest(self);
-                }, 100))) : (self.state != Service.PAUSE && (self.state = Service.READY, self.serverState != Service.READY && checkServerStatus(self)), 
-                setTimeout(function() {
-                    sendNextRequest(self);
-                }, 100));
+                sendNextRequestWithTimer(self))) : (self.state != Service.PAUSE && (self.state = Service.READY, 
+                self.serverState != Service.READY && checkServerStatus(self)), sendNextRequestWithTimer(self));
             }, fctOnHttpError = function(response) {
                 a4p.InternalLog.log("srvSynchro", "sendNextRequest error : " + response.status + " : " + response.data);
                 var request = self.pendingRequests[0];
@@ -39857,7 +39886,7 @@ var SrvFacet = function() {
                 }, 100));
             };
             triggerStart(self, request), a4p.InternalLog.log("srvSynchro", "sendNextRequest send " + request.id + " # " + request.nbTry), 
-            null != request.filePath ? (a4p.InternalLog.log("srvSynchro", "sendNextRequest send file " + request.url), 
+            request.filePath ? (a4p.InternalLog.log("srvSynchro", "sendNextRequest send file " + request.url), 
             "post" == request.method.toLowerCase() ? (request.params.c4pToken = self.srvSecurity.getHttpRequestToken(), 
             self.fileTransfer.sendFile(request.filePath, request.options, request.url, request.params, request.headers).then(fctOnHttpSuccess, fctOnHttpError)) : request.url.indexOf("?") >= 0 ? self.fileTransfer.recvFile(request.filePath, request.url + "&c4pToken=" + encodeURIComponent(self.srvSecurity.getHttpRequestToken())).then(fctOnHttpSuccess, fctOnHttpError) : self.fileTransfer.recvFile(request.filePath, request.url + "?c4pToken=" + encodeURIComponent(self.srvSecurity.getHttpRequestToken())).then(fctOnHttpSuccess, fctOnHttpError)) : "post" == request.method.toLowerCase() ? (request.params.c4pToken = self.srvSecurity.getHttpRequestToken(), 
             self.dataTransfer.sendData(request.url, request.params, request.headers).then(fctOnHttpSuccess, fctOnHttpError)) : request.url.indexOf("?") >= 0 ? self.dataTransfer.recvData(request.url + "&c4pToken=" + encodeURIComponent(self.srvSecurity.getHttpRequestToken())).then(fctOnHttpSuccess, fctOnHttpError) : self.dataTransfer.recvData(request.url + "?c4pToken=" + encodeURIComponent(self.srvSecurity.getHttpRequestToken())).then(fctOnHttpSuccess, fctOnHttpError);
@@ -39905,9 +39934,9 @@ var SrvFacet = function() {
     }, Service.prototype.cancelListener = function(callbackHandle) {
         return removeIdFromList(this.callbacksStart, callbackHandle) === !1 && removeIdFromList(this.callbacksError, callbackHandle) === !1 && removeIdFromList(this.callbacksCancel, callbackHandle) === !1 ? removeIdFromList(this.callbacksSuccess, callbackHandle) !== !1 : !0;
     }, Service.prototype.addRequest = function(channel, ctx, url, method, params, headers) {
-        if (this.requestHandle++, "undefined" == typeof ctx || null == ctx) throw new Error("SrvSynchro.send requires a ctx parameter");
-        if ("undefined" == typeof url || null == url) throw new Error("SrvSynchro.send requires a url parameter");
-        if ("undefined" == typeof method || null == method) throw new Error("SrvSynchro.send requires a method parameter");
+        if (this.requestHandle++, "undefined" == typeof ctx || !ctx) throw new Error("SrvSynchro.send requires a ctx parameter");
+        if ("undefined" == typeof url || !url) throw new Error("SrvSynchro.send requires a url parameter");
+        if ("undefined" == typeof method || !method) throw new Error("SrvSynchro.send requires a method parameter");
         "undefined" == typeof params && (params = null), "undefined" == typeof headers && (headers = null);
         var request = {
             id: this.requestHandle,
@@ -39922,9 +39951,9 @@ var SrvFacet = function() {
         return this.pendingRequests.push(request), sendNextRequest(this), this.requestHandle;
     }, Service.prototype.addFileRequest = function(channel, ctx, url, method, params, filePath, headers, options) {
         if (a4p.InternalLog.log("srvSynchro", "addFileRequest " + channel + " url:" + url), 
-        this.requestHandle++, "undefined" == typeof ctx || null == ctx) throw new Error("SrvSynchro.send requires a ctx parameter");
-        if ("undefined" == typeof url || null == url) throw new Error("SrvSynchro.send requires a url parameter");
-        if ("undefined" == typeof method || null == method) throw new Error("SrvSynchro.send requires a method parameter");
+        this.requestHandle++, "undefined" == typeof ctx || !ctx) throw new Error("SrvSynchro.send requires a ctx parameter");
+        if ("undefined" == typeof url || !url) throw new Error("SrvSynchro.send requires a url parameter");
+        if ("undefined" == typeof method || !method) throw new Error("SrvSynchro.send requires a method parameter");
         "undefined" == typeof params && (params = null), "undefined" == typeof headers && (headers = null);
         var request = {
             id: this.requestHandle,
@@ -39942,20 +39971,17 @@ var SrvFacet = function() {
     }, Service.prototype.cancelRequest = function(requestToCancel) {
         for (var idx = this.pendingRequests.length - 1; idx >= 0; idx--) if (this.pendingRequests[idx].id == requestToCancel.id) {
             var request = this.pendingRequests[idx];
-            return this.pendingRequests.splice(idx, 1), triggerCancel(this, request), 0 == idx && setTimeout(function() {
-                sendNextRequest(this);
-            }, 100), !0;
+            return this.pendingRequests.splice(idx, 1), triggerCancel(this, request), 0 === idx && sendNextRequestWithTimer(this), 
+            !0;
         }
         return !1;
     }, Service.prototype.clearChannel = function(channel) {
         for (var found = !1, firstRemoved = !1, idx = this.pendingRequests.length - 1; idx >= 0; idx--) if (this.pendingRequests[idx].channel == channel) {
             var request = this.pendingRequests[idx];
-            this.pendingRequests.splice(idx, 1), triggerCancel(this, request), 0 == idx && (firstRemoved = !0), 
+            this.pendingRequests.splice(idx, 1), triggerCancel(this, request), 0 === idx && (firstRemoved = !0), 
             found = !0;
         }
-        return firstRemoved && setTimeout(function() {
-            sendNextRequest(this);
-        }, 100), found;
+        return firstRemoved && sendNextRequestWithTimer(this), found;
     }, Service.prototype.nbPendingRequests = function() {
         return this.pendingRequests.length;
     }, Service.prototype.tryAgainCurrentRequest = function() {
@@ -39968,6 +39994,7 @@ var SrvFacet = function() {
         this.serverState = Service.READY, this.state == Service.READY && sendNextRequest(this));
     }, Service;
 }(), SrvSynchroStatus = function() {
+    "use strict";
     function Service() {
         this.version = "0.2", this.PUB = {}, this.PUB.NEW = 3, this.PUB.QUEUE = 2, this.PUB.NETWORK = 1, 
         this.PUB.NONE = 0, this.PUB.CLOUD_WAITFOR = 0, this.PUB.CLOUD_PB = 1, this.PUB.CLOUD_INPROGRESS = 2, 
@@ -40156,6 +40183,7 @@ appModule.value("version", "14S17");
 var serviceModule = angular.module("c4pServices", [ "ngResource" ]);
 
 appModule.factory("$exceptionHandler", [ "$log", function($log) {
+    "use strict";
     function formatError(arg) {
         return arg instanceof Error && (arg.stack ? arg = arg.message && -1 === arg.stack.indexOf(arg.message) ? "Error: " + arg.message + "\n" + arg.stack : arg.stack : arg.sourceURL && (arg = arg.message + "\n" + arg.sourceURL + ":" + arg.line)), 
         arg;
@@ -40168,6 +40196,7 @@ appModule.factory("$exceptionHandler", [ "$log", function($log) {
     };
 } ]), console.log("cordovaReady creation"), serviceModule.factory("cordovaReady", [ "$window", "$rootScope", function($window, $rootScope) {
     return function(userCallback) {
+        "use strict";
         var queue = [], impl = function() {
             queue.push(Array.prototype.slice.call(arguments));
         }, readyCallback = function() {
@@ -40203,6 +40232,7 @@ serviceModule.factory("srvOpenUrl", [ "$exceptionHandler", function($exceptionHa
 }), serviceModule.factory("srvLoad", function() {
     return new SrvLoad();
 }), serviceModule.factory("srvRunning", [ "$window", "$rootScope", "$exceptionHandler", "cordovaReady", function($window, $rootScope, $exceptionHandler, cordovaReady) {
+    "use strict";
     var runningSingleton = new SrvRunning($exceptionHandler);
     return a4p.isDefined($window.navigator) && a4p.isDefined($window.navigator.onLine) && runningSingleton.setOnline($window.navigator.onLine), 
     cordovaReady(function() {

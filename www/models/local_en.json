@@ -373,14 +373,18 @@
     "htmlMsgFeedbackMessageEmpty":"Your message text is empty",
     "htmlMsgFeedbackContactEmpty":"Sorry, we need valid email",
     "htmlMsgFeedbackEmail":"Thank you for your feedback !",
-    "htmlMsgFeedbackPhone":"If you could be join by phone", 
-    "htmlMsgFeedbackMoreObjects":"Hi!\nPlease i need more objects, like :\n ... which one ?", 
+    "htmlMsgFeedbackPhone":"If you could be join by phone",
+
+    "htmlMsgFeedbackMoreObjects":"Hi!\nPlease i need more objects, like :\n ... which one ?",
     "htmlMsgFeedbackMoreObjectsQuestion":"... more?",
-    "htmlMsgFeedbackSFConnector":"Hi there!\nPlease connect to my Salesforce.com data.", 
-    "htmlMsgFeedbackOtherConnector":"Hi team!\nPlease connect to my CRM data :\n ... which one ? ",  
-    "htmlMsgFeedbackOtherConnectorQuestion":"Do you want to connect to your system ?",  
-    "htmlMsgFeedbackSuggestion":"Hi team!\nI need some helpfull topics like :\n ... which one ?", 
-    "htmlMsgFeedbackSuggestionQuestion":"Need more suggestion ?", 
+    "htmlMsgFeedbackSFConnector":"Hi there!\nPlease connect to my Salesforce.com data.",
+    "htmlMsgFeedbackOtherConnector":"Hi team!\nPlease connect to my CRM data :\n ... which one ? ",
+    "htmlMsgFeedbackOtherConnectorQuestion":"Do you want to connect to your system ?",
+    "htmlMsgFeedbackSuggestion":"Hi team!\nI need some helpfull topics like :\n ... which one ?",
+    "htmlMsgFeedbackSuggestionQuestion":"Need more suggestion ?",
+    "htmlMsgFeedbackUploadFile":"Hi team!\nI can't synchronize my document because of my app version.\nI'm interested by upgrading my account.",
+    "htmlMsgFeedbackUploadFileQuestion":"App can't synchronize this doc; File should be less than 2MB here",
+
     "htmlMsgRejectImportNotLogged":"Import rejected: you are not logged in.",
     "htmlMsgImportFile":"Import of file {0}",
     "htmlMsgFileImport":"File import",
@@ -577,7 +581,7 @@
     "htmlTextInitializingData":"Initializing Data ...",
 
     "htmlTextDemoModeImpossible":"Some features are unavailable in demo mode.",
-    "htmlTextDemoModeMoreData":"More data ?", 
+    "htmlTextDemoModeMoreData":"More data ?",
 
     "htmlTextHours":"Hours",
     "htmlTextMinutes":"Minutes",
@@ -658,7 +662,7 @@
     "htmlTextConfirmActiveCrm":"Do you want to toggle CRM use (this will clear and reload all data):",
     "htmlTextConfirmDelete":"Do you want to remove item(s):",
     "htmlTextConfirmDeleteLink":"The link between '{0}' and '{1}'",
-    "htmlTextConfirmRemoveLink":"Do you want to remove:", 
+    "htmlTextConfirmRemoveLink":"Do you want to remove:",
     "htmlTextConfirmSwitchUser":"Are you sure to switch user ? You will loose your device data.",
 
   	"htmlTextManager":"Manager",
