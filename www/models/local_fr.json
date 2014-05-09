@@ -94,7 +94,7 @@
 
     "htmlViewNrelatedPageTitle":"Informations associ\u00E9es",
     "htmlViewNrelatedPageTitleNew":"Nouvelles relations",
-    "htmlViewNlinkItemTextNoRelation": "Cr\u00E9ez une relation avec '{0}'. Faites un glisser-d\u00E9poser.",
+    "htmlViewNlinkItemTextNoRelation": "Cr\u00E9ez une relation avec ce(tte) {0}, faites un glisser-d\u00E9poser.",
     "htmlViewNlinkItemTextRemoveLink":"Supprimer un lien de type :",
 
 

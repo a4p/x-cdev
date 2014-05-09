@@ -94,7 +94,7 @@
 
     "htmlViewNrelatedPageTitle":"Related items",
     "htmlViewNrelatedPageTitleNew":"New relations",
-    "htmlViewNlinkItemTextNoRelation": "Create one relation with '{0}'. Use the drag & drop.",
+    "htmlViewNlinkItemTextNoRelation": "Create one relation with this {0}, use the drag & drop.",
     "htmlViewNlinkItemTextRemoveLink":"Remove link kind:",
 
 

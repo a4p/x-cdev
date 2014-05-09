@@ -5316,7 +5316,7 @@ button.close {
 */
 .input-group {
   border: 1px solid #a0985f;
-  background: rgba(199, 189, 144, 0.24);
+  background: #ffffff;
 }
 .input-group .form-control {
   padding-right: 0.4em;
@@ -24257,9 +24257,6 @@ table h6,
   background-size: cover;
   color: #ffffff;
 }
-.c4p-login-body .form-control {
-  color: #ffffff;
-}
 .c4p-login-body .form-control:not(input) {
   color: #ffffff;
   background: inherit;
@@ -24272,7 +24269,8 @@ table h6,
   background-color: transparent;
   color: #ffffff;
 }
-.c4p-login-body a {
+.c4p-login-body header a,
+.c4p-login-body footer a {
   color: #ffffff;
 }
 .c4p-login-body .btn-link {
