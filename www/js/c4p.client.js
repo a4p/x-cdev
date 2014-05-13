@@ -1,4 +1,4 @@
-/*! c4p.client 2014-05-13 10:06 */
+/*! c4p.client 2014-05-13 10:43 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -35204,7 +35204,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/navigation/cards/4_rating.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><c4p-check ng-model="item.value" readonly></c4p-check><span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span style="padding:0 10px 0 0">{{item.name}}</span><c4p-angular-ratings ng-model="item.value" readonly></c4p-angular-ratings></span></span>'), 
     $templateCache.put("partials/navigation/cards/4_rating_ro.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><span class="glyphicon glyphicon-unchecked icon-large"></span> <span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span class="glyphicon glyphicon-star-empty icon-large"></span> <span style="padding:0 0 0 10px">{{item.name}}</span></span></span>'), 
     $templateCache.put("partials/navigation/cards/4_rating_ro2.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><c4p-check ng-model="item.value" readonly></c4p-check><span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span style="padding:0 10px 0 0">{{item.name}}</span><c4p-angular-ratings ng-model="item.value" readonly></c4p-angular-ratings></span></span>'), 
-    $templateCache.put("partials/navigation/cards/detail_card.html", '<!doctype html><div class="row"><div class="c4p-card-text" ng-class="{\'col-xxs-12\': !cardHasThumb,\'col-xxs-11\' : (cardHasThumb && (cardIsAboutFile || cardIsAboutVideo || cardItem.a4p_type == \'Event\')),\'col-sm-9 col-xxs-11\' : (cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\')}"><div ng-repeat="group in cardGroups" class="col-xxs-12 c4p-size-{{group.size}}"><span ng-if="group.name && cardItem.a4p_type != \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItemName}}</span> <span ng-if="group.name && cardItem.a4p_type == \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItem.name}}</span> <span ng-if="group.title">{{group.title}}</span> <address ng-if="group.fields.length > 1" class="col-xxs-12"><ul class="list-inline"><li ng-repeat-start="field in group.fields" ng-show="group.icon && $first && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li ng-repeat-end=""><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address><address ng-if="group.fields.length == 1" ng-init="field = group.fields[0]" class="col-xxs-12"><ul ng-class="{\'list-inline\': field.type !=\'textarea\', \'list-unstyled\': field.type ==\'textarea\'}"><li ng-show="group.icon && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address></div></div><div class="c4p-card-thumb pull-right col-sm-2 hidden-xs" ng-if="cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><c4p-thumb class="pull-right" width="70" height="70" text="{{cardItemName}}" indic="{{itemRelationCount}}" icon="glyphicon-{{itemIcon}}" color="{{cardItemColor}}" url="{{cardItem.thumb_url}}"></c4p-thumb></div><div class="c4p-card-thumb pull-right col-xxs-1" ng-if="cardHasThumb"><div class="pull-right c4p-color-action-transparent" ng-click="doAction(\'toggleFavorite\')"><span class="c4p-icon-std glyphicon c4p-outline-star" ng-class="{\'glyphicon-star\' : srvData.isTaggedFavorite(cardItem), \'glyphicon-star-o\' : !srvData.isTaggedFavorite(cardItem)}"></span></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><div class="btn c4p-card-thumb-media" ng-class="{\'disabled\': (actionMap.viewDocument.mustBeCreated)}" ng-click="doAction(\'viewDocument\')" style="background:url(\'{{cardItem.thumb_url}}\') no-repeat center center;-webkit-background-size: contain"></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><video controls="" ng-src="{{cardItem.url}}" class="c4p-card-thumb-media"></video></div><div class="c4p-card-progress col-xxs-12" ng-if="cardHasThumb"><div ng-if="cardIsAboutFile && srvNav.item.c4pSynchroStatus.cloud.status == 1" style="font-size: 0.5em;margin-bottom: 0;text-align: right">{{srvLocale.translations.htmlMsgFeedbackUploadFileQuestion}} <i class="glyphicon glyphicon-question-circle" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'UploadFile\',srvLocale.translations.htmlMsgFeedbackUploadFile)"></i></div></div></div>'), 
+    $templateCache.put("partials/navigation/cards/detail_card.html", '<!doctype html><div class="row"><div class="c4p-card-text" ng-class="{\'col-xxs-12\': !cardHasThumb,\'col-xxs-11\' : (cardHasThumb && (cardIsAboutFile || cardIsAboutVideo || cardItem.a4p_type == \'Event\')),\'col-sm-9 col-xxs-11\' : (cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\')}"><div ng-repeat="group in cardGroups" class="col-xxs-12 c4p-size-{{group.size}}"><span ng-if="group.name && cardItem.a4p_type != \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItemName}}</span> <span ng-if="group.name && cardItem.a4p_type == \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItem.name}}</span> <span ng-if="group.title">{{group.title}}</span> <address ng-if="group.fields.length > 1" class="col-xxs-12"><ul class="list-inline"><li ng-repeat-start="field in group.fields" ng-show="group.icon && $first && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li ng-repeat-end=""><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address><address ng-if="group.fields.length == 1" ng-init="field = group.fields[0]" class="col-xxs-12"><ul ng-class="{\'list-inline\': field.type !=\'textarea\', \'list-unstyled\': field.type ==\'textarea\'}"><li ng-show="group.icon && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address></div></div><div class="c4p-card-thumb pull-right col-sm-2 hidden-xs" ng-if="cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><c4p-thumb class="pull-right" width="70" height="70" text="{{cardItemName}}" indic="{{itemRelationCount}}" icon="glyphicon-{{itemIcon}}" color="{{cardItemColor}}" url="{{cardItem.thumb_url}}"></c4p-thumb></div><div class="c4p-card-thumb pull-right col-xxs-1" ng-if="cardHasThumb"><div class="pull-right c4p-color-action-transparent" ng-click="doAction(\'toggleFavorite\')"><span class="c4p-icon-std glyphicon c4p-outline-star" ng-class="{\'glyphicon-star\' : srvData.isTaggedFavorite(cardItem), \'glyphicon-star-o\' : !srvData.isTaggedFavorite(cardItem)}"></span></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><div class="btn c4p-card-thumb-media" ng-class="{\'disabled\': (actionMap.viewDocument.mustBeCreated)}" ng-click="doAction(\'viewDocument\')" style="background:url(\'{{cardItem.thumb_url}}\') no-repeat center center;-webkit-background-size: contain"></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><video controls="" ng-src="{{cardItem.url}}" class="c4p-card-thumb-media"></video></div><div class="c4p-card-progress col-xxs-11 col-xxs-offset-1" ng-if="cardHasThumb"><div ng-show="cardIsAboutFile && srvNav.item.c4pSynchroStatus.cloud.status == 1" style="font-size: 0.5em;margin-bottom: 0;text-align: right">{{srvLocale.translations.htmlMsgFeedbackUploadFileQuestion}} <i class="glyphicon glyphicon-question-circle" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'UploadFile\',srvLocale.translations.htmlMsgFeedbackUploadFile)"></i></div></div></div>'), 
     $templateCache.put("partials/navigation/cards/detail_field.html", ' <span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{item}}" target="_blank">{{item}}</a> <a ng-switch-when="mail" class="c4p-color-lnk" href="mailto:{{item}}" target="_blank">{{item}}</a> <a ng-switch-when="url" class="c4p-color-lnk" href="{{item}}" target="_blank">{{item}}</a> <span ng-switch-when="currency">{{item | c4pCurrency}}</span> <span ng-switch-when="percent">{{item}}%</span> <span ng-switch-when="probability">{{item}}%</span> <span ng-switch-when="datetime">{{srvLocale.formatDate(item, \'short\')}}</span> <span ng-switch-when="dateTIME">{{srvLocale.formatDate(item, \'shortDate\')}} <b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span> <span ng-switch-when="date">{{srvLocale.formatDate(item, \'shortDate\')}}</span> <span ng-switch-when="time">{{srvLocale.formatDate(item, \'shortTime\')}}</span> <span ng-switch-when="TIME"><b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span> <span ng-switch-when="number">{{item | c4pNumber}}</span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="renderHtmlText(item)"></blockquote><address ng-switch-when="address">{{item}}</address><span ng-switch-default="">{{item}}</span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank">{{field.value}}</a> <a ng-switch-when="mail" class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank">{{field.value}}</a> <a ng-switch-when="url" class="c4p-color-lnk" href="{{field.value}}" target="_blank">{{field.value}}</a> <span ng-switch-when="currency">{{field.value | c4pCurrency}}</span> <span ng-switch-when="percent">{{field.value}}%</span> <span ng-switch-when="probability">{{field.value}}%</span> <span ng-switch-when="datetime">{{srvLocale.formatDate(field.value, \'short\')}}</span> <span ng-switch-when="dateTIME">{{srvLocale.formatDate(field.value, \'shortDate\')}} <b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span> <span ng-switch-when="date">{{srvLocale.formatDate(field.value, \'shortDate\')}}</span> <span ng-switch-when="time">{{srvLocale.formatDate(field.value, \'shortTime\')}}</span> <span ng-switch-when="TIME"><b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span> <span ng-switch-when="number">{{field.value | c4pNumber}}</span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="renderHtmlText(field.value)"></blockquote><address ng-switch-when="address">{{field.value}}</address><span ng-switch-default="">{{field.value}}</span></span></span></span> <span ng-if="field.suffix">{{field.suffix}}</span>'), 
     $templateCache.put("partials/navigation/cards/detail_synchro.html", ' <i class="pull-right glyphicon glyphicon-caret-right glyphicon-lg" style="-webkit-transform: rotate(45deg);color:green" ng-style="{\'opacity\': itemSynchro.cloud.progress+\'%\'}"></i><div class="progress" style="margin-bottom:0; height:2px; opacity:0.4" ng-class="{\'progress-striped active\' : 		(itemSynchro.deleting==1)\n													||(itemSynchro.creating==1)\n													||(itemSynchro.writing==1)\n													||(itemSynchro.reading==1)\n													||(itemSynchro.sharing==1)}"><div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="{{itemSynchro.cloud.progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{itemSynchro.cloud.progress}}%"></div><i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-trash-o" ng-show="itemSynchro.deleting"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-bolt" ng-show="itemSynchro.creating"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-volume-up" ng-show="itemSynchro.sharing"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-cloud-upload" ng-show="itemSynchro.writing"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-cloud-download" ng-show="itemSynchro.reading"></i></div>deleting : {{itemSynchro.deleting}}<br>creating : {{itemSynchro.creating}}<br>writing : {{itemSynchro.writing}}<br>reading : {{itemSynchro.reading}}<br>sharing : {{itemSynchro.sharing}}<br>cloud : {{itemSynchro.cloud.status}} - {{itemSynchro.cloud.progress}} % {{itemSynchro.cloud.log}}'), 
     $templateCache.put("partials/navigation/cards/draggable_inlined_card.html", '<div ng-controller="ctrlDragObject" ng-init="init(cardItem)" sense-opts="{}" sense-longdragoverenter="dragOverEnter($event,$element)" sense-longdragoverleave="dragOverLeave($event,$element)" sense-longdragstart="dragStart($event,$element)" sense-longdragmove="dragMove($event,$element)" sense-longdragend="dragEnd($event,$element)" sense-longdragcancel="dragCancel($event,$element)" sense-holdstart="holdStart($event,$element)" sense-holdstop="holdStop($event,$element)"><div ng-include="\'partials/navigation/cards/inlined_card.html\'"></div></div>'), 
@@ -35983,12 +35983,11 @@ var SrvConfig = function() {
         if (a4p.InternalLog.log("srvData", "saveObjectAndSendToSynchro diffResult:" + diffResult), 
         "delete" == diffResult || self.srvSynchroStatus.hasToBeDeleted(toObject)) return self.srvConfig.hasActiveRemoteCrm() && sendDeletion(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_DELETE, self.srvSynchroStatus.PUB.QUEUE, !0), 
         self.srvDataStore.setItems(type, self.currentItems[type]), !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_DELETE, "no change and no active CRM"), 
-        toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
-        !1);
+        self.srvDataStore.setItems(type, self.currentItems[type]), !1);
         if (null == diffResult) return "Document" == type && a4p.isDefined(toObject.feed) && toObject.feed ? self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.QUEUE, !0), 
         self.srvDataStore.setItems(type, self.currentItems[type]), !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "no change and no active CRM"), 
-        toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
-        !1) : (self.srvDataStore.setItems(type, self.currentItems[type]), !1);
+        self.srvDataStore.setItems(type, self.currentItems[type]), !1) : (self.srvDataStore.setItems(type, self.currentItems[type]), 
+        !1);
         if ("new" == diffResult) {
             var changed = !1;
             if (a4p.isDefined(toObject.email) && toObject.email.editable && (toObject.email.editable = !1, 
@@ -35997,19 +35996,16 @@ var SrvConfig = function() {
                 if (a4p.isTrueOrNonEmpty(toObject.feed)) return self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.QUEUE, !0), 
                 self.srvDataStore.setItems(toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
                 !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "new but no active CRM"), 
-                toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
-                !1);
+                self.srvDataStore.setItems(type, self.currentItems[type]), !1);
                 if (a4p.isTrueOrNonEmpty(toObject.email)) return sendEmail(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_WRITE, self.srvSynchroStatus.PUB.QUEUE, !0), 
                 self.srvDataStore.setItems(toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
                 !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "init because new"), 
-                toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
-                !1);
+                self.srvDataStore.setItems(type, self.currentItems[type]), !1);
             }
             return self.srvConfig.hasActiveRemoteCrm() && sendCreation(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_CREATE, self.srvSynchroStatus.PUB.QUEUE, !0), 
             self.srvDataStore.setItems(toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
             !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_CREATE, "init because new"), 
-            toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
-            !1);
+            self.srvDataStore.setItems(type, self.currentItems[type]), !1);
         }
         var changed = !1;
         if ("Document" == toObject.a4p_type && a4p.isDefined(toObject.email) && toObject.email.editable && (toObject.email.editable = !1, 
@@ -36018,15 +36014,13 @@ var SrvConfig = function() {
             if (a4p.isTrueOrNonEmpty(toObject.feed)) return self.srvConfig.hasActiveRemoteCrm() && sendSharing(self, toObject) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, self.srvSynchroStatus.PUB.QUEUE, !0), 
             self.srvDataStore.setItems(toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
             !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_SHARE, "update and no active CRM"), 
-            toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
-            !1);
+            self.srvDataStore.setItems(type, self.currentItems[type]), !1);
             if (a4p.isTrueOrNonEmpty(toObject.email)) return sendEmail(self, toObject), !0;
         }
         return self.srvConfig.hasActiveRemoteCrm() && sendUpdate(self, toObject, diffResult) ? (self.srvSynchroStatus.pushChannelToLevel(toObject, self.srvSynchroStatus.PUB.CHANNEL_WRITE, self.srvSynchroStatus.PUB.QUEUE, !0), 
         self.srvDataStore.setItems(toObject.a4p_type, self.currentItems[toObject.a4p_type]), 
         !0) : (self.srvSynchroStatus.cancelChannel(toObject, self.srvSynchroStatus.PUB.CHANNEL_WRITE, "NO remote CRM enabled"), 
-        toObject.toSaveWhenCrm = !0, self.srvDataStore.setItems(type, self.currentItems[type]), 
-        !1);
+        self.srvDataStore.setItems(type, self.currentItems[type]), !1);
     }
     function sendEmail(self, object) {
         for (var email = object.email, event = self.getObject(object.parent_id.dbid), emails = [], i = 0; i < email.emailsInput.length; i++) emails.push(email.emailsInput[i].email);
@@ -36564,18 +36558,8 @@ var SrvConfig = function() {
             for (i = 0; i < c4p.Model.allTypes.length; i++) {
                 for (type = c4p.Model.allTypes[i], this.currentItems[type] = this.srvDataStore.getItems(type, !1), 
                 this.nbObjects += this.currentItems[type].length, j = 0; j < this.currentItems[type].length; j++) {
-                    if (object = this.currentItems[type][j], object && !this.isObjectToSave(object.id.dbid)) if (object.toSaveWhenCrm) {
-                        delete object.toSaveWhenCrm;
-                        {
-                            saveObjectAndSendToSynchro(self, object.id.dbid);
-                        }
-                    } else {
-                        if (a4p.isEmptyOrFalse(this.originalDbIndex[object.id.dbid])) {
-                            this.currentItems[type].splice(j, 1), this.nbObjects--, j--;
-                            continue;
-                        }
-                        object = angular.extend(this.originalDbIndex[object.id.dbid]), this.completeFields(object), 
-                        this.currentItems[type][j] = object;
+                    if (object = this.currentItems[type][j], object && !this.isObjectToSave(object.id.dbid) && this.srvSynchroStatus.hasBeenCanceled(object)) {
+                        saveObjectAndSendToSynchro(self, object.id.dbid);
                     }
                     object && object.id && (this.index.db[object.id.dbid] = object), object && a4p.isDefined(object.id) && (a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object), 
                     a4p.isDefined(object.id.c4p_id) && (this.index.c4p[object.id.c4p_id] = object));
@@ -39653,7 +39637,10 @@ var SrvFacet = function() {
     }, Service.prototype.cancelListener = function(callbackHandle) {
         return removeIdFromList(this.callbacksStart, callbackHandle) !== !1;
     }, Service.prototype.addRequest = function(queueName, object, params) {
-        if (this.requestHandle++, "undefined" == typeof object || !object || !object.id || !object.id.dbid) throw new Error("SrvQueue.addRequest requires a valid object");
+        if ("undefined" == typeof object || !object || !object.id || !object.id.dbid) throw new Error("SrvQueue.addRequest requires a valid object");
+        if (this.isInQueue(queueName, object.id.dbid)) return a4p.InternalLog.log("srvQueue", "" + object.id.dbid + " Already in the queue, not added"), 
+        -1;
+        this.requestHandle++;
         var request = {
             id: this.requestHandle,
             queue: queueName,
@@ -40012,6 +39999,7 @@ var SrvFacet = function() {
         object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = {
             progress: 0,
             status: this.PUB.CLOUD_WAITFOR,
+            hasBeenCanceled: !1,
             log: "init"
         }, !0) : !1;
     }, Service.prototype.hasChannels = function(object) {
@@ -40025,6 +40013,10 @@ var SrvFacet = function() {
         if (!object || !object.c4pSynchroStatus || a4p.isUndefinedOrNull(object.c4pSynchroStatus)) return !1;
         var deleteChanel = this.PUB.CHANNEL_DELETE;
         return object.c4pSynchroStatus[deleteChanel] != this.PUB.NONE ? !0 : !1;
+    }, Service.prototype.hasBeenCanceled = function(object) {
+        if (!object || !object.c4pSynchroStatus || a4p.isUndefinedOrNull(object.c4pSynchroStatus)) return !1;
+        var cloudChanel = this.PUB.CHANNEL_CLOUD;
+        return object.c4pSynchroStatus[cloudChanel].hasBeenCanceled ? !0 : !1;
     }, Service.prototype.copyChannels = function(object, objectToCopy) {
         return object ? a4p.isUndefinedOrNull(objectToCopy.c4pSynchroStatus) ? this.resetChannels(object) : (object.c4pSynchroStatus[this.PUB.CHANNEL_CREATE] = objectToCopy.c4pSynchroStatus[this.PUB.CHANNEL_CREATE], 
         object.c4pSynchroStatus[this.PUB.CHANNEL_SHARE] = objectToCopy.c4pSynchroStatus[this.PUB.CHANNEL_SHARE], 
@@ -40042,6 +40034,7 @@ var SrvFacet = function() {
         (doChange || bForce) && (object.c4pSynchroStatus[channel] = level), (doChange || bForce) && level == this.PUB.NETWORK && (object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = {
             progress: 0,
             status: this.PUB.CLOUD_WAITFOR,
+            hasBeenCanceled: !1,
             log: "wait..."
         }), doChange;
     }, Service.prototype.successChannel = function(object, channel, bForce) {
@@ -40052,10 +40045,12 @@ var SrvFacet = function() {
         return 100 == percent ? object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = {
             progress: percent,
             status: this.PUB.CLOUD_IN,
+            hasBeenCanceled: !1,
             log: "in!"
         } : percent > 0 && (object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = {
             progress: percent,
             status: this.PUB.CLOUD_INPROGRESS,
+            hasBeenCanceled: !1,
             log: "in progress..."
         }), !0;
     }, Service.prototype.cancelChannel = function(object, channel, log, bForce) {
@@ -40065,6 +40060,7 @@ var SrvFacet = function() {
         object.c4pSynchroStatus[this.PUB.CHANNEL_CLOUD] = {
             progress: 0,
             status: this.PUB.CLOUD_PB,
+            hasBeenCanceled: !0,
             log: ":" + log
         }, doChange = !0), doChange;
     }, Service;
