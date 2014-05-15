@@ -9197,6 +9197,23 @@ ul.noty_cont.noty_layout_bottomRight {
 .c4p-guider-column {
   height: 500px;
 }
+.c4p-disabled {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-overflow-scrolling: hidden;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-filter: blur(1px);
+  -moz-filter: blur(1px);
+  -o-filter: blur(1px);
+  -ms-filter: blur(1px);
+  filter: blur(1px);
+}
 .c4p-accordion-item {
   -moz-box-shadow: inset 0px 3px 5px #333333;
   -webkit-box-shadow: inset 0px 3px 5px #333333;
@@ -9343,9 +9360,6 @@ ul.noty_cont.noty_layout_bottomRight {
   background: transparent;
   border: 0;
 }
-.c4p-card-synchronized {
-  border-bottom: 1px solid #c9a734;
-}
 .c4p-card-synchronized:after {
   color: #c9a734;
   font-family: "fa-a4p";
@@ -9357,9 +9371,6 @@ ul.noty_cont.noty_layout_bottomRight {
   right: -0.6em;
   float: right;
 }
-.c4p-card-synchronized-not {
-  border-bottom: 1px solid #e6e6e6;
-}
 .c4p-card-synchronized-not:after {
   color: #e6e6e6;
   font-family: "fa-a4p";
@@ -9370,9 +9381,6 @@ ul.noty_cont.noty_layout_bottomRight {
   top: -0.5em;
   right: -0.6em;
   float: right;
-}
-.c4p-card-synchronized-pb {
-  border-bottom: 1px solid #e51400;
 }
 .c4p-card-synchronized-pb:after {
   color: #e51400;
@@ -23903,6 +23911,189 @@ body {
   text-decoration: none;
 }
 */
+.c4p-meeting-body {
+  padding: 0;
+  margin: 0;
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-image: url('../img/meeting-background.jpg');
+  background-color: #d0d0d0;
+  background-position: center;
+  background-attachment: scroll ;
+  background-repeat: no-repeat;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  color: white;
+}
+.c4p-meeting-body > header nav {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+.c4p-meeting-body > aside {
+  position: fixed;
+  top: 20%;
+  left: 0;
+  width: 200px;
+  bottom: 20%;
+  background-color: rgba(0, 0, 0, 0.6);
+  overflow-x: hidden;
+  z-index: 41;
+}
+.c4p-meeting-body > aside.c4p-meeting-aside-hidden {
+  left: -165px;
+  bottom: 80%;
+}
+.c4p-meeting-body > aside a {
+  color: white;
+}
+.c4p-meeting-body > aside nav {
+  position: fixed;
+  width: 200px;
+  background: gray;
+  z-index: 42;
+}
+.c4p-meeting-body > aside aside {
+  padding-top: 50px;
+}
+.c4p-meeting-body > article {
+  position: absolute;
+  top: 40px;
+  left: 200px;
+  padding: 20px;
+  right: 0px;
+}
+.c4p-meeting-body > article.c4p-meeting-article-full {
+  left: 0px;
+}
+/*
+.c4p-meeting-header {
+  margin: 0; //reset inherited stuff
+  padding: @aside-hf-padding;
+  background-color: rgba(0, 0, 0, 0.95);
+  color: white;
+}
+
+.c4p-meeting-aside {
+  background-color: rgba(0, 0, 0, 0.95);
+  color: white;
+}
+
+.c4p-meeting-content-container{
+  padding: 1em;
+}
+
+.c4p-meeting-content {
+  background-color: white;
+}
+*/
+.c4p-icon-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: center;
+}
+.c4p-icon-list-item {
+  height: 4em;
+  margin: 0;
+  padding: 1em 0em 1em 0em;
+  list-style: none;
+  text-align: center;
+}
+.c4p-meeting-icon {
+  font-size: 1.5rem;
+  width: 1.3em;
+  height: 1.2em;
+  padding-top: 0.3em;
+}
+.c4p-meeting-container {
+  display: inline-block;
+  z-index: 50;
+}
+.c4p-meeting-menu-container {
+  z-index: 51;
+}
+.c4p-meeting-detail-hdr {
+  height: 4em;
+  padding: 0.4em 0;
+}
+.c4p-meeting-list-item {
+  color: #ffffff;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+.c4p-meeting-list-item.active {
+  background-color: rgba(0, 0, 255, 0.4);
+}
+.c4p-meeting-link-obj {
+  color: #ffffff;
+  background-color: rgba(128, 128, 128, 0.7);
+}
+.c4p-meeting-link-obj.inactive {
+  background-color: rgba(0, 0, 0, 0.95);
+}
+.c4p-meeting-plan {
+  color: #ffffff;
+  background-color: rgba(128, 128, 128, 0.75);
+}
+.c4p-meeting-plan.inactive {
+  background-color: rgba(0, 0, 0, 0.95);
+}
+.c4p-meeting-info {
+  text-align: center ;
+  font-size: 1em;
+  font-style: italic;
+  color: gray;
+  padding: 1em;
+  background-color: #c8c8c8;
+  border-radius: 17px;
+}
+.c4p-meeting-info-txt {
+  text-align: center ;
+  font-size: 1em;
+  font-style: italic;
+  color: gray;
+  background-color: #c8c8c8;
+  border-radius: 17px;
+}
+.c4p-login-body {
+  background-image: url('../img/login-background.jpg');
+  background-color: #000000;
+  background-position: center;
+  background-attachment: scroll ;
+  background-repeat: no-repeat;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  color: #ffffff;
+}
+.c4p-login-body .form-control:not(input) {
+  color: #ffffff;
+  background: inherit;
+  border: 0;
+  padding: 0;
+}
+.c4p-login-body header,
+.c4p-login-body footer,
+.c4p-login-body section {
+  background-color: transparent;
+  color: #ffffff;
+}
+.c4p-login-body header a,
+.c4p-login-body footer a {
+  color: #ffffff;
+}
+.c4p-login-body .btn-link {
+  font-size: initial;
+  color: #ffffff;
+}
 .c4p-header-std {
   position: relative;
   display: block;
@@ -24147,162 +24338,6 @@ table h6,
 .c4p-table-calendar-month td.disabled {
   background-color: #000000;
 }
-.meeting-body {
-  background-image: url('../img/meeting-background.jpg');
-  background-position: center;
-  background-attachment: scroll ;
-  background-repeat: no-repeat;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-}
-.meeting-header {
-  margin: 0;
-  padding: 0.4em 0;
-  background-color: rgba(0, 0, 0, 0.95);
-  color: white;
-}
-.meeting-aside {
-  background-color: rgba(0, 0, 0, 0.95);
-  color: white;
-}
-.meeting-content-container {
-  padding: 1em;
-}
-.meeting-content {
-  background-color: white;
-}
-.c4p-icon-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  text-align: center;
-}
-.c4p-icon-list-item {
-  height: 4em;
-  margin: 0;
-  padding: 1em 0em 1em 0em;
-  list-style: none;
-  text-align: center;
-}
-.c4p-meeting-icon {
-  font-size: 1.5rem;
-  width: 1.3em;
-  height: 1.2em;
-  padding-top: 0.3em;
-}
-.meeting-container {
-  display: inline-block;
-  z-index: 50;
-}
-.meeting-menu-container {
-  z-index: 51;
-}
-.meeting-detail-hdr {
-  height: 4em;
-  padding: 0.4em 0;
-}
-.meeting-list-item {
-  color: #ffffff;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-}
-.meeting-list-item.active {
-  background-color: rgba(0, 0, 255, 0.4);
-}
-.meeting-link-obj {
-  color: #ffffff;
-  background-color: rgba(128, 128, 128, 0.7);
-}
-.meeting-link-obj.inactive {
-  background-color: rgba(0, 0, 0, 0.95);
-}
-.meeting-plan {
-  color: #ffffff;
-  background-color: rgba(128, 128, 128, 0.75);
-}
-.meeting-plan.inactive {
-  background-color: rgba(0, 0, 0, 0.95);
-}
-.c4p-meeting-info {
-  text-align: center ;
-  font-size: 1em;
-  font-style: italic;
-  color: gray;
-  padding: 1em;
-  background-color: #c8c8c8;
-  border-radius: 17px;
-}
-.c4p-meeting-info-txt {
-  text-align: center ;
-  font-size: 1em;
-  font-style: italic;
-  color: gray;
-  background-color: #c8c8c8;
-  border-radius: 17px;
-}
-.c4p-login-body {
-  background-image: url('../img/login-background.jpg');
-  background-color: #000000;
-  background-position: center;
-  background-attachment: scroll ;
-  background-repeat: no-repeat;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-  color: #ffffff;
-}
-.c4p-login-body .form-control:not(input) {
-  color: #ffffff;
-  background: inherit;
-  border: 0;
-  padding: 0;
-}
-.c4p-login-body header,
-.c4p-login-body footer,
-.c4p-login-body section {
-  background-color: transparent;
-  color: #ffffff;
-}
-.c4p-login-body header a,
-.c4p-login-body footer a {
-  color: #ffffff;
-}
-.c4p-login-body .btn-link {
-  font-size: initial;
-  color: #ffffff;
-}
-/*.white, .white:hover {
-	color: white;
-}
-
-.vertical-container {
-    display: table;
-    height: 100%;
-	width: 100%;
-}
-.vertical-align {
-    display: table-cell;
-    vertical-align:middle;
-    height: 100%;
-	width: 100%;
-}
-
-
-.smaller-70 {
-	font-size:0.7em;
-}
-
-.login-header {
-	font-family: Arial;
-	margin-top:0;
-	padding-top:0;
-}*/
 
 /* CORE STYLES */
 /* noty bar */
