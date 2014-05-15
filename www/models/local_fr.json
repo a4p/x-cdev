@@ -804,5 +804,10 @@
     "htmlMeetingMoveItem":"D\u00E9placez l'objet ici",
     "htmlMeetingAdd":"Ajouter",
 
+        "htmlGotoMeetingUnderConstruction":"Nous travaillons dur pour vous fournir un outil de RDV. Merci pour vos suggestions : team@apps4pro.com",
+        "htmlCreateDocumentTakePicture":"Prendre une photo",
+        "htmlCreateDocumentImportOpenWith":"Utilisez le lien 'Ouvrir avec ...' de Google Drive ou de vos apps pr\u00E9f\u00E9r\u00E9es. Vous pouvez importer ici les fichiers en tant que document.",
+        "htmlConnectorUnderConstruction":"Nous travaillons dur ici pour vous fournir de beaux connecteurs \u00E0 votre CRM :",
+
     "rangeSeparator":" - "
 }
