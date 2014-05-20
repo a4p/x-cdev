@@ -9360,6 +9360,13 @@ ul.noty_cont.noty_layout_bottomRight {
   background: transparent;
   border: 0;
 }
+.c4p-card .c4p-card-full-thumb {
+  min-height: 150px;
+}
+.c4p-card .c4p-card-full-thumb .c4p-card-thumb-media {
+  width: 100%;
+  height: 400px;
+}
 .c4p-card-synchronized:after {
   color: #c9a734;
   font-family: "fa-a4p";
@@ -23965,6 +23972,7 @@ body {
   left: 200px;
   padding: 20px;
   right: 0px;
+  bottom: 0;
 }
 .c4p-meeting-body > article.c4p-meeting-article-full {
   left: 0px;
@@ -24061,6 +24069,18 @@ body {
   color: gray;
   background-color: #c8c8c8;
   border-radius: 17px;
+}
+.c4p-meeting-link-drop {
+  background-color: rgba(128, 128, 128, 0.3);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  border: 2px dashed gray;
+}
+.c4p-meeting-link-drop.active {
+  background-color: rgba(128, 128, 128, 0.6);
 }
 .c4p-login-body {
   background-image: url('../img/login-background.jpg');
