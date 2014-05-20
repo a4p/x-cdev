@@ -23954,7 +23954,7 @@ body {
   left: -165px;
   bottom: 80%;
 }
-.c4p-meeting-body > aside a {
+.c4p-meeting-body > aside li > a {
   color: white;
 }
 .c4p-meeting-body > aside nav {
