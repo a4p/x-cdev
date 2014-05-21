@@ -63,9 +63,9 @@ cordova build android
 cd platforms/android
 ant release
 
-jarsigner -keystore ../../../../../c4p/c4p_html_ang/mobile_res/android_key/apps4pro-key.keystore -storepass apps4pro -digestalg SHA1 -sigalg MD5withRSA bin/CRMMeetingPad-release-unsigned.apk mykey
-cp bin/CRMMeetingPad-release-unsigned.apk ../../CRMMeetingPad.apk
-zipalign -f 4 ../../CRMMeetingPad.apk ../../CRMMeetingPad-aligned.apk
+jarsigner -keystore ../../../../../c4p/c4p_html_ang/mobile_res/android_key/apps4pro-key.keystore -storepass apps4pro -digestalg SHA1 -sigalg MD5withRSA bin/C_d-release-unsigned.apk mykey
+cp bin/C_d-release-unsigned.apk ../../C_d.apk
+zipalign -f 4 ../../C_d.apk ../../C_d-aligned.apk
 
 
 cd ../../..
