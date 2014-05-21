@@ -1,167 +1,73 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget xmlns   = "http://www.w3.org/ns/widgets"
-    xmlns:gap   = "http://phonegap.com/ns/1.0"
-    xmlns:cdv   = "http://cordova.apache.org/ns/1.0"
-    xmlns:android   = "http://schemas.android.com/apk/res/android"
-    id          = "com.apps4pro.c4pdev"
-    version     = "14.0521.16">
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0"
+    xmlns:gap="http://phonegap.com/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android"
+    id="com.apps4pro.c4pdev" version="14.0522.00">
 
     <name>C_d</name>
-    <description>
-        C_d
-    </description>
-    <author email="contact@apps4pro.com" href="https://apps4pro.com">
-        Apps4pro Team
-    </author>
+    <description>C_d</description>
+    <author email="contact@apps4pro.com" href="https://apps4pro.com">Apps4pro Team</author>
+
+    <access origin="file:///" subdomains="true" />
+    <access origin="*"/>
+
+    <gap:url-scheme name="com.apps4pro.c4pdev" role="Editor">
+      <scheme>file</scheme>
+      <scheme>http</scheme>
+    </gap:url-scheme>
 
     <gap:platform name="ios" />
     <gap:platform name="android" />
+    <gap:platform name="blackberry" />
     <gap:platform name="winphone" />
-    <!--
-    <gap:platform name="webos" />
-    <gap:platform name="blackberry" /> -->
 
-    <preference name="phonegap-version" value="3.3.0" />
+    <preference name="phonegap-version" value="3.4.0" />
     <preference name="loglevel" value="VERBOSE" />
 
-
-    <!-- iOS allows registration of custom URL Schemes. <gap:url-scheme>
-    <gap:url-scheme name="com.acme.myscheme" role="None">
-      <scheme>pgbr</scheme>
-      <scheme>pgbw</scheme>
-    </gap:url-scheme>
-    -->
-      <!--
-
-    <preference name="DisallowOverscroll" value="true" />
-    <preference name="HideKeyboardFormAccessoryBar" value="true" />
-    <preference name="KeyboardDisplayRequiresUserAction" value="false" />
-    <preference name="KeyboardShrinksView" value="true" />
-    <preference name="SuppressesIncrementalRendering" value="false" />
-    <preference name="TopActivityIndicator" value="gray" />
-    <preference name="EnableViewportScale" value="false" />-->
 
     <!--    officials
             http://docs.build.phonegap.com/en_US/3.3.0/configuring_preferences.md.html#Preferences
     -->
     <preference name="orientation" value="default" />
-    <preference name="fullscreen" value="false" />
+    <preference name="fullscreen" value="false" /> <!-- ?? -->
     <preference name="exit-on-suspend" value="false" />
-
     <preference name="ios-statusbarstyle" value="black-translucent" />
     <preference name="prerendered-icon" value="false" />
-
     <preference name="detect-data-types" value="true" />
     <preference name="splash-screen-duration" value="5000" />
     <preference name="android-minSdkVersion" value="15" />
     <preference name="android-installLocation" value="internalOnly" />
     <preference name="android-windowSoftInputMode" value="stateVisible|adjustResize" />
 
-
     <!--    unofficials - test ?
             http://docs.phonegap.com/en/edge/guide_platforms_ios_config.md.html#iOS%20Configuration)
             http://docs.phonegap.com/en/edge/guide_platforms_android_config.md.html#Android%20Configuration
     -->
-    <preference name="webviewbounce" value="false" />
-    <preference name="DisallowOverscroll" value="true" />
-    <preference name="HideKeyboardFormAccessoryBar" value="true" />
-    <preference name="windowSoftInputMode" value="stateVisible|adjustResize" />
-    <preference name="stay-in-webview" value="false" />
-    <preference name="EnableViewportScale" value="false" />
-    <preference name="KeepRunning" value="true"/>
-
+    <preference name="webviewbounce" value="false" /> <!-- ?? -->
+    <preference name="DisallowOverscroll" value="true" /> <!-- ?? -->
+    <preference name="stay-in-webview" value="true" /> <!-- ?? -->
     <preference name="show-splash-screen-spinner" value="true" />
     <preference name="auto-hide-splash-screen" value="true" />
+    <preference name="EnableViewportScale" value="true" /> <!-- ?? -->
     <preference name="MediaPlaybackRequiresUserAction" value="false" />
-    <preference name="AllowInlineMediaPlayback" value="true" />
+    <preference name="AllowInlineMediaPlayback" value="false" />
     <preference name="BackupWebStorage" value="cloud" />
     <preference name="TopActivityIndicator" value="gray" />
-    <preference name="SuppressesIncrementalRendering" value="true" />
+    <preference name="KeyboardDisplayRequiresUserAction" value="true" /> <!-- ?? -->
+    <preference name="HideKeyboardFormAccessoryBar" value="true" /> <!-- ?? -->
+    <preference name="SuppressesIncrementalRendering" value="false" />
     <preference name="SplashScreenDelay" value="5000" />
     <preference name="ErrorUrl" value=""/>
-    <preference name="BackgroundColor" value="0x00000000"/>
+    <preference name="BackgroundColor" value=""/>
+    <preference name="KeepRunning" value="true"/>
     <preference name="LoadingDialog" value=","/>
     <preference name="LoadUrlTimeoutValue" value="50000" />
-    <preference name="disable-cursor" value="true" />
-    <preference name="InAppBrowserStorageEnabled" value="true"/>
-    <preference name="GapBetweenPages" value="0"/>
-    <preference name="PageLength" value="0"/>
-    <preference name="PaginationBreakingMode" value="page"/>
-    <preference name="UIWebViewDecelerationSpeed" value="fast" />
-    <preference name="KeyboardShrinksView" value="true" />
+    <preference name="disable-cursor" value="false" /> <!-- ?? -->
+    <preference name="KeyBoardShrinksView" value="false" /> <!-- ?? -->
 
-<!--
-<gap:config-file platform="ios" parent="CFBundleDocumentTypes" overwrite="true">
-    <array>
-        <dict>
-            <key>CFBundleTypeIconFiles</key>
-            <array>
-                <string>icon.png</string>
-                <string>icon@2x.png</string>
-                <string>icon-72.png</string>
-                <string>icon-72@2x.png</string>
-            </array>
-            <key>CFBundleTypeName</key>
-            <string>MyAppName File</string>
-            <key>CFBundleTypeRole</key>
-            <string>Viewer</string>
-            <key>LSHandlerRank</key>
-            <string>Owner</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>com.apps4pro.c4p.file</string>
-                <string>public.comma-separated-values-text</string>
-                <string>public.item</string>
-                <string>public.content</string>
-            </array>
-        </dict>
-    </array>
-</gap:config-file>
-<gap:config-file platform="ios" parent="UTExportedTypeDeclarations" overwrite="true">
-    <array>
-        <dict>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.data</string>
-            </array>
-            <key>UTTypeDescription</key>
-            <string>MyAppName File</string>
-            <key>UTTypeIdentifier</key>
-            <string>com.apps4pro.c4p.file</string>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <string>mye</string>
-                <key>public.mime-type</key>
-                <string>application/octet-stream</string>
-            </dict>
-        </dict>
-    </array>
-</gap:config-file>
-        <gap:config-file platform="android" parent="/manifest">
-           <supports-screens
-                  android:xlargeScreens="false"
-                  android:largeScreens="false"
-                  android:smallScreens="false" />
-            <application android:theme="@android:style/Theme.NoTitleBar" android:hardwareAccelerated="true">
-                <activity android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:hardwareAccelerated="false"></activity>
-                <activity android:name="IntentTest" android:label="@string/app_name" android:configChanges="orientation|keyboardHidden">
-                    <intent-filter>
-                        <action android:name="android.intent.action.MAIN" />
-                        <category android:name="android.intent.category.LAUNCHER" />
-                    </intent-filter>
-                    <intent-filter>
-                        <action android:name="android.intent.action.VIEW"></action>
-                        <category android:name="android.intent.category.DEFAULT"></category>
-                        <category android:name="android.intent.category.BROWSABLE"></category>
-                        <data android:scheme="content" android:mimeType="*/*"></data>
-                        <data android:host="www.youtube.com" android:scheme="http"></data>
-                    </intent-filter>
-            </activity>
-            </application>
-        </gap:config-file>`
--->
+    <!-- ??? to open external files -->
+    <preference name="AndroidExtraFilesystems" value="files,files-external,documents,sdcard,cache,cache-external,root" />
 
+    <!-- iOS allows registration of custom URL Schemes. <gap:url-scheme> -->
     <!-- C4P_BUILD_PLUGINS -->
 <gap:plugin name="com.wizardlogic.cordova.ios_keyboard" />
 <gap:plugin name="com.badrit.contactpicker" />
@@ -186,74 +92,157 @@
 <gap:plugin name="org.apache.cordova.network-information" />
 <gap:plugin name="org.apache.cordova.device" />
 
-<!-- Icons & Splash-->
+    <!-- http://docs.build.phonegap.com/en_US/3.3.0/configuring_config_file_element.md.html#Config%20File%20Elements -->
+    <!-- C4P_BUILD_CONFIG //TODO??? -->
 
-<!-- android icons -->
-<icon gap:platform="android" gap:density="ldpi" src="mobile_res/android/res/drawable-ldpi/appicon.png" />
-<icon gap:platform="android" gap:density="mdpi" src="mobile_res/android/res/drawable-mdpi/appicon.png" />
-<icon gap:platform="android" gap:density="hdpi" src="mobile_res/android/res/drawable-hdpi/appicon.png" />
-<icon gap:platform="android" gap:density="xhdpi" src="mobile_res/android/res/drawable-xhdpi/appicon.png" />
+    <!-- Enable document import -->
+    <gap:config-file platform="ios" parent="CFBundleDocumentTypes" overwrite="true">
+        <array>
+            <dict>
+                <key>CFBundleTypeIconFiles</key>
+                <array>
+                    <string>icon.png</string>
+                    <string>icon@2x.png</string>
+                    <string>icon-72.png</string>
+                    <string>icon-72@2x.png</string>
+                </array>
+                <key>CFBundleTypeName</key>
+                <string>MyAppName File</string>
+                <key>CFBundleTypeRole</key>
+                <string>Viewer</string>
+                <key>LSHandlerRank</key>
+                <string>Owner</string>
+                <key>LSItemContentTypes</key>
+                <array>
+                    <string>com.apps4pro.c4p.file</string>
+                    <string>public.comma-separated-values-text</string>
+                    <string>public.item</string>
+                    <string>public.content</string>
+                </array>
+            </dict>
+        </array>
+    </gap:config-file>
+    <gap:config-file platform="ios" parent="UTExportedTypeDeclarations" overwrite="true">
+        <array>
+            <dict>
+                <key>UTTypeConformsTo</key>
+                <array>
+                    <string>public.data</string>
+                </array>
+                <key>UTTypeDescription</key>
+                <string>MyAppName File</string>
+                <key>UTTypeIdentifier</key>
+                <string>com.apps4pro.c4p.file</string>
+                <key>UTTypeTagSpecification</key>
+                <dict>
+                    <key>public.filename-extension</key>
+                    <string>mye</string>
+                    <key>public.mime-type</key>
+                    <string>application/octet-stream</string>
+                </dict>
+            </dict>
+        </array>
+    </gap:config-file>
 
-<!-- android splash portrait -->
-<gap:splash src="mobile_res/android/images/res-long-port-ldpi/default.png" gap:platform="android" gap:density="xhdpi"/>
-<!--<gap:splash src="res/screen/android/screen-xhdpi-n7-portrait.png" gap:platform="android" gap:density="xhdpi"/>-->
-<gap:splash src="mobile_res/android/images/res-long-port-ldpi/default.png"  gap:platform="android" gap:density="hdpi"/>
-<!--<gap:splash src="res/screen/android/screen-mdpi-portrait.png"  gap:platform="android" gap:density="mdpi"/>-->
-<gap:splash src="mobile_res/android/images/res-long-port-ldpi/default.png"  gap:platform="android" gap:density="ldpi"/>
+    <!-- NOT WORKING
+    <gap:config-file platform="android" parent="/manifest">
+        <application android:hardwareAccelerated="true" android:icon="@drawable/icon" android:label="@string/app_name">
+            <activity android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale"
+                android:label="@string/app_name" android:name=".C4P_Local" android:theme="@android:style/Theme.Black.NoTitleBar">
+                <intent-filter>
+                    <action android:name="android.intent.action.MAIN" />
+                    <category android:name="android.intent.category.LAUNCHER" />
+                </intent-filter>
+                <intent-filter>
+                    <action android:name="android.intent.action.VIEW"></action>
+                    <category android:name="android.intent.category.DEFAULT"></category>
+                    <category android:name="android.intent.category.BROWSABLE"></category>
+                    <data android:scheme="content" android:mimeType="*/*"></data>
+                    <data android:scheme="file" android:mimeType="*/*"/>
+                    <data android:host="www.youtube.com" android:scheme="http"></data>
+                </intent-filter>
+            </activity>
+        </application>
+    </gap:config-file> -->
 
-<!-- android splash landscape -->
-<gap:splash src="mobile_res/android/images/res-long-land-xhdpi/default.png" gap:platform="android" gap:density="xhdpi" width="1280" height="800" />
-<!--<gap:splash src="res/screen/android/screen-xhdpi-landscape.png" gap:platform="android" gap:density="xhdpi" width="1280" height="720" />-->
-<gap:splash src="mobile_res/android/images/res-long-land-hdpi/default.png"  gap:platform="android" gap:density="hdpi" width="800" height="480" />
-<!--<gap:splash src="res/screen/android/screen-mdpi-landscape.png"  gap:platform="android" gap:density="mdpi" width="480" height="320" />-->
-<gap:splash src="mobile_res/android/images/res-long-land-ldpi/default.png"  gap:platform="android" gap:density="ldpi" width="320" height="200" />
 
-<icon gap:platform="ios" src="mobile_res/ios/icons/icon-50.png" width="60" height="60" />
-<icon gap:platform="ios" src="mobile_res/ios/icons/icon-72.png" width="72" height="72" />
-<icon gap:platform="ios" src="mobile_res/ios/icons/icon-50@2x.png" width="100" height="100" />
-<icon gap:platform="ios" src="mobile_res/ios/icons/icon-72@2x.png" width="144" height="144" />
+    <!--
+    <gap:config-file platform="android" parent="/manifest/application/activity">
+            <intent-filter>
+                    <action android:name="android.intent.action.VIEW"/>
+                    <action android:name="android.intent.action.EDIT"/>
+                    <category android:name="android.intent.category.DEFAULT"/>
+                    <data android:scheme="file" android:mimeType="*/*"/>
+                    <data android:scheme="http" android:mimeType="*/*"/>
+                    <data android:scheme="content" android:mimeType="*/*"/>
+            </intent-filter>
+    </gap:config-file>-->
 
-<!-- iPhone / iPod Touch  -->
-<icon src="mobile_res/iphone/appicon-60.png" gap:platform="ios" width="60" height="60" />
-<icon src="mobile_res/iphone/appicon-60@2x.png" gap:platform="ios" width="120" height="120" />
-<!-- iPad -->
-<icon src="mobile_res/iphone/appicon-76.png" gap:platform="ios" width="76" height="76" />
-<icon src="mobile_res/iphone/appicon-76@2x.png" gap:platform="ios" width="152" height="152" />
-<!-- Settings Icon -->
-<icon src="mobile_res/iphone/appicon-Small.png" gap:platform="ios" width="29" height="29" />
-<icon src="mobile_res/iphone/appicon-Small@2x.png" gap:platform="ios" width="58" height="58" />
-<!-- Spotlight Icon -->
-<icon src="mobile_res/iphone/appicon-Small-40.png" gap:platform="ios" width="40" height="40" />
-<icon src="mobile_res/iphone/appicon-Small-40@2x.png" gap:platform="ios" width="80" height="80" />
 
-<!-- Splash ios -->
-<!-- iPhone and iPod touch -->
-<gap:splash src="mobile_res/iphone/Default.png" gap:platform="ios" width="320" height="480" />
-<gap:splash src="mobile_res/iphone/Default@2x.png" gap:platform="ios" width="640" height="960" />
+    <!-- Icons & Splash-->
 
-<!-- iPhone 5 / iPod Touch (5th Generation) -->
-<gap:splash src="mobile_res/iphone/Default-568h@2x.png" gap:platform="ios" width="640" height="1136" />
+    <!-- android icons -->
+    <icon gap:platform="android" gap:density="ldpi" src="mobile_res/android/res/drawable-ldpi/appicon.png" />
+    <icon gap:platform="android" gap:density="mdpi" src="mobile_res/android/res/drawable-mdpi/appicon.png" />
+    <icon gap:platform="android" gap:density="hdpi" src="mobile_res/android/res/drawable-hdpi/appicon.png" />
+    <icon gap:platform="android" gap:density="xhdpi" src="mobile_res/android/res/drawable-xhdpi/appicon.png" />
 
-<!-- iPad -->
-<gap:splash src="mobile_res/iphone/Default-Portrait.png" gap:platform="ios" width="768" height="1024" />
-<gap:splash src="mobile_res/iphone/Default-Landscape.png" gap:platform="ios" width="1024" height="768" />
+    <!-- android splash portrait -->
+    <gap:splash src="mobile_res/android/images/res-long-port-ldpi/default.png" gap:platform="android" gap:density="xhdpi"/>
+    <!--<gap:splash src="res/screen/android/screen-xhdpi-n7-portrait.png" gap:platform="android" gap:density="xhdpi"/>-->
+    <gap:splash src="mobile_res/android/images/res-long-port-ldpi/default.png"  gap:platform="android" gap:density="hdpi"/>
+    <!--<gap:splash src="res/screen/android/screen-mdpi-portrait.png"  gap:platform="android" gap:density="mdpi"/>-->
+    <gap:splash src="mobile_res/android/images/res-long-port-ldpi/default.png"  gap:platform="android" gap:density="ldpi"/>
 
-<!-- Retina iPad -->
-<gap:splash src="mobile_res/iphone/Default-Portrait@2x.png" gap:platform="ios" width="1536" height="2048" />
-<gap:splash src="mobile_res/iphone/Default-Landscape@2x.png" gap:platform="ios" width="2048" height="1536" />
+    <!-- android splash landscape -->
+    <gap:splash src="mobile_res/android/images/res-long-land-xhdpi/default.png" gap:platform="android" gap:density="xhdpi" width="1280" height="800" />
+    <!--<gap:splash src="res/screen/android/screen-xhdpi-landscape.png" gap:platform="android" gap:density="xhdpi" width="1280" height="720" />-->
+    <gap:splash src="mobile_res/android/images/res-long-land-hdpi/default.png"  gap:platform="android" gap:density="hdpi" width="800" height="480" />
+    <!--<gap:splash src="res/screen/android/screen-mdpi-landscape.png"  gap:platform="android" gap:density="mdpi" width="480" height="320" />-->
+    <gap:splash src="mobile_res/android/images/res-long-land-ldpi/default.png"  gap:platform="android" gap:density="ldpi" width="320" height="200" />
 
-<!--<icon gap:platform="webos" src="mobile_res/webos/icon-64.png" />
+    <!-- iPhone / iPod Touch  -->
+    <icon src="mobile_res/iphone/appicon-60.png" gap:platform="ios" width="60" height="60" />
+    <icon src="mobile_res/iphone/appicon-60@2x.png" gap:platform="ios" width="120" height="120" />
+    <!-- iPad -->
+    <icon src="mobile_res/iphone/appicon-76.png" gap:platform="ios" width="76" height="76" />
+    <icon src="mobile_res/iphone/appicon-76@2x.png" gap:platform="ios" width="152" height="152" />
+    <!-- Settings Icon -->
+    <icon src="mobile_res/iphone/appicon-Small.png" gap:platform="ios" width="29" height="29" />
+    <icon src="mobile_res/iphone/appicon-Small@2x.png" gap:platform="ios" width="58" height="58" />
+    <!-- Spotlight Icon -->
+    <icon src="mobile_res/iphone/appicon-Small-40.png" gap:platform="ios" width="40" height="40" />
+    <icon src="mobile_res/iphone/appicon-Small-40@2x.png" gap:platform="ios" width="80" height="80" />
 
-<icon gap:platform="winphone" src="mobile_res/winphone/icon-48.png" />
-<icon gap:platform="winphone" gap:role="background" src="mobile_res/winphone/icon-173.png" />
-<gap:splash gap:platform="winphone" src="mobile_res/winphone/screen-portrait.jpg" />-->
+    <!-- Splash ios -->
+    <!-- iPhone and iPod touch -->
+    <gap:splash src="mobile_res/iphone/Default.png" gap:platform="ios" width="320" height="480" />
+    <gap:splash src="mobile_res/iphone/Default@2x.png" gap:platform="ios" width="640" height="960" />
 
-<icon gap:platform="blackberry" src="mobile_res/blackberry/appicon.png" />
-<icon gap:platform="blackberry" src="mobile_res/blackberry/appicon.png" gap:state="hover" />
-<gap:splash gap:platform="blackberry" src="mobile_res/blackberry/splash-720x720.png" />
+    <!-- iPhone 5 / iPod Touch (5th Generation) -->
+    <gap:splash src="mobile_res/iphone/Default-568h@2x.png" gap:platform="ios" width="640" height="1136" />
 
-    <!-- Main -->
-    <content src="index.html" />
-    <access origin="*" />
+    <!-- iPad -->
+    <gap:splash src="mobile_res/iphone/Default-Portrait.png" gap:platform="ios" width="768" height="1024" />
+    <gap:splash src="mobile_res/iphone/Default-Landscape.png" gap:platform="ios" width="1024" height="768" />
+
+    <!-- Retina iPad -->
+    <gap:splash src="mobile_res/iphone/Default-Portrait@2x.png" gap:platform="ios" width="1536" height="2048" />
+    <gap:splash src="mobile_res/iphone/Default-Landscape@2x.png" gap:platform="ios" width="2048" height="1536" />
+
+    <!--<icon gap:platform="webos" src="mobile_res/webos/icon-64.png" />
+
+    <icon gap:platform="winphone" src="mobile_res/winphone/icon-48.png" />
+    <icon gap:platform="winphone" gap:role="background" src="mobile_res/winphone/icon-173.png" />
+    <gap:splash gap:platform="winphone" src="mobile_res/winphone/screen-portrait.jpg" />-->
+
+    <icon gap:platform="blackberry" src="mobile_res/blackberry/appicon.png" />
+    <icon gap:platform="blackberry" src="mobile_res/blackberry/appicon.png" gap:state="hover" />
+    <gap:splash gap:platform="blackberry" src="mobile_res/blackberry/splash-720x720.png" />
+
+    <icon src="mobile_res/blackberry/appicon.png" gap:platform="winphone" />
+    <icon src="mobile_res/blackberry/appicon.png" gap:platform="winphone" gap:role="background" />
+    <gap:splash src="mobile_res/blackberry/splash-720x720.png" gap:platform="winphone" />
+
 
 </widget>
