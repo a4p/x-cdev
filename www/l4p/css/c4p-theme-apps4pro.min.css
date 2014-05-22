@@ -659,7 +659,7 @@ abbr[data-original-title] {
 blockquote {
   padding: 0.78125em 1.5625em;
   margin: 0 0 1.5625em;
-  font-size: 1.25em;
+  font-size: 0.9375em;
   border-left: 5px solid #e6e6e6;
 }
 blockquote p:last-child,
@@ -23964,17 +23964,17 @@ body {
   z-index: 42;
 }
 .c4p-meeting-body > aside aside {
-  padding-top: 50px;
+  padding-top: 48px;
+  width: 100%;
 }
-.c4p-meeting-body > article {
+.c4p-meeting-body > div > article {
   position: absolute;
-  top: 40px;
+  top: 60px;
   left: 200px;
-  padding: 20px;
   right: 0px;
   bottom: 0;
 }
-.c4p-meeting-body > article.c4p-meeting-article-full {
+.c4p-meeting-body > div > article.c4p-meeting-article-full {
   left: 0px;
 }
 /*
