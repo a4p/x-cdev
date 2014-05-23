@@ -23947,12 +23947,11 @@ body {
   width: 200px;
   bottom: 20%;
   background-color: rgba(0, 0, 0, 0.6);
-  overflow-x: hidden;
   z-index: 41;
 }
 .c4p-meeting-body > aside.c4p-meeting-aside-hidden {
   left: -165px;
-  bottom: 80%;
+  height: 44px;
 }
 .c4p-meeting-body > aside li > a {
   color: white;
