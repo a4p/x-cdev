@@ -384,6 +384,7 @@
     "htmlMsgFeedbackOtherConnectorQuestion":"Vous voulez vous connecter avec votre CRM ?",
     "htmlMsgFeedbackUploadFile":"Bonjour,\nJe ne peux pas synchroniser mon document sur cette version.\nJe serais int\u00E9ress\u00E9 d'avoir des informations sur les comptes sup\u00E9rieurs.",
     "htmlMsgFeedbackUploadFileQuestion":"Nous ne pouvons pas synchroniser ce fichier car votre compte est limit\u00E9 pour l'instant \u00E0 2MB",
+    "htmlTextSynchroStatusOK":"Synchronis\u00E9",
 
     "htmlMsgRejectImportNotLogged":"Import rejet\u00E9 : vous n'\u00EAtes pas connect\u00E9.",
     "htmlMsgImportFile":"Import du fichier {0}",
