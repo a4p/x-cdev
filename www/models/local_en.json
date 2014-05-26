@@ -803,7 +803,8 @@
   "htmlMeetingDropItemHere":"Drop item here",
   "htmlMeetingChange":"Change...",
   "htmlMeetingMoveItem":"Move item here",
-  "htmlMeetingAdd":"Add",
+  "htmlMeetingAdd":"Add", 
+  "htmlTextMeetingDocSeen":"We have seen",
 
   "htmlGotoMeetingUnderConstruction":"We are working hard here on providing a great Meeting Tool. Thanks for your suggestion : team@apps4pro.com",
   "htmlCreateDocumentTakePicture":"Take picture",

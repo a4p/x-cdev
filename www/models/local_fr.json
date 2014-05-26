@@ -7,15 +7,15 @@
 
     "htmlGuiderNeedHelp":"Question ?",
 
-	"htmlErrorRequired":"Le champ '{0}' est obligatoire",
-	"htmlErrorMaxLength":"Le champ '{0}' ne doit pas d\u00E9passer {1} caract\u00E8res",
-	"htmlErrorPhoneFormat":"Le champ '{0}' doit uniquement \u00EAtre compos\u00E9 de chiffres et des caract\u00E8res '+.-()'",
-	"htmlErrorFromPickList":"Le champ '{0}' doit \u00EAtre s\u00E9lectionn\u00E9 parmi les propositions de la liste d\u00E9roulante",
-	"htmlErrorEmailFormat":"Le champ '{0}' doit \u00EAtre au format 'votre.adresse_e-mail@exemple.fr'",
-	"htmlErrorDatesOrder":"Les champs '{0}' et '{1}' doivent respecter un ordre chronologique",
-	"htmlErrorRequireInteger":"Le champ '{0}' doit \u00EAtre un entier positif",
-	"htmlErrorRequireDouble":"Le champ '{0}' doit \u00EAtre un nombre positif autorisant '.' et ',' comme s\u00E9parateurs",
-	"htmlErrorMaxValue":"Le champ '{0}' ne peut pas d\u00E9passer {1}",
+    "htmlErrorRequired":"Le champ '{0}' est obligatoire",
+    "htmlErrorMaxLength":"Le champ '{0}' ne doit pas d\u00E9passer {1} caract\u00E8res",
+    "htmlErrorPhoneFormat":"Le champ '{0}' doit uniquement \u00EAtre compos\u00E9 de chiffres et des caract\u00E8res '+.-()'",
+    "htmlErrorFromPickList":"Le champ '{0}' doit \u00EAtre s\u00E9lectionn\u00E9 parmi les propositions de la liste d\u00E9roulante",
+    "htmlErrorEmailFormat":"Le champ '{0}' doit \u00EAtre au format 'votre.adresse_e-mail@exemple.fr'",
+    "htmlErrorDatesOrder":"Les champs '{0}' et '{1}' doivent respecter un ordre chronologique",
+    "htmlErrorRequireInteger":"Le champ '{0}' doit \u00EAtre un entier positif",
+    "htmlErrorRequireDouble":"Le champ '{0}' doit \u00EAtre un nombre positif autorisant '.' et ',' comme s\u00E9parateurs",
+    "htmlErrorMaxValue":"Le champ '{0}' ne peut pas d\u00E9passer {1}",
     "htmlRequiredSubject":"Sujet requis",
     "htmlRequiredMessage":"Message requis",
     "htmlRequiredDuration":"Dur\u00E9e requise",
@@ -26,13 +26,13 @@
     "htmlTextAlreadyRegistered":"d\u00E9j\u00E0 enregistr\u00E9 ?",
 
 
-	"htmlButtonRegister":"Inscription",
-	"htmlButtonLogin":"Connexion",
+    "htmlButtonRegister":"Inscription",
+    "htmlButtonLogin":"Connexion",
     "htmlButtonPasswordForgotten":"Mot de passe oubli\u00E9 ?",
     "htmlButtonRequestPassword":"Envoyer le lien",
     "htmlButtonChangeUser" : "Changer de compte",
-	"htmlButtonOK":"OK",
-	"htmlButtonSendEmail" : "Envoyer un courriel",
+    "htmlButtonOK":"OK",
+    "htmlButtonSendEmail" : "Envoyer un courriel",
     "htmlButtonSend":"Envoyer",
 
 
@@ -804,6 +804,7 @@
     "htmlMeetingChange":"Changer...",
     "htmlMeetingMoveItem":"D\u00E9placez l'objet ici",
     "htmlMeetingAdd":"Ajouter",
+    "htmlTextMeetingDocSeen":"Nous avons vu",
 
         "htmlGotoMeetingUnderConstruction":"Nous travaillons dur pour vous fournir un outil de RDV. Merci pour vos suggestions : team@apps4pro.com",
         "htmlCreateDocumentTakePicture":"Prendre une photo",

@@ -1,4 +1,4 @@
-/*! c4p.client 2014-05-26 10:08 */
+/*! c4p.client 2014-05-26 15:46 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -1065,8 +1065,24 @@ function ctrlAction($scope, $q, $modal, srvData, srvNav, srvFacet, srvConfig, sr
                 for (var c = 0; c < result.length; c++) srvData.newAndSaveAttachment("Attendee", result[c], parentObject);
             });
         });
-    }, $scope.createNewEmail = function(parentObject) {
-        return srvAnalytics.add("Once", "Interest in Meeting Email"), void alert("Under construction ... please try it later");
+    }, $scope.createNewEmail = function(parentObject, body) {
+        if (parentObject) {
+            srvAnalytics.add("Once", "Interest in Meeting Email");
+            var i, postTitle = "Email > " + srvConfig.getItemName(parentObject), idsContact = [], idsDocument = [], attendees = srvData.getTypedDirectLinks(parentObject, "attendee", "Attendee"), attachments = srvData.getTypedDirectLinks(parentObject, "child", "Document"), emailBody = body ? body : "";
+            for (i = 0; i < attendees.length; i++) idsContact.push(attendees[i].id);
+            for (i = 0; i < attachments.length; i++) idsDocument.push(attachments[i].id);
+            var email = {
+                emailType: "normal",
+                subject: postTitle,
+                body: emailBody,
+                contacts: idsContact,
+                documents: idsDocument,
+                emailsInput: []
+            };
+            a4p.safeApply($scope, function() {
+                $scope.addEmailToParent(null, !1, email, parentObject);
+            });
+        }
     }, $scope.sendICal = function(parentObject) {
         var event = parentObject, idsContact = [], attendees = srvData.getTypedDirectLinks(parentObject, "attendee", "Attendee"), organizer = srvData.userObject, startDate = a4pDateParse(event.date_start).getTime(), endDate = a4pDateParse(event.date_end).getTime(), ical = {
             title: event.name,
@@ -2685,6 +2701,35 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
                 var planneeObj = srvData.getObject(plannees[i].object_id.dbid);
                 planneeObj && "Note" == planneeObj.a4p_type ? $scope.currentMeetingNote = planneeObj : planneeObj && ($scope.currentMeetingItem = planneeObj);
             }
+        }
+    }, $scope.meetingCreateNewEmail = function() {
+        if ($scope.meetingItem) {
+            var i, postTitle = $scope.meetingItemName, idsContact = [], emails = [], idsDocument = [], attendees = srvData.getTypedDirectLinks($scope.meetingItem, "attendee", "Attendee");
+            for (i = 0; i < attendees.length; i++) {
+                var attendee = attendees[i], contact = null;
+                attendee && attendee.relation_id && attendee.relation_id.dbid && (contact = srvData.getObject(attendee.relation_id.dbid)), 
+                contact && contact.email && idsContact.push(contact.id);
+            }
+            var emailBody = "";
+            for (i = 0; i < $scope.meetingPlans.length; i++) {
+                for (var plan = $scope.meetingPlans[i], plannees = srvData.getTypedDirectLinks(plan, "plannee", "Plannee"), doc = null, note = null, j = 0; j < plannees.length; j++) {
+                    var planneeObj = srvData.getObject(plannees[j].object_id.dbid);
+                    planneeObj && "Note" == planneeObj.a4p_type ? note = planneeObj : planneeObj && (doc = planneeObj);
+                }
+                var noteHTML = "", titleHTML = "*", docTitleHTML = "";
+                doc && (idsDocument.push(doc.id), docTitleHTML = srvLocale.translations.htmlTextMeetingDocSeen + " " + doc.name), 
+                note && (noteHTML = note.description), plan && (titleHTML = "" + (plan.pos + 1) + " - " + plan.title), 
+                emailBody = emailBody + "" + titleHTML + "\n\r" + docTitleHTML + "\n\r" + noteHTML + "\n\r";
+            }
+            var email = {
+                emailType: "normal",
+                subject: postTitle,
+                body: emailBody,
+                contacts: idsContact,
+                documents: idsDocument,
+                emailsInput: emails
+            };
+            $scope.addEmailToParent(null, !1, email, $scope.meetingItem);
         }
     }, $scope.togglePresentation = function() {}, $scope.setViewerDocList = function() {
         var i;
@@ -5382,12 +5427,13 @@ function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, ti
     $scope.errorMap = {}, $scope.openDialogFct = openDialogFct, $scope.initEditDialogEmailCtrl = function() {
         $scope.srvLocale = srvLocale, $scope.srvData = srvData, $scope.emails = [], $scope.contacts = [], 
         $scope.documents = [], $scope.email = email;
-        for (var i = 0; i < $scope.email.emailsInput.length; i++) $scope.emails.push($scope.email.emailsInput[i]);
-        for (var i = 0; i < $scope.email.contacts.length; i++) {
+        var i;
+        for (i = 0; i < $scope.email.emailsInput.length; i++) $scope.emails.push($scope.email.emailsInput[i]);
+        for (i = 0; i < $scope.email.contacts.length; i++) {
             var contact = $scope.srvData.getObject($scope.email.contacts[i].dbid);
             $scope.contacts.push(contact);
         }
-        for (var i = 0; i < $scope.email.documents.length; i++) {
+        for (i = 0; i < $scope.email.documents.length; i++) {
             var document = $scope.srvData.getObject($scope.email.documents[i].dbid);
             $scope.documents.push(document);
         }
@@ -5407,7 +5453,7 @@ function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, ti
     }, $scope.addEmailToList = function(value) {
         for (var emailAddrList = value.split(";"), i = 0, n = emailAddrList.length; n > i; i++) {
             var emailAddr = emailAddrList[i].trim();
-            "" != emailAddr && (addKeyToList($scope.email.emailsInput, "email", {
+            "" !== emailAddr && (addKeyToList($scope.email.emailsInput, "email", {
                 email: emailAddr
             }), addKeyToList($scope.emails, "email", {
                 email: emailAddr
@@ -5557,8 +5603,8 @@ function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, ti
             }
         }
         for (var j = 0, nbEmail = $scope.emails.length; nbEmail > j; j++) isEmail($scope.emails[j].email) || emailErrors.push(a4pFormat(srvLocale.translations.htmlInvalidEmail, $scope.emails[j].email));
-        emailErrors.length > 0 && ($scope.errorMap.email = emailErrors), "" == $scope.email.subject.trim() && ($scope.errorMap.subject = srvLocale.translations.htmlRequiredSubject), 
-        "" == $scope.email.body.trim() && ($scope.errorMap.message = srvLocale.translations.htmlRequiredMessage);
+        emailErrors.length > 0 && ($scope.errorMap.email = emailErrors), "" === $scope.email.subject.trim() && ($scope.errorMap.subject = srvLocale.translations.htmlRequiredSubject), 
+        "" === $scope.email.body.trim() && ($scope.errorMap.message = srvLocale.translations.htmlRequiredMessage);
     }, $scope.openDialogPasteNote = function() {
         var menus = [], toPasteDoc = [];
         menus.push({
@@ -28645,6 +28691,7 @@ c4p || (c4p = {}), c4p.Locale = {
         htmlMeetingChange: "Change...",
         htmlMeetingMoveItem: "Move item here",
         htmlMeetingAdd: "Add",
+        htmlTextMeetingDocSeen: "We have seen",
         htmlGotoMeetingUnderConstruction: "We are working hard here on providing a great Meeting Tool. Thanks for your suggestion : team@apps4pro.com",
         htmlCreateDocumentTakePicture: "Take picture",
         htmlCreateDocumentImportOpenWith: "Use 'Open with ...'' link you will find in your Google Drive or other prefered app. You can import here what ever file as document.",
@@ -29375,6 +29422,7 @@ c4p || (c4p = {}), c4p.Locale = {
         htmlMeetingChange: "Changer...",
         htmlMeetingMoveItem: "Déplacez l'objet ici",
         htmlMeetingAdd: "Ajouter",
+        htmlTextMeetingDocSeen: "Nous avons vu",
         htmlGotoMeetingUnderConstruction: "Nous travaillons dur pour vous fournir un outil de RDV. Merci pour vos suggestions : team@apps4pro.com",
         htmlCreateDocumentTakePicture: "Prendre une photo",
         htmlCreateDocumentImportOpenWith: "Utilisez le lien 'Ouvrir avec ...' de Google Drive ou de vos apps préférées. Vous pouvez importer ici les fichiers en tant que document.",
@@ -34949,7 +34997,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/guider/requestPassword.html", '<div ng-controller="ctrlConfig" class="c4p-vertical-container"><div class=""><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3><h7 class="col-xxs-12 col-sm-offset-3 col-sm-6 white bigger">{{translate(\'htmlGuiderTextPasswordForgotten\')}}</h7></div><form class="form-horizontal" name="forgottenPwdForm" novalidate style="min-height: 300px"><div class="form-group row" ng-class="{\'has-error\':forgottenPwdForm.$invalid}"><div class="col-xxs-12 col-sm-offset-3 col-sm-6"><c4p-input class="form-control" ng-model="configLogin.email" placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}" type="mail" required></c4p-input></div></div><div class="row"><button ng-click="requestPassword()" class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-3" ng-disabled="forgottenPwdForm.$invalid || isEditFocused">{{translate(\'htmlButtonRequestPassword\')}}</button> <button class="btn btn-link white col-xxs-12 col-sm-3" ng-click="gotoLogin()" ng-disabled="isEditFocused">{{srvLocale.translations.htmlButtonLogin}}</button></div></form></div></div>'), 
     $templateCache.put("partials/guider/validation.html", '<div class=""><div class=""><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3></div><div class="row"><span class="pull-left col-sm-offset-3 white" ng-switch="navigationA4pSpinnerState"><span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh glyphicon-spin" ng-switch-when="run"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh alert-error" ng-switch-when="doneWithPb"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh close" ng-switch-when="offline"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh" ng-switch-default=""></span> <span ng-show="(srvData.objectsToDownload.length + srvData.objectsToSave.length)">{{srvData.objectsToDownload.length + srvData.objectsToSave.length}}</span></span> <span class="col-xxs-11 col-sm-6 white">{{translate(\'htmlGuiderTextValidation\')}}</span></div><div class="row"><a4p-carousel class="col-xxs-12 col-sm-offset-3 col-sm-6"><a4p-slide active="true"><span ng-bind-html="to_trusted(srvLocale.translations.htmlGuiderTextWaiting)"></span></a4p-slide></a4p-carousel></div></div></div>'), 
     $templateCache.put("partials/guider/validationReceiveRes.html", '<div class=""><div class=""><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3></div><div class="row"><div class="form-group error col-xxs-12 col-sm-offset-3 col-sm-6 white"><label class="control-label">{{translate(messageGuider)}}</label></div></div><div class="row" style="min-height: 300px"><button class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-4" ng-click="gotoLogin()">{{translate(\'htmlButtonLogin\')}}</button> <a class="btn btn-link white col-xxs-12 text-center col-sm-2" ng-click="gotoSlide(pageGuider, slideGuiderRequestPassword)">{{translate(\'htmlButtonPasswordForgotten\')}}</a></div></div></div>'), 
-    $templateCache.put("partials/meeting/header.html", '<!doctype html><nav class="navbar navbar-default navbar-fixed-top"><div class="container"><ul class="nav navbar-nav col-xxs-2"><li><button class="btn btn-link c4p-color-action-transparent" ng-click="quitMeetingView()" ng-hide="modeLock" ng-disabled="isEditFocused"><i class="glyphicon glyphicon-fw glyphicon-chevron-left"></i></button></li></ul><form class="col-xxs-8"><h5 class="col-xxs-10 btn" style="text-align:right;margin:0;text-transform: capitalize" ng-show="!itemNameEditable" ng-disabled="isEditFocused" ng-click="eventItemName = meetingItemName;editMeetingTitle()">{{meetingItemName}}</h5><div class="col-xxs-10" ng-show="itemNameEditable"><input type="text" class="form-control" ng-model="eventItemName"></div><button type="submit" class="col-xxs-2 btn btn-link" ng-show="itemNameEditable" ng-click="saveItemName(eventItemName)" ng-disabled="isEditFocused"><i class="glyphicon glyphicon-check"></i></button><div class="col-xxs-2 dropdown" ng-show="!itemNameEditable"><button class="btn btn-link dropdown-toggle" ng-disabled="isEditFocused"><i class="glyphicon glyphicon-caret-down"></i></button><ul style="overflow-x:hidden" class="dropdown-menu c4p-dropdown-menu c4p-details-menu-align" role="menu"><li class="c4p-color-gradient0" ng-hide="modeLock" ng-class="{\'disabled\': actionMap.createNewEmail.disabled}" ng-click="doAction(\'createNewEmail\')"><span class="c4p-icon-std glyphicon glyphicon-{{actionMap.createNewEmail.icon}}"></span> <span>{{srvLocale.translations.htmlActionName.createNewEmail}}</span></li></ul></div></form><ul class="nav navbar-nav col-xxs-2"><li class="pull-right" ng-show="plans.length > 0"><button ng-click="togglePresentation();toggleFullScreen()" class="btn btn-link" ng-disabled="isEditFocused"><i class="glyphicon glyphicon-fw" ng-class="{\'glyphicon-play\':!isFullScreen, \'glyphicon-stop\':isFullScreen}"></i></button></li></ul></div></nav>'), 
+    $templateCache.put("partials/meeting/header.html", '<!doctype html><nav class="navbar navbar-default navbar-fixed-top"><div class="container"><ul class="nav navbar-nav col-xxs-2"><li><button class="btn btn-link c4p-color-action-transparent" ng-click="quitMeetingView()" ng-hide="modeLock" ng-disabled="isEditFocused"><i class="glyphicon glyphicon-fw glyphicon-chevron-left"></i></button></li></ul><form class="col-xxs-8"><h5 class="col-xxs-10 btn" style="text-align:right;margin:0;text-transform: capitalize" ng-show="!itemNameEditable" ng-disabled="isEditFocused" ng-click="eventItemName = meetingItemName;editMeetingTitle()">{{meetingItemName}}</h5><div class="col-xxs-10" ng-show="itemNameEditable"><input type="text" class="form-control" ng-model="eventItemName"></div><button type="submit" class="col-xxs-2 btn btn-link" ng-show="itemNameEditable" ng-click="saveItemName(eventItemName)" ng-disabled="isEditFocused"><i class="glyphicon glyphicon-check"></i></button><div class="col-xxs-2 dropdown" ng-show="!itemNameEditable"><button class="btn btn-link dropdown-toggle" ng-disabled="isEditFocused"><i class="glyphicon glyphicon-caret-down"></i></button><ul style="overflow-x:hidden" class="dropdown-menu c4p-dropdown-menu c4p-details-menu-align" role="menu"><li class="c4p-color-gradient0" ng-hide="modeLock" ng-click="meetingCreateNewEmail()"><span class="c4p-icon-std glyphicon glyphicon-{{actionMap.createNewEmail.icon}}"></span> <span>{{srvLocale.translations.htmlActionName.createNewEmail}}</span></li></ul></div></form><ul class="nav navbar-nav col-xxs-2"><li class="pull-right" ng-show="plans.length > 0"><button ng-click="togglePresentation();toggleFullScreen()" class="btn btn-link" ng-disabled="isEditFocused"><i class="glyphicon glyphicon-fw" ng-class="{\'glyphicon-play\':!isFullScreen, \'glyphicon-stop\':isFullScreen}"></i></button></li></ul></div></nav>'), 
     $templateCache.put("partials/meeting/main.html", '<!doctype html><div ng-controller="ctrlAction" ng-init="watchSrvNav()"><div ng-controller="ctrlEditFocus"><div ng-controller="ctrlMeeting" class="c4p-meeting-body"><header ng-include="\'partials/meeting/header.html\'"></header><aside id="c4p-meeting-side-do-not-use-deprecated" ng-class="{\'c4p-meeting-aside-hidden\' : !showMeetingAside}" ng-include="\'partials/meeting/meeting_aside.html\'"></aside><div class="c4p-waiting" ng-show="meetingLoadingSpinner" c4p-animateshow="meetingLoadingSpinner" after-hide="afterMeetingSpinnerHide()" after-show="afterMeetingSpinnerShow()"><div ng-include="\'partials/spinner.html\'"></div></div><div ng-controller="ctrlViewer" ng-if="!meetingLoadingSpinner"><article id="c4p-meeting-page-do-not-use-deprecated" ng-class="{\'c4p-meeting-article-full\' : !showMeetingAside}" ng-include="\'\'+meetingCurrentPanel"></article></div></div></div></div>'), 
     $templateCache.put("partials/meeting/meeting_aside.html", '<!doctype html><div class="c4p-aside-body"><nav class="navbar"><div class="container"><ul class="nav nav-pills"><li ng-class="{\'active\': (meetingSelectedActionItem == \'plan\')}"><a ng-click="setActionItem(\'plan\', \'side\')" ng-disabled="isEditFocused" class="btn"><i class="glyphicon glyphicon-fw glyphicon-{{actionItems[\'plan\'].icon}}"></i></a></li><li ng-class="{\'active\': (meetingSelectedActionItem != \'plan\')}"><a ng-click="setActionItem(\'select\', \'side\');" ng-disabled="isEditFocused" class="btn"><i class="glyphicon glyphicon-fw glyphicon-{{actionItems[\'others\'].icon}}"></i></a></li><li class="pull-right"><a ng-click="toggleMeetingAside()" ng-disabled="isEditFocused" ng-show="showMeetingAside" class="btn"><i class="glyphicon glyphicon-fw glyphicon-angle-left"></i></a> <a ng-click="toggleMeetingAside()" ng-disabled="isEditFocused" ng-hide="showMeetingAside" class="btn"><i class="glyphicon glyphicon-fw glyphicon-angle-right"></i></a></li></ul></div></nav><aside class="c4p-container"><div class="c4p-container-scroll-y" ng-include="\'\'+meetingAsidePanel"></div></aside><div class="btn btn-danger" ng-class="{\'active\' : dropOver}" ng-show="dragIsActive" ng-controller="ctrlMeetingRemoveDrop" sense-opts="{name:\'dropObjectTrash\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)" sense-dropend="dropEnd($event)" style="position:fixed;z-index:1041;bottom:0;left:0;text-align: center; width:100%"><span class="glyphicon glyphicon-trash-o"></span></div></div>'), 
     $templateCache.put("partials/meeting/meeting_draggable_summarized_item.html", '<!doctype html> meeting_draggable_summarized_item.html ???<div class="col-xxs-12 c4p-link5" ng-controller="ctrlDragObject" ng-init="init(item)" sense-opts="{bubble:true, watchRefresh:[\'srvNav.item\', \'srvNav.holdItem\']}" sense-shorttap="tapOnLinkedObject(item, firstSingleTap(item.id.dbid));" sense-doubletap="firstSingleTap(\'\');tapOnLinkedObject(item)" sense-longdragoverenter="dragOverEnter($event)" sense-longdragoverleave="dragOverLeave($event)" sense-longdragstart="dragStart($event)" sense-longdragmove="dragMove($event)" sense-longdragend="dragEnd($event)" sense-longdragcancel="dragCancel($event)"><div ng-include="\'partials/navigation/cards/summarized_card.html\'" ng-class="{\'c4p-hover-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableHover, \'c4p-border-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableBorder}" style="border-width: 1px;padding:2px"></div></div>'), 
