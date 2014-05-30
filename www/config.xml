@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0"
     xmlns:gap="http://phonegap.com/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android"
-    id="com.apps4pro.c4pdev" version="14.0530.16">
+    id="com.apps4pro.c4pdev" version="14.0530.18">
 
     <name>C_d</name>
     <description>C_d</description>
@@ -202,6 +202,12 @@
     <gap:splash src="mobile_res/android/images/res-long-land-ldpi/default.png"  gap:platform="android" gap:density="ldpi" width="320" height="200" />
 
     <!-- iPhone / iPod Touch  -->
+    <icon src="res/iphone/appicon.png" gap:platform="ios" width="57" height="57" />
+    <icon src="res/iphone/appicon@2x.png" gap:platform="ios" width="114" height="114" />
+
+    <icon src="res/iphone/appicon-72.png" gap:platform="ios" width="72" height="72" />
+    <icon src="res/iphone/appicon-72@2x.png" gap:platform="ios" width="144" height="144" />
+    
     <icon src="mobile_res/iphone/appicon-60.png" gap:platform="ios" width="60" height="60" />
     <icon src="mobile_res/iphone/appicon-60@2x.png" gap:platform="ios" width="120" height="120" />
     <!-- iPad -->
