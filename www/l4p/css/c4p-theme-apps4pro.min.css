@@ -23386,9 +23386,6 @@ body {
   height: 100%;
   width: 100%;
 }
-.c4p-container-scroll-y > .c4p-container {
-  bottom: -20px;
-}
 .c4p-absolute {
   position: absolute;
 }
@@ -24003,6 +24000,9 @@ body {
   font-size: initial;
   color: #ffffff;
 }
+.c4p-login-body .c4p-container-scroll-y > .c4p-container {
+  bottom: -200px;
+}
 /*!
  * C4P Cards
  */
@@ -24062,41 +24062,8 @@ body {
 .c4p-card-synchronized .c4p-card-progress {
   color: #c9a734;
 }
-.c4p-card-synchronized:after {
-  color: #c9a734;
-  font-family: "fa-a4p";
-  font-size: 2em;
-  content: "\F0DA";
-  -webkit-transform: rotate(45deg);
-  position: relative;
-  top: -0.5em;
-  right: -0.6em;
-  float: right;
-}
-.c4p-card-synchronized-not:after {
-  color: #e6e6e6;
-  font-family: "fa-a4p";
-  font-size: 2em;
-  content: "\F0DA";
-  -webkit-transform: rotate(45deg);
-  position: relative;
-  top: -0.5em;
-  right: -0.6em;
-  float: right;
-}
 .c4p-card-synchronized-pb .c4p-card-progress {
   color: #e51400;
-}
-.c4p-card-synchronized-pb:after {
-  color: #e51400;
-  font-family: "fa-a4p";
-  font-size: 2em;
-  content: "\F0DA";
-  -webkit-transform: rotate(45deg);
-  position: relative;
-  top: -0.5em;
-  right: -0.6em;
-  float: right;
 }
 .c4p-card-summarized {
   font-size: 1em;
@@ -24106,6 +24073,9 @@ body {
   font-size: 1.125em;
   padding-bottom: 0.2em;
   font-weight: 700;
+}
+.c4p-card-summarized .c4p-card-progress {
+  display: none;
 }
 .c4p-card-summarized .c4p-card-thumb {
   min-height: 0;
@@ -24127,16 +24097,6 @@ body {
 .c4p-card-summarized .c4p-card-thumb .glyphicon-star.c4p-outline-star {
   opacity: 0.6;
 }
-/*
-.c4p-card-side {
-  display: inline-block;
-  margin:0;
-  text-align: center;
-}
-
-.c4p-card-large {
-	margin-right:40px;
-}*/
 .c4p-header-std {
   position: relative;
   display: block;
