@@ -6041,8 +6041,6 @@ button.close {
   border-radius: 0em;
   -webkit-font-smoothing: inherit;
   box-shadow: inherit;
-  /* background-clip: padding-box; */
-  /* outline: 0; */
   -webkit-overflow-scrolling: hidden;
   overflow-y: hidden;
   overflow-x: hidden;
@@ -6069,10 +6067,10 @@ button.close {
   background-color: #ffffff;
   padding: 0;
   margin: 0;
-  position: absolute !important;
+  position: fixed !important;
   top: 0;
-  left: 0;
   bottom: 0;
+  left: 0;
   right: 0;
 }
 .modal.c4p-modal-full .modal-header,
@@ -6087,10 +6085,10 @@ button.close {
 .modal.c4p-modal-left .modal-body {
   padding: 0;
   margin: 0;
-  position: absolute !important;
+  position: fixed !important;
   top: 0;
-  left: 0;
   bottom: 0;
+  left: 0;
   right: 0;
   -webkit-touch-callout: none;
   /* prevent callout to copy image, etc when tap to hold */
@@ -6189,18 +6187,6 @@ button.close {
 .modal.c4p-modal-left .modal-footer {
   margin-left: 50px;
 }
-/*
-.modal-right .modal-toolbox {
-  right: 0;
-  width: @c4p-toolbox-width;
-  background: @green;
-}
-
-.modal-left .modal-toolbox {
-  left: 0;
-  width: @c4p-toolbox-width;
-  background: @gray;
-}*/
 .modal-backdrop.c4p-modal-full,
 .modal-backdrop.c4p-modal-large,
 .modal-backdrop.c4p-modal-small,
@@ -6208,10 +6194,10 @@ button.close {
 .modal-backdrop.c4p-modal-left {
   padding: 0;
   margin: 0;
-  position: absolute !important;
+  position: fixed !important;
   top: 0;
-  left: 0;
   bottom: 0;
+  left: 0;
   right: 0;
   -webkit-overflow-scrolling: hidden;
   overflow-y: hidden;
@@ -6246,115 +6232,6 @@ button.close {
   -ms-filter: opacity(30%) blur(5px) sepia(100%);
   filter: opacity(30%) blur(5px) sepia(100%);
 }
-/*
-// C4P Modal Guider
-// --------------------
-.modal.c4p-guider {
-  background-color: rgba(255, 255, 255, 0);
-  left: 0;
-  right: 0;
-  width: 100%;
-  margin: 0;
-  border: 0;
-  .modal-body {
-    //height:100%;
-  }
-  p {
-    text-align: left;
-    //margin-top: 20%;
-    margin-left: auto;
-    margin-right: auto;
-    display: inline-block;
-    padding: 20px;
-    background: rgba(245, 245, 245, 0.81);
-    width: 50%;
-    -webkit-box-shadow: 0px 0px 100px white, 0px 0px 100px white;
-  }
-  .carousel-indicators {
-    top: 10%;
-    right: 50%;
-  }
-  .c4p-guider-close {
-    position: fixed;
-    bottom: 10px;
-    right: -40px;
-    width: 120px;
-    z-index: 9999;
-    .c4p-link1 {
-      -webkit-box-shadow: 0px 0px 50px @orange;
-      background: @orange;
-      border-radius: 10px;
-      padding-bottom: 30px;
-      padding-right: 30px;
-
-      margin-right: 30px;
-      padding-left: 20px;
-      padding-top: 20px;
-      margin-top: 20px;
-      margin-left: 20px;
-    }
-  }
-
-}
-
-
-.modal-backdrop.c4p-guider {
-  opacity: 0.5;
-}
-*/
-/*
-.modal.c4p-modal-share,
-.modal.c4p-modal-note,
-.modal.c4p-modal-mail {
-  .modal-body {
-    //height: 100%;
-  }
-  z-index:1030;
-
-  .inBackground {
-    -webkit-filter: blur(2px) grayscale(0.5) opacity(0.8);
-  }
-  .tab-content {
-    overflow: none;
-  }
-}
-
-.modal.c4p-modal-search {
-  max-width: 30em;
-}
-
-.modal.c4p-modal-create {
-
-}
-*/
-/**
-//TODO : remove trop violent
-.modal.c4p-modal-confirm,
-.modal.c4p-modal-demo,
-.modal.c4p-modal-pin,
-.modal.c4p-modal-goto-meeting {
-
-  background-color: transparent;
-  //top: 0;
-  //left: 0;
-  //right: 0;
-  //bottom: 0;
-  //overflow: hidden;
-
-  //max-width: 20em;
-  //background-color: @body-bg;
-  //margin: auto;
-  //width: 80%;
-  //height: 80%;
-
-  * {
-    color: @gray-dark;
-  }
-  .modal-body {
-    //height: 100%;
-  }
-}
-*/
 .c4p-modal-confirm-btns {
   height: 2em;
 }
@@ -6375,10 +6252,10 @@ button.close {
 .c4p-modal-img {
   padding: 0;
   margin: 0;
-  position: absolute !important;
+  position: fixed !important;
   top: 0;
-  left: 0;
   bottom: 0;
+  left: 0;
   right: 0;
 }
 .c4p-modal-img .c4p-modal-img-container {
