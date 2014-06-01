@@ -1,4 +1,4 @@
-/*! c4p.client 2014-05-31 19:53 */
+/*! c4p.client 2014-06-01 22:08 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -1493,7 +1493,7 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
                 }
             }
         }
-        for (null == currentGroup && (currentGroup = createGroup(currentDay)); lastDayMonth >= currentDay; ) {
+        for (currentGroup || (currentGroup = createGroup(currentDay)); lastDayMonth >= currentDay; ) {
             for (var week = {
                 id: a4pWeek(currentDay),
                 days: []
@@ -1520,7 +1520,7 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
                         }
                     }
                 }
-                null == currentGroup && (currentGroup = createGroup(currentDay));
+                currentGroup || (currentGroup = createGroup(currentDay));
             }
             monthWeeks.push(week);
         }
@@ -1579,7 +1579,7 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
             $scope.filterCriteriaEventGroup = "date", $scope.calendarHoursDay = $scope.srvLocale.getHoursDay(), 
             $scope.calendarMonths = $scope.srvLocale.getMonths();
             var back = $scope.srvNav.lastInHistoryWithType("Event");
-            if (null != back) {
+            if (back) {
                 var selEvent = $scope.srvData.getObject(back.id);
                 $scope.calendarSelected = a4pDateParse(selEvent.date_start);
             } else $scope.calendarSelected = new Date();
@@ -1664,9 +1664,9 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
         return isBegin && evtStartDate > dateBegin ? b = !0 : !isBegin && dateEnd > evtEndDate && (b = !0), 
         b;
     }, $scope.addItemDialog = function(type, hour) {
-        var now = new Date(), hourBegin = now.getHours() + 1, hourEnd = now.getHours() + 2;
-        hour && (hourBegin = hour, hourEnd = hour + 1);
-        var selectedDayAsDate = $scope.calendarSelected, selectedDayAsDateStart = new Date(selectedDayAsDate.getFullYear(), selectedDayAsDate.getMonth(), selectedDayAsDate.getDate(), hourBegin, 0, 0, 0), selectedDayAsDateEnd = new Date(selectedDayAsDate.getFullYear(), selectedDayAsDate.getMonth(), selectedDayAsDate.getDate(), hourEnd, 0, 0, 0), newEvent = $scope.srvData.createObject("Event", {
+        var now = new Date(), hourBegin = now.getHours();
+        hour && (hourBegin = hour);
+        var hourEnd = hourBegin + 1, mnBegin = now.getMinutes(), mnEnd = mnBegin, selectedDayAsDate = $scope.calendarSelected, selectedDayAsDateStart = new Date(selectedDayAsDate.getFullYear(), selectedDayAsDate.getMonth(), selectedDayAsDate.getDate(), hourBegin, mnBegin, 0, 0), selectedDayAsDateEnd = new Date(selectedDayAsDate.getFullYear(), selectedDayAsDate.getMonth(), selectedDayAsDate.getDate(), hourEnd, mnEnd, 0, 0), newEvent = $scope.srvData.createObject("Event", {
             name: srvLocale.translations.htmlTextDefaultEventName,
             date_start: a4pDateFormat(selectedDayAsDateStart),
             date_end: a4pDateFormat(selectedDayAsDateEnd)
@@ -1718,9 +1718,12 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
         var array = [ event.name ];
         $scope.openDialogConfirm(srvLocale.translations.htmlTextConfirmDelete, array, function(confirm) {
             confirm && a4p.safeApply($scope, function() {
-                for (var attendees = $scope.srvData.getRemoteLinks(event, "attendee"), i = 0; i < attendees.length; i++) $scope.srvData.delAndSaveAttachment("Attendee", attendees[i], event);
-                for (var attachees = $scope.srvData.getRemoteLinks(event, "attachee"), i = 0; i < attachees.length; i++) $scope.srvData.delAndSaveAttachment("Attachee", attachees[i], event);
-                for (var children = $scope.srvData.getRemoteLinks(event, "child"), i = 0; i < children.length; i++) $scope.srvData.removeAndSaveObject(children[i]);
+                var i, attendees = $scope.srvData.getRemoteLinks(event, "attendee");
+                for (i = 0; i < attendees.length; i++) $scope.srvData.delAndSaveAttachment("Attendee", attendees[i], event);
+                var attachees = $scope.srvData.getRemoteLinks(event, "attachee");
+                for (i = 0; i < attachees.length; i++) $scope.srvData.delAndSaveAttachment("Attachee", attachees[i], event);
+                var children = $scope.srvData.getRemoteLinks(event, "child");
+                for (i = 0; i < children.length; i++) $scope.srvData.removeAndSaveObject(children[i]);
                 $scope.srvData.removeAndSaveObject(event), onEventChange();
             });
         });
@@ -2337,9 +2340,9 @@ function ctrlDetailedObject($scope, $sce, srvLocale, srvData, srvNav, srvLink, s
             $scope.itemName = srvConfig.getItemName(item), $scope.isFile = !!c4p.Model.files[item.a4p_type], 
             $scope.isVideo = $scope.isVideoFormatSupported(), $scope.linkedItems = {}, $scope.cards = [], 
             $scope.allDayEvent = !1, $scope.manyDayEvent = !1;
-            var objDesc = c4p.Model.a4p_types[$scope.item.a4p_type], editDesc = objDesc.editObjectFields, cards = objDesc.displayDetailedObjectCards;
+            var valueIdx, valueNb, targetItem, objDesc = c4p.Model.a4p_types[$scope.item.a4p_type], editDesc = objDesc.editObjectFields, cards = objDesc.displayDetailedObjectCards;
             if ($scope.item.date_start && $scope.item.date_end) {
-                var startDate = srvLocale.formatDate($scope.item.date_start, "shortDate"), endDate = srvLocale.formatDate($scope.item.date_end, "shortDate");
+                var startDate = srvLocale.formatDate($scope.item.date_start, "c4pShortDate"), endDate = srvLocale.formatDate($scope.item.date_end, "c4pShortDate");
                 startDate != endDate ? ($scope.manyDayEvent = !0, $scope.allDayEvent = !0) : $scope.item.duration_hours > 23 && ($scope.allDayEvent = !0);
             }
             if (a4p.isDefined(editDesc) && a4p.isDefined(cards)) for (var cardIdx = 0, cardNb = cards.length; cardNb > cardIdx; cardIdx++) {
@@ -2358,28 +2361,17 @@ function ctrlDetailedObject($scope, $sce, srvLocale, srvData, srvNav, srvLink, s
                         fields: []
                     }, fieldIdx = 0, fieldNb = groupDesc.fields.length; fieldNb > fieldIdx; fieldIdx++) {
                         var fieldType = "", value = "", fieldTitle = "", fieldDesc = groupDesc.fields[fieldIdx], fieldKey = fieldDesc.key, fieldValue = $scope.item[fieldKey], isLink = objDesc.linkDescs[fieldKey], isArray = a4p.isDefined(c4p.Model.objectArrays[$scope.item.a4p_type][fieldKey]);
-                        if (isLink) {
-                            fieldTitle = srvLocale.translations.htmlShortLinkName[objDesc.linkDescs[fieldKey].one], 
-                            fieldType = "";
-                            var targetItem;
-                            if (isArray) {
-                                value = [];
-                                for (var valueIdx = 0, valueNb = fieldValue.length; valueNb > valueIdx; valueIdx++) targetItem = srvData.getObject(fieldValue[valueIdx].dbid), 
-                                targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, value.push(srvConfig.getItemName(targetItem)));
-                            } else targetItem = srvData.getObject(fieldValue.dbid), targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, 
-                            value = srvConfig.getItemName(targetItem));
-                        } else if (a4p.isDefined(editDesc[fieldKey])) (a4p.isDefined(editDesc[fieldKey].type) || a4p.isDefined(fieldDesc.type)) && (fieldType = fieldDesc.type ? fieldDesc.type : editDesc[fieldKey].type), 
+                        if (isLink) if (fieldTitle = srvLocale.translations.htmlShortLinkName[objDesc.linkDescs[fieldKey].one], 
+                        fieldType = "", isArray) for (value = [], valueIdx = 0, valueNb = fieldValue.length; valueNb > valueIdx; valueIdx++) targetItem = srvData.getObject(fieldValue[valueIdx].dbid), 
+                        targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, value.push(srvConfig.getItemName(targetItem))); else targetItem = srvData.getObject(fieldValue.dbid), 
+                        targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, value = srvConfig.getItemName(targetItem)); else if (a4p.isDefined(editDesc[fieldKey])) (a4p.isDefined(editDesc[fieldKey].type) || a4p.isDefined(fieldDesc.type)) && (fieldType = fieldDesc.type ? fieldDesc.type : editDesc[fieldKey].type), 
                         a4p.isDefined(editDesc[fieldKey].title) && (fieldTitle = srvLocale.translations[editDesc[fieldKey].title]), 
                         "duration" == fieldType ? $scope.allDayEvent ? (fieldType = "datetime", value = fieldValue) : (fieldType = "", 
                         value = $scope.item.duration_hours + ":" + a4pPadNumber($scope.item.duration_minutes, 2)) : "samedayTIME" == fieldType ? $scope.manyDayEvent ? (fieldType = "dateTIME", 
-                        value = fieldValue) : (fieldType = "TIME", value = fieldValue) : value = fieldValue; else if (a4p.isDefined(fieldValue)) value = fieldValue; else {
-                            fieldTitle = srvLocale.translations.htmlShortLinkName[fieldKey], fieldType = "", 
-                            isArray = !0, value = [], fieldValue = srvData.getRemoteLinks($scope.item, fieldKey);
-                            for (var valueIdx = 0, valueNb = fieldValue.length; valueNb > valueIdx; valueIdx++) {
-                                var targetItem = fieldValue[valueIdx];
-                                targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, value.push(srvConfig.getItemName(targetItem)));
-                            }
-                        }
+                        value = fieldValue) : (fieldType = "TIME", value = fieldValue) : value = fieldValue; else if (a4p.isDefined(fieldValue)) value = fieldValue; else for (fieldTitle = srvLocale.translations.htmlShortLinkName[fieldKey], 
+                        fieldType = "", isArray = !0, value = [], fieldValue = srvData.getRemoteLinks($scope.item, fieldKey), 
+                        valueIdx = 0, valueNb = fieldValue.length; valueNb > valueIdx; valueIdx++) targetItem = fieldValue[valueIdx], 
+                        targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, value.push(srvConfig.getItemName(targetItem)));
                         var field = {
                             key: fieldKey,
                             title: fieldDesc.title ? fieldTitle : "",
@@ -2412,23 +2404,18 @@ function ctrlDetailedObject($scope, $sce, srvLocale, srvData, srvNav, srvLink, s
         var html = text.replace(new RegExp("\r?\n", "g"), "<br />");
         return html = $sce.trustAsHtml(html);
     }, $scope.dataListener = srvData.addListenerOnUpdate(function(callbackId, action, type, id) {
-        if ("clear" == action) a4p.safeApply($scope, function() {
+        var object;
+        "clear" == action ? a4p.safeApply($scope, function() {
             $scope.clear();
-        }); else if ("remove" == action) $scope.item && $scope.item.id.dbid == id ? a4p.safeApply($scope, function() {
+        }) : "remove" == action ? $scope.item && $scope.item.id.dbid == id ? a4p.safeApply($scope, function() {
             $scope.clear();
         }) : $scope.linkedItems[id] && a4p.safeApply($scope, function() {
             $scope.init(srvNav.item);
-        }); else if ("set" == action) {
-            var object = srvData.getObject(id);
-            $scope.item && ($scope.item.id.dbid == id || $scope.linkedItems[id] || object && srvData.hasAnyLinkTo($scope.item, object)) && a4p.safeApply($scope, function() {
-                $scope.init(srvNav.item);
-            });
-        } else if ("add" == action) {
-            var object = srvData.getObject(id);
-            $scope.item && object && srvData.hasAnyLinkTo($scope.item, object) && a4p.safeApply($scope, function() {
-                $scope.init(srvNav.item);
-            });
-        }
+        }) : "set" == action ? (object = srvData.getObject(id), $scope.item && ($scope.item.id.dbid == id || $scope.linkedItems[id] || object && srvData.hasAnyLinkTo($scope.item, object)) && a4p.safeApply($scope, function() {
+            $scope.init(srvNav.item);
+        })) : "add" == action && (object = srvData.getObject(id), $scope.item && object && srvData.hasAnyLinkTo($scope.item, object) && a4p.safeApply($scope, function() {
+            $scope.init(srvNav.item);
+        }));
     }), $scope.navListener = srvNav.addListenerOnUpdate(function(callbackId, action) {
         "clear" == action ? a4p.safeApply($scope, function() {
             $scope.clear();
@@ -2498,11 +2485,12 @@ function ctrlDragObject($scope, $modal, $timeout, srvLocale, srvData, srvNav, sr
 }
 
 function ctrlInlinedObject($scope, srvData, srvConfig, srvLocale) {
+    "use strict";
     $scope.init = function(item) {
         item && ($scope.inlinedItem = item, $scope.inlinedItemIcon = $scope.getObjectIcon(item), 
         $scope.inlinedItemColor = $scope.getObjectColor(item), $scope.inlinedItemName = $scope.getObjectName(item), 
         $scope.inlinedItemSecondName = "", $scope.inlinedItem.a4p_type && "Event" == $scope.inlinedItem.a4p_type ? ($scope.inlinedItem.name && ($scope.inlinedItemName = $scope.inlinedItem.name), 
-        $scope.inlinedItem.date_start && ($scope.inlinedItemSecondName = srvLocale.formatDate($scope.inlinedItem.date_start, "shortDate"))) : !$scope.inlinedItem.a4p_type || "Note" != $scope.inlinedItem.a4p_type && "Document" != $scope.inlinedItem.a4p_type || $scope.inlinedItem.created_date && ($scope.inlinedItemSecondName = srvLocale.formatDate($scope.inlinedItem.created_date, "shortDate")));
+        $scope.inlinedItem.date_start && ($scope.inlinedItemSecondName = srvLocale.formatDate($scope.inlinedItem.date_start, "c4pShortDateTime"))) : !$scope.inlinedItem.a4p_type || "Note" != $scope.inlinedItem.a4p_type && "Document" != $scope.inlinedItem.a4p_type || $scope.inlinedItem.created_date && ($scope.inlinedItemSecondName = srvLocale.formatDate($scope.inlinedItem.created_date, "c4pShortDateTime")));
     };
 }
 
@@ -2666,12 +2654,20 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
     }, $scope.saveItemName = function(value) {
         value ? ($scope.itemNameEditable = !1, $scope.meetingItem.name = value) : $scope.itemNameEditable = !1;
     }, $scope.saveMeetingPlanTitle = function(value) {
-        value ? ($scope.meetingPlanTitleEditable = !1, $scope.selectedMeetingPlan.title = value) : $scope.itemNameEditable = !1;
+        value ? ($scope.meetingPlanTitleEditable = !1, $scope.selectedMeetingPlan.title = value, 
+        $scope.currentMeetingNote.title = _getPlanTitleForNote($scope.meetingItem, $scope.selectedMeetingPlan)) : $scope.itemNameEditable = !1;
     }, $scope.toggleMeetingAside = function() {
         $scope.showMeetingAside = !$scope.showMeetingAside;
     }, $scope.meetingSetReadyForDragObject = function() {
         $scope.showMeetingAside = !0, $scope.setActionItem("select", "side");
-    }, $scope.addMeetingElement = function() {
+    };
+    var _getPlanTitleForNote = function(parentObject, plan) {
+        var parentName = srvConfig.getItemName(parentObject);
+        parentObject.name && (parentName = parentObject.name);
+        var title = parentName + "." + plan.pos + "." + plan.title;
+        return title;
+    };
+    $scope.addMeetingElement = function() {
         var plan = srvData.createObject("Plan", {
             parent_id: $scope.meetingItem.id,
             title: srvLocale.translations.htmlMeetingNoTitle
@@ -2679,7 +2675,7 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
         plan.pos = $scope.meetingPlans.length;
         var note = {
             a4p_type: "Note",
-            title: srvLocale.translations.htmlFormTitle,
+            title: _getPlanTitleForNote($scope.meetingItem, plan),
             description: ""
         }, noteObject = $scope.addNewNote(note);
         srvData.newAttachment("Plannee", noteObject, plan), srvData.addObject(plan), $scope.meetingPlans.push(plan), 
@@ -2709,8 +2705,8 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
     }, $scope.meetingTakePictureObj = function() {
         $scope.doAction("createNewPicture").then(function(obj) {
             a4p.safeApply($scope, function() {
-                a4p.isDefinedAndNotNull(obj) && $scope.selectedMeetingPlan && ($scope.selectedMeetingPlan.title = srvConfig.getItemName(obj), 
-                srvData.newAttachment("Plannee", obj, $scope.selectedMeetingPlan), $scope.updateMeetingObj());
+                a4p.isDefinedAndNotNull(obj) && $scope.selectedMeetingPlan && (srvData.newAttachment("Plannee", obj, $scope.selectedMeetingPlan), 
+                $scope.updateMeetingObj());
             });
         });
     }, $scope.meetingTakePicture = function() {
@@ -2821,7 +2817,7 @@ function ctrlMeetingElementDrop($scope) {
 function ctrlMeetingObjLinkDrop($scope, srvData) {
     "use strict";
     $scope.dndActive = !1, $scope.dropOver = !1, $scope.dragObject = null, $scope.dndStart = function(event) {
-        event.dataTransfer && event.dataTransfer.a4p_type && a4p.safeApply($scope, function() {
+        event.dataTransfer && event.dataTransfer.a4p_type && "Document" == event.dataTransfer.a4p_type && a4p.safeApply($scope, function() {
             $scope.dndActive = !0, $scope.dragObject = event.dataTransfer;
         });
     }, $scope.dndEnd = function() {
@@ -2842,7 +2838,7 @@ function ctrlMeetingObjLinkDrop($scope, srvData) {
         });
     }, $scope.dropEnd = function(event) {
         var obj = event.dataTransfer;
-        if (obj.a4p_type) {
+        if (obj.a4p_type && "Document" == obj.a4p_type) {
             var aPlan = $scope.selectedMeetingPlan;
             srvData.newAttachment("Plannee", obj, aPlan), a4p.safeApply($scope, function() {
                 $scope.updateMeetingObj();
@@ -3444,7 +3440,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
         b;
     }, $scope.addEmailToParent = function(item, share, email, parent) {
         var targetDirPath = "a4p/c4p/doc", now = new Date(), itemName = srvConfig.getItemName(item), parentName = srvConfig.getItemName(parent), normalizedParentName = parentName.replace(/ /g, "_"), documentInsert = srvData.createObject("Document", {
-            name: "email_" + normalizedParentName + "_" + srvLocale.formatDate(a4pDateParse(a4pDateFormat(now)), "shortDate").replace(/\//g, "-") + ".pdf",
+            name: "email_" + normalizedParentName + "_" + srvLocale.formatDate(a4pDateParse(a4pDateFormat(now)), "c4pShortDate").replace(/\//g, "-") + ".pdf",
             body: "",
             length: "0",
             path: targetDirPath,
@@ -3609,8 +3605,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
             });
         });
     }, $scope.takePicture = function(parentObject) {
-        var deferred = $q.defer();
-        return srvData.takePicture(parentObject, srvConfig.getItemName(parentObject)).then(function(document) {
+        var deferred = $q.defer(), picName = srvConfig.getItemName(parentObject);
+        return parentObject.name && (picName = parentObject.name), srvData.takePicture(parentObject, picName).then(function(document) {
             var msg = "Picture file written to " + document.filePath;
             msg += srvData.isDemo ? ". In demo mode, the picture is not uploaded." : ". It will be uploaded as soon as possible.", 
             a4p.safeApply($scope, function() {
@@ -4866,6 +4862,7 @@ function ctrlSingleTap($scope) {
 }
 
 function ctrlSummarizedObject($scope, srvLocale, srvData, srvLink, srvConfig) {
+    "use strict";
     $scope.srvLocale = srvLocale, $scope.linkedItems = {}, $scope.dataListener = srvData.addListenerOnUpdate(function(callbackId, action, type, id) {
         "clear" == action ? a4p.safeApply($scope, function() {
             $scope.clear();
@@ -4889,7 +4886,7 @@ function ctrlSummarizedObject($scope, srvLocale, srvData, srvLink, srvConfig) {
         if ($scope.item = item, $scope.itemIcon = c4p.Model.getItemIcon(item), $scope.itemName = srvConfig.getItemName(item), 
         $scope.isFile = !!c4p.Model.files[item.a4p_type], $scope.linkedItems = {}, $scope.allDayEvent = !1, 
         $scope.manyDayEvent = !1, $scope.item.date_start && $scope.item.date_end) {
-            var startDate = srvLocale.formatDate($scope.item.date_start, "shortDate"), endDate = srvLocale.formatDate($scope.item.date_end, "shortDate");
+            var startDate = srvLocale.formatDate($scope.item.date_start, "c4pShortDate"), endDate = srvLocale.formatDate($scope.item.date_end, "c4pShortDate");
             startDate != endDate ? ($scope.manyDayEvent = !0, $scope.allDayEvent = !0) : $scope.item.duration_hours > 23 && ($scope.allDayEvent = !0);
         }
         $scope.groups = [];
@@ -5807,6 +5804,7 @@ function ctrlEditDialogFeedback($scope, srvLocale, title, message, onlyFeedback,
 }
 
 function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, attendees, attachments, noteParentObject, note, editable, modeEdit, spinner, openDialogFct, $modalInstance) {
+    "use strict";
     function initFields() {
         $scope.objectValidated = !0, $scope.objectGroups = [];
         var groups, objDesc = c4p.Model.a4p_types[note.a4p_type];
@@ -5896,9 +5894,10 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
                 fn: $scope.openDialogAddRatings,
                 icon: "star"
             } ];
-        } else {
+        } else if (!$scope.note.title) {
             var noteName = srvConfig.getItemName($scope.noteParentObject);
-            noteName = a4pFormat(srvLocale.translations.htmlTitleNoteOf, noteName), $scope.note.title = noteName || srvLocale.translations.htmlTitleTypeNote;
+            $scope.noteParentObject.name && (noteName = $scope.noteParentObject.name), noteName = sanitizeFilename(noteName, !0), 
+            $scope.note.title = noteName || srvLocale.translations.htmlTitleTypeNote;
         }
     }, $scope.toggleObjectGroupFilter = function(group) {
         group && ($scope.objectGroupFilter = group, $scope.setLastChange());
@@ -6582,6 +6581,7 @@ function ctrlFacetSelectedDialog($scope, $modalInstance, srvData, srvFacet, srvL
 }
 
 function ctrlGoToMeetingDialog($scope, item, version, srvData, srvNav, srvLink, srvLocale, srvConfig, srvAnalytics, $modalInstance) {
+    "use strict";
     $scope.item = item, $scope.itemName = srvConfig.getItemName(item), $scope.relatedEvents = [], 
     $scope.selectedEvent = null, $scope.srvLocale = srvLocale, $scope.isDemo = srvData.isDemo, 
     $scope.init = function() {
@@ -35013,7 +35013,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/dialog/dialogGoToMeeting.html", '<!doctype html><div class="modal-header col-xxs-12 c4p-color-gradient0"><ul class="nav nav-pills"><li class="hidden-xs"><a class="btn disabled"><h5>{{srvLocale.translations.htmlGotoMeeting}}</h5></a></li><li class="pull-right"><a class="btn" ng-click="close()" ng-disabled="isEditFocused"><span class="">&times;</span></a></li></ul></div><div class="modal-body col-xxs-12 c4p-color-gradient0"><div class="c4p-container-scroll-y"><div class="c4p-container"><div class="col-xxs-12"><div class="table-responsive"><table class="table table-bordered"><tr><td><ul class="nav nav-pills"><li><a class="btn disabled" style="text-align:left">{{srvLocale.translations.htmlCreateEmptyMeeting}}</a></li><li class="pull-right"><a class="btn" ng-click="createNewMeeting()"><i class="glyphicon glyphicon-chevron-right"></i></a></li></ul></td></tr><tr><td><ul class="nav nav-pills"><li><a class="btn disabled" style="text-align:left">{{srvLocale.translations.htmlGotoMeetingWith}}</a></li><li style="width:50%"><a class="btn disabled a4p-dot" style="text-align:left">{{itemName}}</a></li><li class="pull-right"><a class="btn" ng-click="createNewMeeting(item)"><i class="glyphicon glyphicon-chevron-right"></i></a></li></ul></td></tr><tr><td><ul class="nav nav-pills" ng-show="relatedEvents.length"><li><a class="btn disabled" style="text-align:left">{{srvLocale.translations.htmlUseExistingMeeting}}</a></li></ul><ul class="nav nav-pills" ng-show="relatedEvents.length"><li><a class="btn" style="text-align:left"><select class="form-control" ng-model="selectedEvent" ng-options="e.name for e in relatedEvents"></select></a></li><li class="pull-right"><a class="btn" ng-click="gotoMeeting()"><i class="glyphicon glyphicon-chevron-right"></i></a></li></ul></td></tr></table></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogICal.html", '<div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-padding-w-packed c4p-color-action-transparent"><span>{{srvLocale.translations.htmlActionName[\'sendICal\']}}</span></div><div class="btn c4p-color-action-transparent" ng-click="openDialogContacts()"><span class="glyphicon glyphicon-user"></span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right"><div class="btn c4p-padding-w-packed c4p-color-action-transparent" ng-click="sendICal()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-envelope"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent-transparent c4p-stroke" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div class="c4p-color-a-gradient3"><div class="row"><div class="col-xxs-12" resizecss-height="getResizeHeight() -getPathValue(\'parentNode.parentNode.previousElementSibling\', \'offsetHeight\')" sense-opts="{name:\'dialogICal\', axeY:\'scroll\', watchRefresh:\'mailLastUpdate\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-color-a-gradient1"><div class="c4p-card"><span class="c4p-size-bigger">{{ical.title}}</span><br><span>{{srvLocale.formatDate(ical.startDate, \'short\')}}</span> - <span>{{srvLocale.formatDate(ical.endDate, \'short\')}}</span><br><span>{{ical.location}}</span></div></div><div class="c4p-form-group c4p-color-a-gradient2"><div class="row"><div><c4p-input title-var="srvLocale.translations.htmlFormTo" ng-model="emailInput" ng-blur="addEmailToList(emailInput);emailInput=\'\';" placeholder="{{srvLocale.translations.htmlFormToPlaceHolder}}" style="width: 100%"></c4p-input></div></div><div class="row c4p-mail-attachment-list c4p-color-a-gradient2" ng-show="(emails.length > 0 || contacts.length > 0)"><div class="col-xxs-12"><div><div ng-repeat="item in contacts" class="row c4p-mail-attachment" ng-class="{\'c4p-edit\': modeEdit, \'c4p-noedit\': !modeEdit}"><span ng-controller="ctrlNamedObject" ng-init="init(item)" class="c4p-mail-attachment-name">{{itemName}}</span> <a ng-click="closeAlert($index,\'contact\')"><span class="glyphicon glyphicon-remove"></span></a></div><div ng-repeat="item in emails" class="c4p-mail-attachment" ng-class="{\'c4p-edit\': modeEdit, \'c4p-noedit\': !modeEdit}"><span class="c4p-mail-attachment-name">{{item.email}}</span> <a ng-click="closeAlert($index,\'email\')"><span class="glyphicon glyphicon-remove"></span></a></div></div></div></div><div ng-show="errorMap.email.length > 0"><div class="help-inline c4p-field-error-message" ng-repeat="error in errorMap.email">{{error}}</div></div></div><div class="c4p-color-a-gradient3"><div class="c4p-card"><p>{{ical.description}}</p></div></div><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogNote.html", '<div ng-controller="ctrlEditFocus"><div class="modal-header row c4p-color-gradient0"><div class="col-xxs-12"><ul class="nav nav-pills"><li class="hidden-xs" ng-hide="removeEnabled"><a class="btn disabled"><h5>{{srvLocale.translations.htmlTitleNewObject[note.a4p_type]}}</h5></a></li><li class="hidden-xs" ng-show="removeEnabled"><a class="btn disabled"><h5>{{srvLocale.translations.htmlTitleEditObject[note.a4p_type]}}</h5></a></li><li ng-show="removeEnabled && modeEdit"><a class="btn c4p-color-cancel-transparent" ng-click="remove()" ng-disabled="isEditFocused"><span class="glyphicon glyphicon-trash-o"></span></a></li><li ng-show="srvData.isMethodPossibleForObject(\'shareDocumentByEmail\', note)"><a class="btn" ng-click="submitAndShare()" ng-disabled="isEditFocused" ng-class="{\'disabled\': srvData.isMethodDisabledForObject(\'shareDocumentByEmail\', note)}"><span class="glyphicon glyphicon-envelope"></span></a></li><li ng-show="srvData.isMethodPossibleForObject(\'shareDocumentByEmail\', note)"><a class="btn" ng-click="submitAndShareByChatter()" ng-disabled="isEditFocused" ng-class="{\'disabled\': srvData.isMethodDisabledForObject(\'shareDocumentByChatter\', note)}"><span class="glyphicon glyphicon-share"></span></a></li><li ng-show="editable && !modeEdit"><a class="btn" ng-click="setModeEdit(true)" ng-disabled="isEditFocused"><span class="glyphicon glyphicon-edit"></span></a></li><li ng-show="modeEdit"><a class="btn" ng-disabled="isEditFocused" ng-repeat="footer in toolboxInEditMode" ng-click="startSpinner();footer.fn()"><span class="glyphicon glyphicon-{{footer.icon}}"></span></a></li><li class="pull-right"><a class="btn" ng-click="close()" ng-disabled="isEditFocused"><span class="">&times;</span></a></li><li class="pull-right" ng-hide="!modeEdit"><a class="btn" ng-click="submit()" ng-disabled="isEditFocused"><div ng-class="{\'c4p-color-ok-transparent\' : objectValidated, \'c4p-color-cancel-transparent\' : !objectValidated}"><span class="glyphicon glyphicon-check"></span></div></a></li></ul></div></div><div class="modal-body row c4p-color-gradient0"><div class="c4p-container-scroll-y"><div class="c4p-container" ng-switch="" on="note.a4p_type"><div ng-switch-when="Report"><div ng-include="\'partials/dialog/dialogNote_report.html\'"></div></div><div ng-switch-default=""><div ng-include="\'partials/dialog/dialogNote_note.html\'"></div></div></div></div></div></div>'), 
-    $templateCache.put("partials/dialog/dialogNote_note.html", '<section class="row"><div ng-repeat="group in objectGroups"><div class="col-xxs-12 col-sm-8 col-sm-offset-2 c4p-color-a-gradient{{$index+1}} c4p-form-group"><div ng-repeat="field in group.groupFields"><div ng-switch="" on="field.type"><div ng-switch-default="text" ng-show="removeEnabled"><c4p-input warn-var="field.warn" title-var="" ng-model="note[field.key]" type-var="field.type" rows="5" cols="20" ng-change="onFieldChanged(field)" ng-disabled="isEditFocused"></c4p-input></div><blockquote ng-switch-when="textarea"><c4p-input warn-var="field.warn" title-var="" ng-model="note[field.key]" type-var="field.type" rows="10" cols="20" ng-change="onFieldChanged(field)" ng-disabled="isEditFocused"></c4p-input></blockquote></div></div></div></div></section>'), 
+    $templateCache.put("partials/dialog/dialogNote_note.html", '<!doctype html><section class="row"><div ng-repeat="group in objectGroups"><div class="col-xxs-12 col-sm-8 col-sm-offset-2 c4p-color-a-gradient{{$index+1}} c4p-form-group"><div ng-repeat="field in group.groupFields"><div ng-switch="" on="field.type"><div ng-switch-default="text" ng-show="removeEnabled"><c4p-input warn-var="field.warn" title-var="" ng-model="note[field.key]" type-var="field.type" rows="5" cols="20" ng-change="onFieldChanged(field)" ng-disabled="isEditFocused"></c4p-input></div><blockquote ng-switch-when="textarea"><c4p-input warn-var="field.warn" title-var="" ng-model="note[field.key]" type-var="field.type" rows="10" cols="20" ng-change="onFieldChanged(field)" ng-disabled="isEditFocused"></c4p-input></blockquote></div></div></div></div></section>'), 
     $templateCache.put("partials/dialog/dialogNote_report.html", '<div class="row" ng-show="modeEdit"><div class="col-xxs-12"><form class="c4p-color-a-gradient{{objectGroups.length}}"><marker ng-repeat="group in objectGroups"><div class="c4p-color-a-gradient{{$index+1}} c4p-form-group"><span class="c4p-form-group-title">{{group.title}}</span><fieldset ng-repeat="field in group.groupFields"><c4p-input warn-var="field.warn" title-var="field.title" ng-model="note[field.key]" type-var="field.type" rows="5" cols="20" ng-change="onFieldChanged(field)"></c4p-input></fieldset></div></marker></form><div class="col-xxs-12 c4p-form-group"><span class="c4p-form-group-title"><c4p-pluralize count="toolboxContacts.length" when="srvLocale.translations.pluralHtmlTextReportPeople"></span><ul class="nav nav-pills" ng-repeat="item in toolboxContacts"><li ng-controller="ctrlNamedObject" ng-init="init(item)"><span class="c4p-detail-c-bg"><span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> {{itemName}}</span> <span class="glyphicon glyphicon-times-circle c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeContact($index)"></span> </li></ul></div><div class="col-xxs-12 c4p-form-group"><span class="c4p-form-group-title"><c4p-pluralize count="toolboxDocs.length" when="srvLocale.translations.pluralHtmlTextReportDoc"></span><ul class="nav nav-pills" ng-repeat="item in toolboxDocs"><li ng-controller="ctrlNamedObject" ng-init="init(item)"><span class="c4p-detail-c-bg"><span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> {{itemName}}</span> <span class="glyphicon glyphicon-remove c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeDoc($index)"></span> </li></ul></div><div class="col-xxs-12 c4p-form-group"><span class="c4p-form-group-title">{{srvLocale.translations.htmlDialogNoteReportObservation}}</span><ul class="nav nav-pills" ng-repeat="item in toolboxRatings"><span ng-show="modeEdit" ng-include="\'partials/navigation/cards/4_rating.html\'" style="padding:0 10px"></span> <span ng-hide="modeEdit" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span> <span class="glyphicon glyphicon-remove c4p-well-c-tool-bar" ng-show="modeEdit" ng-click="removeRating($index)"></span></ul></div></div><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div><div class="row" ng-controller="ctrlDetailedObject" ng-init="init(note)" c4p-show="!modeEdit"><div class="col-xxs-12"><div class="c4p-color-a-gradient{{$index}}" ng-repeat="card in cards"><div class="c4p-card"><div ng-show="isFile && $first" class="btn" ng-class="{\'disabled\': actionMap.viewDocument.disabled}" ng-click="doAction(\'viewDocument\')" style="background: url(\'{{item.thumb_url}}\') no-repeat center center;width:100%;height: 250px;-webkit-background-size: contain"></div><span ng-repeat="group in card.groups" style="margin:0;padding:0" class="c4p-size-{{group.size}}"><br ng-show="card.brSeparated && ($index > 0)"><span><span ng-show="group.synchro && (item.c4p_synchro.creating || item.c4p_synchro.writing || item.c4p_synchro.reading || item.c4p_synchro.deleting)" class="glyphicon" ng-class="{\r\n                                    \'glyphicon-trash\'    : (item.c4p_synchro.deleting > 1),\r\n                                    \'glyphicon-remove\'   : (!item.c4p_synchro.deleting && (item.c4p_synchro.creating > 1)),\r\n                                    \'glyphicon-upload\'   : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && (item.c4p_synchro.writing > 1)),\r\n                                    \'glyphicon-download\' : (!item.c4p_synchro.deleting && !item.c4p_synchro.creating && !item.c4p_synchro.writing && (item.c4p_synchro.reading > 1)),\r\n                                    \'glyphicon-spinner\'  : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1)),\r\n                                    \'icon-spin\'          : ((item.c4p_synchro.deleting == 1) || (item.c4p_synchro.creating == 1) || (item.c4p_synchro.writing == 1) || (item.c4p_synchro.reading == 1))\r\n                                  }"></span>  <span ng-show="group.name">{{itemName}}</span> <span ng-show="group.title">{{group.title}}</span></span> <span ng-repeat="field in group.fields" class="c4p-size-{{field.size}}"><span ng-show="($index > 0)"></span> <span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{item}}" target="_blank"><span>{{item}}</span></a></span> <span ng-switch-when="currency"><span>{{item | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{item}}%</span></span> <span ng-switch-when="probability"><span>{{item}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(item, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(item, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(item, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{item | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{item}}</span></span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><span ng-switch-when="tel"><a class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="mail"><a class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="url"><a class="c4p-color-lnk" href="{{field.value}}" target="_blank"><span>{{field.value}}</span></a></span> <span ng-switch-when="currency"><span>{{field.value | c4pCurrency}}</span></span> <span ng-switch-when="percent"><span>{{field.value}}%</span></span> <span ng-switch-when="probability"><span>{{field.value}}%</span></span> <span ng-switch-when="datetime"><span>{{srvLocale.formatDate(field.value, \'short\')}}</span></span> <span ng-switch-when="date"><span>{{srvLocale.formatDate(field.value, \'shortDate\')}}</span></span> <span ng-switch-when="time"><span>{{srvLocale.formatDate(field.value, \'shortTime\')}}</span></span> <span ng-switch-when="number"><span>{{field.value | c4pNumber}}</span></span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding:0 10px"></span></span> <span ng-switch-default=""><span>{{field.value}}</span></span></span></span></span> <span ng-show="field.suffix">{{field.suffix}}</span></span></span></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogSelectCrms.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogSelectCrmUse}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="validateDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:\'visibleElements.length\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="crm in possibleCrms"><div ng-click="toggleItem(crm)" class="clearfix c4p-link5"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':!selectedCrms[crm]}"></span><label class="pull-left" ng-class="{scrollTop:element.scrollTo}"><span>{{srvLocale.translations.htmlConfigCrmList[crm]}}</span></label></div></li></ul></div></div>'), 
     $templateCache.put("partials/dialog/dialogSelectObjects.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed c4p-color-action-transparent c4p-stroke" ng-show="createButton" ng-click="createObject()"><span class="c4p-icon-std glyphicon glyphicon-plus"></span></div><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlTitleSelection[type]}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="validateDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div class="c4p-dialog-search-container c4p-color-a-dark-iii"><div class="row"><div class="col-xxs-12"><span>{{srvLocale.translations.htmlTitleSelection[type]}}</span></div></div><div class="row" ng-show="suggestedOptions.length"><div class="col-xxs-12 btn-group dropdown"><button class="btn dropdown-toggle" data-toggle="dropdown" style="text-align: left"><span class="c4p-n_1">{{srvLocale.translations.htmlTypeName[type]}}</span><span class="glyphicon glyphicon-caret-down"></span></button><ul class="dropdown-menu" style="width:100%"><li ng-repeat="suggestedOption in suggestedOptions"><a ng-click="toggleSuggestion($index)"><span class="glyphicon glyphicon-ok" ng-show="suggestedOption.selected"></span> <span style="vertical-align:top">{{srvLocale.translations.htmlSuggestionName[suggestedOption.name]}}</span> <span class="badge glyphicon glyphicon-{{suggestedOption.icon}}" style="vertical-align:bottom" ng-show="suggestedOption.icon"></span></a></li></ul></div></div><div class="row"><div class="controls controls-row col-xxs-12" style="position: relative"><input style="width:90%" placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}" ng-model="showFilter"><span style="position: absolute; right: 10px" ng-show="forceSearch" ng-click="search()"><span class="glyphicon glyphicon-search"></span></span></div></div><div class="row"><div class="col-xxs-12" ng-show="(suggestedOptions | filter:{selected:true}).length">{{srvLocale.translations.htmlDialogSelectObjectsSugestionFilterIn}} <span ng-repeat="suggestedOption in suggestedOptions | filter:{selected:true}"><a class="active">{{srvLocale.translations.htmlSuggestionName[suggestedOption.name]}}</a> <span ng-hide="$last">,</span></span></div></div><div class="row"><div class="col-xxs-12" ng-show="(suggestedOptions | filter:{selected:true}).length == 0">{{srvLocale.translations.htmlDialogSelectObjectsSugestionFilterIn}} <a>{{srvLocale.translations.htmlSuggestionName[\'all\']}}</a></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:\'visibleElements.length\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="element in (visibleElements = ( elements | listFilter:showFilter:false:\'selected\' | orderBy:\'showName\':false ))"><div ng-click="toggleItem(element.id)" class="clearfix c4p-link5 c4p-select-objects-item"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':!selectedIndex[element.id].selected}"></span> <div class="pull-left" ng-controller="ctrlNamedObject" ng-init="init(element.object)" ng-class="{scrollTop:element.scrollTo}"><span>{{itemName}}</span></div><span ng-repeat="suggestedOption in suggestedOptions" class="badge glyphicon glyphicon-{{suggestedOption.icon}}" ng-show="selectedIndex[element.id][suggestedOption.name]"></span></div></li></ul></div></div>'), 
@@ -35076,7 +35076,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/navigation/cards/4_rating_ro.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><span class="glyphicon glyphicon-unchecked icon-large"></span> <span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span class="glyphicon glyphicon-star-empty icon-large"></span> <span style="padding:0 0 0 10px">{{item.name}}</span></span></span>'), 
     $templateCache.put("partials/navigation/cards/4_rating_ro2.html", '<span style="position:relative;side:left" ng-switch="" on="item.type"><span ng-switch-when="check"><c4p-check ng-model="item.value" readonly></c4p-check><span style="padding:0 0 0 10px">{{item.name}}</span></span> <span ng-switch-when="star"><span style="padding:0 10px 0 0">{{item.name}}</span><c4p-angular-ratings ng-model="item.value" readonly></c4p-angular-ratings></span></span>'), 
     $templateCache.put("partials/navigation/cards/detail_card.html", '<!doctype html><div class="row"><div class="c4p-card-text" ng-class="{\'col-xxs-12\': !cardHasThumb,\'col-xxs-11\' : (cardHasThumb && (cardIsAboutFile || cardIsAboutVideo || cardItem.a4p_type == \'Event\')),\'col-sm-9 col-xxs-11\' : (cardHasThumb && !cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\')}"><div ng-repeat="group in cardGroups" class="col-xxs-12 c4p-size-{{group.size}}"><span ng-if="group.name && cardItem.a4p_type != \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItemName}}</span> <span ng-if="group.name && cardItem.a4p_type == \'Event\'" ng-class="{\'a4p-dot\': (cardIsAboutFile || cardIsAboutVideo)}">{{cardItem.name}}</span> <span ng-if="group.title">{{group.title}}</span> <address ng-if="group.fields.length > 1" class="col-xxs-12"><ul class="list-inline"><li ng-repeat-start="field in group.fields" ng-show="group.icon && $first && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li ng-repeat-end=""><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address><address ng-if="group.fields.length == 1" ng-init="field = group.fields[0]" class="col-xxs-12"><ul ng-class="{\'list-inline\': field.type !=\'textarea\', \'list-unstyled\': field.type ==\'textarea\'}"><li ng-show="group.icon && field.value && field.value.length" class=""><i class="glyphicon glyphicon-fw glyphicon-{{group.icon}}" ng-class="{\'c4p-icon-calendar-allday\':allDayEvent}"></i></li><li><div class="c4p-size-{{field.size}}" ng-include="\'partials/navigation/cards/detail_field.html\'"></div></li></ul></address></div></div><div class="c4p-card-thumb pull-right col-xxs-1" ng-if="cardHasThumb"><div class="pull-right c4p-color-action-transparent" ng-click="doAction(\'toggleFavorite\')"><span class="c4p-icon-std glyphicon c4p-outline-star" ng-class="{\'glyphicon-star\' : srvData.isTaggedFavorite(cardItem), \'glyphicon-star-o\' : !srvData.isTaggedFavorite(cardItem)}"></span></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutFile && !cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><div class="btn c4p-card-thumb-media" ng-class="{\'disabled\': (actionMap.viewDocument.mustBeCreated)}" ng-click="viewDocument(cardItem)" style="background:url(\'{{cardItem.thumb_url}}\') no-repeat center center;-webkit-background-size: cover"></div></div><div class="c4p-card-thumb center-block col-xxs-11" ng-if="cardHasThumb && cardIsAboutVideo && cardItem.a4p_type != \'Event\'"><video controls="" ng-src="{{cardItem.url}}" class="c4p-card-thumb-media"></video></div><div class="c4p-card-progress col-xxs-11 col-xxs-offset-1" ng-if="cardHasThumb"><div style="font-size: 0.5em;margin-bottom: 0;text-align: right"><span ng-show="cardIsAboutFile && srvNav.item.c4pSynchroStatus.cloud.status == 1">{{srvLocale.translations.htmlMsgFeedbackUploadFileQuestion}} <i class="glyphicon glyphicon-question-circle" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'UploadFile\',srvLocale.translations.htmlMsgFeedbackUploadFile)"></i></span> <span ng-show="srvNav.item.c4pSynchroStatus.cloud.status == 3">{{srvLocale.translations.htmlTextSynchroStatusOK}}</span> </div></div></div>'), 
-    $templateCache.put("partials/navigation/cards/detail_field.html", ' <span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{item}}" target="_blank">{{item}}</a> <a ng-switch-when="mail" class="c4p-color-lnk" href="mailto:{{item}}" target="_blank">{{item}}</a> <a ng-switch-when="url" class="c4p-color-lnk" href="{{item}}" target="_blank">{{item}}</a> <span ng-switch-when="currency">{{item | c4pCurrency}}</span> <span ng-switch-when="percent">{{item}}%</span> <span ng-switch-when="probability">{{item}}%</span> <span ng-switch-when="datetime">{{srvLocale.formatDate(item, \'short\')}}</span> <span ng-switch-when="dateTIME">{{srvLocale.formatDate(item, \'shortDate\')}} <b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span> <span ng-switch-when="date">{{srvLocale.formatDate(item, \'shortDate\')}}</span> <span ng-switch-when="time">{{srvLocale.formatDate(item, \'shortTime\')}}</span> <span ng-switch-when="TIME"><b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span> <span ng-switch-when="number">{{item | c4pNumber}}</span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="renderHtmlText(item)"></blockquote><address ng-switch-when="address">{{item}}</address><span ng-switch-default="">{{item}}</span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank">{{field.value}}</a> <a ng-switch-when="mail" class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank">{{field.value}}</a> <a ng-switch-when="url" class="c4p-color-lnk" href="{{field.value}}" target="_blank">{{field.value}}</a> <span ng-switch-when="currency">{{field.value | c4pCurrency}}</span> <span ng-switch-when="percent">{{field.value}}%</span> <span ng-switch-when="probability">{{field.value}}%</span> <span ng-switch-when="datetime">{{srvLocale.formatDate(field.value, \'short\')}}</span> <span ng-switch-when="dateTIME">{{srvLocale.formatDate(field.value, \'shortDate\')}} <b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span> <span ng-switch-when="date">{{srvLocale.formatDate(field.value, \'shortDate\')}}</span> <span ng-switch-when="time">{{srvLocale.formatDate(field.value, \'shortTime\')}}</span> <span ng-switch-when="TIME"><b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span> <span ng-switch-when="number">{{field.value | c4pNumber}}</span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="renderHtmlText(field.value)"></blockquote><address ng-switch-when="address">{{field.value}}</address><span ng-switch-default="">{{field.value}}</span></span></span></span> <span ng-if="field.suffix">{{field.suffix}}</span>'), 
+    $templateCache.put("partials/navigation/cards/detail_field.html", '<!doctype html> <span ng-show="field.title">{{field.title}} :</span> <span ng-show="field.prefix">{{field.prefix}}</span> <span ng-switch="field.isArray"><span ng-switch-when="true"><span ng-repeat="item in field.value"><span ng-show="($index > 0) && (field.separator != \'br\')">{{field.separator}}</span><br ng-show="($index > 0) && (field.separator == \'br\')"><span ng-switch="field.type"><a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{item}}" target="_blank">{{item}}</a> <a ng-switch-when="mail" class="c4p-color-lnk" href="mailto:{{item}}" target="_blank">{{item}}</a> <a ng-switch-when="url" class="c4p-color-lnk" href="{{item}}" target="_blank">{{item}}</a> <span ng-switch-when="currency">{{item | c4pCurrency}}</span> <span ng-switch-when="percent">{{item}}%</span> <span ng-switch-when="probability">{{item}}%</span> <span ng-switch-when="datetime">{{srvLocale.formatDate(item, \'c4pShortDateTime\')}}</span> <span ng-switch-when="dateTIME">{{srvLocale.formatDate(item, \'c4pShortDate\')}} <b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span> <span ng-switch-when="date">{{srvLocale.formatDate(item, \'c4pShortDate\')}}</span> <span ng-switch-when="time">{{srvLocale.formatDate(item, \'shortTime\')}}</span> <span ng-switch-when="TIME"><b>{{srvLocale.formatDate(item, \'shortTime\')}}</b></span> <span ng-switch-when="number">{{item | c4pNumber}}</span> <span ng-switch-when="rating"><span ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="renderHtmlText(item)"></blockquote><address ng-switch-when="address">{{item}}</address><span ng-switch-default="">{{item}}</span></span></span></span> <span ng-switch-default=""><span ng-switch="field.type"><a ng-switch-when="tel" class="c4p-color-lnk" href="tel:{{field.value}}" target="_blank">{{field.value}}</a> <a ng-switch-when="mail" class="c4p-color-lnk" href="mailto:{{field.value}}" target="_blank">{{field.value}}</a> <a ng-switch-when="url" class="c4p-color-lnk" href="{{field.value}}" target="_blank">{{field.value}}</a> <span ng-switch-when="currency">{{field.value | c4pCurrency}}</span> <span ng-switch-when="percent">{{field.value}}%</span> <span ng-switch-when="probability">{{field.value}}%</span> <span ng-switch-when="datetime">{{srvLocale.formatDate(field.value, \'c4pShortDateTime\')}}</span> <span ng-switch-when="dateTIME">{{srvLocale.formatDate(field.value, \'c4pShortDate\')}} <b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span> <span ng-switch-when="date">{{srvLocale.formatDate(field.value, \'c4pShortDate\')}}</span> <span ng-switch-when="time">{{srvLocale.formatDate(field.value, \'shortTime\')}}</span> <span ng-switch-when="TIME"><b>{{srvLocale.formatDate(field.value, \'shortTime\')}}</b></span> <span ng-switch-when="number">{{field.value | c4pNumber}}</span> <span ng-switch-when="rating"><span ng-init="item = field.value" ng-include="\'partials/navigation/cards/4_rating_ro2.html\'" style="padding: 0 10px"></span></span><blockquote ng-switch-when="textarea" ng-bind-html="renderHtmlText(field.value)"></blockquote><address ng-switch-when="address">{{field.value}}</address><span ng-switch-default="">{{field.value}}</span></span></span></span> <span ng-if="field.suffix">{{field.suffix}}</span>'), 
     $templateCache.put("partials/navigation/cards/detail_synchro.html", ' <i class="pull-right glyphicon glyphicon-caret-right glyphicon-lg" style="-webkit-transform: rotate(45deg);color:green" ng-style="{\'opacity\': itemSynchro.cloud.progress+\'%\'}"></i><div class="progress" style="margin-bottom:0; height:2px; opacity:0.4" ng-class="{\'progress-striped active\' : 		(itemSynchro.deleting==1)\n													||(itemSynchro.creating==1)\n													||(itemSynchro.writing==1)\n													||(itemSynchro.reading==1)\n													||(itemSynchro.sharing==1)}"><div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="{{itemSynchro.cloud.progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{itemSynchro.cloud.progress}}%"></div><i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-trash-o" ng-show="itemSynchro.deleting"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-bolt" ng-show="itemSynchro.creating"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-volume-up" ng-show="itemSynchro.sharing"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-cloud-upload" ng-show="itemSynchro.writing"></i> <i style="padding-top: 0.9em;font-size: 0.7em" class="pull-right glyphicon glyphicon-cloud-download" ng-show="itemSynchro.reading"></i></div>deleting : {{itemSynchro.deleting}}<br>creating : {{itemSynchro.creating}}<br>writing : {{itemSynchro.writing}}<br>reading : {{itemSynchro.reading}}<br>sharing : {{itemSynchro.sharing}}<br>cloud : {{itemSynchro.cloud.status}} - {{itemSynchro.cloud.progress}} % {{itemSynchro.cloud.log}}'), 
     $templateCache.put("partials/navigation/cards/draggable_inlined_card.html", '<div ng-controller="ctrlDragObject" ng-init="init(cardItem)" sense-opts="{}" sense-longdragoverenter="dragOverEnter($event,$element)" sense-longdragoverleave="dragOverLeave($event,$element)" sense-longdragstart="dragStart($event,$element)" sense-longdragmove="dragMove($event,$element)" sense-longdragend="dragEnd($event,$element)" sense-longdragcancel="dragCancel($event,$element)" sense-holdstart="holdStart($event,$element)" sense-holdstop="holdStop($event,$element)"><div ng-include="\'partials/navigation/cards/inlined_card.html\'"></div></div>'), 
     $templateCache.put("partials/navigation/cards/draggable_summarized_card.html", '<div class="col-xxs-12 c4p-link5" ng-controller="ctrlDragObject" ng-init="init(cardItem)"><div ng-class="{\'c4p-hover-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableHover, \'c4p-border-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableBorder}" style="border-width: 1px;padding:2px" ng-include="\'partials/navigation/cards/summarized_card.html\'"></div></div>'), 
@@ -35084,7 +35084,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/navigation/cards/full_card_note.html", '<!doctype html><div class="row" ng-if="cardItem.a4p_type == \'Note\'"><div class="col-xxs-12 c4p-form-group"><blockquote><c4p-input warn-var="field.warn" title-var="" ng-model="cardItem.description" type-var="\'textarea\'" rows="10" cols="20" ng-change="onFieldChanged(field)" ng-disabled="isEditFocused"></c4p-input></blockquote></div></div>'), 
     $templateCache.put("partials/navigation/cards/full_card_picture.html", '<!doctype html><div class="row" ng-if="cardItem.a4p_type == \'Document\'"><div class="c4p-card-full-thumb center-block col-xxs-12"><div class="btn c4p-card-thumb-media" ng-click="viewDocument(cardItem)" style="background:url(\'{{cardItem.thumb_url}}\') no-repeat center center;-webkit-background-size: cover"></div></div></div>'), 
     $templateCache.put("partials/navigation/cards/full_card_video.html", '<!doctype html><div class="row" ng-if="cardItem.a4p_type == \'Document\'"><div class="c4p-card-full-thumb center-block col-xxs-12"><video controls="" ng-src="{{cardItem.url}}" class="c4p-card-thumb-media"></video></div></div>'), 
-    $templateCache.put("partials/navigation/cards/inlined_card.html", '<ul class="nav nav-pills" ng-controller="ctrlInlinedObject" ng-init="init(cardItem)"><li class="" style="width:95%; text-align: left"><div ng-show="inlinedItemSecondName"><span class="pull-left a4p-dot" style="max-width: 75%">{{inlinedItemName}}</span> <small class="pull-right" style="max-width: 20%; color: rgb(172, 172, 172)">{{inlinedItemSecondName}}</small></div><div ng-hide="inlinedItemSecondName"><span class="pull-left a4p-dot" style="max-width: 95%">{{inlinedItemName}}</span></div></li><li><span ng-show="(inlinedItem.c4p_synchro.creating || inlinedItem.c4p_synchro.writing || inlinedItem.c4p_synchro.reading || inlinedItem.c4p_synchro.deleting)" class="glyphicon" ng-class="{\n            \'glyphicon-trash\'    : (inlinedItem.c4p_synchro.deleting > 1),\n            \'glyphicon-times-circle\' : (!inlinedItem.c4p_synchro.deleting && (inlinedItem.c4p_synchro.creating > 1)),\n            \'glyphicon-upload\'   : (!inlinedItem.c4p_synchro.deleting && !inlinedItem.c4p_synchro.creating && (inlinedItem.c4p_synchro.writing > 1)),\n            \'glyphicon-download\' : (!inlinedItem.c4p_synchro.deleting && !inlinedItem.c4p_synchro.creating && !inlinedItem.c4p_synchro.writing && (inlinedItem.c4p_synchro.reading > 1)),\n            \'glyphicon-spinner\'  : ((inlinedItem.c4p_synchro.deleting == 1) || (inlinedItem.c4p_synchro.creating == 1) || (inlinedItem.c4p_synchro.writing == 1) || (inlinedItem.c4p_synchro.reading == 1)),\n            \'glyphicon-spin\'          : ((inlinedItem.c4p_synchro.deleting == 1) || (inlinedItem.c4p_synchro.creating == 1) || (inlinedItem.c4p_synchro.writing == 1) || (inlinedItem.c4p_synchro.reading == 1))\n        }"></span></li></ul>'), 
+    $templateCache.put("partials/navigation/cards/inlined_card.html", '<!doctype html><ul class="nav nav-pills" ng-controller="ctrlInlinedObject" ng-init="init(cardItem)"><li class="" style="width:95%; text-align: left"><div ng-show="inlinedItemSecondName"><span class="pull-left a4p-dot" style="width: 75%">{{inlinedItemName}}</span> <small class="pull-right" style="width: 20%; color: rgb(172, 172, 172);font-size:0.6em;text-align: right">{{inlinedItemSecondName}}</small></div><div ng-hide="inlinedItemSecondName"><span class="pull-left a4p-dot" style="width: 95%">{{inlinedItemName}}</span></div></li><li><span ng-show="(inlinedItem.c4p_synchro.creating || inlinedItem.c4p_synchro.writing || inlinedItem.c4p_synchro.reading || inlinedItem.c4p_synchro.deleting)" class="glyphicon" ng-class="{\n            \'glyphicon-trash\'    : (inlinedItem.c4p_synchro.deleting > 1),\n            \'glyphicon-times-circle\' : (!inlinedItem.c4p_synchro.deleting && (inlinedItem.c4p_synchro.creating > 1)),\n            \'glyphicon-upload\'   : (!inlinedItem.c4p_synchro.deleting && !inlinedItem.c4p_synchro.creating && (inlinedItem.c4p_synchro.writing > 1)),\n            \'glyphicon-download\' : (!inlinedItem.c4p_synchro.deleting && !inlinedItem.c4p_synchro.creating && !inlinedItem.c4p_synchro.writing && (inlinedItem.c4p_synchro.reading > 1)),\n            \'glyphicon-spinner\'  : ((inlinedItem.c4p_synchro.deleting == 1) || (inlinedItem.c4p_synchro.creating == 1) || (inlinedItem.c4p_synchro.writing == 1) || (inlinedItem.c4p_synchro.reading == 1)),\n            \'glyphicon-spin\'          : ((inlinedItem.c4p_synchro.deleting == 1) || (inlinedItem.c4p_synchro.creating == 1) || (inlinedItem.c4p_synchro.writing == 1) || (inlinedItem.c4p_synchro.reading == 1))\n        }"></span></li></ul>'), 
     $templateCache.put("partials/navigation/cards/summarized_card.html", ' <a ng-controller="ctrlSummarizedObject" ng-init="set(item, \'displaySummarizedObjectGroups\')" ng-click="selectItem(item,true)"><div class="btn c4p-click-intercepted" style="position:absolute;top:0;bottom:0;left:0;right:0"></div><div class="c4p-card c4p-card-summarized c4p-card-thumb c4p-click-through" ng-init="cardItem = item; cardGroups = groups; cardHasThumb = true; cardItemName = itemName; cardIsAboutVideo = isVideo; cardIsAboutFile = isFile;" ng-include="\'partials/navigation/cards/detail_card.html\'"></div></a>');
 } ]);
 
@@ -35891,7 +35891,9 @@ var SrvConfig = function() {
         self.srvDataStore.setItems(type, self.currentItems[type]), !1);
     }
     function sendEmail(self, object) {
-        for (var email = object.email, event = self.getObject(object.parent_id.dbid), emails = [], i = 0; i < email.emailsInput.length; i++) emails.push(email.emailsInput[i].email);
+        var email = object.email, event = self.getObject(object.parent_id.dbid);
+        if (!event || !event.id) return !1;
+        for (var emails = [], i = 0; i < email.emailsInput.length; i++) emails.push(email.emailsInput[i].email);
         for (var i = 0; i < email.contacts.length; i++) {
             var contact = self.getObject(email.contacts[i].dbid);
             emails.push(contact.email);
@@ -37248,7 +37250,13 @@ var SrvConfig = function() {
             };
             navigator.camera.getPicture(onGetPictureSuccess, onGetPictureFailure, {
                 quality: 50,
-                destinationType: Camera.DestinationType.FILE_URI
+                destinationType: Camera.DestinationType.FILE_URI,
+                sourceType: Camera.PictureSourceType.CAMERA,
+                allowEdit: !0,
+                encodingType: Camera.EncodingType.JPEG,
+                mediaType: Camera.MediaType.ALLMEDIA,
+                correctOrientation: !0,
+                saveToPhotoAlbum: !0
             });
         } else {
             for (var onWriteFailure = function(message) {
@@ -37267,6 +37275,83 @@ var SrvConfig = function() {
             self.srvFileStorage.writeFile(fromBlob, filePath, createPicture, onWriteFailure);
         }
         return deferred.promise;
+    }, Service.prototype.getPictureOrMedia = function(parentObject, pictureName) {
+        a4p.InternalLog.log("srvData", "getPictureOrMedia " + pictureName);
+        var deferred = this.q.defer(), self = this, targetDirPath = "a4p/c4p/doc";
+        if (!window.device) return deferred.reject({
+            error: "htmlMsgTakePicturePb",
+            log: msg
+        });
+        var photoRootname = sanitizeFilename(pictureName, !0), photoExtension = window.device ? "jpg" : "png", filePath = normalizedPath(targetDirPath, photoRootname, photoExtension), createPicture = function() {
+            self.srvFileStorage.getUrlFromFile(filePath, function(url) {
+                a4p.safeApply(self.rootScope, function() {
+                    a4p.InternalLog.log("srvData", "Picture file creation ok : filePath = " + filePath + ", url = " + url);
+                    var document = self.createObject("Document", {
+                        name: photoRootname + "." + photoExtension,
+                        body: "",
+                        length: "0",
+                        path: targetDirPath,
+                        description: "",
+                        uid: "pict_" + photoRootname,
+                        url: url,
+                        fileUrl: url,
+                        src: url,
+                        filePath: filePath
+                    });
+                    deferred.resolve(document);
+                });
+            }, function(message) {
+                a4p.safeApply(self.rootScope, function() {
+                    var msg = "Getting URL of picture file " + filePath + " failure : " + message;
+                    deferred.reject({
+                        error: "htmlMsgTakePicturePb",
+                        log: msg
+                    });
+                });
+            });
+        }, onGetPictureSuccess = function(imageURI) {
+            a4p.InternalLog.log("srvData", "Picture saved temporarily in " + imageURI);
+            var onGetUriSuccess = function(fileEntry) {
+                a4p.InternalLog.log("srvData", "File entry of newly taken picture at " + imageURI + " as " + fileEntry.fullPath + " will be moved to " + filePath);
+                var onMoveFailure = function(message) {
+                    a4p.safeApply(self.rootScope, function() {
+                        var msg = "Moving newly taken picture from " + imageURI + " to " + filePath + " failure : " + message;
+                        deferred.reject({
+                            error: "htmlMsgTakePicturePb",
+                            log: msg
+                        });
+                    });
+                };
+                self.srvFileStorage.moveFileEntry(fileEntry, filePath, createPicture, onMoveFailure);
+            }, onGetUriFailure = function(message) {
+                a4p.safeApply(self.rootScope, function() {
+                    var msg = "Getting file entry of newly taken picture at " + imageURI + " failure : " + message;
+                    deferred.reject({
+                        error: "htmlMsgTakePicturePb",
+                        log: msg
+                    });
+                });
+            };
+            self.srvFileStorage.getFileFromUrl(imageURI, onGetUriSuccess, onGetUriFailure);
+        }, onGetPictureFailure = function(message) {
+            a4p.safeApply(self.rootScope, function() {
+                var msg = "Camera getting picture failure : " + message;
+                deferred.reject({
+                    error: "htmlMsgTakePicturePb",
+                    log: msg
+                });
+            });
+        };
+        return navigator.camera.getPicture(onGetPictureSuccess, onGetPictureFailure, {
+            quality: 50,
+            destinationType: Camera.DestinationType.FILE_URI,
+            sourceType: Camera.PictureSourceType.CAMERA,
+            allowEdit: !0,
+            encodingType: Camera.EncodingType.JPEG,
+            mediaType: Camera.MediaType.ALLMEDIA,
+            correctOrientation: !0,
+            saveToPhotoAlbum: !0
+        }), deferred.promise;
     }, Service.prototype.sendICal = function(object) {
         for (var self = this, ical = object, emails = [], i = 0; i < ical.emailsInput.length; i++) emails.push(ical.emailsInput[i].email);
         for (var i = 0; i < ical.contacts.length; i++) {
@@ -38810,6 +38895,7 @@ var SrvFacet = function() {
         this.show = !1;
     }, Service;
 }(), SrvLocale = function() {
+    "use strict";
     function Service(httpService, srvLoad, srvLocalStorage) {
         this.http = httpService, this.srvLoad = srvLoad, this.srvLocalStorage = srvLocalStorage, 
         this.localeDir = "", this.initDone = !1, clear(this);
@@ -38886,7 +38972,9 @@ var SrvFacet = function() {
             mediumDate: "MMM d, y",
             shortDate: "M/d/yy",
             mediumTime: "h:mm:ss a",
-            shortTime: "h:mm a"
+            shortTime: "h:mm a",
+            c4pShortDate: "yy/MM/dd",
+            c4pShortDateTime: "yy/MM/dd HH:mm"
         }, {
             month: "Janvier,Février,Mars,Avril,Mai,Juin,Juillet,Aout,Septembre,Octobre,Novembre,Décembre".split(","),
             shortMonth: "Jan,Fev,Mar,Avr,Mai,Jun,Jul,Aou,Sep,Oct,Nov,Dec".split(","),
@@ -38900,7 +38988,9 @@ var SrvFacet = function() {
             mediumDate: "d MMM y",
             shortDate: "d/M/yy",
             mediumTime: "HH:mm:ss",
-            shortTime: "HH:mm"
+            shortTime: "HH:mm",
+            c4pShortDate: "yy/MM/dd",
+            c4pShortDateTime: "yy/MM/dd HH:mm"
         } ], self.datetimePattern = self.datetimePatterns[0];
     }
     function getLangParts(code) {
@@ -39930,6 +40020,7 @@ var SrvFacet = function() {
         }, doChange = !0), doChange;
     }, Service;
 }(), SrvTime = function() {
+    "use strict";
     function setNow(self, now) {
         self.now = now, setSecond(self, now);
     }
