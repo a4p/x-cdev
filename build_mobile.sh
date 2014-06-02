@@ -46,6 +46,7 @@ cordova plugin add https://github.com/phonegap-build/GAPlugin.git
 cordova plugin add https://github.com/phonegap-build/StatusBarPlugin.git
 cordova plugin add https://github.com/hazemhagrass/ContactPicker.git
 cordova plugin add https://github.com/mhweiner/CordovaiOSKeyboardPlugin.git
+cordova plugin add https://github.com/EddyVerbruggen/LaunchMyApp-PhoneGap-Plugin.git --variable URL_SCHEME=a4pc4pdev
 
 
 #cordova build ios
@@ -53,7 +54,8 @@ cordova plugin add https://github.com/mhweiner/CordovaiOSKeyboardPlugin.git
 # Sed AndroidManifest
 
 oldstring='<\/intent-filter>'
-newstring='<\/intent-filter ><intent-filter><action android:name="android.intent.action.VIEW"\/><action android:name="android.intent.action.EDIT"\/><category android:name="android.intent.category.DEFAULT"\/><data android:scheme="file" android:mimeType="*\/*"\/><data android:scheme="http" android:mimeType="*\/*"\/><data android:scheme="content" android:mimeType="*\/*"\/><\/intent-filter>'
+newstring='<\/intent-filter ><intent-filter><action android:name="android.intent.action.SEND"\/><category android:name="android.intent.category.DEFAULT"\/><data android:mimeType="*\/*"\/><\/intent-filter>'
+#newstring='<\/intent-filter ><intent-filter><action android:name="android.intent.action.VIEW"\/><action android:name="android.intent.action.EDIT"\/><category android:name="android.intent.category.DEFAULT"\/><data android:scheme="file" android:mimeType="*\/*"\/><data android:scheme="http" android:mimeType="*\/*"\/><data android:scheme="content" android:mimeType="*\/*"\/><\/intent-filter>'
 #newstring='<\/intent-filter ><intent-filter><action android:name="android.intent.action.VIEW"><\/action><category android:name="android.intent.category.DEFAULT"><\/category><category android:name="android.intent.category.BROWSABLE"><\/category><data android:scheme="content" android:mimeType="*\/*"><\/data><data android:scheme="file" android:mimeType="*\/*"\/><data android:host="www.youtube.com" android:scheme="http"><\/data><\/intent-filter>'
 sed -i.bak "s#$oldstring#$newstring#g" platforms/android/AndroidManifest.xml
 
