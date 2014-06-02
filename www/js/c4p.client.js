@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-01 22:08 */
+/*! c4p.client 2014-06-02 10:07 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -389,7 +389,7 @@ function normalizedPath(a, b, c) {
 function sanitizeFilename(a, b) {
     a4p.InternalLog.log("a4p.file", "sanitizeFilename " + a);
     var c = a.replace(/[^a-z0-9]/gi, "_").toLowerCase();
-    if (1 == b) {
+    if (b === !0) {
         var d = a4pDateCompactFormat(new Date());
         c = c + "_" + d;
     }
@@ -22776,12 +22776,12 @@ c4p || (c4p = {}), c4p.Model = function() {
                 },
                 created_date: {
                     title: "htmlFormCreatedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 },
                 last_modified_date: {
                     title: "htmlFormLastModifiedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 }
             },
@@ -23233,12 +23233,12 @@ c4p || (c4p = {}), c4p.Model = function() {
                 },
                 created_date: {
                     title: "htmlFormCreatedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 },
                 last_modified_date: {
                     title: "htmlFormLastModifiedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 }
             },
@@ -23864,12 +23864,12 @@ c4p || (c4p = {}), c4p.Model = function() {
                 },
                 created_date: {
                     title: "htmlFormCreatedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 },
                 last_modified_date: {
                     title: "htmlFormLastModifiedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 }
             },
@@ -24214,7 +24214,7 @@ c4p || (c4p = {}), c4p.Model = function() {
                     title: "htmlFormDateStart",
                     type: "datetime",
                     defaultValue: "",
-                    defaultSetter: "nextHour",
+                    defaultSetter: "nextMinute",
                     calculations: [ {
                         toField: "date_end",
                         fromFields: [ "date_start", "duration_hours", "duration_minutes" ],
@@ -24240,7 +24240,7 @@ c4p || (c4p = {}), c4p.Model = function() {
                     title: "htmlFormDateEnd",
                     type: "datetime",
                     defaultValue: "",
-                    defaultSetter: "nextNextHour",
+                    defaultSetter: "nextMinuteNextHour",
                     calculations: [ {
                         toField: "date_start",
                         fromFields: [ "date_start", "date_end", "duration_hours", "duration_minutes" ],
@@ -24273,12 +24273,12 @@ c4p || (c4p = {}), c4p.Model = function() {
                 },
                 created_date: {
                     title: "htmlFormCreatedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 },
                 last_modified_date: {
                     title: "htmlFormLastModifiedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 }
             },
@@ -24618,12 +24618,12 @@ c4p || (c4p = {}), c4p.Model = function() {
                 },
                 created_date: {
                     title: "htmlFormCreatedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 },
                 last_modified_date: {
                     title: "htmlFormLastModifiedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 }
             },
@@ -24927,12 +24927,12 @@ c4p || (c4p = {}), c4p.Model = function() {
                 },
                 created_date: {
                     title: "htmlFormCreatedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 },
                 last_modified_date: {
                     title: "htmlFormLastModifiedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 }
             },
@@ -25409,12 +25409,12 @@ c4p || (c4p = {}), c4p.Model = function() {
                 },
                 created_date: {
                     title: "htmlFormCreatedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 },
                 last_modified_date: {
                     title: "htmlFormLastModifiedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 }
             },
@@ -25813,12 +25813,12 @@ c4p || (c4p = {}), c4p.Model = function() {
                 },
                 created_date: {
                     title: "htmlFormCreatedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 },
                 last_modified_date: {
                     title: "htmlFormLastModifiedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 }
             },
@@ -26015,12 +26015,12 @@ c4p || (c4p = {}), c4p.Model = function() {
                 },
                 created_date: {
                     title: "htmlFormCreatedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 },
                 last_modified_date: {
                     title: "htmlFormLastModifiedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 }
             },
@@ -26201,12 +26201,12 @@ c4p || (c4p = {}), c4p.Model = function() {
                 },
                 created_date: {
                     title: "htmlFormCreatedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 },
                 last_modified_date: {
                     title: "htmlFormLastModifiedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 }
             },
@@ -26387,12 +26387,12 @@ c4p || (c4p = {}), c4p.Model = function() {
                 },
                 created_date: {
                     title: "htmlFormCreatedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 },
                 last_modified_date: {
                     title: "htmlFormLastModifiedDate",
-                    type: "date",
+                    type: "datetime",
                     defaultValue: ""
                 }
             },
@@ -27645,6 +27645,12 @@ c4p || (c4p = {}), c4p.Model = function() {
     }, Model.now = function() {
         var a = new Date();
         return a4pDateFormat(a);
+    }, Model.nextMinute = function() {
+        var a = new Date(), b = new Date(a.getFullYear(), a.getMonth(), a.getDate(), a.getHours(), a.getMinutes(), 0, 0);
+        return a4pDateFormat(b);
+    }, Model.nextMinuteNextHour = function() {
+        var a = new Date(), b = new Date(a.getFullYear(), a.getMonth(), a.getDate(), a.getHours() + 1, a.getMinutes(), 0, 0);
+        return a4pDateFormat(b);
     }, Model.tomorrow = function() {
         var a = new Date(), b = new Date(a.getFullYear(), a.getMonth(), a.getDate() + 1, a.getHours(), 0, 0, 0);
         return a4pDateFormat(b);

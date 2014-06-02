@@ -12,7 +12,7 @@
   font-family: 'a4pHelveticaNeueLight';
   src: url('../font/hn/18921_helveticaneue-webfont.eot');
   src: url('../font/hn/18921_helveticaneue-webfont.eot?#iefix') format('embedded-opentype'), url('../font/hn/18921_helveticaneue-webfont.woff') format('woff'), url('../font/hn/18921_helveticaneue-webfont.ttf') format('truetype'), url('../font/hn/18921_helveticaneue-webfont.svg#helveticaneueregular') format('svg');
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 /***********************************************************************
@@ -384,7 +384,7 @@ h6,
 .h4,
 .h5,
 .h6 {
-  font-family: 'a4pHelveticaNeueLight';
+  font-family: 'a4pHelveticaNeue';
   font-weight: 300;
   line-height: 1.4;
   color: inherit;
