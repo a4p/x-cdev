@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-02 14:09 */
+/*! c4p.client 2014-06-02 16:08 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -22869,22 +22869,6 @@ c4p || (c4p = {}), c4p.Model = function() {
                         suffix: "",
                         size: ""
                     } ]
-                }, {
-                    title: "",
-                    size: "smaller",
-                    fields: [ {
-                        key: "last_modified_by_id",
-                        title: !0,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    }, {
-                        key: "last_modified_date",
-                        title: !1,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    } ]
                 } ]
             } ]
         },
@@ -23671,22 +23655,6 @@ c4p || (c4p = {}), c4p.Model = function() {
                         suffix: "",
                         size: ""
                     } ]
-                }, {
-                    title: "",
-                    size: "smaller",
-                    fields: [ {
-                        key: "last_modified_by_id",
-                        title: !0,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    }, {
-                        key: "last_modified_date",
-                        title: !1,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    } ]
                 } ]
             } ]
         },
@@ -24141,22 +24109,6 @@ c4p || (c4p = {}), c4p.Model = function() {
                         suffix: "",
                         size: ""
                     } ]
-                }, {
-                    title: "",
-                    size: "smaller",
-                    fields: [ {
-                        key: "last_modified_by_id",
-                        title: !0,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    }, {
-                        key: "last_modified_date",
-                        title: !1,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    } ]
                 } ]
             } ]
         },
@@ -24510,22 +24462,6 @@ c4p || (c4p = {}), c4p.Model = function() {
                         suffix: "",
                         size: ""
                     } ]
-                }, {
-                    title: "",
-                    size: "smaller",
-                    fields: [ {
-                        key: "last_modified_by_id",
-                        title: !0,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    }, {
-                        key: "last_modified_date",
-                        title: !1,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    } ]
                 } ]
             } ]
         },
@@ -24787,22 +24723,6 @@ c4p || (c4p = {}), c4p.Model = function() {
                         size: ""
                     }, {
                         key: "created_date",
-                        title: !1,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    } ]
-                }, {
-                    title: "",
-                    size: "smaller",
-                    fields: [ {
-                        key: "last_modified_by_id",
-                        title: !0,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    }, {
-                        key: "last_modified_date",
                         title: !1,
                         prefix: "",
                         suffix: "",
@@ -25141,22 +25061,6 @@ c4p || (c4p = {}), c4p.Model = function() {
                         size: ""
                     }, {
                         key: "created_date",
-                        title: !1,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    } ]
-                }, {
-                    title: "",
-                    size: "smaller",
-                    fields: [ {
-                        key: "last_modified_by_id",
-                        title: !0,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    }, {
-                        key: "last_modified_date",
                         title: !1,
                         prefix: "",
                         suffix: "",
@@ -25749,22 +25653,6 @@ c4p || (c4p = {}), c4p.Model = function() {
                         suffix: "",
                         size: ""
                     } ]
-                }, {
-                    title: "",
-                    size: "smaller",
-                    fields: [ {
-                        key: "last_modified_by_id",
-                        title: !0,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    }, {
-                        key: "last_modified_date",
-                        title: !1,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    } ]
                 } ]
             } ]
         },
@@ -25949,22 +25837,6 @@ c4p || (c4p = {}), c4p.Model = function() {
                         suffix: "",
                         size: ""
                     } ]
-                }, {
-                    title: "",
-                    size: "smaller",
-                    fields: [ {
-                        key: "last_modified_by_id",
-                        title: !0,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    }, {
-                        key: "last_modified_date",
-                        title: !1,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    } ]
                 } ]
             } ]
         },
@@ -26101,22 +25973,6 @@ c4p || (c4p = {}), c4p.Model = function() {
                         size: ""
                     }, {
                         key: "created_date",
-                        title: !1,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    } ]
-                }, {
-                    title: "",
-                    size: "smaller",
-                    fields: [ {
-                        key: "last_modified_by_id",
-                        title: !0,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    }, {
-                        key: "last_modified_date",
                         title: !1,
                         prefix: "",
                         suffix: "",
@@ -26329,22 +26185,6 @@ c4p || (c4p = {}), c4p.Model = function() {
                         suffix: "",
                         size: ""
                     } ]
-                }, {
-                    title: "",
-                    size: "smaller",
-                    fields: [ {
-                        key: "last_modified_by_id",
-                        title: !0,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    }, {
-                        key: "last_modified_date",
-                        title: !1,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    } ]
                 } ]
             } ]
         },
@@ -26459,22 +26299,6 @@ c4p || (c4p = {}), c4p.Model = function() {
                         size: ""
                     }, {
                         key: "created_date",
-                        title: !1,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    } ]
-                }, {
-                    title: "",
-                    size: "smaller",
-                    fields: [ {
-                        key: "last_modified_by_id",
-                        title: !0,
-                        prefix: "",
-                        suffix: "",
-                        size: ""
-                    }, {
-                        key: "last_modified_date",
                         title: !1,
                         prefix: "",
                         suffix: "",
@@ -27846,7 +27670,7 @@ c4p || (c4p = {}), c4p.Model = function() {
                 style ? (width = ta.getBoundingClientRect().width, (0 === width || "number" != typeof width) && (width = parseInt(style.width, 10)), 
                 $.each([ "paddingLeft", "paddingRight", "borderLeftWidth", "borderRightWidth" ], function(i, val) {
                     width -= parseInt(style[val], 10);
-                })) : width = Math.max($ta.width(), 0), mirror.style.width = width + "px";
+                })) : width = $ta.width(), mirror.style.width = Math.max(width, 0) + "px";
             }
             function initMirror() {
                 var styles = {};
@@ -27882,15 +27706,15 @@ c4p || (c4p = {}), c4p.Model = function() {
                 overflowY: ta.style.overflowY,
                 wordWrap: ta.style.wordWrap,
                 resize: ta.style.resize
-            }, width = $ta.width();
+            }, width = $ta.width(), taResize = $ta.css("resize");
             $ta.data("autosize") || ($ta.data("autosize", !0), ("border-box" === $ta.css("box-sizing") || "border-box" === $ta.css("-moz-box-sizing") || "border-box" === $ta.css("-webkit-box-sizing")) && (boxOffset = $ta.outerHeight() - $ta.height()), 
             minHeight = Math.max(parseInt($ta.css("minHeight"), 10) - boxOffset || 0, $ta.height()), 
             $ta.css({
                 overflow: "hidden",
                 overflowY: "hidden",
-                wordWrap: "break-word",
-                resize: "none" === $ta.css("resize") || "vertical" === $ta.css("resize") ? "none" : "horizontal"
-            }), "onpropertychange" in ta ? "oninput" in ta ? $ta.on("input.autosize keyup.autosize", adjust) : $ta.on("propertychange.autosize", function() {
+                wordWrap: "break-word"
+            }), "vertical" === taResize ? $ta.css("resize", "none") : "both" === taResize && $ta.css("resize", "horizontal"), 
+            "onpropertychange" in ta ? "oninput" in ta ? $ta.on("input.autosize keyup.autosize", adjust) : $ta.on("propertychange.autosize", function() {
                 "value" === event.propertyName && adjust();
             }) : $ta.on("input.autosize", adjust), options.resizeDelay !== !1 && $(window).on("resize.autosize", resize), 
             $ta.on("autosize.resize", adjust), $ta.on("autosize.resizeIncludeStyle", function() {

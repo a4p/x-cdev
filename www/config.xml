@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0"
     xmlns:gap="http://phonegap.com/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android"
-    id="com.apps4pro.c4pdev" version="14.0602.14">
+    id="com.apps4pro.c4pdev" version="14.0602.16">
 
     <name>C_d</name>
     <description>C_d</description>
@@ -29,10 +29,10 @@
     -->
     <preference name="orientation" value="default" />
     <preference name="fullscreen" value="false" /> <!-- ?? -->
-    <preference name="exit-on-suspend" value="true" /> <!-- ?? -->
+    <preference name="exit-on-suspend" value="false" /> <!-- ?? -->
     <preference name="ios-statusbarstyle" value="black-translucent" />
     <preference name="prerendered-icon" value="false" />
-    <preference name="detect-data-types" value="true" />
+    <preference name="detect-data-types" value="false" />
     <preference name="splash-screen-duration" value="5000" />
     <preference name="android-minSdkVersion" value="15" />
     <preference name="android-installLocation" value="internalOnly" />
@@ -207,7 +207,7 @@
 
     <icon src="res/iphone/appicon-72.png" gap:platform="ios" width="72" height="72" />
     <icon src="res/iphone/appicon-72@2x.png" gap:platform="ios" width="144" height="144" />
-    
+
     <icon src="mobile_res/iphone/appicon-60.png" gap:platform="ios" width="60" height="60" />
     <icon src="mobile_res/iphone/appicon-60@2x.png" gap:platform="ios" width="120" height="120" />
     <!-- iPad -->
