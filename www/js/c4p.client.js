@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-03 05:05 */
+/*! c4p.client 2014-06-03 06:53 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -2619,6 +2619,7 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
             var subPlans = srvData.getTypedDirectLinks(plans[i], "child", "Plan");
             subPlans = subPlans.sort(_sortPosAsc), $scope.savePlans(subPlans);
         }
+        $scope.srvData.setAndSaveObject($scope.meetingItem);
     }, $scope.setModeEdit = function(mode) {
         var oldMode = $scope.modeEdit;
         $scope.modeEdit = mode, oldMode && !mode && $scope.srvData.setAndSaveObject($scope.meetingItem);
@@ -2629,9 +2630,9 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
     }, $scope.quitMeetingView = function() {
         $scope.srvSecurity.isSecured() && $scope.modeLock ? $scope.openDialogLocked(function() {
             a4p.safeApply($scope, function() {
-                $scope.savePlans(), $scope.setItemAndGoDetail($scope.meetingItem);
+                $scope.savePlans(), $scope.srvData.setAndSaveObject($scope.meetingItem), $scope.setItemAndGoDetail($scope.meetingItem);
             });
-        }) : ($scope.savePlans(), $scope.setItemAndGoDetail($scope.meetingItem));
+        }) : ($scope.savePlans(), $scope.srvData.setAndSaveObject($scope.meetingItem), $scope.setItemAndGoDetail($scope.meetingItem));
     }, $scope.getContentPanelWidth = function() {
         return $scope.hasScroller ? $scope.pageWidth : .6 * $scope.pageWidth;
     }, $scope.getSidePanelWidth = function() {
@@ -3202,6 +3203,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
     }, $scope.gotoRegister = function() {
         $scope.gotoSlide($scope.pageGuider, $scope.slideGuiderRegister);
     }, $scope.gotoWelcome = function() {
+        alert("Welcome");
         var login = srvSecurity.getA4pLogin();
         srvAnalytics.setUid(login), $scope.gotoSlide($scope.pageNavigation, $scope.slideNavigationCalendar);
     }, $scope.gotoMeeting = function(item) {
@@ -35304,6 +35306,8 @@ var SrvConfig = function() {
             var bOk = downloadObjectAndSendToSynchro(self, objectDbid);
             bOk || (callbackErrorFct(self.srvQueue), cancelSynchroListeners(self, objectDbid));
         };
+        self.queueListenerOnStart && self.srvQueue.cancelListener(self.queueListenerOnStart), 
+        self.queueListenerOnDownload && self.srvQueue.cancelListener(self.queueListenerOnDownload), 
         self.queueListenerOnStart = self.srvQueue.addListenerOnStart(self.srvQueue.PUB.QUEUE_SAVE, startQueueListenerOnSave), 
         self.queueListenerOnDownload = self.srvQueue.addListenerOnStart(self.srvQueue.PUB.QUEUE_DOWNLOAD, startQueueListenerOnDownload);
     }
@@ -36102,6 +36106,26 @@ var SrvConfig = function() {
             }
         }
     }
+    function copyObject(object) {
+        if (a4p.isDefined(object)) {
+            var i, len, fieldname, copyObject = {
+                a4p_type: object.a4p_type
+            };
+            copyObject.id = {};
+            for (var k in object.id) object.id.hasOwnProperty(k) && (copyObject.id[k] = object.id[k]);
+            var objDesc = c4p.Model.a4p_types[object.a4p_type];
+            for (i = 0, len = objDesc.fields.length; len > i; i++) {
+                fieldname = objDesc.fields[i];
+                var isArrayField = a4p.isDefined(c4p.Model.objectArrays[object.a4p_type][fieldname]);
+                if (isArrayField) {
+                    copyObject[fieldname] = [];
+                    for (var valueIdx = 0, valueNb = object[fieldname].length; valueNb > valueIdx; valueIdx++) copyObject[fieldname].push(copyField(object.a4p_type, fieldname, object[fieldname][valueIdx]));
+                } else copyObject[fieldname] = copyField(object.a4p_type, fieldname, object[fieldname]);
+            }
+            return copyObject;
+        }
+        return void 0;
+    }
     function copyField(a4p_type, fieldname, fromField) {
         if (a4p.isDefined(c4p.Model.a4p_types[a4p_type].linkDescs[fieldname]) || fromField instanceof Object) {
             var copyField = {};
@@ -36117,8 +36141,7 @@ var SrvConfig = function() {
             object.id[crm + "_id"] = id, created[i].tmpId && delete self.index[crm][created[i].tmpId], 
             self.index[crm][id] = object, updateLinkedObjects(self, object.a4p_type, itemId, crm + "_id", id);
         }
-        addOriginalObject(self, object, !1), self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type]), 
-        self.addObjectToSave(object);
+        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type]);
     }
     function updatedObject(self, itemId, askedUpdated, updated) {
         for (var object = self.index.db[itemId], i = 0, nb = updated.length; nb > i; i++) {
@@ -36145,7 +36168,7 @@ var SrvConfig = function() {
     function addOriginalObject(self, object, downloadFile) {
         if (self && object) {
             a4p.InternalLog.log("srvData", "addOriginalObject " + object.id.dbid);
-            var copy = angular.extend(object);
+            var copy = copyObject(object);
             a4p.isDefined(copy) && (self.originalDbIndex[object.id.dbid] = copy, self.originalItems[copy.a4p_type].push(copy), 
             self.srvDataStore.setItems(copy.a4p_type, self.originalItems[copy.a4p_type], !0)), 
             a4p.isDefined(c4p.Model.files[object.a4p_type]) && (a4p.isDefined(object.id.sf_id) || a4p.isDefined(object.id.c4p_id)) && downloadFile && addObjectToDownload(self, object);
