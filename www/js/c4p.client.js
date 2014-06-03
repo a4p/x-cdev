@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-03 10:53 */
+/*! c4p.client 2014-06-03 15:09 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -2569,9 +2569,7 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
             main: "partials/meeting/meeting_plan_viewer.html"
         }
     }, $scope.meetingSelectedActionItem = "plan", $scope.actionItem = $scope.actionItems[$scope.meetingSelectedActionItem], 
-    $scope.$on("$destroy", function() {
-        $scope.savePlans();
-    }), $scope.initMeetingElements = function() {
+    $scope.$on("$destroy", function() {}), $scope.initMeetingElements = function() {
         if (!$scope.meetingHasBeenInitialized) {
             if (!$scope.srvNav.item) return void $scope.initWithDemoData();
             $scope.meetingItem = $scope.srvNav.item, srvAnalytics.add("Once", "Meeting Show");
@@ -2615,11 +2613,14 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
         a4p.isUndefinedOrNull(plans) && (plans = $scope.meetingPlans);
         for (var i = 0; i < plans.length; i++) {
             plans[i].pos = i, srvData.setAndSaveObject(plans[i]);
-            for (var plannees = srvData.getTypedDirectLinks(plans[i], "plannee", "Plannee"), j = 0; j < plannees.length; j++) srvData.setAndSaveObject(plannees[j]);
+            for (var plannees = srvData.getTypedDirectLinks(plans[i], "plannee", "Plannee"), j = 0; j < plannees.length; j++) {
+                $scope.srvData.setAndSaveObject(plannees[j]);
+                var planneeObj = srvData.getObject(plannees[j].object_id.dbid);
+                $scope.srvData.setAndSaveObject(planneeObj);
+            }
             var subPlans = srvData.getTypedDirectLinks(plans[i], "child", "Plan");
             subPlans = subPlans.sort(_sortPosAsc), $scope.savePlans(subPlans);
         }
-        $scope.srvData.setAndSaveObject($scope.meetingItem);
     }, $scope.setModeEdit = function(mode) {
         var oldMode = $scope.modeEdit;
         $scope.modeEdit = mode, oldMode && !mode && $scope.srvData.setAndSaveObject($scope.meetingItem);
@@ -35348,9 +35349,12 @@ var SrvConfig = function() {
     }
     function onCreateSuccess(self, requestCtx, responseData) {
         var object = self.getObject(requestCtx.dbid), askedCreated = responseData.askedCreated, created = responseData.created, errors = responseData.errors;
-        a4p.isTrueOrNonEmpty(errors) && a4p.ErrorLog.log("srvData", "reject creating parts of item " + requestCtx.dbid + " : " + a4pDumpData(errors, 1)), 
-        a4p.isDefined(object) ? (self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_CREATE), 
-        createdObject(self, requestCtx.dbid, askedCreated, created)) : a4p.InternalLog.log("srvData", "create success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
+        if (a4p.isTrueOrNonEmpty(errors) && a4p.ErrorLog.log("srvData", "reject creating parts of item " + requestCtx.dbid + " : " + a4pDumpData(errors, 1)), 
+        a4p.isDefined(object)) {
+            self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_CREATE);
+            var ret = createdObject(self, requestCtx.dbid, askedCreated, created);
+            ret && (ret = addOriginalObject(self, object, !1));
+        } else a4p.InternalLog.log("srvData", "create success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onCreateFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
@@ -36141,7 +36145,8 @@ var SrvConfig = function() {
             object.id[crm + "_id"] = id, created[i].tmpId && delete self.index[crm][created[i].tmpId], 
             self.index[crm][id] = object, updateLinkedObjects(self, object.a4p_type, itemId, crm + "_id", id);
         }
-        self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type]);
+        return self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type]), 
+        !0;
     }
     function updatedObject(self, itemId, askedUpdated, updated) {
         for (var object = self.index.db[itemId], i = 0, nb = updated.length; nb > i; i++) {
@@ -36166,13 +36171,13 @@ var SrvConfig = function() {
         unlinkLinkedObjects(self, itemId, isOriginal);
     }
     function addOriginalObject(self, object, downloadFile) {
-        if (self && object) {
-            a4p.InternalLog.log("srvData", "addOriginalObject " + object.id.dbid);
-            var copy = copyObject(object);
-            a4p.isDefined(copy) && (self.originalDbIndex[object.id.dbid] = copy, self.originalItems[copy.a4p_type].push(copy), 
-            self.srvDataStore.setItems(copy.a4p_type, self.originalItems[copy.a4p_type], !0)), 
-            a4p.isDefined(c4p.Model.files[object.a4p_type]) && (a4p.isDefined(object.id.sf_id) || a4p.isDefined(object.id.c4p_id)) && downloadFile && addObjectToDownload(self, object);
-        }
+        if (!self || !object) return !1;
+        a4p.InternalLog.log("srvData", "addOriginalObject " + object.id.dbid);
+        var copy = copyObject(object);
+        return a4p.isDefined(copy) && (self.originalDbIndex[object.id.dbid] = copy, self.originalItems[copy.a4p_type].push(copy), 
+        self.srvDataStore.setItems(copy.a4p_type, self.originalItems[copy.a4p_type], !0)), 
+        a4p.isDefined(c4p.Model.files[object.a4p_type]) && (a4p.isDefined(object.id.sf_id) || a4p.isDefined(object.id.c4p_id)) && downloadFile && addObjectToDownload(self, object), 
+        !0;
     }
     function updateOriginalObject(self, object, fields) {
         a4p.InternalLog.log("srvData", "updateOriginalObject " + object.id.dbid);
