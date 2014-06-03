@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-03 10:08 */
+/*! c4p.client 2014-06-03 10:53 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -3085,7 +3085,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
                 a4p.ErrorLog.log("ctrlNavigation", "downloadFullMap empty"), scope.filteredContacts = [], 
                 scope.filteredAccounts = [], scope.filteredEvents = [], scope.filteredOpportunities = [], 
                 scope.filteredDocuments = [], scope.setFirstConfigDone(!0), scope.$broadcast("mindMapLoaded"), 
-                endSynchronization(scope), deferred.resolve();
+                endSynchronization(scope), scope.gotoWelcome(), deferred.resolve();
             });
         });
     }
@@ -3147,7 +3147,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
         };
         return cordovaReady(startApplication)(), deferred.promise;
     }, $scope.initFinished = function(deferred) {
-        a4p.safeApply($scope, function() {
+        alert("Initialization done ..."), a4p.safeApply($scope, function() {
             a4p.InternalLog.log("ctrlNavigation", "initFinished - guider: / firstConfig:" + $scope.firstConfigDone + " / slide:" + $scope.slide + " / page:" + $scope.page), 
             $scope.setA4pSpinnerState("done"), srvLoad.setLoaded(), deferred.resolve(), $scope.initializationFinished = !0, 
             srvAnalytics.run();
