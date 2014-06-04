@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-03 15:09 */
+/*! c4p.client 2014-06-04 09:37 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -3148,19 +3148,21 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
         };
         return cordovaReady(startApplication)(), deferred.promise;
     }, $scope.initFinished = function(deferred) {
-        alert("Initialization done ..."), a4p.safeApply($scope, function() {
+        a4p.safeApply($scope, function() {
             a4p.InternalLog.log("ctrlNavigation", "initFinished - guider: / firstConfig:" + $scope.firstConfigDone + " / slide:" + $scope.slide + " / page:" + $scope.page), 
             $scope.setA4pSpinnerState("done"), srvLoad.setLoaded(), deferred.resolve(), $scope.initializationFinished = !0, 
-            srvAnalytics.run();
-            var login = srvSecurity.getA4pLogin();
-            srvAnalytics.setUid(login), srvAnalytics.add("Once", "App launched"), srvData.start(), 
-            $scope.firstConfigDone && $scope.rememberPassword || srvSecurity.resetPINCode(), 
+            srvData.start(), $scope.firstConfigDone && $scope.rememberPassword || srvSecurity.resetPINCode(), 
             srvSecurity.isSecured() ? $scope.openDialogLocked(function() {
                 a4p.safeApply($scope, function() {
                     $scope.firstConfigDone && $scope.rememberPassword ? $scope.gotoWelcome() : $scope.gotoRegister();
                 });
-            }) : $scope.firstConfigDone && $scope.rememberPassword ? $scope.gotoWelcome() : $scope.gotoRegister(), 
-            $scope.taskTimer || $scope.runNextTask();
+            }) : $scope.firstConfigDone && $scope.rememberPassword ? a4p.safeApply($scope, function() {
+                $scope.gotoWelcome();
+            }) : a4p.safeApply($scope, function() {
+                $scope.gotoRegister();
+            }), $scope.taskTimer || $scope.runNextTask(), srvAnalytics.run();
+            var login = srvSecurity.getA4pLogin();
+            srvAnalytics.setUid(login), srvAnalytics.add("Once", "App launched");
         });
     }, $scope.loadLocalStorage = function() {
         srvConfig.init(), srvLog.init(), srvLocale.init(), srvSecurity.init(), $scope.isDemo = srvLocalStorage.get("DemoMode", !1), 
@@ -3291,8 +3293,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
     }, $scope.getSlideFromDetail = function() {
         return $scope.slide;
     }, $scope.getSlideFromGuider = function() {
-        return a4p.InternalLog.log("ctrlNavigation - getSlideFromGuider: " + $scope.slide), 
-        $scope.slide;
+        return $scope.slide;
     }, $scope.getSlideFromFooter = function() {
         return $scope.slide;
     }, $scope.getPage = function() {
@@ -3301,10 +3302,10 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
         return $scope.page;
     }, $scope.gotoBack = function(index) {
         var back = srvNav.backInHistory(index);
-        null != back ? back.id ? $scope.setItemAndGoDetail(srvData.getObject(back.id)) : $scope.gotoSlide(back.page, back.slide) : $scope.gotoSlide($scope.pageNavigation, $scope.slideNavigationCalendar);
+        back ? back.id ? $scope.setItemAndGoDetail(srvData.getObject(back.id)) : $scope.gotoSlide(back.page, back.slide) : $scope.gotoSlide($scope.pageNavigation, $scope.slideNavigationCalendar);
     }, $scope.gotoIndex = function(index) {
         var back = srvNav.gotoInHistory(index);
-        null != back ? back.id ? $scope.setItemAndGoDetail(srvData.getObject(back.id)) : $scope.gotoSlide(back.page, back.slide) : $scope.gotoSlide($scope.pageNavigation, $scope.slideNavigationCalendar);
+        back ? back.id ? $scope.setItemAndGoDetail(srvData.getObject(back.id)) : $scope.gotoSlide(back.page, back.slide) : $scope.gotoSlide($scope.pageNavigation, $scope.slideNavigationCalendar);
     }, $scope.resumeSlide = function() {
         $scope.gotoSlide($scope.pausedPage, $scope.pausedSlide);
     }, $scope.gotoSlideWithSearchReset = function(nextPage, nextSlide) {
@@ -3313,7 +3314,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
         $scope.calendarView = view, $scope.updateScroller();
     }, $scope.calculSelectDefault = function(elements, type, order) {
         if (order) {
-            for (var orderby = "", dbid = "", fullname = "", companyName = "", name = "", direction = !1, i = 0; i < elements.length; i++) 0 == i ? ("contacts" == type ? (fullname = elements[i].first_name + " " + elements[i].last_name, 
+            for (var orderby = "", dbid = "", fullname = "", companyName = "", name = "", direction = !1, i = 0; i < elements.length; i++) 0 === i ? ("contacts" == type ? (fullname = elements[i].first_name + " " + elements[i].last_name, 
             orderby = fullname.toLowerCase()) : "accounts" == type ? (companyName = elements[i].company_name, 
             orderby = companyName.toLowerCase()) : (name = elements[i].name, orderby = name.toLowerCase()), 
             dbid = elements[i].dbid) : "contacts" == type ? (fullname = elements[i].first_name + " " + elements[i].last_name, 
@@ -3802,7 +3803,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
             if (a4p.isDefined(result)) {
                 if (!result.feedback.message) return void alert(srvLocale.translations.htmlMsgFeedbackMessageEmpty);
                 if (!srvSecurity.getA4pLogin()) {
-                    if ((a4p.isUndefined(result.feedback.email) || "" == result.feedback.email) && (a4p.isUndefined(result.feedback.phone) || "" == result.feedback.phone)) return void alert(srvLocale.translations.htmlMsgFeedbackContactEmpty);
+                    if (!(!a4p.isUndefined(result.feedback.email) && result.feedback.email || !a4p.isUndefined(result.feedback.phone) && result.feedback.phone)) return void alert(srvLocale.translations.htmlMsgFeedbackContactEmpty);
                     srvSecurity.setA4pLogin(result.feedback.email);
                 }
                 var params = {
