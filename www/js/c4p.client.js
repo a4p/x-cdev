@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-04 09:37 */
+/*! c4p.client 2014-06-04 10:21 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -6970,12 +6970,12 @@ function addOther(items, item) {
 }
 
 function handleOpenURL(url) {
-    alert("handleOpenURL " + url), window.setTimeout(function() {
-        if (null !== srvOpenUrlSingleton) srvOpenUrlSingleton.openUrl(url); else {
+    window.setTimeout(function() {
+        if (srvOpenUrlSingleton) srvOpenUrlSingleton.openUrl(url); else {
             var msg = "Application not yet started to import the file " + url;
-            console.log(msg);
+            alert(msg);
         }
-    }, 1e3);
+    }, 4e3);
 }
 
 if (function(e, undefined) {
@@ -39396,6 +39396,7 @@ var SrvFacet = function() {
         change;
     }, Service;
 }(), SrvOpenUrl = function() {
+    "use strict";
     function Service(exceptionHandlerService) {
         this.exceptionHandler = exceptionHandlerService, this.callbacks = [], this.callbackHandle = 0;
     }
@@ -40042,7 +40043,11 @@ appModule.factory("$exceptionHandler", [ "$log", function($log) {
 
 var srvOpenUrlSingleton = null;
 
-serviceModule.factory("srvOpenUrl", [ "$exceptionHandler", function($exceptionHandler) {
+window.plugins && window.plugins.webintent && window.plugins.webintent.getExtra(WebIntent.EXTRA_TEXT, function(url) {
+    handleOpenURL(url);
+}, function() {
+    alert("App is launched...");
+}), serviceModule.factory("srvOpenUrl", [ "$exceptionHandler", function($exceptionHandler) {
     return srvOpenUrlSingleton = new SrvOpenUrl($exceptionHandler);
 } ]), serviceModule.factory("srvTime", [ "$exceptionHandler", function($exceptionHandler) {
     return new SrvTime($exceptionHandler);
