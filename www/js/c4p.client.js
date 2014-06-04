@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-04 10:21 */
+/*! c4p.client 2014-06-04 15:29 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -3206,7 +3206,6 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
     }, $scope.gotoRegister = function() {
         $scope.gotoSlide($scope.pageGuider, $scope.slideGuiderRegister);
     }, $scope.gotoWelcome = function() {
-        alert("Welcome");
         var login = srvSecurity.getA4pLogin();
         srvAnalytics.setUid(login), $scope.gotoSlide($scope.pageNavigation, $scope.slideNavigationCalendar);
     }, $scope.gotoMeeting = function(item) {

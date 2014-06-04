@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0"
     xmlns:gap="http://phonegap.com/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android"
-    id="com.apps4pro.c4pdev" version="14.0604.10">
+    id="com.apps4pro.c4pdev" version="14.0604.15">
 
     <name>C_d</name>
     <description>C_d</description>
@@ -58,7 +58,7 @@
     <preference name="SplashScreenDelay" value="5000" />
     <preference name="ErrorUrl" value=""/>
     <preference name="BackgroundColor" value=""/>
-    <preference name="KeepRunning" value="true"/>
+    <preference name="KeepRunning" value="false"/>
     <preference name="LoadingDialog" value=","/>
     <preference name="LoadUrlTimeoutValue" value="50000" />
     <preference name="disable-cursor" value="false" /> <!-- ?? -->
