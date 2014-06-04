@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0"
     xmlns:gap="http://phonegap.com/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android"
-    id="com.apps4pro.c4pdev" version="14.0604.15">
+    id="com.apps4pro.c4pdev" version="14.0604.18">
 
     <name>C_d</name>
     <description>C_d</description>
@@ -29,7 +29,7 @@
     -->
     <preference name="orientation" value="default" />
     <preference name="fullscreen" value="false" /> <!-- ?? -->
-    <preference name="exit-on-suspend" value="true" /> <!-- ?? -->
+    <preference name="exit-on-suspend" value="false" /> <!-- ?? -->
     <preference name="ios-statusbarstyle" value="black-translucent" />
     <preference name="prerendered-icon" value="false" />
     <preference name="detect-data-types" value="false" />
@@ -58,7 +58,7 @@
     <preference name="SplashScreenDelay" value="5000" />
     <preference name="ErrorUrl" value=""/>
     <preference name="BackgroundColor" value=""/>
-    <preference name="KeepRunning" value="false"/>
+    <preference name="KeepRunning" value="true"/>
     <preference name="LoadingDialog" value=","/>
     <preference name="LoadUrlTimeoutValue" value="50000" />
     <preference name="disable-cursor" value="false" /> <!-- ?? -->
@@ -66,6 +66,7 @@
 
     <!-- ??? to open external files -->
     <preference name="AndroidExtraFilesystems" value="files,files-external,documents,sdcard,cache,cache-external,root" />
+    <preference name="AndroidPersistentFileLocation" value="Compatibility" />
 
     <!-- iOS allows registration of custom URL Schemes. <gap:url-scheme> -->
     <!-- C4P_BUILD_PLUGINS -->
@@ -92,10 +93,16 @@
 <gap:plugin name="org.apache.cordova.network-information" />
 <gap:plugin name="org.apache.cordova.device" />
 
+    <!-- only in DEV -->
+    <gap:plugin name="io.github.pwlin.cordova.plugins.fileopener2"/>
     <gap:plugin name="net.tunts.webintent"/>
     <gap:plugin name="uk.co.ibcomputing.phonegapbuild.plugins.receivesendintents">
         <param name="LAUNCHMODE" value="singleTop" />
     </gap:plugin>
+    <gap:plugin name="com.kerosieben.cordova.plugins.ios7scrollfix"/>
+    <preference name="IOS7PreventWebViewScrolling" value="true"/>
+
+
 
     <!-- http://docs.build.phonegap.com/en_US/3.3.0/configuring_config_file_element.md.html#Config%20File%20Elements -->
     <!-- C4P_BUILD_CONFIG //TODO??? -->
@@ -207,11 +214,11 @@
     <gap:splash src="mobile_res/android/images/res-long-land-ldpi/default.png"  gap:platform="android" gap:density="ldpi" width="320" height="200" />
 
     <!-- iPhone / iPod Touch  -->
-    <icon src="res/iphone/appicon.png" gap:platform="ios" width="57" height="57" />
-    <icon src="res/iphone/appicon@2x.png" gap:platform="ios" width="114" height="114" />
+    <icon src="mobile_res/iphone/appicon.png" gap:platform="ios" width="57" height="57" />
+    <icon src="mobile_res/iphone/appicon@2x.png" gap:platform="ios" width="114" height="114" />
 
-    <icon src="res/iphone/appicon-72.png" gap:platform="ios" width="72" height="72" />
-    <icon src="res/iphone/appicon-72@2x.png" gap:platform="ios" width="144" height="144" />
+    <icon src="mobile_res/iphone/appicon-72.png" gap:platform="ios" width="72" height="72" />
+    <icon src="mobile_res/iphone/appicon-72@2x.png" gap:platform="ios" width="144" height="144" />
 
     <icon src="mobile_res/iphone/appicon-60.png" gap:platform="ios" width="60" height="60" />
     <icon src="mobile_res/iphone/appicon-60@2x.png" gap:platform="ios" width="120" height="120" />
