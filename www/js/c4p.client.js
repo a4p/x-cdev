@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-05 10:20 */
+/*! c4p.client 2014-06-05 12:10 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -104,15 +104,17 @@ function openChildBrowser(a, b, c, d) {
     }
     if (window.device) {
         a4p.InternalLog.log("openChildBrowser", "cordova : window.open");
-        var k = window.open(a, "_system", "location=no");
-        k.addEventListener("loadstart", function(a) {
+        var k = "_blank";
+        "url" == b && (k = "_system");
+        var l = window.open(a, k, "location=no");
+        l.addEventListener("loadstart", function(a) {
             a4p.InternalLog.log("openChildBrowser", "loadstart " + a.url);
-        }), k.addEventListener("loadstop", function(a) {
+        }), l.addEventListener("loadstop", function(a) {
             a4p.InternalLog.log("openChildBrowser", "loadstop " + a.url), "string" == typeof a.url && a.url.indexOf("about:blank") >= 0 && (e = !0, 
-            c && c(), k.close());
-        }), k.addEventListener("loaderror", function(a) {
+            c && c(), l.close());
+        }), l.addEventListener("loaderror", function(a) {
             a4p.InternalLog.log("openChildBrowser", "loaderror " + a.url);
-        }), k.addEventListener("exit", function(a) {
+        }), l.addEventListener("exit", function(a) {
             a4p.InternalLog.log("openChildBrowser", "exit " + a.url), e || d && d();
         });
     }
