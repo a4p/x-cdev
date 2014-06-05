@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-04 18:34 */
+/*! c4p.client 2014-06-05 09:52 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -104,7 +104,7 @@ function openChildBrowser(a, b, c, d) {
     }
     if (window.device) {
         a4p.InternalLog.log("openChildBrowser", "cordova : window.open");
-        var k = window.open(a, "_blank", "location=yes");
+        var k = window.open(a, "_system", "location=no");
         k.addEventListener("loadstart", function(a) {
             a4p.InternalLog.log("openChildBrowser", "loadstart " + a.url);
         }), k.addEventListener("loadstop", function(a) {
@@ -130,8 +130,10 @@ function updateImage(a, b) {
     return a.src = b && "/." != b ? b : "./img/broken.png", a.onerror = "", !0;
 }
 
-function ImgError() {
-    return setTimeout("updateImage(source,img)", 1e4), !1;
+function ImgError(a, b) {
+    return setTimeout(function() {
+        updateImage(a, b);
+    }, 1e4), !1;
 }
 
 function getErrorObject() {
@@ -154,9 +156,9 @@ function a4pExportJsonObject(a, b, c, d) {
     var e, f = "", g = !0;
     for (e in b) b.hasOwnProperty(e) && (g ? g = !1 : f += ",\n", "object" == typeof b[e] ? c > 0 && (f += 2 == c ? a + "{\n" : a + '"' + e + '":{', 
     f += a4pExportJsonObject(a + "	", b[e], c - 1, d), f += 2 == c ? a + "}" : "}") : ("string" == typeof b[e] && (b[e] = b[e].replace(/\r/gi, " ").replace(/\n/gi, " ")), 
-    f += 0 == c ? '"' + e + '":"' + b[e] + '"' : a + '"' + e + '":"' + b[e] + '"'));
+    f += 0 === c ? '"' + e + '":"' + b[e] + '"' : a + '"' + e + '":"' + b[e] + '"'));
     return 1 == c && "Document" == d && (f += ",\n" + a + '"url":"img/samples/docs/' + b.name + '"'), 
-    0 != c && (f += "\n"), f;
+    0 !== c && (f += "\n"), f;
 }
 
 function logEvent(a) {
@@ -228,10 +230,9 @@ function SHA256(a) {
     }
     function k(a, c) {
         var d, k, l, m, n, o, p, q, r, s, t, u, v = new Array(1116352408, 1899447441, 3049323471, 3921009573, 961987163, 1508970993, 2453635748, 2870763221, 3624381080, 310598401, 607225278, 1426881987, 1925078388, 2162078206, 2614888103, 3248222580, 3835390401, 4022224774, 264347078, 604807628, 770255983, 1249150122, 1555081692, 1996064986, 2554220882, 2821834349, 2952996808, 3210313671, 3336571891, 3584528711, 113926993, 338241895, 666307205, 773529912, 1294757372, 1396182291, 1695183700, 1986661051, 2177026350, 2456956037, 2730485921, 2820302411, 3259730800, 3345764771, 3516065817, 3600352804, 4094571909, 275423344, 430227734, 506948616, 659060556, 883997877, 958139571, 1322822218, 1537002063, 1747873779, 1955562222, 2024104815, 2227730452, 2361852424, 2428436474, 2756734187, 3204031479, 3329325298), w = new Array(1779033703, 3144134277, 1013904242, 2773480762, 1359893119, 2600822924, 528734635, 1541459225), x = new Array(64);
-        a[c >> 5] |= 128 << 24 - c % 32, a[(c + 64 >> 9 << 4) + 15] = c;
-        for (var r = 0; r < a.length; r += 16) {
-            d = w[0], k = w[1], l = w[2], m = w[3], n = w[4], o = w[5], p = w[6], q = w[7];
-            for (var s = 0; 64 > s; s++) x[s] = 16 > s ? a[s + r] : b(b(b(j(x[s - 2]), x[s - 7]), i(x[s - 15])), x[s - 16]), 
+        for (a[c >> 5] |= 128 << 24 - c % 32, a[(c + 64 >> 9 << 4) + 15] = c, r = 0; r < a.length; r += 16) {
+            for (d = w[0], k = w[1], l = w[2], m = w[3], n = w[4], o = w[5], p = w[6], q = w[7], 
+            s = 0; 64 > s; s++) x[s] = 16 > s ? a[s + r] : b(b(b(j(x[s - 2]), x[s - 7]), i(x[s - 15])), x[s - 16]), 
             t = b(b(b(b(q, h(n)), e(n, o, p)), v[s]), x[s]), u = b(g(d), f(d, k, l)), q = p, 
             p = o, o = n, n = b(m, t), m = l, l = k, k = d, d = b(t, u);
             w[0] = b(d, w[0]), w[1] = b(k, w[1]), w[2] = b(l, w[2]), w[3] = b(m, w[3]), w[4] = b(n, w[4]), 
@@ -1955,7 +1956,7 @@ function ctrlConfig($scope, srvConfig, srvLog, srvLocale, srvSecurity, srvDataTr
     }, $scope.setSizeCss = function(sizeCss) {
         srvConfig.setSizeCss(sizeCss);
     }, $scope.sendFeedback = function() {
-        $scope.openDialogSendFeedbackReport("CRM Pad user feedback");
+        $scope.openDialogSendFeedbackReport("CRM Meeting Pad user feedback");
     }, $scope.openHelpDialog = function() {
         $scope.openDialogMessage(srvLocale.translations.htmlTextNeedHelpDetail);
     }, $scope.switchUser = function() {
@@ -3119,7 +3120,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
     $scope.srvLocale = srvLocale, $scope.srvData = srvData, $scope.srvRunning = srvRunning, 
     $scope.srvSecurity = srvSecurity, $scope.srvSynchro = srvSynchro, $scope.srvQueue = srvQueue, 
     $scope.srvLink = srvLink, $scope.srvNav = srvNav, $scope.srvGuider = srvGuider, 
-    $scope.srvOpenUrl = srvOpenUrl, $scope.fileStorageQuota = 4294967296, $scope.initAlreadyCalled = !1, 
+    $scope.srvOpenUrl = srvOpenUrl, $scope.fileStorageQuota = 4294967296, $scope.initCtrlNavigationDone = !1, 
     $scope.initializationFinished = !1, $scope.lastRefresh = null, $scope.isDemo = !1, 
     $scope.firstConfigDone = !1, $scope.rememberPassword = !0, $scope.keepCrmLogin = !1, 
     $scope.taskTimer = null, $scope.taskQueue = [], $scope.enqueueTask = function(fct) {
@@ -3134,8 +3135,8 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
     }, $scope.initNavigationCtrl = function() {
         a4p.InternalLog.log("navigationCtrl", "init() launched by AngularJS");
         var deferred = $q.defer();
-        if ($scope.initAlreadyCalled) return deferred.resolve(), deferred.promise;
-        $scope.initAlreadyCalled = !0;
+        if ($scope.initCtrlNavigationDone) return deferred.resolve(), deferred.promise;
+        $scope.initCtrlNavigationDone = !0;
         var msg = "Initializing Cache: " + $scope.page + " page";
         srvLoad.setStatus(msg);
         var startApplication = function() {
@@ -3847,7 +3848,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
         $scope.openShowImageDialog(imageObject);
     }, $scope.importNewFile = function(url) {
         var filename = decodeURI(url.split("/")[url.split("/").length - 1]);
-        if (console.log("importNewFile userId = " + a4pDumpData(srvData.userId, 2)), a4p.InternalLog.log("ctrlNavigation.importNewFile", url + " initialized=" + $scope.initAlreadyCalled + " userId=" + a4pDumpData(srvData.userId, 2)), 
+        if (console.log("importNewFile userId = " + a4pDumpData(srvData.userId, 2)), a4p.InternalLog.log("ctrlNavigation.importNewFile", url + " initialized=" + $scope.initCtrlNavigationDone + " userId=" + a4pDumpData(srvData.userId, 2)), 
         a4p.isUndefined(srvData.userId.dbid)) return void window.alert(srvLocale.translations.htmlMsgRejectImportNotLogged);
         var contact = srvData.getObject(srvData.userId.dbid);
         if (a4p.isUndefined(contact)) return void window.alert(srvLocale.translations.htmlMsgRejectImportNotLogged);
@@ -4129,7 +4130,7 @@ function navigationCtrl($scope, $q, $timeout, $location, $anchorScroll, $http, $
                 deferred.reject(response);
             });
         }
-    };
+    }, $scope.initNavigationCtrl();
 }
 
 function networkTestRunnerCtrl($scope, $q, $location, $http, $modal, version, srvLoad, srvLocalStorage, srvFileStorage, srvAnalytics, srvConfig, srvLog, srvLocale, srvData, srvRunning, srvSecurity, srvSynchro, cordovaReady) {
@@ -6974,7 +6975,7 @@ function handleOpenURL(url) {
             var msg = "Application not yet started to import the file " + url;
             alert(msg);
         }
-    }, 4e3);
+    }, 1e3);
 }
 
 if (function(e, undefined) {
@@ -18168,7 +18169,7 @@ a4p || (a4p = {}), a4p.Aes = function() {
 
 var a4pBlockMove = function(a, b) {
     a.preventDefault && !$(".c4p-container-scroll-y").has($(a.target)).length && a.preventDefault(), 
-    1 == b && a.stopPropagation && a.stopPropagation(), 1 == b && null != a.cancelBubble && (a.cancelBubble = !0);
+    b && a.stopPropagation && a.stopPropagation(), b && !a.cancelBubble && (a.cancelBubble = !0);
 }, a4pAllowMove = function() {
     return !0;
 }, a4pFakeConsoleLog = function() {
@@ -18241,13 +18242,13 @@ a4p.idNext = {
 }, a4p.isEmptyOrFalse = function(a) {
     switch (typeof a) {
       case "object":
-        return null === a ? !0 : 0 == Object.getOwnPropertyNames(a).length ? !0 : a instanceof Array ? 0 === a.length : !1;
+        return null === a ? !0 : 0 === Object.getOwnPropertyNames(a).length ? !0 : a instanceof Array ? 0 === a.length : !1;
 
       case "string":
         return 0 === a.length;
 
       case "number":
-        return 0 == a;
+        return 0 === a;
 
       case "boolean":
         return !a;
@@ -18262,13 +18263,13 @@ a4p.idNext = {
 }, a4p.isTrueOrNonEmpty = function(a) {
     switch (typeof a) {
       case "object":
-        return null === a ? !1 : 0 == Object.getOwnPropertyNames(a).length ? !1 : a instanceof Array ? 0 !== a.length : !0;
+        return null === a ? !1 : 0 === Object.getOwnPropertyNames(a).length ? !1 : a instanceof Array ? 0 !== a.length : !0;
 
       case "string":
         return 0 !== a.length;
 
       case "number":
-        return 0 != a;
+        return 0 !== a;
 
       case "boolean":
         return a;
@@ -18300,7 +18301,7 @@ a4p.idNext = {
         a4p.promiseWakeupNb = 0, clearTimeout(a4p.promiseWakeupTimeout), a4p.promiseWakeupTimeout = null), 
         d(a);
     };
-    0 == a4p.promiseWakeupNb && (a4p.promiseWakeupTimeout = setTimeout(e, 1e3)), a4p.promiseWakeupNb++, 
+    0 === a4p.promiseWakeupNb && (a4p.promiseWakeupTimeout = setTimeout(e, 1e3)), a4p.promiseWakeupNb++, 
     b.then(f, g);
 };
 
@@ -18333,7 +18334,7 @@ a4p.not = function(a) {
     var b = {};
     return function() {
         var c = arguments.length + Array.prototype.join.call(arguments, ",");
-        return c in b ? b[c] : b[c] = a.apply(this, arguments);
+        return c in b ? b.key : (b.key = a.apply(this, arguments), b.key);
     };
 }, a4p.extend = function(a, b) {
     for (var c in b) a[c] = b[c];
@@ -18358,7 +18359,7 @@ a4p.not = function(a) {
     return b;
 }, a4p.create = function(a, b) {
     function c() {}
-    if (null == a) throw new TypeError();
+    if (null === a) throw new TypeError();
     if (Object.create) return Object.create(a, b);
     var d = typeof a;
     if ("object" !== d && "function" !== d) throw new TypeError();
@@ -27836,7 +27837,7 @@ var c4p;
 
 c4p || (c4p = {}), c4p.Locale = {
     en: {
-        htmlGuiderPageTitle: "CRM Pad",
+        htmlGuiderPageTitle: "CRM Meeting Pad",
         htmlGuiderFormStaySignedIn: "Stay signed in",
         htmlGuiderTextPasswordForgotten: "Please prompt your email. A link will be sent allowing you to reset your password",
         htmlGuiderTextValidation: "Synchronization is running. Please wait ...",
@@ -28567,7 +28568,7 @@ c4p || (c4p = {}), c4p.Locale = {
         rangeSeparator: " - "
     },
     fr: {
-        htmlGuiderPageTitle: "CRM Pad",
+        htmlGuiderPageTitle: "CRM Meeting Pad",
         htmlGuiderFormStaySignedIn: "Rester connecté",
         htmlGuiderTextPasswordForgotten: "Veuillez saisir votre email. Un lien permettant de regénérer votre mot de passe vous sera envoyé",
         htmlGuiderTextValidation: "Synchronisation en cours. Veuillez patientez ...",
@@ -40025,7 +40026,6 @@ appModule.factory("$exceptionHandler", [ "$log", function($log) {
         };
         return null !== $window.navigator.userAgent.toLowerCase().match(/(iphone|ipod|ipad|android|blackberry|webos|symbian|ios|bada|tizen|windows phone)/) ? $window.document.addEventListener("deviceready", function() {
             a4p.safeApply($rootScope, function() {
-                console.log("invokeString" in window ? "onDeviceReady: " + window.invokeString : "onDeviceReady: no invokeString"), 
                 readyCallback();
             });
         }, !1) : null !== $window.navigator.userAgent.toLowerCase().match(/(firefox|msie|opera|chrome|safari|windows nt 6.2)/) ? (console.log("cordovaReady No Cordova : cordovaReady() is called immediately"), 
@@ -40042,11 +40042,7 @@ appModule.factory("$exceptionHandler", [ "$log", function($log) {
 
 var srvOpenUrlSingleton = null;
 
-window.plugins && window.plugins.webintent && window.plugins.webintent.getExtra(WebIntent.EXTRA_TEXT, function(url) {
-    handleOpenURL(url);
-}, function() {
-    alert("App is launched...");
-}), serviceModule.factory("srvOpenUrl", [ "$exceptionHandler", function($exceptionHandler) {
+serviceModule.factory("srvOpenUrl", [ "$exceptionHandler", function($exceptionHandler) {
     return srvOpenUrlSingleton = new SrvOpenUrl($exceptionHandler);
 } ]), serviceModule.factory("srvTime", [ "$exceptionHandler", function($exceptionHandler) {
     return new SrvTime($exceptionHandler);
@@ -40077,10 +40073,18 @@ window.plugins && window.plugins.webintent && window.plugins.webintent.getExtra(
             });
         }, !1), $window.document.addEventListener("resign", function() {}, !1), $window.document.addEventListener("active", function() {}, !1), 
         $window.document.addEventListener("backbutton", function() {
-            $window.navigator.notification.confirm("Are you sure you want to EXIT the program ?", function(button) {
+            $window.navigator.notification.confirm("Do you want to exit ?", function(button) {
                 ("1" == button || 1 == button) && $window.navigator.app.exitApp();
             }, "EXIT :", "OK,Cancel");
-        }, !1);
+        }, !1), window.plugins && window.plugins.webintent && (window.plugins.webintent.getExtra(WebIntent.EXTRA_TEXT, function(url) {
+            console.log("window.plugins.webintent.getExtra text " + url), handleOpenURL(url);
+        }, function() {
+            console.log("App is launched text...");
+        }), window.plugins.webintent.getExtra(WebIntent.EXTRA_STREAM, function(url) {
+            console.log("window.plugins.webintent.getExtra stream " + url), handleOpenURL(url);
+        }, function() {
+            console.log("App is launched stream...");
+        }));
     })(), runningSingleton;
 } ]), serviceModule.factory("srvLocalStorage", function() {
     var LocalStorage = a4p.LocalStorageFactory(window.localStorage);

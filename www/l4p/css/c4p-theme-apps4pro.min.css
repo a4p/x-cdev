@@ -23714,8 +23714,8 @@ body {
   background-color: transparent;
   color: #ffffff;
 }
-.c4p-login-body header a,
-.c4p-login-body footer a {
+.c4p-login-body header > ul > li > a,
+.c4p-login-body footer > ul > li > a {
   color: #ffffff;
 }
 .c4p-login-body .btn-link {
