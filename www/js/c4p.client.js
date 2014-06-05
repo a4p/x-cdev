@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-05 14:09 */
+/*! c4p.client 2014-06-05 23:41 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -40078,15 +40078,9 @@ serviceModule.factory("srvOpenUrl", [ "$exceptionHandler", function($exceptionHa
             $window.navigator.notification.confirm("Do you want to exit ?", function(button) {
                 ("1" == button || 1 == button) && $window.navigator.app.exitApp();
             }, "EXIT :", "OK,Cancel");
-        }, !1), window.plugins && window.plugins.webintent && (window.plugins.webintent.getExtra(WebIntent.EXTRA_TEXT, function(url) {
-            console.log("window.plugins.webintent.getExtra text " + url), handleOpenURL(url);
-        }, function() {
-            console.log("App is launched text...");
-        }), window.plugins.webintent.getExtra(WebIntent.EXTRA_STREAM, function(url) {
-            console.log("window.plugins.webintent.getExtra stream " + url), handleOpenURL(url);
-        }, function() {
-            console.log("App is launched stream...");
-        }));
+        }, !1), window.plugins && window.plugins.webintent && window.plugins.webintent.getUri(function(url) {
+            console.log("window.plugins.webintent.getUri " + url), url && handleOpenURL(url);
+        });
     })(), runningSingleton;
 } ]), serviceModule.factory("srvLocalStorage", function() {
     var LocalStorage = a4p.LocalStorageFactory(window.localStorage);
