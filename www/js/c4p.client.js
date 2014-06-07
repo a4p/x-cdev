@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-06 16:06 */
+/*! c4p.client 2014-06-07 15:48 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -102,22 +102,20 @@ function openChildBrowser(a, b, c, d) {
         };
         return void setTimeout(j, 100);
     }
-    if (window.device) {
-        a4p.InternalLog.log("openChildBrowser", "cordova : window.open");
-        var k = "_blank";
-        "url" == b && (k = "_system");
-        var l = window.open(a, k, "location=no");
-        l.addEventListener("loadstart", function(a) {
-            a4p.InternalLog.log("openChildBrowser", "loadstart " + a.url);
-        }), l.addEventListener("loadstop", function(a) {
-            a4p.InternalLog.log("openChildBrowser", "loadstop " + a.url), "string" == typeof a.url && a.url.indexOf("about:blank") >= 0 && (e = !0, 
-            c && c(), l.close());
-        }), l.addEventListener("loaderror", function(a) {
-            a4p.InternalLog.log("openChildBrowser", "loaderror " + a.url);
-        }), l.addEventListener("exit", function(a) {
-            a4p.InternalLog.log("openChildBrowser", "exit " + a.url), e || d && d();
-        });
-    }
+    a4p.InternalLog.log("openChildBrowser", "cordova : window.open");
+    var k = "_blank";
+    "url" != b && (k = "_system");
+    var l = window.open(a, k, "location=no");
+    l.addEventListener("loadstart", function(a) {
+        a4p.InternalLog.log("openChildBrowser", "loadstart " + a.url);
+    }), l.addEventListener("loadstop", function(a) {
+        a4p.InternalLog.log("openChildBrowser", "loadstop " + a.url), "string" == typeof a.url && a.url.indexOf("about:blank") >= 0 && (e = !0, 
+        c && c(), l.close());
+    }), l.addEventListener("loaderror", function(a) {
+        a4p.InternalLog.log("openChildBrowser", "loaderror " + a.url);
+    }), l.addEventListener("exit", function(a) {
+        a4p.InternalLog.log("openChildBrowser", "exit " + a.url), e || d && d();
+    });
 }
 
 function closeWindow() {
@@ -2555,7 +2553,7 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
     $scope.currentMeetingNote = null, $scope.editorType = "Document", $scope.modeEdit = !1, 
     $scope.itemNameEditable = !1, $scope.meetingPlanTitleEditable = !1, $scope.isPresentationOn = !1, 
     $scope.meetingAsidePanel = "partials/meeting/meeting_plan.html", $scope.meetingCurrentPanel = "partials/meeting/meeting_plan_viewer.html", 
-    $scope.actionItems = {
+    $scope.meetingLaunchEmail = !1, $scope.meetingLaunchEmailLoading = !0, $scope.actionItems = {
         plan: {
             icon: "bars",
             side: "partials/meeting/meeting_plan.html",
@@ -2727,34 +2725,13 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
             }
         }
     }, $scope.meetingCreateNewEmail = function() {
-        if ($scope.meetingItem) {
-            var i, postTitle = $scope.meetingItem.name, idsContact = [], emails = [], idsDocument = [], attendees = srvData.getTypedDirectLinks($scope.meetingItem, "attendee", "Attendee");
-            for (i = 0; i < attendees.length; i++) {
-                var attendee = attendees[i], contact = null;
-                attendee && attendee.relation_id && attendee.relation_id.dbid && (contact = srvData.getObject(attendee.relation_id.dbid)), 
-                contact && contact.email && idsContact.push(contact.id);
-            }
-            var emailBody = "";
-            for (i = 0; i < $scope.meetingPlans.length; i++) {
-                for (var plan = $scope.meetingPlans[i], plannees = srvData.getTypedDirectLinks(plan, "plannee", "Plannee"), doc = null, note = null, j = 0; j < plannees.length; j++) {
-                    var planneeObj = srvData.getObject(plannees[j].object_id.dbid);
-                    planneeObj && "Note" == planneeObj.a4p_type ? note = planneeObj : planneeObj && (doc = planneeObj);
-                }
-                var noteHTML = "", titleHTML = "*", docTitleHTML = "";
-                doc && (idsDocument.push(doc.id), docTitleHTML = srvLocale.translations.htmlTextMeetingDocSeen + " " + doc.name), 
-                note && (noteHTML = note.description), plan && (titleHTML = "" + (plan.pos + 1) + " - " + plan.title), 
-                emailBody = emailBody + "" + titleHTML + "\n\r" + docTitleHTML + "\n\r" + noteHTML + "\n\r";
-            }
-            var email = {
-                emailType: "share",
-                subject: postTitle,
-                body: emailBody,
-                contacts: idsContact,
-                documents: idsDocument,
-                emailsInput: emails
-            }, ret = $scope.addEmailToParent(null, !1, email, $scope.meetingItem);
-            ret && alert("Sent !");
-        }
+        $scope.meetingItem && ($scope.meetingLaunchEmail = !0, $scope.meetingLaunchEmailLoading = !0);
+    }, $scope.afterMeetingLaunchEmailDone = function() {
+        $scope.meetingLaunchEmail = !1, $scope.meetingLaunchEmailLoading = !0;
+    }, $scope.afterMeetingLaunchEmailShow = function() {
+        $timeout(function() {
+            $scope.meetingLaunchEmailLoading = !1;
+        }, 400);
     }, $scope.togglePresentation = function() {}, $scope.setViewerDocList = function() {
         var i;
         for ($scope.viewerDocList = [], i = 0; i < $scope.meetingPlans.length; i++) {
@@ -2771,11 +2748,10 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
         $scope.selectedMeetingPlan ? $scope.setActionItem("select", "side") : $scope.setActionItem("others", "side");
     }, $scope.meetingLoadingSpinner = !0, $scope.afterMeetingSpinnerShow = function() {
         $timeout(function() {
-            $scope.computeMeeting();
+            $scope.computeMeeting(), $scope.meetingLoadingSpinner = !1;
         }, 400);
     }, $scope.afterMeetingSpinnerHide = function() {}, $scope.computeMeeting = function() {
-        a4p.InternalLog.log("ctrlCalendar", "computeCalendar "), $scope.initMeetingElements(), 
-        $scope.meetingLoadingSpinner = !1;
+        a4p.InternalLog.log("ctrlMeeting", "computeMeeting "), $scope.initMeetingElements();
     }, $scope.initMeetingElements();
 }
 
@@ -2817,6 +2793,57 @@ function ctrlMeetingElementDrop($scope) {
     }, $scope.dropEnd = function(event, element, index) {
         $scope.moveMeetingElement($scope.meetingPlans, $scope.dragMeetingElementIdx, index);
     };
+}
+
+function ctrlMeetingEmail($scope, $modal, $timeout, $sce, srvData, srvConfig) {
+    "use strict";
+    $scope.meetingEmailLoading = !0, $scope.meetingEmailHasBeenInitialized = !1, $scope.meetingEmailPlans = [], 
+    $scope.meetingEmailUserName = "", $scope.meetingEmailUserEmail = "", $scope.meetingEmailDocIds = [], 
+    $scope.$on("$destroy", function() {}), $scope.initMeetingEmail = function() {
+        if ($scope.meetingPlans && !$scope.meetingEmailHasBeenInitialized) {
+            for (var i = 0; i < $scope.meetingPlans.length; i++) {
+                var planObj = $scope.meetingPlans[i];
+                if (planObj) {
+                    for (var currentItemName = "", currentNoteHtml = "", plannees = srvData.getTypedDirectLinks(planObj, "plannee", "Plannee"), j = 0; j < plannees.length; j++) {
+                        var planneeObj = srvData.getObject(plannees[j].object_id.dbid);
+                        planneeObj && "Note" == planneeObj.a4p_type ? currentNoteHtml = planneeObj.description.replace(/(?:\r\n|\r|\n)/g, "<br />") : planneeObj && "Document" == planneeObj.a4p_type && (currentItemName = planneeObj.name, 
+                        $scope.meetingEmailDocIds.push(planneeObj.id));
+                    }
+                    $scope.meetingEmailPlans.push({
+                        title: planObj.title,
+                        pos: i,
+                        itemName: currentItemName,
+                        noteHtml: currentNoteHtml
+                    });
+                }
+            }
+            var userContact = srvData.getPrincipalUserContact();
+            $scope.meetingEmailUserName = srvConfig.getItemName(userContact), $scope.meetingEmailUserEmail = srvConfig.getItemPrincipalEmail(userContact), 
+            $scope.meetingEmailHasBeenInitialized = !0;
+        }
+    }, $scope.afterMeetingEmailHasBeenInitialized = function() {
+        $timeout(function() {
+            var bok = $scope.meetingEmailSend();
+            $scope.afterMeetingLaunchEmailDone(), bok && alert("Sent !");
+        }, 10);
+    }, $scope.meetingEmailSend = function() {
+        if (!$scope.meetingItem) return !1;
+        var i, postTitle = $scope.meetingItem.name, idsContact = [], emails = [], attendees = srvData.getTypedDirectLinks($scope.meetingItem, "attendee", "Attendee");
+        for (i = 0; i < attendees.length; i++) {
+            var attendee = attendees[i], contact = null;
+            attendee && attendee.relation_id && attendee.relation_id.dbid && (contact = srvData.getObject(attendee.relation_id.dbid)), 
+            contact && contact.email && idsContact.push(contact.id);
+        }
+        var elMail = document.getElementById("c4pMeetingEmailToExport"), emailBody = elMail && elMail.innerHTML ? elMail.innerHTML : "email is empty", email = {
+            emailType: "share",
+            subject: postTitle,
+            body: emailBody,
+            contacts: idsContact,
+            documents: $scope.meetingEmailDocIds,
+            emailsInput: emails
+        }, ret = $scope.addEmailToParent(null, !1, email, $scope.meetingItem);
+        return ret;
+    }, $scope.initMeetingEmail();
 }
 
 function ctrlMeetingObjLinkDrop($scope, srvData) {
@@ -18400,9 +18427,9 @@ a4p || (a4p = {}), a4p.Analytics = function() {
     }, a.prototype.setVid = function(a) {
         this.vid = a, a4p.InternalLog.log("Analytics", "set vid " + this.vid);
     }, a.prototype.setUid = function(a) {
-        a4p.InternalLog.log("Analytics", "set uid " + a), a && "" != a && (this.uid = a);
+        a4p.InternalLog.log("Analytics", "set uid " + a), a && "" !== a && (this.uid = a);
     }, a.prototype.setEnabled = function(a) {
-        this.bEnabled = 1 == a, a4p.InternalLog.log("Analytics", "set enabled " + this.bEnabled);
+        this.bEnabled = a === !0, a4p.InternalLog.log("Analytics", "set enabled " + this.bEnabled);
     }, a.prototype.add = function(a, d, e) {
         if (this.bEnabled && a && d) {
             var f = !0;
@@ -33785,8 +33812,8 @@ ctrlDragObject.$inject = [ "$scope", "$modal", "$timeout", "srvLocale", "srvData
 ctrlInlinedObject.$inject = [ "$scope", "srvData", "srvConfig", "srvLocale" ], ctrlLinkActions.$inject = [ "$scope", "$timeout", "srvData", "srvNav", "srvLink", "srvConfig", "srvLog" ], 
 ctrlMeeting.$inject = [ "$scope", "$modal", "$timeout", "srvData", "srvConfig", "srvNav", "srvLocale", "srvAnalytics" ], 
 ctrlMeetingElementDrag.$inject = [ "$scope", "$modal", "srvLocale", "srvData", "srvNav", "srvLink", "srvConfig" ], 
-ctrlMeetingElementDrop.$inject = [ "$scope" ], ctrlMeetingObjLinkDrop.$inject = [ "$scope", "srvData", "srvConfig" ], 
-ctrlMeetingRemoveDrop.$inject = [ "$scope", "srvLocale", "srvData", "srvNav", "srvLink", "srvConfig" ], 
+ctrlMeetingElementDrop.$inject = [ "$scope" ], ctrlMeetingEmail.$inject = [ "$scope", "$modal", "$timeout", "$sce", "srvData", "srvConfig", "srvNav", "srvLocale", "srvAnalytics" ], 
+ctrlMeetingObjLinkDrop.$inject = [ "$scope", "srvData", "srvConfig" ], ctrlMeetingRemoveDrop.$inject = [ "$scope", "srvLocale", "srvData", "srvNav", "srvLink", "srvConfig" ], 
 ctrlNamedObject.$inject = [ "$scope", "srvConfig" ], ctrlNavObject.$inject = [ "$scope", "srvNav", "srvConfig" ], 
 navigationCtrl.$inject = [ "$scope", "$q", "$timeout", "$location", "$anchorScroll", "$http", "$modal", "$sce", "version", "srvLoad", "srvLocalStorage", "srvFileStorage", "srvAnalytics", "srvConfig", "srvLog", "srvLocale", "srvData", "srvRunning", "srvSecurity", "srvSynchro", "srvQueue", "cordovaReady", "srvLink", "srvNav", "srvGuider", "srvFacet", "srvOpenUrl" ], 
 networkTestRunnerCtrl.$inject = [ "$scope", "$q", "$location", "$http", "$modal", "version", "srvLoad", "srvLocalStorage", "srvFileStorage", "srvAnalytics", "srvConfig", "srvLog", "srvLocale", "srvData", "srvRunning", "srvSecurity", "srvSynchro", "cordovaReady", "srvLink", "srvNav", "srvGuider", "srvFacet" ], 
@@ -34837,7 +34864,7 @@ directiveModule.directive("c4pWaitingClick", function() {
 } ]), angular.module("c4pTemplates", []).run([ "$templateCache", function($templateCache) {
     "use strict";
     $templateCache.put("partials/empty.html", ""), $templateCache.put("partials/main.html", '<!doctype html><div id="a4pBody" ng-controller="ctrlResponsive" resize-opts="{name:\'a4pBody\'}" resize-beforewindow="responsiveBeforeWindowSizeChanged()"><div ng-controller="navigationCtrl" ng-init="initNavigationCtrl()"><div ng-if="!respIsComputing"><div class="container" ng-class="{\'c4p-backdrop-blur\':isBlurOn}" ng-switch="page"><div class="row" ng-switch-when="navigation"><div ng-include="\'partials/navigation/main.html\'"></div></div><div class="row" ng-switch-when="guider"><div ng-include="\'partials/guider/main.html\'"></div></div><div class="row" ng-switch-when="meeting"><div ng-include="\'partials/meeting/main.html\'"></div></div><div class="row" ng-switch-when="timeline"><div ng-include="\'partials/timeline/main.html\'"></div></div><div ng-switch-default=""><h5 style="color: gray; text-align: center; opacity:0.2">...</h5></div></div><div class="c4p-container" style="border:1px white solid" ng-if="isBlurOn" touchstart="a4pBlockMove(event,true)"></div><c4p-spinner id="c4p-waiting-spinner" ng-show="isSpinnerActive || !respIsReady" class="c4p-waiting c4p-waiting-black c4p-click-intercepted"><div ng-include="\'partials/spinner.html\'"></div></c4p-spinner></div></div></div>'), 
-    $templateCache.put("partials/spinner.html", '<div class="c4p-waiting-icon glyphicon-stack glyphicon-2x center-block"><i class="glyphicon glyphicon-fw glyphicon-square glyphicon-stack-2x"></i> <i class="glyphicon glyphicon-fw glyphicon-cog glyphicon-stack-1x glyphicon-inverse glyphicon-spin"></i></div>'), 
+    $templateCache.put("partials/spinner.html", '<!doctype html><div class="c4p-waiting-icon glyphicon-stack glyphicon-2x center-block"><i class="glyphicon glyphicon-fw glyphicon-square glyphicon-stack-2x"></i> <i class="glyphicon glyphicon-fw glyphicon-cog glyphicon-stack-1x glyphicon-inverse glyphicon-spin"></i></div>'), 
     $templateCache.put("partials/dialog/confirm.html", '<div class="row modal-body c4p-vertical-container"><div class="c4p-dialog c4p-vertical-align"><div class="container c4p-modal-confirm-container col-xxs-12 col-sm-6 col-sm-offset-3"><div class="row"><div class="c4p-dialog-header"><div class="col-xxs-12"><ul class="nav nav-pills"><li><a class="btn disabled" data-toggle="tab"><h5 style="white-space:normal">{{text}}</h5></a></li><li class="pull-right"><a class="btn c4p-color-cancel-transparent" ng-click="startSpinner();close()"><span class="c4p-icon-std">&times;</span></a></li><li class="pull-right"><a class="btn c4p-color-ok-transparent c4p-stroke" ng-click="startSpinner();submit()"><span class="c4p-icon-std glyphicon glyphicon-check"></span></a></li></ul></div></div></div><div class="row" ng-show="{{textArray.length}}"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><ul><li ng-repeat="item in textArray"><span>{{item}}</span></li></ul></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogAddAccount.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogAddAccountPageTitle}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="add()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:\'visibleElements.length\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="item in possibleAccounts"><div ng-click="toggleItem($index)" class="clearfix c4p-link5"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':idxChosen != $index}" style="padding-top: 5px"></span> <span>{{item.company_name}}</span></div></li></ul></div></div>'), 
     $templateCache.put("partials/dialog/dialogAddContact.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogAddContactPageTitle}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="add()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:\'visibleElements.length\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="item in possibleContacts"><div ng-click="toggleItem($index)" class="clearfix c4p-link5"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':idxChosen != $index}" style="padding-top: 5px"></span> <span>{{item.salutation}} {{item.first_name}} {{item.last_name}}</span></div></li></ul></div></div>'), 
@@ -34873,7 +34900,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/guider/validation.html", '<div class=""><div class=""><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3></div><div class="row"><span class="pull-left col-sm-offset-3 white" ng-switch="navigationA4pSpinnerState"><span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh glyphicon-spin" ng-switch-when="run"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh alert-error" ng-switch-when="doneWithPb"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh close" ng-switch-when="offline"></span> <span class="c4p-icon-std glyphicon glyphicon-fw glyphicon-refresh" ng-switch-default=""></span> <span ng-show="(srvData.objectsToDownload.length + srvData.objectsToSave.length)">{{srvData.objectsToDownload.length + srvData.objectsToSave.length}}</span></span> <span class="col-xxs-11 col-sm-6 white">{{translate(\'htmlGuiderTextValidation\')}}</span></div><div class="row"><a4p-carousel class="col-xxs-12 col-sm-offset-3 col-sm-6"><a4p-slide active="true"><span ng-bind-html="to_trusted(srvLocale.translations.htmlGuiderTextWaiting)"></span></a4p-slide></a4p-carousel></div></div></div>'), 
     $templateCache.put("partials/guider/validationReceiveRes.html", '<div class=""><div class=""><div class="row"><h3 class="col-xxs-12 col-sm-offset-3 col-sm-6 text-center white login-header">{{translate(\'htmlGuiderPageTitle\')}}</h3></div><div class="row"><div class="form-group error col-xxs-12 col-sm-offset-3 col-sm-6 white"><label class="control-label">{{translate(messageGuider)}}</label></div></div><div class="row" style="min-height: 300px"><button class="btn btn-primary col-xxs-12 col-sm-offset-3 col-sm-4" ng-click="gotoLogin()">{{translate(\'htmlButtonLogin\')}}</button> <a class="btn btn-link white col-xxs-12 text-center col-sm-2" ng-click="gotoSlide(pageGuider, slideGuiderRequestPassword)">{{translate(\'htmlButtonPasswordForgotten\')}}</a></div></div></div>'), 
     $templateCache.put("partials/meeting/header.html", '<!doctype html><nav class="navbar navbar-default navbar-fixed-top"><div class="container"><ul class="nav navbar-nav col-xxs-2"><li><button class="btn btn-link c4p-color-action-transparent" ng-click="quitMeetingView()" ng-hide="modeLock" ng-disabled="isEditFocused"><i class="glyphicon glyphicon-fw glyphicon-chevron-left"></i></button></li></ul><ul class="nav navbar-nav col-xxs-8"><li style="width:100%;text-align:center"><h5 class="btn" style="text-align:center;margin:0;text-transform: capitalize" ng-show="!itemNameEditable" ng-disabled="isEditFocused" ng-click="editMeetingTitle()">{{meetingItem.name}}</h5><div class="" ng-show="itemNameEditable"><c4p-input title-var="" ng-model="meetingItem.name" placeholder="" type="text" style="width:100%" warn-var="" required ng-disabled="isEditFocused"></c4p-input></div></li></ul><ul class="nav navbar-nav col-xxs-2"><li ng-show="itemNameEditable"><button type="submit" class="btn btn-link" ng-click="saveItemName(meetingItem.name)" ng-disabled="isEditFocused"><i class="glyphicon glyphicon-check"></i></button></li><li class="pull-right"><div class="dropdown" ng-show="!itemNameEditable"><button class="btn btn-link dropdown-toggle" ng-disabled="isEditFocused"><i class="glyphicon glyphicon-caret-down"></i></button><ul class="dropdown-menu dropdown-menu-right"><li class="c4p-color-gradient0" ng-hide="modeLock" ng-click="meetingCreateNewEmail()"><span class="c4p-icon-std glyphicon glyphicon-{{actionMap.createNewEmail.icon}}"></span> <span>{{srvLocale.translations.htmlActionName.createNewEmail}}</span></li></ul></div></li></ul></div></nav>'), 
-    $templateCache.put("partials/meeting/main.html", '<!doctype html><div ng-controller="ctrlAction" ng-init="watchSrvNav()"><div ng-controller="ctrlEditFocus"><div ng-controller="ctrlMeeting" class="c4p-meeting-body"><header ng-include="\'partials/meeting/header.html\'"></header><aside id="c4p-meeting-side-do-not-use-deprecated" ng-class="{\'c4p-meeting-aside-hidden\' : !showMeetingAside}" ng-include="\'partials/meeting/meeting_aside.html\'"></aside><div class="c4p-waiting" ng-show="meetingLoadingSpinner" c4p-animateshow="meetingLoadingSpinner" after-hide="afterMeetingSpinnerHide()" after-show="afterMeetingSpinnerShow()"><div ng-include="\'partials/spinner.html\'"></div></div><div ng-controller="ctrlViewer" ng-if="!meetingLoadingSpinner"><article id="c4p-meeting-page-do-not-use-deprecated" ng-class="{\'c4p-meeting-article-full\' : !showMeetingAside}" ng-include="\'\'+meetingCurrentPanel"></article></div></div></div></div>'), 
+    $templateCache.put("partials/meeting/main.html", '<!doctype html><div ng-controller="ctrlAction" ng-init="watchSrvNav()"><div ng-controller="ctrlEditFocus"><div ng-controller="ctrlMeeting" class="c4p-meeting-body"><header ng-include="\'partials/meeting/header.html\'"></header><aside id="c4p-meeting-side-do-not-use-deprecated" ng-class="{\'c4p-meeting-aside-hidden\' : !showMeetingAside}" ng-include="\'partials/meeting/meeting_aside.html\'"></aside><div class="c4p-waiting" ng-if="meetingLaunchEmail" c4p-animateshow="meetingLaunchEmailLoading" after-show="afterMeetingLaunchEmailShow()"><div ng-include="\'partials/spinner.html\'"></div></div><div ng-if="!meetingLaunchEmailLoading" style="display:none"><div ng-include="\'partials/email/meeting.html\'"></div></div><div class="c4p-waiting" ng-show="meetingLoadingSpinner" c4p-animateshow="meetingLoadingSpinner" after-hide="afterMeetingSpinnerHide()" after-show="afterMeetingSpinnerShow()"><div ng-include="\'partials/spinner.html\'"></div></div><div ng-controller="ctrlViewer" ng-if="!meetingLoadingSpinner"><article id="c4p-meeting-page-do-not-use-deprecated" ng-class="{\'c4p-meeting-article-full\' : !showMeetingAside}" ng-include="\'\'+meetingCurrentPanel"></article></div></div></div></div>'), 
     $templateCache.put("partials/meeting/meeting_aside.html", '<!doctype html><div class="c4p-aside-body"><nav class="navbar"><div class="container"><ul class="nav nav-pills"><li ng-class="{\'active\': (meetingSelectedActionItem == \'plan\')}"><a ng-click="setActionItem(\'plan\', \'side\')" ng-disabled="isEditFocused" class="btn"><i class="glyphicon glyphicon-fw glyphicon-{{actionItems[\'plan\'].icon}}"></i></a></li><li ng-class="{\'active\': (meetingSelectedActionItem != \'plan\')}"><a ng-click="setActionItem(\'select\', \'side\');" ng-disabled="isEditFocused" class="btn"><i class="glyphicon glyphicon-fw glyphicon-{{actionItems[\'others\'].icon}}"></i></a></li><li class="pull-right"><a ng-click="toggleMeetingAside()" ng-disabled="isEditFocused" ng-show="showMeetingAside" class="btn"><i class="glyphicon glyphicon-fw glyphicon-angle-left"></i></a> <a ng-click="toggleMeetingAside()" ng-disabled="isEditFocused" ng-hide="showMeetingAside" class="btn"><i class="glyphicon glyphicon-fw glyphicon-angle-right"></i></a></li></ul></div></nav><aside class="c4p-container"><div class="c4p-container-scroll-y" ng-include="\'\'+meetingAsidePanel"></div></aside><div class="btn btn-danger" ng-class="{\'active\' : dropOver}" ng-show="dragIsActive" ng-controller="ctrlMeetingRemoveDrop" sense-opts="{name:\'dropObjectTrash\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)" sense-dropend="dropEnd($event)" style="position:fixed;z-index:1041;bottom:0;left:0;text-align: center; width:100%"><span class="glyphicon glyphicon-trash-o"></span></div></div>'), 
     $templateCache.put("partials/meeting/meeting_draggable_summarized_item.html", '<!doctype html> meeting_draggable_summarized_item.html ???<div class="col-xxs-12 c4p-link5" ng-controller="ctrlDragObject" ng-init="init(item)" sense-opts="{bubble:true, watchRefresh:[\'srvNav.item\', \'srvNav.holdItem\']}" sense-shorttap="tapOnLinkedObject(item, firstSingleTap(item.id.dbid));" sense-doubletap="firstSingleTap(\'\');tapOnLinkedObject(item)" sense-longdragoverenter="dragOverEnter($event)" sense-longdragoverleave="dragOverLeave($event)" sense-longdragstart="dragStart($event)" sense-longdragmove="dragMove($event)" sense-longdragend="dragEnd($event)" sense-longdragcancel="dragCancel($event)"><div ng-include="\'partials/navigation/cards/summarized_card.html\'" ng-class="{\'c4p-hover-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableHover, \'c4p-border-drag\':srvNav.item && srvConfig.c4pConfig.exposeDraggableBorder}" style="border-width: 1px;padding:2px"></div></div>'), 
     $templateCache.put("partials/meeting/meeting_linked_object.html", '<!doctype html><div ng-class="{\'c4p-click-through\' : isEditFocused}"><div ng-init="isDraggable = true" ng-include="\'partials/navigation/view_n_2_links_list.html\'"></div></div>'), 
@@ -34929,6 +34956,7 @@ directiveModule.directive("c4pWaitingClick", function() {
 } ]);
 
 var SrvConfig = function() {
+    "use strict";
     function Service(srvDataTransfer, srvLoad, srvLocalStorage, srvAnalytics) {
         this.dataTransfer = srvDataTransfer, this.srvLoad = srvLoad, this.srvLocalStorage = srvLocalStorage, 
         this.srvAnalytics = srvAnalytics, this.c4pUrlConf = "models/c4p_conf.json", this.c4pUrlBase = "", 
@@ -34963,7 +34991,7 @@ var SrvConfig = function() {
                 exposeBetaFunctionalities: !1
             }), this.initBetaOptions(), this.nameComposition = this.srvLocalStorage.get("NameComposition", {});
             var sizeCss = this.srvLocalStorage.get("SizeCss", "");
-            if ("" != sizeCss) {
+            if ("" !== sizeCss) {
                 this.sizeCss = sizeCss;
                 var html = document.documentElement;
                 html.style.fontSize = this.sizeCss;
@@ -34982,7 +35010,7 @@ var SrvConfig = function() {
         var self = this, onSuccess = function(response) {
             var msg = "Configuration ready.";
             a4p.InternalLog.log("srvConfig", msg), self.srvLoad.setStatus(msg), self.srvLoad.setError(""), 
-            "" == self.c4pUrlBase && "" == self.c4pBuildDate && (a4p.InternalLog.log("srvConfig", "First init"), 
+            "" === self.c4pUrlBase && "" === self.c4pBuildDate && (a4p.InternalLog.log("srvConfig", "First init"), 
             a4p.isDefinedAndNotNull(response.data.possibleCrms) && self.setPossibleCrms(response.data.possibleCrms), 
             a4p.isDefinedAndNotNull(response.data.activeCrms) && self.setActiveCrms(response.data.activeCrms), 
             a4p.isDefinedAndNotNull(response.data.config) && self.setConfig(response.data.config)), 
@@ -35051,7 +35079,7 @@ var SrvConfig = function() {
         return this.nameComposition[objectType] || 0;
     }, Service.prototype.getItemName = function(item) {
         var result = "";
-        if (null != item && a4p.isDefined(c4p.Model.a4p_types[item.a4p_type])) {
+        if (item && a4p.isDefined(c4p.Model.a4p_types[item.a4p_type])) {
             var idx = this.nameComposition[item.a4p_type] || 0, nameList = c4p.Model.a4p_types[item.a4p_type].displayNameList[idx];
             if (nameList) {
                 for (var fieldNameIdx = 0; fieldNameIdx < nameList.length; fieldNameIdx++) {
@@ -35062,6 +35090,9 @@ var SrvConfig = function() {
             }
         }
         return result;
+    }, Service.prototype.getItemPrincipalEmail = function(item) {
+        var result = null;
+        return item && a4p.isDefined(c4p.Model.a4p_types[item.a4p_type]) ? item.email ? item.email : result : result;
     }, Service.prototype.setSizeCss = function(value) {
         this.sizeCss = value, this.srvLocalStorage.set("SizeCss", this.sizeCss);
         var html = document.documentElement;
@@ -35412,10 +35443,11 @@ var SrvConfig = function() {
         a4p.InternalLog.log("srvData", "download failure //TODO : what todo with self document not downloaded ? " + requestCtx.dbid)) : a4p.InternalLog.log("srvData", "download failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onShareSuccess(self, requestCtx, responseData) {
+        var bok = !0;
         if ("Document shared." == responseData.log && a4p.isDefined(responseData.id)) {
             var object = self.getObject(requestCtx.dbid);
             a4p.isDefined(object) ? (delete object.feed, self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_SHARE), 
-            self.setObject(object, !1), self.addObjectToSave(object)) : a4p.InternalLog.log("srvData", "share success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
+            bok && (bok = self.setObject(object, !1)), bok && (bok = self.addObjectToSave(object))) : a4p.InternalLog.log("srvData", "share success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
         }
     }
     function onShareFailure(self, requestCtx) {
@@ -35424,19 +35456,20 @@ var SrvConfig = function() {
         self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "share failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onEmailSuccess(self, requestCtx, responseData) {
-        var i, crm, id, object = self.getObject(requestCtx.dbid);
+        var i, crm, id, ret, object = self.getObject(requestCtx.dbid);
         if (a4p.isDefined(object)) if (a4p.isDefined(responseData.nbSent)) {
             responseData.nbSent > 0, self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE);
             var pdfEmailExists = !1;
             if (a4p.isDefined(responseData.created)) for (i = 0, nb = responseData.created.length; nb > i; i++) crm = responseData.created[i].crm, 
             id = responseData.created[i].id, object.id[crm + "_id"] = id, pdfEmailExists = !0; else a4p.isDefined(responseData.id) && a4p.isDefined(responseData.id.sf_id) && (object.id.sf_id = responseData.id.sf_id, 
             pdfEmailExists = !0);
-            if (self.setObject(object, !1), addOriginalObject(self, object, !self.isDemo && pdfEmailExists), 
+            if (ret = self.setObject(object, !1), ret && (ret = addOriginalObject(self, object, !self.isDemo && pdfEmailExists)), 
             a4p.isDefined(responseData.created)) for (i = 0, nb = responseData.created.length; nb > i; i++) crm = responseData.created[i].crm, 
             id = responseData.created[i].id, updateLinkedObjects(self, "Document", object.id.dbid, crm + "_id", id); else a4p.isDefined(responseData.id) && a4p.isDefined(responseData.id.sf_id) && updateLinkedObjects(self, "Document", object.id.dbid, "sf_id", object.id.sf_id);
         } else "Create email success." == responseData.responseStatus && a4p.isDefined(responseData.id) && (object.id.sf_id = responseData.id.sf_id, 
         self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE), 
-        self.setObject(object, !1), addOriginalObject(self, object, !self.isDemo), updateLinkedObjects(self, "Document", object.id.dbid, "sf_id", object.id.sf_id)); else a4p.InternalLog.log("srvData", "email success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
+        ret = self.setObject(object, !1), ret && (ret = addOriginalObject(self, object, !self.isDemo)), 
+        ret && (ret = updateLinkedObjects(self, "Document", object.id.dbid, "sf_id", object.id.sf_id))); else a4p.InternalLog.log("srvData", "email success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onEmailFailure(self, requestCtx) {
         var object = self.getObject(requestCtx.dbid);
@@ -35444,10 +35477,12 @@ var SrvConfig = function() {
         self.srvDataStore.setItems(object.a4p_type, self.currentItems[object.a4p_type])) : a4p.InternalLog.log("srvData", "email failure on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
     }
     function onNoteSuccess(self, requestCtx, responseData) {
+        var bok = !0;
         if (("Create report success." == responseData.responseStatus || "Create note success." == responseData.responseStatus) && a4p.isDefined(responseData.id)) {
             var object = self.getObject(requestCtx.dbid);
             a4p.isDefined(object) ? (object.id.sf_id = responseData.id.sf_id, self.srvSynchroStatus.successChannel(object, self.srvSynchroStatus.PUB.CHANNEL_WRITE), 
-            self.setObject(object, !1), addOriginalObject(self, object, !self.isDemo), updateLinkedObjects(self, "Document", object.id.dbid, "sf_id", object.id.sf_id)) : a4p.InternalLog.log("srvData", "note success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
+            bok && (bok = self.setObject(object, !1)), bok && (bok = addOriginalObject(self, object, !self.isDemo)), 
+            bok && (bok = updateLinkedObjects(self, "Document", object.id.dbid, "sf_id", object.id.sf_id))) : a4p.InternalLog.log("srvData", "note success on unknown object " + requestCtx.dbid + " : object has been deleted during the request");
         }
     }
     function onNoteFailure(self, requestCtx) {
@@ -35491,7 +35526,7 @@ var SrvConfig = function() {
     }
     function addFullMap(self, userId, fullmap, requestTimestamp) {
         a4p.InternalLog.log("srvData", "addFullMap : userId=" + a4pDumpData(self.userId, 2) + " userObject=" + a4pDumpData(self.userObject, 2));
-        var i, dbid, item, index = {};
+        var i, dbid, item, bok, index = {};
         if (fullmap.objects) {
             for (var i = 0; i < fullmap.objects.length; i++) {
                 item = fullmap.objects[i], deleteOldDbLinkIds(item);
@@ -35588,8 +35623,8 @@ var SrvConfig = function() {
             item = fullmap.objects[i];
             for (var mergeIdx = 0; mergeIdx < item.crmObjects.length; mergeIdx++) {
                 var crm = item.crmObjects[mergeIdx].crmId.crm, id = item.crmObjects[mergeIdx].crmId.id, object = index[crm][id];
-                a4p.isDefined(self.index[crm]) && a4p.isDefined(self.index[crm][id]) ? (self.setObject(object, !0), 
-                a4p.isDefined(deleteIndex[crm]) && a4p.isDefined(deleteIndex[crm][object.id.dbid]) && delete deleteIndex[crm][object.id.dbid]) : self.addObject(object, !0);
+                a4p.isDefined(self.index[crm]) && a4p.isDefined(self.index[crm][id]) ? (bok = self.setObject(object, !0), 
+                a4p.isDefined(deleteIndex[crm]) && a4p.isDefined(deleteIndex[crm][object.id.dbid]) && delete deleteIndex[crm][object.id.dbid]) : bok = self.addObject(object, !0);
             }
         }
         for (var i = 0, n = deleteCrm.length; n > i; i++) {
@@ -35650,7 +35685,7 @@ var SrvConfig = function() {
         }
     }
     function updFullMap(self, refreshMap, requestTimestamp) {
-        var i, key, dbid, type, item, object, index = {
+        var i, key, dbid, type, item, object, bok, index = {
             sf: {},
             c4p: {}
         };
@@ -35674,8 +35709,8 @@ var SrvConfig = function() {
                     var oldItem = self.index[crm][id];
                     if (a4p.isDefined(oldItem)) {
                         for (var key in object) "id" != key && object.hasOwnProperty(key) && (oldItem[key] = object[key]);
-                        self.setObject(oldItem, !0);
-                    } else object.a4p_type = type, self.addObject(object, !0);
+                        bok = self.setObject(oldItem, !0);
+                    } else object.a4p_type = type, bok = self.addObject(object, !0);
                 }
             }
         }
@@ -36044,17 +36079,17 @@ var SrvConfig = function() {
         }
     }
     function unlinkLinkedObjects(self, dbid, isOriginal) {
-        for (var otherTypeIdx = 0; otherTypeIdx < c4p.Model.allTypes.length; otherTypeIdx++) for (var fromOtherType = c4p.Model.allTypes[otherTypeIdx], objDesc = c4p.Model.a4p_types[fromOtherType], otherObjectIdx = 0; otherObjectIdx < self.currentItems[fromOtherType].length; otherObjectIdx++) for (var otherObject = self.currentItems[fromOtherType][otherObjectIdx], otherId = otherObject.id.dbid, fromOtherFieldIdx = 0; fromOtherFieldIdx < objDesc.linkFields.length; fromOtherFieldIdx++) {
+        for (var bok = !0, otherTypeIdx = 0; otherTypeIdx < c4p.Model.allTypes.length; otherTypeIdx++) for (var fromOtherType = c4p.Model.allTypes[otherTypeIdx], objDesc = c4p.Model.a4p_types[fromOtherType], otherObjectIdx = 0; otherObjectIdx < self.currentItems[fromOtherType].length; otherObjectIdx++) for (var otherObject = self.currentItems[fromOtherType][otherObjectIdx], otherId = otherObject.id.dbid, fromOtherFieldIdx = 0; fromOtherFieldIdx < objDesc.linkFields.length; fromOtherFieldIdx++) {
             var linkOtherModel = objDesc.linkFields[fromOtherFieldIdx], fromOtherField = linkOtherModel.key, isArrayField = a4p.isDefined(c4p.Model.objectArrays[fromOtherType][fromOtherField]);
             if (isArrayField) {
                 for (var valueIdx = 0, valueNb = otherObject[fromOtherField].length; valueNb > valueIdx; valueIdx++) if (otherObject[fromOtherField][valueIdx].dbid == dbid) {
-                    otherObject[fromOtherField].splice(valueIdx, 1), otherObject[fromOtherField].length <= 0 && "many" == linkOtherModel.cascadeDelete ? self.removeObject(otherId, isOriginal) : self.setObject(otherObject, isOriginal), 
-                    isOriginal || self.addObjectToSave(otherObject);
+                    otherObject[fromOtherField].splice(valueIdx, 1), bok = otherObject[fromOtherField].length <= 0 && "many" == linkOtherModel.cascadeDelete ? self.removeObject(otherId, isOriginal) : self.setObject(otherObject, isOriginal), 
+                    isOriginal || (bok = self.addObjectToSave(otherObject));
                     break;
                 }
             } else otherObject[fromOtherField].dbid == dbid && (otherObject[fromOtherField] = {}, 
-            "many" == linkOtherModel.cascadeDelete ? self.removeObject(otherId, isOriginal) : self.setObject(otherObject, isOriginal), 
-            isOriginal || self.addObjectToSave(otherObject));
+            bok = "many" == linkOtherModel.cascadeDelete ? self.removeObject(otherId, isOriginal) : self.setObject(otherObject, isOriginal), 
+            isOriginal || (bok = self.addObjectToSave(otherObject)));
         }
     }
     function diffObject(fromObject, toObject) {
@@ -36174,13 +36209,14 @@ var SrvConfig = function() {
         unlinkLinkedObjects(self, itemId, isOriginal);
     }
     function addOriginalObject(self, object, downloadFile) {
-        if (!self || !object) return !1;
+        var bok = !1;
+        if (!self || !object) return bok;
         a4p.InternalLog.log("srvData", "addOriginalObject " + object.id.dbid);
         var copy = copyObject(object);
         return a4p.isDefined(copy) && (self.originalDbIndex[object.id.dbid] = copy, self.originalItems[copy.a4p_type].push(copy), 
-        self.srvDataStore.setItems(copy.a4p_type, self.originalItems[copy.a4p_type], !0)), 
-        a4p.isDefined(c4p.Model.files[object.a4p_type]) && (a4p.isDefined(object.id.sf_id) || a4p.isDefined(object.id.c4p_id)) && downloadFile && addObjectToDownload(self, object), 
-        !0;
+        self.srvDataStore.setItems(copy.a4p_type, self.originalItems[copy.a4p_type], !0), 
+        bok = !0), a4p.isDefined(c4p.Model.files[object.a4p_type]) && (a4p.isDefined(object.id.sf_id) || a4p.isDefined(object.id.c4p_id)) && downloadFile && (bok = addObjectToDownload(self, object)), 
+        bok;
     }
     function updateOriginalObject(self, object, fields) {
         a4p.InternalLog.log("srvData", "updateOriginalObject " + object.id.dbid);
@@ -36200,10 +36236,12 @@ var SrvConfig = function() {
         }
     }
     function setOriginalObject(self, object, downloadFile) {
+        var bok = !1;
         a4p.InternalLog.log("srvData", "setOriginalObject " + object.id.dbid);
         var copy = angular.extend(object);
-        a4p.isDefined(copy) && (self.originalDbIndex[object.id.dbid] = copy, replaceObjectFromList(self.originalItems[copy.a4p_type], object.id.dbid, copy) !== !1 && self.srvDataStore.setItems(copy.a4p_type, self.originalItems[copy.a4p_type], !0)), 
-        a4p.isDefined(c4p.Model.files[object.a4p_type]) && (a4p.isDefined(object.id.sf_id) || a4p.isDefined(object.id.c4p_id)) && downloadFile && addObjectToDownload(self, object);
+        return a4p.isDefined(copy) && (self.originalDbIndex[object.id.dbid] = copy, replaceObjectFromList(self.originalItems[copy.a4p_type], object.id.dbid, copy) !== !1 && self.srvDataStore.setItems(copy.a4p_type, self.originalItems[copy.a4p_type], !0), 
+        bok = !0), a4p.isDefined(c4p.Model.files[object.a4p_type]) && (a4p.isDefined(object.id.sf_id) || a4p.isDefined(object.id.c4p_id)) && downloadFile && (bok = addObjectToDownload(self, object)), 
+        bok;
     }
     function removeOriginalObject(self, dbid) {
         a4p.InternalLog.log("srvData", "removeOriginalObject " + dbid);
@@ -36213,7 +36251,8 @@ var SrvConfig = function() {
     function addObjectToDownload(self, object) {
         var bOk = !1;
         return object && object.id && object.id.dbid ? (a4p.InternalLog.log("srvData", "addObjectToDownload " + object.id.dbid), 
-        bOk = self.srvQueue.addRequest(self.srvQueue.PUB.QUEUE_DOWNLOAD, object)) : bOk;
+        self.srvSynchroStatus.pushChannelToLevel(object, self.srvSynchroStatus.PUB.CHANNEL_READ, self.srvSynchroStatus.PUB.QUEUE, !0), 
+        bOk = self.srvQueue.addRequest(self.srvQueue.PUB.QUEUE_DOWNLOAD, object), bOk && bOk > 0) : bOk;
     }
     function downloadObjectAndSendToSynchro(self, dbid) {
         a4p.InternalLog.log("srvData", "downloadObjectAndSendToSynchro " + dbid);
@@ -36350,6 +36389,9 @@ var SrvConfig = function() {
             if (item.crmObjects[mergeIdx].owner_id != this.userId[crm + "_id"]) return !1;
         }
         return !0;
+    }, Service.prototype.getPrincipalUserContact = function() {
+        var userPrincipal = this.index.db[this.userId.dbid];
+        return userPrincipal;
     }, Service.prototype.completeFields = function(object) {
         this.srvSynchroStatus.hasChannels(object) || this.srvSynchroStatus.resetChannels(object), 
         this.setDefaultFields(object), this.convertFields(object), this.setCalculatedFields(object);
@@ -36357,7 +36399,7 @@ var SrvConfig = function() {
         if (object.a4p_type = type, a4p.isDefined(object.feed) && delete object.feed, a4p.isUndefined(object.id) && (object.id = {}), 
         a4p.isUndefined(object.id.dbid)) object.id.dbid = type + "-" + a4p.nextUid(), this.srvDataStore.setConfig("Uid", a4p.getUid()); else if (a4p.isDefined(this.index.db[object.id.dbid])) throw new Error("Object of type " + type + " and id " + object.id.dbid + " already exists");
         this.completeFields(object);
-        for (var now = new Date(), objDesc = c4p.Model.a4p_types[object.a4p_type], owner = this.index.db[this.userId.dbid], fieldIdx = 0, fieldNb = objDesc.fields.length; fieldNb > fieldIdx; fieldIdx++) {
+        for (var now = new Date(), objDesc = c4p.Model.a4p_types[object.a4p_type], owner = this.getPrincipalUserContact(), fieldIdx = 0, fieldNb = objDesc.fields.length; fieldNb > fieldIdx; fieldIdx++) {
             var fieldName = objDesc.fields[fieldIdx];
             if ("owner_id" == fieldName) {
                 a4p.isDefined(owner) && (a4p.isUndefined(object.owner_id) || a4p.isUndefined(object.owner_id.dbid)) && (owner ? object.owner_id = angular.copy(owner.id) : a4p.ErrorLog.log("srvData", "object " + object.id.dbid + " has NO owner."));
@@ -36365,24 +36407,29 @@ var SrvConfig = function() {
             }
         }
         return (a4p.isUndefined(object.created_by_id) || a4p.isUndefined(object.created_by_id.dbid)) && (owner ? object.created_by_id = angular.copy(owner.id) : a4p.ErrorLog.log("srvData", "object " + object.id.dbid + " has NO owner.")), 
-        (a4p.isUndefined(object.created_date) || "" == object.created_date) && (object.created_date = a4pDateFormat(now)), 
+        (a4p.isUndefined(object.created_date) || "" === object.created_date) && (object.created_date = a4pDateFormat(now)), 
         (a4p.isUndefined(object.last_modified_by_id) || a4p.isUndefined(object.last_modified_by_id.dbid)) && (owner ? object.last_modified_by_id = angular.copy(owner.id) : a4p.ErrorLog.log("srvData", "object " + object.id.dbid + " has NO owner.")), 
-        (a4p.isUndefined(object.last_modified_date) || "" == object.last_modified_date) && (object.last_modified_date = a4pDateFormat(now)), 
+        (a4p.isUndefined(object.last_modified_date) || "" === object.last_modified_date) && (object.last_modified_date = a4pDateFormat(now)), 
         object;
     }, Service.prototype.addObject = function(object, isOriginal) {
         if (a4p.isUndefined(object.a4p_type)) throw new Error("Object must have a type");
         if (a4p.isDefined(object.feed) && delete object.feed, a4p.isUndefined(object.id) && (object.id = {}), 
         a4p.isUndefined(object.id.dbid)) object.id.dbid = object.a4p_type + "-" + a4p.nextUid(), 
         this.srvDataStore.setConfig("Uid", a4p.getUid()); else if (a4p.isDefined(this.index.db[object.id.dbid])) throw new Error("Object of type " + object.a4p_type + " and id " + object.id.dbid + " already exists");
-        return this.completeFields(object), this.index.db[object.id.dbid] = object, a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object, 
+        if (this.completeFields(object), this.index.db[object.id.dbid] = object, a4p.isDefined(object.id.sf_id) && (this.index.sf[object.id.sf_id] = object, 
         a4p.isDefined(this.userId.sf_id) && this.userId.sf_id == object.id.sf_id && (this.userId.dbid = object.id.dbid, 
         this.srvDataStore.setConfig("userId", this.userId), a4p.InternalLog.log("srvData", "addObject : userId=" + a4pDumpData(this.userId, 2)))), 
         a4p.isDefined(object.id.c4p_id) && (this.index.c4p[object.id.c4p_id] = object, a4p.isDefined(this.userId.c4p_id) && this.userId.c4p_id == object.id.c4p_id && (this.userId.dbid = object.id.dbid, 
         this.srvDataStore.setConfig("userId", this.userId), a4p.InternalLog.log("srvData", "addObject : userId=" + a4pDumpData(this.userId, 2)))), 
         a4p.isDefined(object.id.ios_id) && (this.index.ios[object.id.ios_id] = object, a4p.isDefined(this.userId.ios_id) && this.userId.ios_id == object.id.ios_id && (this.userId.dbid = object.id.dbid, 
         this.srvDataStore.setConfig("userId", this.userId), a4p.InternalLog.log("srvData", "addObject : userId=" + a4pDumpData(this.userId, 2)))), 
-        isOriginal ? this.srvSynchroStatus.successChannel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, !0) : this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NEW), 
-        this.currentItems[object.a4p_type].push(object), this.nbObjects++, this.srvDataStore.setItems(object.a4p_type, this.currentItems[object.a4p_type]), 
+        isOriginal) {
+            this.srvSynchroStatus.successChannel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, !0);
+            {
+                addOriginalObject(this, object, !this.isDemo);
+            }
+        } else this.srvSynchroStatus.pushChannelToLevel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, this.srvSynchroStatus.PUB.NEW);
+        return this.currentItems[object.a4p_type].push(object), this.nbObjects++, this.srvDataStore.setItems(object.a4p_type, this.currentItems[object.a4p_type]), 
         object;
     }, Service.prototype.setObject = function(object, isOriginal) {
         if (!object.a4p_type) return a4p.ErrorLog.log("srvData", "reject updating object without type"), 
@@ -36396,7 +36443,9 @@ var SrvConfig = function() {
         !1;
         isOriginal && this.srvSynchroStatus.successChannel(object, this.srvSynchroStatus.PUB.CHANNEL_CREATE, !0), 
         this.completeFields(object);
-        for (var type = object.a4p_type, oldObject = !1, objectIdx = this.currentItems[type].length - 1; objectIdx >= 0; objectIdx--) if (this.currentItems[type][objectIdx].id.dbid == object.id.dbid) {
+        var type = object.a4p_type;
+        oldObject = !1;
+        for (var objectIdx = this.currentItems[type].length - 1; objectIdx >= 0; objectIdx--) if (this.currentItems[type][objectIdx].id.dbid == object.id.dbid) {
             oldObject = this.currentItems[type][objectIdx];
             break;
         }
@@ -36422,26 +36471,22 @@ var SrvConfig = function() {
             id: object.id.sf_id
         }), isOriginal && deletedObject(this, object.id.dbid, deleted, deleted, !1), object;
     }, Service.prototype.linkToObjects = function(fromLink, fromObject, toType, toObjects) {
-        for (var done = !1, fromFieldIdx = 0; fromFieldIdx < c4p.Model.a4p_types[fromObject.a4p_type].linkFields.length; fromFieldIdx++) {
-            var linkModel = c4p.Model.a4p_types[fromObject.a4p_type].linkFields[fromFieldIdx], fromField = linkModel.key;
-            if (linkModel.one == fromLink) {
-                for (var toTypeIdx = 0; toTypeIdx < linkModel.types.length; toTypeIdx++) if (linkModel.types[toTypeIdx] == toType) {
-                    this.linkItemToAllObjects(fromObject, fromField, toObjects), done = !0;
-                    break;
-                }
-                if (done) break;
+        var fromFieldIdx, linkModel, fromField, toTypeIdx, done = !1;
+        for (fromFieldIdx = 0; fromFieldIdx < c4p.Model.a4p_types[fromObject.a4p_type].linkFields.length; fromFieldIdx++) if (linkModel = c4p.Model.a4p_types[fromObject.a4p_type].linkFields[fromFieldIdx], 
+        fromField = linkModel.key, linkModel.one == fromLink) {
+            for (toTypeIdx = 0; toTypeIdx < linkModel.types.length; toTypeIdx++) if (linkModel.types[toTypeIdx] == toType) {
+                this.linkItemToAllObjects(fromObject, fromField, toObjects), done = !0;
+                break;
             }
+            if (done) break;
         }
-        done = !1;
-        for (var fromFieldIdx = 0; fromFieldIdx < c4p.Model.a4p_types[toType].linkFields.length; fromFieldIdx++) {
-            var linkModel = c4p.Model.a4p_types[toType].linkFields[fromFieldIdx], fromField = linkModel.key;
-            if (linkModel.many == fromLink) {
-                for (var toTypeIdx = 0; toTypeIdx < linkModel.types.length; toTypeIdx++) if (linkModel.types[toTypeIdx] == fromObject.a4p_type) {
-                    this.linkAllObjectsToItem(toObjects, fromField, fromObject), done = !0;
-                    break;
-                }
-                if (done) break;
+        for (done = !1, fromFieldIdx = 0; fromFieldIdx < c4p.Model.a4p_types[toType].linkFields.length; fromFieldIdx++) if (linkModel = c4p.Model.a4p_types[toType].linkFields[fromFieldIdx], 
+        fromField = linkModel.key, linkModel.many == fromLink) {
+            for (toTypeIdx = 0; toTypeIdx < linkModel.types.length; toTypeIdx++) if (linkModel.types[toTypeIdx] == fromObject.a4p_type) {
+                this.linkAllObjectsToItem(toObjects, fromField, fromObject), done = !0;
+                break;
             }
+            if (done) break;
         }
     }, Service.prototype.linkToItem = function(fromType, fromLink, fromObjects, toObject) {
         var linkModel, fromField, fromFieldIdx, toTypeIdx, done = !1;
@@ -36632,7 +36677,7 @@ var SrvConfig = function() {
                 var data = response.data;
                 self.isDemo = !1, self.srvDataStore.setConfig("isDemo", self.isDemo), a4p.isTrueOrNonEmpty(data.infoMessage) && self.srvLog.userLogPersistentMessage(data.infoMessage);
                 var c4pToken = data.c4pToken;
-                a4p.isDefined(c4pToken) && "" != c4pToken && (self.srvSecurity.setA4pLogin(userEmail), 
+                a4p.isDefined(c4pToken) && "" !== c4pToken && (self.srvSecurity.setA4pLogin(userEmail), 
                 self.srvSecurity.setA4pPassword(userPassword), self.srvSecurity.setC4pServerToken(c4pToken));
                 var urlBase = data.urlBase;
                 if (a4p.isTrueOrNonEmpty(urlBase) && self.srvConfig.c4pUrlBase != urlBase) return self.srvConfig.setUrlBase(urlBase), 
@@ -36648,7 +36693,7 @@ var SrvConfig = function() {
                     }
                     return void deferred.reject(diag);
                 }
-                "undefined" != typeof data.currencySymbol && null != data.currencySymbol && data.currencySymbol.length > 0 ? self.srvLocale.setCurrency(a4p.Utf8.encode(data.currencySymbol)) : "undefined" != typeof data.currencyIsoCode && null != data.currencyIsoCode && data.currencyIsoCode.length > 0 && self.srvLocale.setCurrency(a4p.Utf8.encode(data.currencyIsoCode)), 
+                "undefined" != typeof data.currencySymbol && data.currencySymbol && data.currencySymbol.length > 0 ? self.srvLocale.setCurrency(a4p.Utf8.encode(data.currencySymbol)) : "undefined" != typeof data.currencyIsoCode && data.currencyIsoCode && data.currencyIsoCode.length > 0 && self.srvLocale.setCurrency(a4p.Utf8.encode(data.currencyIsoCode)), 
                 checkMetaData(self, data), deferred.resolve();
             }, fctOnHttpError = function(response) {
                 self.srvSynchro.serverHs(), deferred.reject({
@@ -39552,6 +39597,7 @@ var SrvFacet = function() {
         return removeIdFromList(this.callbacksRefresh, callbackHandle) === !1 && removeIdFromList(this.callbacksPause, callbackHandle) === !1 ? removeIdFromList(this.callbacksOnline, callbackHandle) !== !1 : !0;
     }, Service;
 }(), SrvSecurity = function() {
+    "use strict";
     function Service(srvLocalStorage) {
         this.srvLocalStorage = srvLocalStorage, this.secured = !1, this.expected = "", this.login = "", 
         this.password = "", this.serverToken = "", this.initDone = !1;
@@ -40078,9 +40124,11 @@ serviceModule.factory("srvOpenUrl", [ "$exceptionHandler", function($exceptionHa
             $window.navigator.notification.confirm("Do you want to exit ?", function(button) {
                 ("1" == button || 1 == button) && $window.navigator.app.exitApp();
             }, "EXIT :", "OK,Cancel");
-        }, !1), window.plugins && window.plugins.webintent && window.plugins.webintent.getUri(function(url) {
-            console.log("window.plugins.webintent.getUri " + url), url && handleOpenURL(url);
-        });
+        }, !1), window.plugins && window.plugins.webintent && (window.plugins.webintent.getUri(function(url) {
+            console.log("window.plugins.webintent.getUri " + url), url && "" !== url && handleOpenURL(url);
+        }), window.plugins.webintent.onNewIntent(function(url) {
+            console.log("window.plugins.webintent.onNewIntent " + url), url && "" !== url && handleOpenURL(url);
+        }));
     })(), runningSingleton;
 } ]), serviceModule.factory("srvLocalStorage", function() {
     var LocalStorage = a4p.LocalStorageFactory(window.localStorage);
