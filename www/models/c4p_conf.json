@@ -1,5 +1,5 @@
 {
-    "buildDate" : "14.0609.12",
+    "buildDate" : "14.0609.13",
     "urlBase" : "https://apps4pro.net/s2",
     "trustAllHosts" : true,
     "possibleCrms" : ["ios", "c4p", "sf"],
