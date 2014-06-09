@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-09 13:06 */
+/*! c4p.client 2014-06-09 14:04 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -104,7 +104,7 @@ function openChildBrowser(a, b, c, d) {
     }
     a4p.InternalLog.log("openChildBrowser", "cordova : window.open");
     var k = "_blank";
-    "url" != b && (k = "_system");
+    "url" != b && "Android" === window.platform && (k = "_system");
     var l = window.open(a, k, "location=no");
     l.addEventListener("loadstart", function(a) {
         a4p.InternalLog.log("openChildBrowser", "loadstart " + a.url);
@@ -26249,7 +26249,7 @@ c4p || (c4p = {}), c4p.Model = function() {
             isAttachment: !1,
             icon: "th-list",
             colorType: "j",
-            fields: [ "title", "pos", "parent_id", "owner_id", "created_by_id", "created_date", "last_modified_by_id", "last_modified_date" ],
+            fields: [ "title", "pos", "viewer_type", "editor_type", "parent_id", "owner_id", "created_by_id", "created_date", "last_modified_by_id", "last_modified_date" ],
             linkFields: [ {
                 key: "owner_id",
                 one: "owner",
