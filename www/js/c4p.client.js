@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-09 16:13 */
+/*! c4p.client 2014-06-10 12:08 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -104,7 +104,7 @@ function openChildBrowser(a, b, c, d) {
     }
     a4p.InternalLog.log("openChildBrowser", "cordova : window.open");
     var k = "_blank";
-    "url" != b && "Android" === window.platform && (k = "_system");
+    "url" != b && "Android" === window.device.platform && (k = "_system");
     var l = window.open(a, k, "location=no");
     l.addEventListener("loadstart", function(a) {
         a4p.InternalLog.log("openChildBrowser", "loadstart " + a.url);
