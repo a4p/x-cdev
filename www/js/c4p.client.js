@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-10 12:08 */
+/*! c4p.client 2014-06-11 10:08 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -2477,11 +2477,17 @@ function ctrlDragObject($scope, $modal, $timeout, srvLocale, srvData, srvNav, sr
     }, $scope.dragStart = function(event, element) {
         $scope.dragItem && (event.dataTransfer = $scope.dragItem), $scope.dragProxy || _setCursorToMove($scope, event, element);
     }, $scope.dragMove = function(event) {
-        $scope.dragProxy && moveCursor($scope, event);
+        $scope.dragProxy && ($scope.dragIsActive || a4p.safeApply($scope, function() {
+            $scope.dragIsActive = !0;
+        }), moveCursor($scope, event));
     }, $scope.dragEnd = function() {
-        $scope.dragProxy && cancelMoveCursor($scope), $scope.dragIsActive = !1;
+        $scope.dragProxy && cancelMoveCursor($scope), a4p.safeApply($scope, function() {
+            $scope.dragIsActive = !1;
+        });
     }, $scope.dragCancel = function() {
-        $scope.dragProxy && cancelMoveCursor($scope), $scope.dragIsActive = !1;
+        $scope.dragProxy && cancelMoveCursor($scope), a4p.safeApply($scope, function() {
+            $scope.dragIsActive = !1;
+        });
     };
 }
 
@@ -2548,12 +2554,13 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
     }
     $scope.srvData = srvData, $scope.srvNav = srvNav, $scope.srvConfig = srvConfig, 
     $scope.meetingHasBeenInitialized = !1, $scope.meetingItem = null, $scope.showMeetingAside = !0, 
-    $scope.meetingHasBeenUnderstoodByUser = !1, $scope.meetingPlans = [], $scope.viewerDocList = [], 
-    $scope.selectedMeetingPlanPos = 0, $scope.selectedMeetingPlan = null, $scope.currentMeetingItem = null, 
-    $scope.currentMeetingNote = null, $scope.editorType = "Document", $scope.modeEdit = !1, 
-    $scope.itemNameEditable = !1, $scope.meetingPlanTitleEditable = !1, $scope.isPresentationOn = !1, 
-    $scope.meetingAsidePanel = "partials/meeting/meeting_plan.html", $scope.meetingCurrentPanel = "partials/meeting/meeting_plan_viewer.html", 
-    $scope.meetingLaunchEmail = !1, $scope.meetingLaunchEmailLoading = !0, $scope.actionItems = {
+    $scope.meetingContactsAsAttendee = [], $scope.meetingHasBeenUnderstoodByUser = !1, 
+    $scope.meetingPlans = [], $scope.viewerDocList = [], $scope.selectedMeetingPlanPos = 0, 
+    $scope.selectedMeetingPlan = null, $scope.currentMeetingItem = null, $scope.currentMeetingNote = null, 
+    $scope.editorType = "Document", $scope.modeEdit = !1, $scope.itemNameEditable = !1, 
+    $scope.meetingPlanTitleEditable = !1, $scope.isPresentationOn = !1, $scope.meetingAsidePanel = "partials/meeting/meeting_plan.html", 
+    $scope.meetingCurrentPanel = "partials/meeting/meeting_plan_viewer.html", $scope.meetingLaunchEmail = !1, 
+    $scope.meetingLaunchEmailLoading = !0, $scope.actionItems = {
         plan: {
             icon: "bars",
             side: "partials/meeting/meeting_plan.html",
@@ -2571,20 +2578,21 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
         }
     }, $scope.meetingSelectedActionItem = "plan", $scope.actionItem = $scope.actionItems[$scope.meetingSelectedActionItem], 
     $scope.$on("$destroy", function() {}), $scope.initMeetingElements = function() {
-        var bok = !0;
+        var i, bok = !0;
         if (!$scope.meetingHasBeenInitialized) {
-            $scope.meetingItem = $scope.srvNav.item, srvAnalytics.add("Once", "Meeting Show");
-            var attendee = srvData.getTypedDirectLinks($scope.meetingItem, "child", "Attendee");
-            attendee && srvAnalytics.add("Uses", "Meeting Show - N", attendee.length), $scope.meetingPlans = [], 
-            $scope.isDemo && (bok = $scope.addMeetingTable());
+            $scope.meetingItem = $scope.srvNav.item;
+            var attendees = srvData.getTypedDirectLinks($scope.meetingItem, "attendee", "Attendee");
+            for ($scope.meetingContactsAsAttendee = [], i = 0; i < attendees.length; i++) {
+                var attendee = attendees[i], contact = srvData.getObject(attendee.relation_id.dbid);
+                contact && $scope.meetingContactsAsAttendee.push(contact);
+            }
+            srvAnalytics.add("Once", "Meeting Show"), $scope.meetingContactsAsAttendee.length && srvAnalytics.add("Uses", "Meeting Show - N", $scope.meetingContactsAsAttendee.length), 
+            $scope.meetingPlans = [];
             var plans = srvData.getTypedDirectLinks($scope.meetingItem, "child", "Plan");
-            if (plans && plans.length) {
-                plans = plans.sort(_sortPosAsc);
-                for (var i = 0; i < plans.length; i++) {
-                    var plan = plans[i], removed = srvData.srvSynchroStatus.hasToBeDeleted(plan);
-                    removed ? (plans.splice(i, 1), i--) : (plan.pos = i, $scope.meetingPlans.push(plan));
-                }
-            } else bok = $scope.addMeetingElement();
+            if (plans && plans.length) for (plans = plans.sort(_sortPosAsc), i = 0; i < plans.length; i++) {
+                var plan = plans[i], removed = srvData.srvSynchroStatus.hasToBeDeleted(plan);
+                removed ? (plans.splice(i, 1), i--) : (plan.pos = i, $scope.meetingPlans.push(plan));
+            } else bok = $scope.isDemo ? $scope.addMeetingTable() : $scope.addMeetingElement();
             $scope.meetingPlans.length && $scope.setMeetingObject(0), $scope.meetingPlans.length > 1 && ($scope.meetingHasBeenUnderstoodByUser = !0), 
             $scope.meetingHasBeenInitialized = !0;
         }
@@ -2689,7 +2697,8 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
         if (!$scope.meetingItem) return bok;
         var plan = srvData.createObject("Plan", {
             parent_id: $scope.meetingItem.id,
-            title: srvLocale.translations.htmlMeetingNoTitle
+            title: srvLocale.translations.htmlMeetingNoTitle,
+            editor_type: "Table"
         });
         if (plan && (bok = !0, plan.pos = $scope.meetingPlans.length), !bok) return bok;
         var note = {
@@ -2698,12 +2707,12 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
             description: ""
         }, noteObject = $scope.addNewNote(note);
         if (bok = srvData.newAttachment("Plannee", noteObject, plan), !bok) return bok;
-        var targetDirPath = "a4p/c4p/doc", now = new Date(), normalizedParentName = parentName.replace(/ /g, "_"), documentInsert = srvData.createObject("Document", {
+        var targetDirPath = "a4p/c4p/doc", itemName = srvNav.item.name, now = new Date(), normalizedParentName = itemName.replace(/ /g, "_"), documentInsert = srvData.createObject("Document", {
             name: normalizedParentName + "." + srvLocale.formatDate(a4pDateParse(a4pDateFormat(now)), "c4pShortDate").replace(/\//g, "-") + ".png",
             body: "",
             length: "0",
             path: targetDirPath,
-            description: "Draw " + itemName + " for " + parent.a4p_type + " " + parentName
+            description: "Table for " + itemName
         });
         return bok = srvData.addAndSaveObject(documentInsert), bok && (bok = srvData.newAttachment("Plannee", documentInsert, plan)), 
         bok ? (bok = srvData.addObject(plan), bok && $scope.meetingPlans.push(plan), bok) : bok;
@@ -2770,13 +2779,67 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
         });
     }, $scope.setObjectLinkNav = function() {
         $scope.selectedMeetingPlan ? $scope.setActionItem("select", "side") : $scope.setActionItem("others", "side");
+    }, $scope.meetingPopTable = function() {
+        $.popcircle("#pops", {
+            spacing: "10px",
+            type: "full",
+            offset: 1.95,
+            ease: "easeOutElastic",
+            time: "slow"
+        });
     }, $scope.meetingLoadingSpinner = !0, $scope.afterMeetingSpinnerShow = function() {
         $timeout(function() {
             $scope.computeMeeting(), $scope.meetingLoadingSpinner = !1;
         }, 400);
-    }, $scope.afterMeetingSpinnerHide = function() {}, $scope.computeMeeting = function() {
+    }, $scope.afterMeetingSpinnerHide = function() {
+        $timeout(function() {
+            $scope.meetingPopTable();
+        }, 2e3);
+    }, $scope.computeMeeting = function() {
         a4p.InternalLog.log("ctrlMeeting", "computeMeeting "), $scope.initMeetingElements();
     }, $scope.initMeetingElements();
+}
+
+function ctrlMeetingAttendeeDrag($scope, $modal, srvLocale, srvData) {
+    "use strict";
+    $scope.meetingElem = null, $scope.meetingThumb = null, $scope.initMeetingAttendeeDrag = function(meetingElem) {
+        if ($scope.meetingElem = meetingElem, $scope.meetingThumb = null, a4p.isDefinedAndNotNull(meetingElem)) {
+            var plannees = srvData.getTypedDirectLinks(meetingElem, "plannee", "Plannee");
+            for (j = 0; j < plannees.length; j++) {
+                var obj = srvData.getObject(plannees[0].object_id.dbid);
+                if (a4p.isDefinedAndNotNull(obj)) {
+                    var thumb = obj.thumb_url;
+                    if (a4p.isDefinedAndNotNull(thumb)) {
+                        $scope.meetingThumb = thumb;
+                        break;
+                    }
+                }
+            }
+        }
+    }, $scope.meetingElementDragStart = function(event, element) {
+        $scope.dragStart && $scope.dragStart(event, element), event.dataTransfer = $scope.meetingElem;
+    };
+}
+
+function ctrlMeetingAttendeeDrop($scope) {
+    "use strict";
+    $scope.dropOver = !1, $scope.dropIsEnable = !1, $scope.dndStart = function(event) {
+        event.dataTransfer && a4p.safeApply($scope, function() {
+            $scope.dropIsEnable = !0;
+        });
+    }, $scope.dropOverEnter = function() {
+        $scope.dragIsActive && !$scope.dropOver && a4p.safeApply($scope, function() {
+            $scope.dropOver = !0;
+        });
+    }, $scope.dropOverLeave = function() {
+        $scope.dragIsActive && $scope.dropOver && a4p.safeApply($scope, function() {
+            $scope.dropOver = !1;
+        });
+    }, $scope.dropEnd = function() {
+        a4p.safeApply($scope, function() {
+            $scope.dropIsEnable = !0;
+        });
+    };
 }
 
 function ctrlMeetingElementDrag($scope, $modal, srvLocale, srvData) {
@@ -2802,9 +2865,9 @@ function ctrlMeetingElementDrag($scope, $modal, srvLocale, srvData) {
 
 function ctrlMeetingElementDrop($scope) {
     "use strict";
-    $scope.dropOver = !1, $scope.dndStart = function(event) {
+    $scope.dropOver = !1, $scope.dropIsEnable = !1, $scope.dndStart = function(event) {
         event.dataTransfer && a4p.safeApply($scope, function() {
-            $scope.dragIsActive = !0;
+            $scope.dropIsEnable = !0;
         });
     }, $scope.dropOverEnter = function() {
         $scope.dragIsActive && !$scope.dropOver && a4p.safeApply($scope, function() {
@@ -2815,7 +2878,10 @@ function ctrlMeetingElementDrop($scope) {
             $scope.dropOver = !1;
         });
     }, $scope.dropEnd = function(event, element, index) {
-        $scope.moveMeetingElement($scope.meetingPlans, $scope.dragMeetingElementIdx, index);
+        $scope.moveMeetingElement($scope.meetingPlans, $scope.dragMeetingElementIdx, index), 
+        a4p.safeApply($scope, function() {
+            $scope.dropIsEnable = !1;
+        });
     };
 }
 
@@ -33835,7 +33901,8 @@ ctrlDetailedObject.$inject = [ "$scope", "$sce", "srvLocale", "srvData", "srvNav
 ctrlDragObject.$inject = [ "$scope", "$modal", "$timeout", "srvLocale", "srvData", "srvNav", "srvLink", "srvConfig" ], 
 ctrlInlinedObject.$inject = [ "$scope", "srvData", "srvConfig", "srvLocale" ], ctrlLinkActions.$inject = [ "$scope", "$timeout", "srvData", "srvNav", "srvLink", "srvConfig", "srvLog" ], 
 ctrlMeeting.$inject = [ "$scope", "$modal", "$timeout", "srvData", "srvConfig", "srvNav", "srvLocale", "srvAnalytics" ], 
-ctrlMeetingElementDrag.$inject = [ "$scope", "$modal", "srvLocale", "srvData", "srvNav", "srvLink", "srvConfig" ], 
+ctrlMeetingAttendeeDrag.$inject = [ "$scope", "$modal", "srvLocale", "srvData", "srvNav", "srvLink", "srvConfig" ], 
+ctrlMeetingAttendeeDrop.$inject = [ "$scope" ], ctrlMeetingElementDrag.$inject = [ "$scope", "$modal", "srvLocale", "srvData", "srvNav", "srvLink", "srvConfig" ], 
 ctrlMeetingElementDrop.$inject = [ "$scope" ], ctrlMeetingEmail.$inject = [ "$scope", "$modal", "$timeout", "$sce", "srvData", "srvConfig", "srvNav", "srvLocale", "srvAnalytics" ], 
 ctrlMeetingObjLinkDrop.$inject = [ "$scope", "srvData", "srvConfig" ], ctrlMeetingRemoveDrop.$inject = [ "$scope", "srvLocale", "srvData", "srvNav", "srvLink", "srvConfig" ], 
 ctrlNamedObject.$inject = [ "$scope", "srvConfig" ], ctrlNavObject.$inject = [ "$scope", "srvNav", "srvConfig" ], 
@@ -34887,7 +34954,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     };
 } ]), angular.module("c4pTemplates", []).run([ "$templateCache", function($templateCache) {
     "use strict";
-    $templateCache.put("partials/empty.html", ""), $templateCache.put("partials/main.html", '<!doctype html><div id="a4pBody" ng-controller="ctrlResponsive" resize-opts="{name:\'a4pBody\'}" resize-beforewindow="responsiveBeforeWindowSizeChanged()"><div ng-controller="navigationCtrl" ng-init="initNavigationCtrl()"><div ng-if="!respIsComputing"><div class="container" ng-class="{\'c4p-backdrop-blur\':isBlurOn}" ng-switch="page"><div class="row" ng-switch-when="navigation"><div ng-include="\'partials/navigation/main.html\'"></div></div><div class="row" ng-switch-when="guider"><div ng-include="\'partials/guider/main.html\'"></div></div><div class="row" ng-switch-when="meeting"><div ng-include="\'partials/meeting/main.html\'"></div></div><div class="row" ng-switch-when="timeline"><div ng-include="\'partials/timeline/main.html\'"></div></div><div ng-switch-default=""><h5 style="color: gray; text-align: center; opacity:0.2">...</h5></div></div><div class="c4p-container" style="border:1px white solid" ng-if="isBlurOn" touchstart="a4pBlockMove(event,true)"></div><c4p-spinner id="c4p-waiting-spinner" ng-show="isSpinnerActive || !respIsReady" class="c4p-waiting c4p-waiting-black c4p-click-intercepted"><div ng-include="\'partials/spinner.html\'"></div></c4p-spinner></div></div></div>'), 
+    $templateCache.put("partials/empty.html", ""), $templateCache.put("partials/main.html", '<!doctype html><div id="a4pBody" ng-controller="ctrlResponsive" resize-opts="{name:\'a4pBody\'}" resize-beforewindow="responsiveBeforeWindowSizeChanged()"><div ng-controller="navigationCtrl"><div ng-if="!respIsComputing"><div class="container" ng-class="{\'c4p-backdrop-blur\':isBlurOn}" ng-switch="page"><div class="row" ng-switch-when="navigation"><div ng-include="\'partials/navigation/main.html\'"></div></div><div class="row" ng-switch-when="guider"><div ng-include="\'partials/guider/main.html\'"></div></div><div class="row" ng-switch-when="meeting"><div ng-include="\'partials/meeting/main.html\'"></div></div><div class="row" ng-switch-when="timeline"><div ng-include="\'partials/timeline/main.html\'"></div></div><div ng-switch-default=""><h5 style="color: gray; text-align: center; opacity:0.2">...</h5></div></div><div class="c4p-container" style="border:1px white solid" ng-if="isBlurOn" touchstart="a4pBlockMove(event,true)"></div><c4p-spinner id="c4p-waiting-spinner" ng-show="isSpinnerActive || !respIsReady" class="c4p-waiting c4p-waiting-black c4p-click-intercepted"><div ng-include="\'partials/spinner.html\'"></div></c4p-spinner></div></div></div>'), 
     $templateCache.put("partials/spinner.html", '<!doctype html><div class="c4p-waiting-icon glyphicon-stack glyphicon-2x center-block"><i class="glyphicon glyphicon-fw glyphicon-square glyphicon-stack-2x"></i> <i class="glyphicon glyphicon-fw glyphicon-cog glyphicon-stack-1x glyphicon-inverse glyphicon-spin"></i></div>'), 
     $templateCache.put("partials/dialog/confirm.html", '<div class="row modal-body c4p-vertical-container"><div class="c4p-dialog c4p-vertical-align"><div class="container c4p-modal-confirm-container col-xxs-12 col-sm-6 col-sm-offset-3"><div class="row"><div class="c4p-dialog-header"><div class="col-xxs-12"><ul class="nav nav-pills"><li><a class="btn disabled" data-toggle="tab"><h5 style="white-space:normal">{{text}}</h5></a></li><li class="pull-right"><a class="btn c4p-color-cancel-transparent" ng-click="startSpinner();close()"><span class="c4p-icon-std">&times;</span></a></li><li class="pull-right"><a class="btn c4p-color-ok-transparent c4p-stroke" ng-click="startSpinner();submit()"><span class="c4p-icon-std glyphicon glyphicon-check"></span></a></li></ul></div></div></div><div class="row" ng-show="{{textArray.length}}"><div class="col-xxs-12 c4p-modal-confirm-cont" sense-opts="{axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-form-group c4p-color-a-gradient1"><ul><li ng-repeat="item in textArray"><span>{{item}}</span></li></ul></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogAddAccount.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlDialogAddAccountPageTitle}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="add()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:\'visibleElements.length\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked"><li ng-repeat="item in possibleAccounts"><div ng-click="toggleItem($index)" class="clearfix c4p-link5"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\':idxChosen != $index}" style="padding-top: 5px"></span> <span>{{item.company_name}}</span></div></li></ul></div></div>'), 
@@ -34933,7 +35000,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/meeting/meeting_object_editor_description.html", '<c4p-input ng-model="srvNav.item.description" type="textarea" rows="5"></c4p-input>'), 
     $templateCache.put("partials/meeting/meeting_object_editor_doc.html", '<!doctype html><div class="c4p-meeting-content-container" ng-swipe-left="gotoPreviousMeetingPlan()" ng-swipe-right="gotoNextMeetingPlan()"><div class="c4p-meeting-content"><div class="row"><div class="col-xxs-10 col-xxs-offset-1"><h2 style="text-transform: capitalize" ng-show="!meetingPlanTitleEditable" ng-disabled="isEditFocused" ng-click="meetingPlanTitle = selectedMeetingPlan.title;editMeetingPlanTitle()">{{selectedMeetingPlan.pos+1}} . {{selectedMeetingPlan.title}}</h2><div class="col-xxs-10" ng-show="meetingPlanTitleEditable"><c4p-input title-var="" ng-model="selectedMeetingPlan.title" placeholder="" type="text" style="width:100%" warn-var="" required ng-disabled="isEditFocused"></c4p-input></div><div class="col-xxs-2 btn" ng-show="meetingPlanTitleEditable" ng-click="saveMeetingPlanTitle(selectedMeetingPlan.title)" ng-disabled="isEditFocused"><i class="glyphicon glyphicon-check"></i></div></div></div><div class="row" style="position:relative"><div class="col-xxs-12" ng-controller="ctrlDetailedObject" ng-init="init(currentMeetingItem)" ng-include="\'partials/navigation/cards/full_card.html\'"></div><div class="col-xxs-8 col-xxs-offset-2" ng-show="currentMeetingItem == null"><div class="col-xxs-6 btn" ng-disabled="isEditFocused" ng-click="meetingTakePictureObj()"><span class="glyphicon-stack"><i class="glyphicon glyphicon-camera glyphicon-stack-2x"></i></span></div><div class="col-xxs-6 btn" ng-disabled="isEditFocused" ng-click="meetingSetReadyForDragObject()"><span class="glyphicon-stack"><i class="glyphicon glyphicon-stack-2x glyphicon-{{actionItems[\'others\'].icon}}"></i></span></div><div class="col-xxs-12 btn" ng-hide="meetingHasBeenUnderstoodByUser"><small>{{srvLocale.translations.htmlMeetingNoElementSelected}}</small></div></div><div class="c4p-meeting-link-drop" ng-class="{\'active\' : dropOver}" ng-show="dndActive" ng-controller="ctrlMeetingObjLinkDrop" sense-opts="{name:\'dropObjectMeeting\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)" sense-dropend="dropEnd($event)"></div></div><div class="row"><div class="col-xxs-12" ng-controller="ctrlDetailedObject" ng-init="init(currentMeetingNote)" ng-include="\'partials/navigation/cards/full_card.html\'"></div></div></div></div>'), 
     $templateCache.put("partials/meeting/meeting_object_editor_nextmeeting.html", "<div ng-click=\"doAction('dupMeeting')\">Click here to create a meeting base on this on</div>"), 
-    $templateCache.put("partials/meeting/meeting_object_editor_table.html", '<!doctype html><div class="c4p-meeting-content-container" ng-swipe-left="gotoPreviousMeetingPlan()" ng-swipe-right="gotoNextMeetingPlan()"><div class="c4p-meeting-content"><div class="row"><div class="col-xxs-10 col-xxs-offset-1"><h2 style="text-transform: capitalize" ng-show="!meetingPlanTitleEditable" ng-disabled="isEditFocused" ng-click="meetingPlanTitle = selectedMeetingPlan.title;editMeetingPlanTitle()">{{selectedMeetingPlan.pos+1}} . {{selectedMeetingPlan.title}}</h2><div class="col-xxs-10" ng-show="meetingPlanTitleEditable"><c4p-input title-var="" ng-model="selectedMeetingPlan.title" placeholder="" type="text" style="width:100%" warn-var="" required ng-disabled="isEditFocused"></c4p-input></div><div class="col-xxs-2 btn" ng-show="meetingPlanTitleEditable" ng-click="saveMeetingPlanTitle(selectedMeetingPlan.title)" ng-disabled="isEditFocused"><i class="glyphicon glyphicon-check"></i></div></div></div><div class="row" style="position:relative"><div class="col-xxs-12" ng-controller="ctrlDetailedObject" ng-init="init(currentMeetingItem)" ng-include="\'partials/navigation/cards/full_card.html\'"></div><div class="col-xxs-8 col-xxs-offset-2" ng-show="currentMeetingItem == null"><div class="col-xxs-6 btn" ng-disabled="isEditFocused" ng-click="meetingTakePictureObj()"><span class="glyphicon-stack"><i class="glyphicon glyphicon-camera glyphicon-stack-2x"></i></span></div><div class="col-xxs-6 btn" ng-disabled="isEditFocused" ng-click="meetingSetReadyForDragObject()"><span class="glyphicon-stack"><i class="glyphicon glyphicon-stack-2x glyphicon-{{actionItems[\'others\'].icon}}"></i></span></div><div class="col-xxs-12 btn" ng-hide="meetingHasBeenUnderstoodByUser"><small>{{srvLocale.translations.htmlMeetingNoElementSelected}}</small></div></div><div class="c4p-meeting-link-drop" ng-class="{\'active\' : dropOver}" ng-show="dndActive" ng-controller="ctrlMeetingObjLinkDrop" sense-opts="{name:\'dropObjectMeeting\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)" sense-dropend="dropEnd($event)"></div></div><div class="row"><div class="col-xxs-12" ng-controller="ctrlDetailedObject" ng-init="init(currentMeetingNote)" ng-include="\'partials/navigation/cards/full_card.html\'"></div></div></div></div>'), 
+    $templateCache.put("partials/meeting/meeting_object_editor_table.html", '<!doctype html><div class="c4p-meeting-content-container" ng-swipe-left="gotoPreviousMeetingPlan()" ng-swipe-right="gotoNextMeetingPlan()"><div class="c4p-meeting-content"><div class="row"><div class="col-xxs-10 col-xxs-offset-1"><h2 style="text-transform: capitalize" ng-show="!meetingPlanTitleEditable" ng-disabled="isEditFocused" ng-click="meetingPlanTitle = selectedMeetingPlan.title;editMeetingPlanTitle()">{{selectedMeetingPlan.pos+1}} . {{selectedMeetingPlan.title}}</h2><div class="col-xxs-10" ng-show="meetingPlanTitleEditable"><c4p-input title-var="" ng-model="selectedMeetingPlan.title" placeholder="" type="text" style="width:100%" warn-var="" required ng-disabled="isEditFocused"></c4p-input></div><div class="col-xxs-2 btn" ng-show="meetingPlanTitleEditable" ng-click="saveMeetingPlanTitle(selectedMeetingPlan.title)" ng-disabled="isEditFocused"><i class="glyphicon glyphicon-check"></i></div></div></div><div class="row" style="position:relative" ng-controller="ctrlDragObject"><div class="col-xxs-12"><div class="box"><div class="trigger" ng-click="meetingPopTable()"></div><div class="popcircle"><ul id="pops"><li ng-repeat="attendee in meetingContactsAsAttendee"><a ng-controller="ctrlMeetingAttendeeDrag" ng-init="initMeetingElemDrag(attendee)" sense-longdragoverenter="dragOverEnter($event,$element)" sense-longdragoverleave="dragOverLeave($event,$element)" sense-longdragstart="setDragMeetingElementIdx($index); meetingElementDragStart($event,$element)" sense-longdragmove="dragMove($event,$element)" sense-longdragend="dragEnd($event,$element)" sense-longdragcancel="dragCancel($event,$element)"><span>{{attendee.first_name}} {{attendee.last_name}}</span><br><br><small>{{attendee.email}}</small></a></li><li ng-class="{\'active\' : dropOver, \'enabled\' : dropIsEnable}" ng-controller="ctrlMeetingAttendeeDrop" sense-dndstart="dndStart($event)" sense-dropoverenter="dropOverEnter($event,$element)" sense-dropoverleave="dropOverLeave($event,$element)" sense-dropend="dropEnd($event,$element, $index)"><a ng-hide="dragIsActive" class="btn"><i class="glyphicon glyphicon-plus"></i></a></li></ul></div></div></div></div><div class="row"><div class="col-xxs-12" ng-controller="ctrlDetailedObject" ng-init="init(currentMeetingNote)" ng-include="\'partials/navigation/cards/full_card.html\'"></div></div></div></div>'), 
     $templateCache.put("partials/meeting/meeting_object_viewer.html", '<!doctype html><div class="c4p-viewer" ng-class="{\'c4p-viewer-fullscreen\':isFullScreen, \'c4p-viewer-windowed\':!isFullScreen}"><div ng-style="{width:getViewerWidth()+\'px\', height:getViewerHeight()+px}" resize-opts="{name:\'meeting_ctrlViewerContent\'}" sense-opts="{name:\'meeting_ctrlViewerContent\', axeX:\'swipe\', axeY:\'\', init:\'setSensePanel($sense);\', watchRefresh:\'isFullScreen\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\', wheelAction:\'zoom\', zoom: true, momentum: 0, zoomMin: 1, zoomMax: 10}" sense-swipeend="onDocumentSwipe($event)"><div ng-switch="" on="getDocumentObject()"><div ng-switch-when="null"><c4p-input ng-model="srvNav.item.description" type="textarea" rows="20"></c4p-input></div><div ng-switch-default=""><c4p-viewer-content obj-var="documentObject"></c4p-viewer-content></div></div></div><div ng-click="toggleFullScreen()" ng-show="documentList.length > 0" class="toggle-mode-button"><span class="icon-3x glyphicon c4p-times" ng-class="{\'glyphicon-resize-full\':!isFullScreen, \'glyphicon-resize-small\':isFullScreen}"></span></div></div>'), 
     $templateCache.put("partials/meeting/meeting_plan.html", '<!doctype html><div class="container"><ul class="nav nav-pills"><li><a class="btn disabled" ng-click="updateMeetingObj()" ng-disabled="isEditFocused">{{srvLocale.translations.htmlMeetingPlan}}</a></li><li class="pull-right"><a class="btn" ng-click="addMeetingElement()" ng-disabled="isEditFocused"><i class="glyphicon glyphicon-fw glyphicon-plus"></i></a></li></ul></div><div class="container" ng-controller="ctrlDragObject"><ul class="nav nav-pills nav-stacked" ng-repeat="mObj in meetingPlans"><li class="col-xxs-12"><a class="col-xxs-12 btn" ng-class="{\'btn-info active\' : dropOver, \'btn-sm btn-disabled\' : !dropOver}" ng-show="dragIsActive && (dragMeetingElementIdx > $index)" ng-controller="ctrlMeetingElementDrop" sense-dndstart="dndStart($event)" sense-dropoverenter="dropOverEnter($event,$element)" sense-dropoverleave="dropOverLeave($event,$element)" sense-dropend="dropEnd($event,$element, $index)"></a></li><li class="col-xxs-12" ng-class="{active: (mObj.pos == selectedMeetingPlanPos), \'c4p-click-through\' : isEditFocused}" style="border-top: 1px solid black"><a ng-controller="ctrlMeetingElementDrag" ng-init="initMeetingElemDrag(mObj)" ng-click="updateMeetingObj(mObj.pos); setActionItem(\'plan\', \'main\')" sense-longdragoverenter="dragOverEnter($event,$element)" sense-longdragoverleave="dragOverLeave($event,$element)" sense-longdragstart="setDragMeetingElementIdx($index); meetingElementDragStart($event,$element)" sense-longdragmove="dragMove($event,$element)" sense-longdragend="dragEnd($event,$element)" sense-longdragcancel="dragCancel($event,$element)"><div class="media-body a4p-dot" style="display: inline-block; vertical-align: middle"><span class="media-heading">{{mObj.pos+1}}.</span> <span class="media-heading">{{mObj.title}}</span><br></div></a></li><li class="col-xxs-12"><a class="col-xxs-12 btn" ng-class="{\'btn-info active\' : dropOver, \'btn-sm btn-disabled\' : !dropOver}" ng-show="dragIsActive && (dragMeetingElementIdx < $index)" ng-controller="ctrlMeetingElementDrop" sense-dndstart="dndStart($event)" sense-dropoverenter="dropOverEnter($event,$element)" sense-dropoverleave="dropOverLeave($event,$element)" sense-dropend="dropEnd($event,$element, $index)"></a></li></ul></div>'), 
     $templateCache.put("partials/meeting/meeting_plan_viewer.html", '<!doctype html><div class="c4p-container-scroll-y" style="overflow-x: hidden"><div class="col-xxs-12 col-sm-8 col-sm-offset-2" style="min-width:300px"><div ng-if="isPresentationOn"><div ng-include="\'partials/meeting/meeting_object_viewer.html\'"></div></div><div ng-if="!isPresentationOn"><div ng-include="\'partials/meeting/meeting_object_editor.html\'"></div></div></div></div>'), 
