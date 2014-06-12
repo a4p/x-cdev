@@ -799,6 +799,7 @@
   "htmlMeetingLinkObject":"Event Linked object",
   "htmlMeetingTitle":"Title",
   "htmlMeetingNoTitle":"No title",
+  "htmlMeetingPlanTableTitle":"Meeting Pad",
   "htmlMeetingNoElementSelected":"You can drop one document here",
   "htmlMeetingDropItemHere":"Drop item here",
   "htmlMeetingChange":"Change...",

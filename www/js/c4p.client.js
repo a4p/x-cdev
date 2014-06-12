@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-11 10:08 */
+/*! c4p.client 2014-06-12 12:07 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -570,175 +570,6 @@ function a4pWeek(a) {
 
 function noty(options) {
     return jQuery.noty(options);
-}
-
-function getEmbedScriptPath(e) {
-    for (var t = document.getElementsByTagName("script"), n = "", r = "", i = 0; i < t.length; i++) t[i].src.match(e) && (n = t[i].src);
-    return "" != n && (r = "/"), n.split("?")[0].split("/").slice(0, -1).join("/") + r;
-}
-
-function createStoryJS(e, t) {
-    function g() {
-        LoadLib.js(h.js, y);
-    }
-    function y() {
-        l.js = !0, "en" != h.lang ? LazyLoad.js(c.locale, b) : l.language = !0, x();
-    }
-    function b() {
-        l.language = !0, x();
-    }
-    function w() {
-        l.css = !0, x();
-    }
-    function E() {
-        l.font.css = !0, x();
-    }
-    function S() {
-        l.font.js = !0, x();
-    }
-    function x() {
-        l.checks > 40 || (l.checks++, l.js && l.css && l.font.css && l.font.js && l.language ? l.finished || (l.finished = !0, 
-        N()) : l.timeout = setTimeout("onloaded_check_again();", 250));
-    }
-    function T() {
-        var e = "storyjs-embed";
-        r = document.createElement("div"), i = document.getElementById("" != h.embed_id ? h.embed_id : "timeline-embed"), 
-        i.appendChild(r), r.setAttribute("id", h.id), h.width.toString().match("%") ? i.style.width = h.width.split("%")[0] + "%" : (h.width = h.width - 2, 
-        i.style.width = h.width + "px"), h.height.toString().match("%") ? (i.style.height = h.height, 
-        e += " full-embed", i.style.height = h.height.split("%")[0] + "%") : h.width.toString().match("%") ? (e += " full-embed", 
-        h.height = h.height - 16, i.style.height = h.height + "px") : (e += " sized-embed", 
-        h.height = h.height - 16, i.style.height = h.height + "px"), i.setAttribute("class", e), 
-        i.setAttribute("className", e), r.style.position = "relative";
-    }
-    function N() {
-        VMM.debug = h.debug, n = new VMM.Timeline(h.id), n.init(h), o && VMM.bindEvent(global, onHeadline, "HEADLINE");
-    }
-    var n, r, i, s, o = !1, u = "2.17", a = "1.7.1", f = "", l = {
-        timeout: "",
-        checks: 0,
-        finished: !1,
-        js: !1,
-        css: !1,
-        jquery: !1,
-        has_jquery: !1,
-        language: !1,
-        font: {
-            css: !1,
-            js: !1
-        }
-    }, c = {
-        base: embed_path,
-        css: embed_path + "css/",
-        js: embed_path + "js/",
-        locale: embed_path + "js/locale/",
-        jquery: "http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js",
-        font: {
-            google: !1,
-            css: embed_path + "css/themes/font/",
-            js: "http://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js"
-        }
-    }, h = {
-        version: u,
-        debug: !1,
-        type: "timeline",
-        id: "storyjs",
-        embed_id: "timeline-embed",
-        embed: !0,
-        width: "100%",
-        height: "100%",
-        source: "https://docs.google.com/spreadsheet/pub?key=0Agl_Dv6iEbDadFYzRjJPUGktY0NkWXFUWkVIZDNGRHc&output=html",
-        lang: "en",
-        font: "default",
-        css: c.css + "timeline.css?" + u,
-        js: "",
-        api_keys: {
-            google: "",
-            flickr: "",
-            twitter: ""
-        },
-        gmap_key: ""
-    }, p = [ {
-        name: "Merriweather-NewsCycle",
-        google: [ "News+Cycle:400,700:latin", "Merriweather:400,700,900:latin" ]
-    }, {
-        name: "NewsCycle-Merriweather",
-        google: [ "News+Cycle:400,700:latin", "Merriweather:300,400,700:latin" ]
-    }, {
-        name: "PoiretOne-Molengo",
-        google: [ "Poiret+One::latin", "Molengo::latin" ]
-    }, {
-        name: "Arvo-PTSans",
-        google: [ "Arvo:400,700,400italic:latin", "PT+Sans:400,700,400italic:latin" ]
-    }, {
-        name: "PTSerif-PTSans",
-        google: [ "PT+Sans:400,700,400italic:latin", "PT+Serif:400,700,400italic:latin" ]
-    }, {
-        name: "PT",
-        google: [ "PT+Sans+Narrow:400,700:latin", "PT+Sans:400,700,400italic:latin", "PT+Serif:400,700,400italic:latin" ]
-    }, {
-        name: "DroidSerif-DroidSans",
-        google: [ "Droid+Sans:400,700:latin", "Droid+Serif:400,700,400italic:latin" ]
-    }, {
-        name: "Lekton-Molengo",
-        google: [ "Lekton:400,700,400italic:latin", "Molengo::latin" ]
-    }, {
-        name: "NixieOne-Ledger",
-        google: [ "Nixie+One::latin", "Ledger::latin" ]
-    }, {
-        name: "AbrilFatface-Average",
-        google: [ "Average::latin", "Abril+Fatface::latin" ]
-    }, {
-        name: "PlayfairDisplay-Muli",
-        google: [ "Playfair+Display:400,400italic:latin", "Muli:300,400,300italic,400italic:latin" ]
-    }, {
-        name: "Rancho-Gudea",
-        google: [ "Rancho::latin", "Gudea:400,700,400italic:latin" ]
-    }, {
-        name: "Bevan-PotanoSans",
-        google: [ "Bevan::latin", "Pontano+Sans::latin" ]
-    }, {
-        name: "BreeSerif-OpenSans",
-        google: [ "Bree+Serif::latin", "Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800:latin" ]
-    }, {
-        name: "SansitaOne-Kameron",
-        google: [ "Sansita+One::latin", "Kameron:400,700:latin" ]
-    }, {
-        name: "Lora-Istok",
-        google: [ "Lora:400,700,400italic,700italic:latin", "Istok+Web:400,700,400italic,700italic:latin" ]
-    }, {
-        name: "Pacifico-Arimo",
-        google: [ "Pacifico::latin", "Arimo:400,700,400italic,700italic:latin" ]
-    } ];
-    if ("object" == typeof e) for (s in e) Object.prototype.hasOwnProperty.call(e, s) && (h[s] = e[s]);
-    if ("undefined" != typeof t && (h.source = t), "object" == typeof url_config && (o = !0, 
-    h.source.match("docs.google.com") || h.source.match("json") || h.source.match("storify") || (h.source = "https://docs.google.com/spreadsheet/pub?key=" + h.source + "&output=html")), 
-    h.js.match("locale") && (h.lang = h.js.split("locale/")[1].replace(".js", ""), h.js = c.js + "timeline-min.js?" + u), 
-    h.js.match("/") || (h.css = c.css + h.type + ".css?" + u, h.js = c.js + h.type, 
-    h.js += h.debug ? ".js?" + u : "-min.js?" + u, h.id = "storyjs-" + h.type), c.locale = h.lang.match("/") ? h.lang : c.locale + h.lang + ".js?" + u, 
-    T(), LoadLib.css(h.css, w), "default" == h.font) l.font.js = !0, l.font.css = !0; else {
-        var d;
-        h.font.match("/") ? (d = h.font.split(".css")[0].split("/"), c.font.name = d[d.length - 1], 
-        c.font.css = h.font) : (c.font.name = h.font, c.font.css = c.font.css + h.font + ".css?" + u), 
-        LoadLib.css(c.font.css, E);
-        for (var v = 0; v < p.length; v++) c.font.name == p[v].name && (c.font.google = !0, 
-        WebFontConfig = {
-            google: {
-                families: p[v].google
-            }
-        });
-        c.font.google ? LoadLib.js(c.font.js, S) : l.font.js = !0;
-    }
-    try {
-        if (l.has_jquery = jQuery, l.has_jquery = !0, l.has_jquery) {
-            var f = parseFloat(jQuery.fn.jquery);
-            l.jquery = f < parseFloat(a) ? !1 : !0;
-        }
-    } catch (m) {
-        l.jquery = !1;
-    }
-    l.jquery ? g() : LoadLib.js(c.jquery, g), this.onloaded_check_again = function() {
-        x();
-    };
 }
 
 function a4pInitCacheErrorCounterClear() {
@@ -2592,7 +2423,7 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
             if (plans && plans.length) for (plans = plans.sort(_sortPosAsc), i = 0; i < plans.length; i++) {
                 var plan = plans[i], removed = srvData.srvSynchroStatus.hasToBeDeleted(plan);
                 removed ? (plans.splice(i, 1), i--) : (plan.pos = i, $scope.meetingPlans.push(plan));
-            } else bok = $scope.isDemo ? $scope.addMeetingTable() : $scope.addMeetingElement();
+            } else bok = "P" !== srvConfig.c4pConfigEnv || "I" !== srvConfig.c4pConfigEnv ? $scope.addMeetingTable() : $scope.addMeetingElement();
             $scope.meetingPlans.length && $scope.setMeetingObject(0), $scope.meetingPlans.length > 1 && ($scope.meetingHasBeenUnderstoodByUser = !0), 
             $scope.meetingHasBeenInitialized = !0;
         }
@@ -2666,8 +2497,8 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
     }, $scope.saveItemName = function(value) {
         value ? ($scope.itemNameEditable = !1, $scope.meetingItem.name = value) : $scope.itemNameEditable = !1;
     }, $scope.saveMeetingPlanTitle = function(value) {
-        value ? ($scope.meetingPlanTitleEditable = !1, $scope.selectedMeetingPlan.title = value, 
-        $scope.currentMeetingNote.title = _getPlanTitleForNote($scope.meetingItem, $scope.selectedMeetingPlan)) : $scope.itemNameEditable = !1;
+        value ? ($scope.meetingPlanTitleEditable = !1, $scope.selectedMeetingPlan && ($scope.selectedMeetingPlan.title = value), 
+        $scope.currentMeetingNote && ($scope.currentMeetingNote.title = _getPlanTitleForNote($scope.meetingItem, $scope.selectedMeetingPlan))) : $scope.itemNameEditable = !1;
     }, $scope.toggleMeetingAside = function() {
         $scope.showMeetingAside = !$scope.showMeetingAside;
     }, $scope.meetingSetReadyForDragObject = function() {
@@ -2697,16 +2528,10 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
         if (!$scope.meetingItem) return bok;
         var plan = srvData.createObject("Plan", {
             parent_id: $scope.meetingItem.id,
-            title: srvLocale.translations.htmlMeetingNoTitle,
+            title: srvLocale.translations.htmlMeetingPlanTableTitle,
             editor_type: "Table"
         });
         if (plan && (bok = !0, plan.pos = $scope.meetingPlans.length), !bok) return bok;
-        var note = {
-            a4p_type: "Note",
-            title: _getPlanTitleForNote($scope.meetingItem, plan),
-            description: ""
-        }, noteObject = $scope.addNewNote(note);
-        if (bok = srvData.newAttachment("Plannee", noteObject, plan), !bok) return bok;
         var targetDirPath = "a4p/c4p/doc", itemName = srvNav.item.name, now = new Date(), normalizedParentName = itemName.replace(/ /g, "_"), documentInsert = srvData.createObject("Document", {
             name: normalizedParentName + "." + srvLocale.formatDate(a4pDateParse(a4pDateFormat(now)), "c4pShortDate").replace(/\//g, "-") + ".png",
             body: "",
@@ -2793,6 +2618,8 @@ function ctrlMeeting($scope, $modal, $timeout, srvData, srvConfig, srvNav, srvLo
         }, 400);
     }, $scope.afterMeetingSpinnerHide = function() {
         $timeout(function() {
+            $scope.meetingPopTable();
+        }, 500), $timeout(function() {
             $scope.meetingPopTable();
         }, 2e3);
     }, $scope.computeMeeting = function() {
@@ -6283,16 +6110,16 @@ function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, att
 function ctrlEditDialogObject($scope, $location, $anchorScroll, srvData, srvLocale, srvConfig, objectItem, removeFct, startSpinner, stopSpinner, openDialogFct, $modalInstance) {
     "use strict";
     function initFields(scope) {
+        var key;
         scope.object = angular.copy(objectItem), scope.hasOpenImportContactDialog = "Contact" == objectItem.a4p_type && navigator && a4p.isDefined(window.plugins.ContactPicker), 
-        scope.hasOpenImportAccountDialog = "Account" == objectItem.a4p_type && navigator && navigator.contacts, 
-        scope.hasOpenImportEventDialog = "Event" == objectItem.a4p_type && "undefined" != typeof calendarPlugin, 
+        scope.hasOpenImportAccountDialog = !1, scope.hasOpenImportEventDialog = !1;
+        var object = srvData.getObject(objectItem.id.dbid);
+        scope.removeEnabled = a4p.isDefined(object) && srvData.isObjectOwnedByUser(object) && objectItem.id.dbid != srvData.userId.dbid, 
         scope.objectValidated = !0, scope.objectGroups = [];
         var groups, objDesc = c4p.Model.a4p_types[objectItem.a4p_type];
         if (a4p.isDefined(objDesc.editObjectGroups)) groups = objDesc.editObjectGroups; else {
-            for (var fields = [], i = 0; i < objDesc.fields.length; i++) {
-                var key = objDesc.fields[i];
-                a4p.isDefined(objDesc.editObjectFields) && a4p.isDefined(objDesc.editObjectFields[key]) && fields.push(key);
-            }
+            for (var fields = [], i = 0; i < objDesc.fields.length; i++) key = objDesc.fields[i], 
+            a4p.isDefined(objDesc.editObjectFields) && a4p.isDefined(objDesc.editObjectFields[key]) && fields.push(key);
             groups = [ {
                 key: "details",
                 title: "htmlFieldsetDetails",
@@ -6300,24 +6127,22 @@ function ctrlEditDialogObject($scope, $location, $anchorScroll, srvData, srvLoca
             } ];
         }
         for (var groupIdx = 0; groupIdx < groups.length; groupIdx++) {
-            for (var groupDesc = groups[groupIdx], groupWarn = "", groupSet = [], group = [], fieldIdx = 0; fieldIdx < groupDesc.fields.length; fieldIdx++) {
-                var key = groupDesc.fields[fieldIdx];
-                if (a4p.isDefined(c4p.Model.a4p_types[objectItem.a4p_type].editObjectFields) && a4p.isDefined(c4p.Model.a4p_types[objectItem.a4p_type].editObjectFields[key])) {
-                    var editObjectField = c4p.Model.a4p_types[objectItem.a4p_type].editObjectFields[key], fieldLabel = scope.srvLocale.translations[editObjectField.title];
-                    a4p.isDefined(fieldLabel) || (fieldLabel = key);
-                    var isFocus = !1;
-                    a4p.isDefined(editObjectField.autofocus) && (isFocus = editObjectField.autofocus);
-                    var selectOptions = "";
-                    a4p.isDefined(editObjectField.optionList) && (selectOptions = scope.srvLocale.translations[editObjectField.optionList]), 
-                    groupSet.push({
-                        title: fieldLabel,
-                        type: editObjectField.type,
-                        warn: "",
-                        key: key,
-                        focus: isFocus,
-                        optionList: selectOptions
-                    });
-                }
+            for (var groupDesc = groups[groupIdx], groupWarn = "", groupSet = [], group = [], fieldIdx = 0; fieldIdx < groupDesc.fields.length; fieldIdx++) if (key = groupDesc.fields[fieldIdx], 
+            a4p.isDefined(c4p.Model.a4p_types[objectItem.a4p_type].editObjectFields) && a4p.isDefined(c4p.Model.a4p_types[objectItem.a4p_type].editObjectFields[key])) {
+                var editObjectField = c4p.Model.a4p_types[objectItem.a4p_type].editObjectFields[key], fieldLabel = scope.srvLocale.translations[editObjectField.title];
+                a4p.isDefined(fieldLabel) || (fieldLabel = key);
+                var isFocus = !1;
+                a4p.isDefined(editObjectField.autofocus) && (isFocus = editObjectField.autofocus);
+                var selectOptions = "";
+                a4p.isDefined(editObjectField.optionList) && (selectOptions = scope.srvLocale.translations[editObjectField.optionList]), 
+                groupSet.push({
+                    title: fieldLabel,
+                    type: editObjectField.type,
+                    warn: "",
+                    key: key,
+                    focus: isFocus,
+                    optionList: selectOptions
+                });
             }
             group = {
                 title: scope.srvLocale.translations[groupDesc.title],
@@ -6342,7 +6167,7 @@ function ctrlEditDialogObject($scope, $location, $anchorScroll, srvData, srvLoca
     function checkGlobalFormValidation(scope) {
         for (var objectGroupIdx = 0; objectGroupIdx < scope.objectGroups.length; objectGroupIdx++) for (var objectGroup = scope.objectGroups[objectGroupIdx], objectFieldIdx = 0; objectFieldIdx < objectGroup.groupFields.length; objectFieldIdx++) {
             var objectField = objectGroup.groupFields[objectFieldIdx];
-            if ("" != objectField.warn) return !1;
+            if (objectField.warn) return !1;
         }
         return !0;
     }
@@ -6362,25 +6187,24 @@ function ctrlEditDialogObject($scope, $location, $anchorScroll, srvData, srvLoca
     $scope.srvData = srvData, $scope.srvLocale = srvLocale, $scope.srvConfig = srvConfig, 
     $scope.object = {}, $scope.objectName = srvConfig.getItemName(objectItem), $scope.objectIcon = c4p.Model.getItemIcon(objectItem), 
     $scope.objectGroups = [], $scope.objectTypeLocale = objectItem.a4p_type, $scope.objectValidated = !1, 
-    $scope.startSpinner = startSpinner, $scope.stopSpinner = stopSpinner, $scope.openDialogFct = openDialogFct;
-    var object = srvData.getObject(objectItem.id.dbid);
-    $scope.removeEnabled = a4p.isDefined(object) && srvData.isObjectOwnedByUser(object) && objectItem.id.dbid != srvData.userId.dbid, 
-    $scope.removeFct = removeFct, $scope.objectGroup = null, $scope.objectGroupFilter = null, 
-    $scope.hasOpenImportContactDialog = !1, $scope.hasOpenImportAccountDialog = !1, 
+    $scope.startSpinner = startSpinner, $scope.stopSpinner = stopSpinner, $scope.openDialogFct = openDialogFct, 
+    $scope.removeEnabled = !1, $scope.removeFct = removeFct, $scope.objectGroup = null, 
+    $scope.objectGroupFilter = null, $scope.hasOpenImportContactDialog = !1, $scope.hasOpenImportAccountDialog = !1, 
     $scope.hasOpenImportEventDialog = !1, $scope.submit = function() {
+        var objectGroupIdx, objectGroup, objectFieldIdx, objectField;
         if ($scope.objectValidated) {
-            for (var objectGroupIdx = 0; objectGroupIdx < $scope.objectGroups.length; objectGroupIdx++) for (var objectGroup = $scope.objectGroups[objectGroupIdx], objectFieldIdx = 0; objectFieldIdx < objectGroup.groupFields.length; objectFieldIdx++) {
-                var objectField = objectGroup.groupFields[objectFieldIdx];
-                objectItem[objectField.key] = $scope.object[objectField.key];
-            }
-            $modalInstance.close(objectItem);
+            for (objectGroupIdx = 0; objectGroupIdx < $scope.objectGroups.length; objectGroupIdx++) for (objectGroup = $scope.objectGroups[objectGroupIdx], 
+            objectFieldIdx = 0; objectFieldIdx < objectGroup.groupFields.length; objectFieldIdx++) objectField = objectGroup.groupFields[objectFieldIdx], 
+            objectItem[objectField.key] = $scope.object[objectField.key];
+            $modalInstance.close($scope.object);
         } else {
-            for (var globalWarn = "", warnList = [], objectGroupIdx = 0; objectGroupIdx < $scope.objectGroups.length; objectGroupIdx++) {
-                for (var objectGroup = $scope.objectGroups[objectGroupIdx], groupWarn = "", objectFieldIdx = 0; objectFieldIdx < objectGroup.groupFields.length; objectFieldIdx++) {
-                    var objectField = objectGroup.groupFields[objectFieldIdx];
-                    "" != objectField.warn && (warnList.push(objectField.warn), 0 == groupWarn.length && (groupWarn = objectField.warn), 
-                    0 == globalWarn.length && (globalWarn = objectField.warn, $scope.editScrollTo("field_" + objectGroupIdx + "_" + objectFieldIdx)));
-                }
+            var globalWarn = "", warnList = [];
+            for (objectGroupIdx = 0; objectGroupIdx < $scope.objectGroups.length; objectGroupIdx++) {
+                objectGroup = $scope.objectGroups[objectGroupIdx];
+                var groupWarn = "";
+                for (objectFieldIdx = 0; objectFieldIdx < objectGroup.groupFields.length; objectFieldIdx++) objectField = objectGroup.groupFields[objectFieldIdx], 
+                objectField.warn && (warnList.push(objectField.warn), 0 === groupWarn.length && (groupWarn = objectField.warn), 
+                0 === globalWarn.length && (globalWarn = objectField.warn, $scope.editScrollTo("field_" + objectGroupIdx + "_" + objectFieldIdx)));
                 objectGroup.warn = groupWarn;
             }
             $scope.openDialogFct({
@@ -6409,9 +6233,9 @@ function ctrlEditDialogObject($scope, $location, $anchorScroll, srvData, srvLoca
                 var editObjectField = editObjectFields[field.key];
                 if (a4p.isDefined(editObjectField.validations)) {
                     var message = warningForThisField($scope, field.key);
-                    null != message ? (field.warn != message && (validationHasChanged = !0), field.warn = message, 
-                    $scope.objectValidated = !1) : ("" != field.warn && (validationHasChanged = !0), 
-                    field.warn = "", $scope.objectValidated = checkGlobalFormValidation($scope));
+                    message ? (field.warn != message && (validationHasChanged = !0), field.warn = message, 
+                    $scope.objectValidated = !1) : (field.warn && (validationHasChanged = !0), field.warn = "", 
+                    $scope.objectValidated = checkGlobalFormValidation($scope));
                 }
             }
         }
@@ -6420,7 +6244,7 @@ function ctrlEditDialogObject($scope, $location, $anchorScroll, srvData, srvLoca
             objectGroup.warn = "";
             for (var objectFieldIdx = 0; objectFieldIdx < objectGroup.groupFields.length; objectFieldIdx++) {
                 var objectField = objectGroup.groupFields[objectFieldIdx];
-                if ("" != objectField.warn) {
+                if (objectField.warn) {
                     objectGroup.warn = objectField.warn;
                     break;
                 }
@@ -6457,90 +6281,70 @@ function ctrlEditDialogObject($scope, $location, $anchorScroll, srvData, srvLoca
     }, $scope.getTypeColor = function(type) {
         return c4p.Model.getTypeColor(type);
     };
-    var createNewContactViaPlugin = function(contact, objectToFill) {
+    var _formatContact = function(contact, contactToFill) {
+        a4p.InternalLog.log("ctrlEditDialogObject", "_formatContact analyze a contact from Device : " + a4pDumpData(contact, 3)), 
+        contact.name && (contactToFill.salutation = contact.name.honorificPrefix || ""), 
+        contact.name && (contactToFill.first_name = contact.name.givenName || contactToFill.first_name), 
+        contact.name && (contactToFill.last_name = contact.name.familyName || contactToFill.last_name), 
+        contact.birthday && (contactToFill.birthday = contact.birthday), contact.note && (contactToFill.description = contact.note || "");
+        var j, max;
+        if (contact.phoneNumbers) for (j = 0, max = contact.phoneNumbers.length; max > j; j++) "home" == contact.phoneNumbers[j].type ? contactToFill.phone_house || (contactToFill.phone_house = contact.phoneNumbers[j].value) : "work" == contact.phoneNumbers[j].type ? contactToFill.phone_work || (contactToFill.phone_work = contact.phoneNumbers[j].value) : "mobile" == contact.phoneNumbers[j].type ? contactToFill.phone_mobile || (contactToFill.phone_mobile = contact.phoneNumbers[j].value) : "fax" == contact.phoneNumbers[j].type ? contactToFill.phone_fax || (contactToFill.phone_fax = contact.phoneNumbers[j].value) : "pager" == contact.phoneNumbers[j].type || contactToFill.phone_other || (contactToFill.phone_other = contact.phoneNumbers[j].value);
+        if (contact.emails) for (j = 0, max = contact.emails.length; max > j; j++) 0 !== j ? "home" == contact.emails[j].type ? contactToFill.email_home = contact.emails[j].value : "work" == contact.emails[j].type ? contactToFill.email_list = contact.emails[j].value : contactToFill.email_other = contact.emails[j].value : contactToFill.email = contact.emails[j].value;
+        if (contact.addresses) for (j = 0, max = contact.addresses.length; max > j; j++) contactToFill.primary_address_city ? contactToFill.alt_address_city || (contactToFill.alt_address_street = contact.addresses[j].streetAddress, 
+        contactToFill.alt_address_city = contact.addresses[j].locality, contactToFill.alt_address_state = contact.addresses[j].region, 
+        contactToFill.alt_address_zipcode = contact.addresses[j].postalCode, contactToFill.alt_address_country = contact.addresses[j].country) : (contactToFill.primary_address_street = contact.addresses[j].streetAddress, 
+        contactToFill.primary_address_city = contact.addresses[j].locality, contactToFill.primary_address_state = contact.addresses[j].region, 
+        contactToFill.primary_address_zipcode = contact.addresses[j].postalCode, contactToFill.primary_address_country = contact.addresses[j].country);
+        if (contact.organizations) for (j = 0, max = contact.organizations.length; max > j; j++) contactToFill.title || (contactToFill.title = contact.organizations[j].title), 
+        contactToFill.department || (contactToFill.department = contact.organizations[j].department);
+        return !0;
+    }, _createNewContactViaPlugin = function(self, contact) {
         a4p.InternalLog.log("ctrlEditDialogObject", "createNewContactViaPlugin analyze a contact from Device : " + a4pDumpData(contact, 3));
-        var splitName = contact.displayName ? contact.displayName.split(" ") : [ "...", "..." ], firstName = splitName[0] ? splitName[0] : "...", lastName = splitName[1] ? splitName[1] : "...", possibleContact = {
+        var objectToFill = self.object, splitName = contact.displayName ? contact.displayName.split(" ") : [ "...", "..." ], firstName = splitName[0] ? splitName[0] : "...", lastName = splitName[1] ? splitName[1] : "...", possibleContact = {
             id: contact.id || 0,
             first_name: firstName,
             last_name: lastName,
-            phone_work: contact.phoneNumber || "",
-            email: contact.email || ""
+            displayName: contact.displayName,
+            phone_work: contact.phoneNr || "",
+            email: contact.emailAddress || ""
         };
         objectToFill.first_name = possibleContact.first_name, objectToFill.last_name = possibleContact.last_name, 
         possibleContact.phone_work && (objectToFill.phone_work = possibleContact.phone_work), 
         possibleContact.email && (objectToFill.email = possibleContact.email);
+        var onContactsSuccess = function(contacts) {
+            a4p.InternalLog.log("ctrlEditDialogObject", "onContactsSuccess");
+            for (var iC = -1, i = 0; i < contacts.length; i++) {
+                a4p.InternalLog.log("ctrlEditDialogObject", "analyze contact : " + a4pDumpData(contacts[i], 3)), 
+                iC = i;
+                break;
+            }
+            if (0 > iC) return void a4p.ErrorLog.log("ctrlEditDialogObject", "Pb with contact ID " + possibleContact.id + " list size result :" + contacts.length);
+            var contact = contacts[iC];
+            a4p.InternalLog.log("ctrlEditDialogObject", "analyze choosen contact : " + a4pDumpData(contact, 3)), 
+            a4p.safeApply(self, function() {
+                _formatContact(contact, objectToFill);
+            });
+        }, onContactsFailure = function(contactError) {
+            a4p.InternalLog.log("ctrlEditDialogObject", "onContactsFailure"), contactError.code == ContactError.UNKNOWN_ERROR ? a4p.ErrorLog.log("ctrlEditDialogObject", "Device Contacts not imported from IOS : UNKNOWN_ERROR") : contactError.code == ContactError.INVALID_ARGUMENT_ERROR ? a4p.ErrorLog.log("ctrlEditDialogObject", "Device Contacts not imported from IOS : INVALID_ARGUMENT_ERROR") : contactError.code == ContactError.TIMEOUT_ERROR ? a4p.ErrorLog.log("ctrlEditDialogObject", "Device Contacts not imported from IOS : TIMEOUT_ERROR") : contactError.code == ContactError.PENDING_OPERATION_ERROR ? a4p.ErrorLog.log("ctrlEditDialogObject", "Device Contacts not imported from IOS : PENDING_OPERATION_ERROR") : contactError.code == ContactError.IO_ERROR ? a4p.ErrorLog.log("ctrlEditDialogObject", "Device Contacts not imported from IOS : IO_ERROR") : contactError.code == ContactError.NOT_SUPPORTED_ERROR ? a4p.ErrorLog.log("ctrlEditDialogObject", "Device Contacts not imported from IOS : NOT_SUPPORTED_ERROR") : contactError.code == ContactError.PERMISSION_DENIED_ERROR ? a4p.ErrorLog.log("ctrlEditDialogObject", "Device Contacts not imported from IOS : PERMISSION_DENIED_ERROR") : a4p.ErrorLog.log("ctrlEditDialogObject", "Device Contacts not imported from IOS : contactError.code unknown");
+        };
+        if (navigator && navigator.contacts) {
+            var findOptions = new ContactFindOptions();
+            findOptions.filter = "" + possibleContact.displayName, findOptions.multiple = !1, 
+            navigator.contacts.find([ "*" ], onContactsSuccess, onContactsFailure, findOptions);
+        } else {
+            var contactInfo = {
+                note: "Import pb : No Contact access !"
+            }, contacts = [];
+            contacts.push(contactInfo), onContactsSuccess(contacts);
+        }
+        return possibleContact;
     };
     $scope.openImportContactDialog = function() {
-        $scope.hasOpenImportContactDialog ? window.plugins.ContactPicker.chooseContact(function(contactInfo) {
-            contactInfo && $scope.object && a4p.safeApply($scope, createNewContactViaPlugin(contactInfo, $scope.object));
-        }) : a4p.InternalLog.log("ctrlEditDialogObject", "NO Device to import Contacts");
-    }, $scope.openImportAccountDialog = function() {
-        var possibleAccounts = [];
-        if (hasOpenImportAccountDialog) {
-            var possibleAccountsSelectionDialog = function() {
-                $scope.openDialogFct({
-                    backdrop: !0,
-                    windowClass: "modal c4p-modal-left c4p-modal-search",
-                    controller: "ctrlAddAccount",
-                    templateUrl: "partials/dialog/dialogAddAccount.html",
-                    resolve: {
-                        srvLocale: function() {
-                            return $scope.srvLocale;
-                        },
-                        accounts: function() {
-                            return possibleAccounts.slice(0);
-                        }
-                    }
-                }, function(result) {
-                    a4p.isDefined(result) && a4p.safeApply($scope, function() {
-                        $scope.clear(), $scope.object.type = result.type, $scope.object.company_name = result.company_name;
-                        for (var objectGroupIdx = 0; objectGroupIdx < $scope.objectGroups.length; objectGroupIdx++) for (var objectGroup = $scope.objectGroups[objectGroupIdx], objectFieldIdx = 0; objectFieldIdx < objectGroup.groupFields.length; objectFieldIdx++) {
-                            var objectField = objectGroup.groupFields[objectFieldIdx];
-                            $scope.onFieldChanged(objectField);
-                        }
-                    });
-                });
-            }, onContactsSuccess = function(contacts) {
-                a4p.safeApply($scope, function() {
-                    $scope.stopSpinner();
-                    for (var nbNewAccount = 0, accountIndex = {}, i = 0, nb = contacts.length; nb > i; i++) {
-                        var contact = contacts[i];
-                        a4p.InternalLog.log("ctrlEditDialogObject", "analyze a contact from IOS : " + a4pDumpData(contact, 3));
-                        var j, max;
-                        if (contact.organizations) for (j = 0, max = contact.organizations.length; max > j; j++) {
-                            var name = contact.organizations[j].name;
-                            if (a4p.isUndefined(accountIndex[name])) {
-                                var possibleAccount = {
-                                    type: contact.organizations[j].type,
-                                    company_name: name
-                                };
-                                possibleAccounts.push(possibleAccount), nbNewAccount++, accountIndex[name] = !0;
-                            }
-                        }
-                    }
-                    nbNewAccount ? ($scope.setAccountImportList(possibleAccounts), possibleAccountsSelectionDialog()) : a4p.InternalLog.log("ctrlEditDialogObject", "NO Account found in IOS");
-                });
-            }, onContactsFailure = function(contactError) {
-                a4p.safeApply($scope, function() {
-                    $scope.stopSpinner(), contactError.code == ContactError.UNKNOWN_ERROR ? a4p.ErrorLog.log("ctrlEditDialogObject", "Device Accounts not imported from IOS : UNKNOWN_ERROR") : contactError.code == ContactError.INVALID_ARGUMENT_ERROR ? a4p.ErrorLog.log("ctrlEditDialogObject", "Device Accounts not imported from IOS : INVALID_ARGUMENT_ERROR") : contactError.code == ContactError.TIMEOUT_ERROR ? a4p.ErrorLog.log("ctrlEditDialogObject", "Device Accounts not imported from IOS : TIMEOUT_ERROR") : contactError.code == ContactError.PENDING_OPERATION_ERROR ? a4p.ErrorLog.log("ctrlEditDialogObject", "Device Accounts not imported from IOS : PENDING_OPERATION_ERROR") : contactError.code == ContactError.IO_ERROR ? a4p.ErrorLog.log("ctrlEditDialogObject", "Device Accounts not imported from IOS : IO_ERROR") : contactError.code == ContactError.NOT_SUPPORTED_ERROR ? a4p.ErrorLog.log("ctrlEditDialogObject", "Device Accounts not imported from IOS : NOT_SUPPORTED_ERROR") : contactError.code == ContactError.PERMISSION_DENIED_ERROR ? a4p.ErrorLog.log("ctrlEditDialogObject", "Device Accounts not imported from IOS : PERMISSION_DENIED_ERROR") : a4p.ErrorLog.log("ctrlEditDialogObject", "Device Accounts not imported from IOS : contactError.code unknown");
-                });
-            };
-            if (possibleAccounts = $scope.getAccountImportList(), possibleAccounts.length > 0) possibleAccountsSelectionDialog(); else {
-                var findOptions = new ContactFindOptions();
-                findOptions.filter = "", findOptions.multiple = !0, $scope.startSpinner(), navigator.contacts.find([ "*" ], onContactsSuccess, onContactsFailure, findOptions);
-            }
-        } else a4p.InternalLog.log("ctrlEditDialogObject", "NO Device to import Accounts");
-    }, $scope.openImportEventDialog = function() {
-        if (hasOpenImportEventDialog) {
-            var onEventsSuccess = function(events) {
-                a4p.InternalLog.log("ctrlEditDialogObject", "analyze events from IOS : " + a4pDumpData(events, 3));
-            }, onEventsFailure = function(contactError) {
-                a4p.safeApply($scope, function() {
-                    a4p.ErrorLog.log("ctrlEditDialogObject", "Device Events not imported from IOS : " + a4pDumpData(contactError, 3));
-                });
-            }, cal = new calendarPlugin(), startDate = "2012-01-01 00:00:00", endDate = "2016-01-01 00:00:00";
-            cal.findEvent("*", "", "", startDate, endDate, onEventsSuccess, onEventsFailure);
-        } else a4p.InternalLog.log("ctrlEditDialogObject", "NO Device to import Events");
+        if ($scope.hasOpenImportContactDialog) {
+            window.plugins.ContactPicker.chooseContact(function(contactInfo) {
+                contactInfo && a4p.safeApply($scope, _createNewContactViaPlugin($scope, contactInfo));
+            });
+        } else a4p.InternalLog.log("ctrlEditDialogObject", "NO Device to import Contacts");
     }, initFields($scope);
 }
 
@@ -27847,110 +27651,166 @@ c4p || (c4p = {}), c4p.Model = function() {
             }), adjust());
         })) : this;
     };
-}(window.jQuery || window.$), LazyLoad = function(e) {
-    function u(t, n) {
-        var i, r = e.createElement(t);
-        for (i in n) n.hasOwnProperty(i) && r.setAttribute(i, n[i]);
-        return r;
+}(window.jQuery || window.$), jQuery.easing.jswing = jQuery.easing.swing, jQuery.extend(jQuery.easing, {
+    def: "easeOutQuad",
+    swing: function(e, f, a, h, g) {
+        return jQuery.easing[jQuery.easing.def](e, f, a, h, g);
+    },
+    easeInQuad: function(e, f, a, h, g) {
+        return h * (f /= g) * f + a;
+    },
+    easeOutQuad: function(e, f, a, h, g) {
+        return -h * (f /= g) * (f - 2) + a;
+    },
+    easeInOutQuad: function(e, f, a, h, g) {
+        return (f /= g / 2) < 1 ? h / 2 * f * f + a : -h / 2 * (--f * (f - 2) - 1) + a;
+    },
+    easeInCubic: function(e, f, a, h, g) {
+        return h * (f /= g) * f * f + a;
+    },
+    easeOutCubic: function(e, f, a, h, g) {
+        return h * ((f = f / g - 1) * f * f + 1) + a;
+    },
+    easeInOutCubic: function(e, f, a, h, g) {
+        return (f /= g / 2) < 1 ? h / 2 * f * f * f + a : h / 2 * ((f -= 2) * f * f + 2) + a;
+    },
+    easeInQuart: function(e, f, a, h, g) {
+        return h * (f /= g) * f * f * f + a;
+    },
+    easeOutQuart: function(e, f, a, h, g) {
+        return -h * ((f = f / g - 1) * f * f * f - 1) + a;
+    },
+    easeInOutQuart: function(e, f, a, h, g) {
+        return (f /= g / 2) < 1 ? h / 2 * f * f * f * f + a : -h / 2 * ((f -= 2) * f * f * f - 2) + a;
+    },
+    easeInQuint: function(e, f, a, h, g) {
+        return h * (f /= g) * f * f * f * f + a;
+    },
+    easeOutQuint: function(e, f, a, h, g) {
+        return h * ((f = f / g - 1) * f * f * f * f + 1) + a;
+    },
+    easeInOutQuint: function(e, f, a, h, g) {
+        return (f /= g / 2) < 1 ? h / 2 * f * f * f * f * f + a : h / 2 * ((f -= 2) * f * f * f * f + 2) + a;
+    },
+    easeInSine: function(e, f, a, h, g) {
+        return -h * Math.cos(f / g * (Math.PI / 2)) + h + a;
+    },
+    easeOutSine: function(e, f, a, h, g) {
+        return h * Math.sin(f / g * (Math.PI / 2)) + a;
+    },
+    easeInOutSine: function(e, f, a, h, g) {
+        return -h / 2 * (Math.cos(Math.PI * f / g) - 1) + a;
+    },
+    easeInExpo: function(e, f, a, h, g) {
+        return 0 == f ? a : h * Math.pow(2, 10 * (f / g - 1)) + a;
+    },
+    easeOutExpo: function(e, f, a, h, g) {
+        return f == g ? a + h : h * (-Math.pow(2, -10 * f / g) + 1) + a;
+    },
+    easeInOutExpo: function(e, f, a, h, g) {
+        return 0 == f ? a : f == g ? a + h : (f /= g / 2) < 1 ? h / 2 * Math.pow(2, 10 * (f - 1)) + a : h / 2 * (-Math.pow(2, -10 * --f) + 2) + a;
+    },
+    easeInCirc: function(e, f, a, h, g) {
+        return -h * (Math.sqrt(1 - (f /= g) * f) - 1) + a;
+    },
+    easeOutCirc: function(e, f, a, h, g) {
+        return h * Math.sqrt(1 - (f = f / g - 1) * f) + a;
+    },
+    easeInOutCirc: function(e, f, a, h, g) {
+        return (f /= g / 2) < 1 ? -h / 2 * (Math.sqrt(1 - f * f) - 1) + a : h / 2 * (Math.sqrt(1 - (f -= 2) * f) + 1) + a;
+    },
+    easeInElastic: function(f, h, e, l, k) {
+        var i = 1.70158, j = 0, g = l;
+        if (0 == h) return e;
+        if (1 == (h /= k)) return e + l;
+        if (j || (j = .3 * k), g < Math.abs(l)) {
+            g = l;
+            var i = j / 4;
+        } else var i = j / (2 * Math.PI) * Math.asin(l / g);
+        return -(g * Math.pow(2, 10 * (h -= 1)) * Math.sin(2 * (h * k - i) * Math.PI / j)) + e;
+    },
+    easeOutElastic: function(f, h, e, l, k) {
+        var i = 1.70158, j = 0, g = l;
+        if (0 == h) return e;
+        if (1 == (h /= k)) return e + l;
+        if (j || (j = .3 * k), g < Math.abs(l)) {
+            g = l;
+            var i = j / 4;
+        } else var i = j / (2 * Math.PI) * Math.asin(l / g);
+        return g * Math.pow(2, -10 * h) * Math.sin(2 * (h * k - i) * Math.PI / j) + l + e;
+    },
+    easeInOutElastic: function(f, h, e, l, k) {
+        var i = 1.70158, j = 0, g = l;
+        if (0 == h) return e;
+        if (2 == (h /= k / 2)) return e + l;
+        if (j || (j = .3 * k * 1.5), g < Math.abs(l)) {
+            g = l;
+            var i = j / 4;
+        } else var i = j / (2 * Math.PI) * Math.asin(l / g);
+        return 1 > h ? -.5 * g * Math.pow(2, 10 * (h -= 1)) * Math.sin(2 * (h * k - i) * Math.PI / j) + e : g * Math.pow(2, -10 * (h -= 1)) * Math.sin(2 * (h * k - i) * Math.PI / j) * .5 + l + e;
+    },
+    easeInBack: function(e, f, a, i, h, g) {
+        return void 0 == g && (g = 1.70158), i * (f /= h) * f * ((g + 1) * f - g) + a;
+    },
+    easeOutBack: function(e, f, a, i, h, g) {
+        return void 0 == g && (g = 1.70158), i * ((f = f / h - 1) * f * ((g + 1) * f + g) + 1) + a;
+    },
+    easeInOutBack: function(e, f, a, i, h, g) {
+        return void 0 == g && (g = 1.70158), (f /= h / 2) < 1 ? i / 2 * f * f * (((g *= 1.525) + 1) * f - g) + a : i / 2 * ((f -= 2) * f * (((g *= 1.525) + 1) * f + g) + 2) + a;
+    },
+    easeInBounce: function(e, f, a, h, g) {
+        return h - jQuery.easing.easeOutBounce(e, g - f, 0, h, g) + a;
+    },
+    easeOutBounce: function(e, f, a, h, g) {
+        return (f /= g) < 1 / 2.75 ? 7.5625 * h * f * f + a : 2 / 2.75 > f ? h * (7.5625 * (f -= 1.5 / 2.75) * f + .75) + a : 2.5 / 2.75 > f ? h * (7.5625 * (f -= 2.25 / 2.75) * f + .9375) + a : h * (7.5625 * (f -= 2.625 / 2.75) * f + .984375) + a;
+    },
+    easeInOutBounce: function(e, f, a, h, g) {
+        return g / 2 > f ? .5 * jQuery.easing.easeInBounce(e, 2 * f, 0, h, g) + a : .5 * jQuery.easing.easeOutBounce(e, 2 * f - g, 0, h, g) + .5 * h + a;
     }
-    function a(e) {
-        var n, o, t = r[e];
-        t && (n = t.callback, o = t.urls, o.shift(), i = 0, o.length || (n && n.call(t.context, t.obj), 
-        r[e] = null, s[e].length && l(e)));
-    }
-    function f() {
-        var n = navigator.userAgent;
-        t = {
-            async: e.createElement("script").async === !0
-        }, (t.webkit = /AppleWebKit\//.test(n)) || (t.ie = /MSIE/.test(n)) || (t.opera = /Opera/.test(n)) || (t.gecko = /Gecko\//.test(n)) || (t.unknown = !0);
-    }
-    function l(i, o, l, p, d) {
-        var y, b, w, E, S, x, v = function() {
-            a(i);
-        }, m = "css" === i, g = [];
-        if (t || f(), o) if (o = "string" == typeof o ? [ o ] : o.concat(), m || t.async || t.gecko || t.opera) s[i].push({
-            urls: o,
-            callback: l,
-            obj: p,
-            context: d
-        }); else for (y = 0, b = o.length; b > y; ++y) s[i].push({
-            urls: [ o[y] ],
-            callback: y === b - 1 ? l : null,
-            obj: p,
-            context: d
-        });
-        if (!r[i] && (E = r[i] = s[i].shift())) {
-            for (n || (n = e.head || e.getElementsByTagName("head")[0]), S = E.urls, y = 0, 
-            b = S.length; b > y; ++y) x = S[y], m ? w = t.gecko ? u("style") : u("link", {
-                href: x,
-                rel: "stylesheet"
-            }) : (w = u("script", {
-                src: x
-            }), w.async = !1), w.className = "lazyload", w.setAttribute("charset", "utf-8"), 
-            t.ie && !m ? w.onreadystatechange = function() {
-                /loaded|complete/.test(w.readyState) && (w.onreadystatechange = null, v());
-            } : m && (t.gecko || t.webkit) ? t.webkit ? (E.urls[y] = w.href, h()) : (w.innerHTML = '@import "' + x + '";', 
-            c(w)) : w.onload = w.onerror = v, g.push(w);
-            for (y = 0, b = g.length; b > y; ++y) n.appendChild(g[y]);
-        }
-    }
-    function c(e) {
-        var t;
-        try {
-            t = !!e.sheet.cssRules;
-        } catch (n) {
-            return i += 1, void (200 > i ? setTimeout(function() {
-                c(e);
-            }, 50) : t && a("css"));
-        }
-        a("css");
-    }
-    function h() {
-        var t, e = r.css;
-        if (e) {
-            for (t = o.length; --t >= 0; ) if (o[t].href === e.urls[0]) {
-                a("css");
-                break;
-            }
-            i += 1, e && (200 > i ? setTimeout(h, 50) : a("css"));
-        }
-    }
-    var t, n, r = {}, i = 0, s = {
-        css: [],
-        js: []
-    }, o = e.styleSheets;
-    return {
-        css: function(e, t, n, r) {
-            l("css", e, t, n, r);
-        },
-        js: function(e, t, n, r) {
-            l("js", e, t, n, r);
-        }
+}), function($) {
+    $.popcircle = function(selector, settings) {
+        var config = {
+            spacing: "10px",
+            count: 5,
+            type: "full",
+            offset: 0,
+            ease: "easeOutQuad",
+            time: "slow"
+        };
+        settings && $.extend(config, settings);
+        var obj = $(selector), trig_width = parseInt($(selector).parent().siblings().css("width")), trig_height = parseInt($(selector).parent().siblings().css("height")), trig_left = parseInt($(selector).parent().siblings().css("left")), trig_top = parseInt($(selector).parent().siblings().css("top")), child_width = parseInt($(selector).children("li").css("width")), child_height = parseInt($(selector).children("li").css("height")), con_left = trig_width / 2 - child_width / 2 + trig_left + "px", con_top = trig_height / 2 - child_height / 2 + trig_top + "px", spacing = parseInt(config.spacing), li = obj.children("li"), count = li.length;
+        return $.each(li, function(key) {
+            var top = ($(this).attr("class"), $(this).css("top")), left = $(this).css("left");
+            if (con_left == left && con_top == top) {
+                switch (config.type) {
+                  case "full":
+                    var cnt = 360 / count, rd = cnt * (Math.PI / 180) * key, x = parseInt(con_left) + (parseInt(con_left) + spacing) * Math.cos(rd), y = parseInt(con_top) + (parseInt(con_top) + spacing) * Math.sin(rd);
+                    break;
+
+                  case "half":
+                    var cnt = 180 / count, rd = cnt * (Math.PI / 180) * key + config.offset, x = parseInt(con_left) + (parseInt(con_left) + spacing) * Math.cos(rd), y = parseInt(con_top) + (parseInt(con_top) + spacing) * Math.sin(rd);
+                    break;
+
+                  case "quad":
+                    var cnt = 90 / count, rd = cnt * (Math.PI / 180) * key + config.offset, x = parseInt(con_left) + (parseInt(con_left) + spacing) * Math.cos(rd), y = parseInt(con_top) + (parseInt(con_top) + spacing) * Math.sin(rd);
+                }
+                $(this).animate({
+                    top: y,
+                    left: x
+                }, {
+                    duration: config.time,
+                    easing: config.ease
+                });
+            } else $(this).animate({
+                top: con_top,
+                left: con_left
+            }, {
+                duration: config.time,
+                easing: config.ease
+            });
+        }), this;
     };
-}(this.document), LoadLib = function() {
-    function n(e) {
-        var n = 0, r = !1;
-        for (n = 0; n < t.length; n++) t[n] == e && (r = !0);
-        return r ? !0 : (t.push(e), !1);
-    }
-    var t = [];
-    return {
-        css: function(e, t, r, i) {
-            n(e) || LazyLoad.css(e, t, r, i);
-        },
-        js: function(e, t, r, i) {
-            n(e) || LazyLoad.js(e, t, r, i);
-        }
-    };
-}(this.document);
-
-var WebFontConfig;
-
-if ("undefined" == typeof embed_path || "undefined" == typeof embed_path) var embed_path = getEmbedScriptPath("storyjs-embed.js").split("js/")[0];
-
-!function() {
-    "object" == typeof url_config ? createStoryJS(url_config) : "object" == typeof timeline_config ? createStoryJS(timeline_config) : "object" == typeof storyjs_config ? createStoryJS(storyjs_config) : "object" == typeof config && createStoryJS(config);
-}();
+}(jQuery);
 
 var c4p;
 
@@ -28674,6 +28534,7 @@ c4p || (c4p = {}), c4p.Locale = {
         htmlMeetingLinkObject: "Event Linked object",
         htmlMeetingTitle: "Title",
         htmlMeetingNoTitle: "No title",
+        htmlMeetingPlanTableTitle: "Meeting Pad",
         htmlMeetingNoElementSelected: "You can drop one document here",
         htmlMeetingDropItemHere: "Drop item here",
         htmlMeetingChange: "Change...",
@@ -29405,6 +29266,7 @@ c4p || (c4p = {}), c4p.Locale = {
         htmlMeetingLinkObject: "Objets liés",
         htmlMeetingTitle: "Titre",
         htmlMeetingNoTitle: "Pas de titre",
+        htmlMeetingPlanTableTitle: "Meeting Pad",
         htmlMeetingNoElementSelected: "Vous pouvez déposer un document ici",
         htmlMeetingDropItemHere: "Déposé un objet ici",
         htmlMeetingChange: "Changer...",
