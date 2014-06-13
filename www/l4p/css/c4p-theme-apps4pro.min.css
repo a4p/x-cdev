@@ -22959,6 +22959,84 @@ ul.noty_cont.noty_layout_bottomRight {
   height:200px;
   color: red;
 }*/
+.box {
+  width: 100%;
+  height: 500px;
+  float: left;
+}
+.trigger {
+  /*  width:50%;
+    height: 255px;
+    position:relative;
+    z-index: 10;
+    left:25%;
+    top:110px;
+    background:white;
+    cursor: pointer;
+    border-radius: 100%;*/
+  width: 30%;
+  height: 30%;
+  position: relative;
+  z-index: 10;
+  left: 30%;
+  top: 30%;
+  /* background: rgba(56, 22, 22, 0.59); */
+  cursor: pointer;
+  background: url('../img/logo_meeting_main.png') no-repeat center center;
+}
+.popcircle {
+  /*position:relative;
+     z-index: 9;
+     width:100%;
+     height:500px;
+     left:0px;
+     top:-250px;*/
+  position: relative;
+  z-index: 9;
+  width: 100%;
+  height: 100%;
+  /* left: 0px; */
+  top: -30%;
+}
+.popcircle ul {
+  list-style: none;
+  padding: 0px;
+  margin: 0px;
+  height: auto;
+  cursor: pointer;
+}
+.popcircle ul li {
+  /*top: 187.5px;
+    left: 187.5px;
+    height: 100px;
+    width: 100px;
+    position: absolute;
+    background: lightgray;
+    border-radius: 20%;
+    text-align: center;
+    padding-top: 30px;
+    overflow: hidden;*/
+  top: 30%;
+  left: 30%;
+  height: 80px;
+  width: 150px;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.41);
+  border-radius: 10px;
+  text-align: center;
+  padding-top: 20px;
+  overflow: hidden;
+  /* border: 2px solid lightcoral; */
+}
+.popcircle ul li a {
+  color: #ffffff;
+}
+.popcircle ul li.active {
+  background: #0072b1;
+}
+.popcircle ul li.enabled {
+  border: 2px dashed #eaeaea;
+}
 /*!
  * Ratings
  */
@@ -23560,7 +23638,7 @@ body {
 }
 .c4p-meeting-body > aside.c4p-meeting-aside-hidden {
   left: -165px;
-  height: 44px;
+  height: 0;
 }
 .c4p-meeting-body > aside li > a {
   color: white;
@@ -23568,7 +23646,7 @@ body {
 .c4p-meeting-body > aside nav {
   position: fixed;
   width: 200px;
-  background: gray;
+  border: 1px solid black;
   z-index: 42;
 }
 .c4p-meeting-body > aside aside {
