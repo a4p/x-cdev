@@ -812,5 +812,16 @@
   "htmlCreateDocumentImportOpenWith":"Use 'Open with ...'' link you will find in your Google Drive or other prefered app. You can import here what ever file as document.",
   "htmlConnectorUnderConstruction":"We are working hard here on providing you great CRM connectors :",
 
-  "rangeSeparator":" - "
+  "rangeSeparator":" - ",
+
+  "htmlTitleSelectObject":{
+    "Contact":"Choose one people"
+  },
+  "htmlTextSearchObjectsCount":"Found:",
+  "htmlFormSearchPlaceHolderByUID":{
+    "Contact":"Type the email"
+  },
+  "htmlTextCreateObjectWithUID":{
+    "Contact":"Create a contact identified by email :"
+  }
 }

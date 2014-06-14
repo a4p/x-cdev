@@ -812,5 +812,17 @@
         "htmlCreateDocumentImportOpenWith":"Utilisez le lien 'Ouvrir avec ...' de Google Drive ou de vos apps pr\u00E9f\u00E9r\u00E9es. Vous pouvez importer ici les fichiers en tant que document.",
         "htmlConnectorUnderConstruction":"Nous travaillons dur ici pour vous fournir de beaux connecteurs \u00E0 votre CRM :",
 
-    "rangeSeparator":" - "
+    "rangeSeparator":" - ",
+
+
+    "htmlTitleSelectObject":{
+      "Contact":"Un contact"
+    },
+    "htmlTextSearchObjectsCount":"Trouv\u00E9:",
+    "htmlFormSearchPlaceHolderByUID":{
+      "Contact":"Tapez l'email"
+    },
+    "htmlTextCreateObjectWithUID":{
+      "Contact":"Cr\u00E9ez un contact avec cet email :"
+    }
 }
