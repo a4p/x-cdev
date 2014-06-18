@@ -2671,7 +2671,7 @@ input[type="search"] {
 input[type="radio"],
 input[type="checkbox"] {
   margin: 4px 0 0;
-  margin-top: 1px \9; 
+  margin-top: 1px \9;
   line-height: normal;
 }
 
@@ -5365,6 +5365,11 @@ button.close {
   background: none;
   border: none;
 }
+.input-group.input-group-textarea textarea {
+  border: 1px solid rgba(51, 153, 255, 0.4);
+  box-shadow: 0 0 5px rgba(51, 153, 255, 0.4);
+  outline: none;
+}
 .modal-open {
   overflow: hidden;
 }
@@ -5974,6 +5979,13 @@ button.close {
 .modal.c4p-modal-right .modal-body,
 .modal.c4p-modal-left .modal-body {
   padding-top: 60px;
+}
+.modal.c4p-modal-full .modal-body .c4p-container-scroll-y > .c4p-container,
+.modal.c4p-modal-large .modal-body .c4p-container-scroll-y > .c4p-container,
+.modal.c4p-modal-small .modal-body .c4p-container-scroll-y > .c4p-container,
+.modal.c4p-modal-right .modal-body .c4p-container-scroll-y > .c4p-container,
+.modal.c4p-modal-left .modal-body .c4p-container-scroll-y > .c4p-container {
+  bottom: -200px;
 }
 .modal.c4p-modal-full {
   top: 0;
@@ -23667,7 +23679,7 @@ body {
   bottom: 0;
   right: 0;
   background-image: url('../img/meeting-background.jpg');
-  background-color: #d0d0d0;
+  background-color: #000000;
   background-position: center;
   background-attachment: scroll ;
   background-repeat: no-repeat;
@@ -23677,18 +23689,18 @@ body {
   background-size: cover;
   color: white;
 }
-.c4p-meeting-body .c4p-container-scroll-y > .c4p-container {
-  bottom: -200px;
+.c4p-meeting-body .c4p-container-scroll-y > .c4p-container > div {
+  padding-bottom: 300px;
 }
 .c4p-meeting-body > header nav {
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: #000000;
 }
 .c4p-meeting-body > aside {
   position: fixed;
-  top: 20%;
+  top: 15%;
   left: 0;
   width: 200px;
-  bottom: 20%;
+  bottom: 15%;
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 41;
 }
@@ -23702,7 +23714,7 @@ body {
 .c4p-meeting-body > aside nav {
   position: fixed;
   width: 200px;
-  border: 1px solid black;
+  border: 1px solid #000000;
   z-index: 42;
 }
 .c4p-meeting-body > aside aside {
@@ -23711,7 +23723,7 @@ body {
 }
 .c4p-meeting-body > div > article {
   position: absolute;
-  top: 60px;
+  top: 70px;
   left: 200px;
   right: 0px;
   bottom: 0;
