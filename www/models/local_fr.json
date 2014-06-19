@@ -818,7 +818,9 @@
     "htmlTitleSelectObject":{
       "Contact":"Un contact"
     },
-    "htmlTextSearchObjectsCount":"Trouv\u00E9:",
+    "htmlTextSearchObjectsCount":{
+      "Contact":"Emails Trouv\u00E9s:"
+    },
     "htmlFormSearchPlaceHolderByUID":{
       "Contact":"Tapez l'email"
     },

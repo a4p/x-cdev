@@ -817,7 +817,9 @@
   "htmlTitleSelectObject":{
     "Contact":"Choose one people"
   },
-  "htmlTextSearchObjectsCount":"Found:",
+  "htmlTextSearchObjectsCount":{
+    "Contact":"Emails found:"
+  },
   "htmlFormSearchPlaceHolderByUID":{
     "Contact":"Type the email"
   },
