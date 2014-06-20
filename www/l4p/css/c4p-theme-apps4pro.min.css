@@ -5366,7 +5366,7 @@ button.close {
   border: none;
 }
 .input-group.input-group-textarea textarea {
-  border: 1px solid rgba(51, 153, 255, 0.4);
+  border: 1px solid rgba(51, 153, 255, 0.4) !important;
   box-shadow: 0 0 5px rgba(51, 153, 255, 0.4);
   outline: none;
 }
@@ -5980,12 +5980,17 @@ button.close {
 .modal.c4p-modal-left .modal-body {
   padding-top: 60px;
 }
-.modal.c4p-modal-full .modal-body .c4p-container-scroll-y > .c4p-container,
-.modal.c4p-modal-large .modal-body .c4p-container-scroll-y > .c4p-container,
-.modal.c4p-modal-small .modal-body .c4p-container-scroll-y > .c4p-container,
-.modal.c4p-modal-right .modal-body .c4p-container-scroll-y > .c4p-container,
-.modal.c4p-modal-left .modal-body .c4p-container-scroll-y > .c4p-container {
-  bottom: -200px;
+.modal.c4p-modal-full .modal-body .c4p-container-scroll-y > .c4p-container > div,
+.modal.c4p-modal-large .modal-body .c4p-container-scroll-y > .c4p-container > div,
+.modal.c4p-modal-small .modal-body .c4p-container-scroll-y > .c4p-container > div,
+.modal.c4p-modal-right .modal-body .c4p-container-scroll-y > .c4p-container > div,
+.modal.c4p-modal-left .modal-body .c4p-container-scroll-y > .c4p-container > div,
+.modal.c4p-modal-full .modal-body .c4p-container-scroll-y > .c4p-container > form,
+.modal.c4p-modal-large .modal-body .c4p-container-scroll-y > .c4p-container > form,
+.modal.c4p-modal-small .modal-body .c4p-container-scroll-y > .c4p-container > form,
+.modal.c4p-modal-right .modal-body .c4p-container-scroll-y > .c4p-container > form,
+.modal.c4p-modal-left .modal-body .c4p-container-scroll-y > .c4p-container > form {
+  padding-bottom: 300px;
 }
 .modal.c4p-modal-full {
   top: 0;
@@ -22971,45 +22976,103 @@ ul.noty_cont.noty_layout_bottomRight {
   height:200px;
   color: red;
 }*/
+/*.box{
+    width:100%;
+    height: 500px;
+    float:left;
+}
+.trigger{
+    width: 30%;
+    height: 30%;
+    position: relative;
+    z-index: 10;
+    left: 30%;
+    top: 30%;
+    cursor: pointer;
+    border-radius: 100%;
+    //border: 1px solid wheat;
+    background: url('../img/logo_meeting_main.png') no-repeat center center;
+}
+
+.popcircle{
+    position: relative;
+    z-index: 9;
+    width: 100%;
+    height: 100%;
+    top: -30%;
+}
+.popcircle ul{
+     list-style:none;
+     padding:0px;
+     margin: 0px;
+     height: auto;
+     cursor: pointer;
+}
+.popcircle ul li{
+    top: 30%;
+    left: 30%;
+    position: absolute;
+
+    a {
+      color: @white;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.41);
+      //border-radius: 10px;
+
+      height: 100px;
+      width: 100px;
+      border-radius: 100%;
+      padding: 20px 0;
+    }
+}
+
+
+.popcircle ul li.active a {
+    background : @blue;
+}
+
+.popcircle ul li.enabled a {
+    border: 2px dashed @grad-light;
+}
+
+
+// Small devices (tablets, 768px and up)
+@media (max-width: @screen-sm-min) {
+  .box{
+      height: 250px;
+    }
+  .popcircle ul li a {
+    height: 80px;
+    width: 80px;
+    padding : 0;
+  }
+}
+*/
 .box {
-  width: 100%;
+  width: 500px;
   height: 500px;
-  float: left;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
 }
 .trigger {
-  /*  width:50%;
-    height: 255px;
-    position:relative;
-    z-index: 10;
-    left:25%;
-    top:110px;
-    background:white;
-    cursor: pointer;
-    border-radius: 100%;*/
-  width: 30%;
-  height: 30%;
-  position: relative;
+  width: 255px;
+  height: 255px;
+  position: absolute;
   z-index: 10;
-  left: 30%;
-  top: 30%;
-  /* background: rgba(56, 22, 22, 0.59); */
+  left: 110px;
+  top: 110px;
+  background: url('../img/logo_meeting_main.png') no-repeat center center;
   cursor: pointer;
   border-radius: 100%;
-  background: url('../img/logo_meeting_main.png') no-repeat center center;
 }
 .popcircle {
-  /*position:relative;
-     z-index: 9;
-     width:100%;
-     height:500px;
-     left:0px;
-     top:-250px;*/
   position: relative;
   z-index: 9;
-  width: 100%;
-  height: 100%;
-  /* left: 0px; */
-  top: -30%;
+  width: 500px;
+  height: 500px;
+  left: 0px;
+  top: 0px;
 }
 .popcircle ul {
   list-style: none;
@@ -23019,46 +23082,33 @@ ul.noty_cont.noty_layout_bottomRight {
   cursor: pointer;
 }
 .popcircle ul li {
-  /*top: 187.5px;
-    left: 187.5px;
-    height: 100px;
-    width: 100px;
-    position: absolute;
-    background: lightgray;
-    border-radius: 20%;
-    text-align: center;
-    padding-top: 30px;
-    overflow: hidden;*/
-  top: 30%;
-  left: 30%;
-  position: absolute;
-  /* border: 2px solid lightcoral; */
-}
-.popcircle ul li a {
-  color: #ffffff;
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.41);
+  top: 187.5px;
+  left: 187.5px;
   height: 100px;
   width: 100px;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.41);
   border-radius: 100%;
-  padding: 20px 0;
+  border: 2px solid;
+}
+.popcircle ul li.empty {
+  border: 0;
+}
+.popcircle ul li a {
+  color: #999999;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: capitalize;
+  height: 80px;
+  width: 90px;
+  padding: 20px 0px;
+  margin: 0px 5px;
 }
 .popcircle ul li.active a {
   background: #0072b1;
 }
 .popcircle ul li.enabled a {
   border: 2px dashed #eaeaea;
-}
-/* Small devices (tablets, 768px and up) */
-@media (max-width: 768px) {
-  .box {
-    height: 250px;
-  }
-  .popcircle ul li a {
-    height: 80px;
-    width: 80px;
-    padding: 0;
-  }
 }
 /*!
  * Ratings
@@ -23697,10 +23747,10 @@ body {
 }
 .c4p-meeting-body > aside {
   position: fixed;
-  top: 15%;
+  top: 20%;
   left: 0;
   width: 200px;
-  bottom: 15%;
+  bottom: 10%;
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 41;
 }
