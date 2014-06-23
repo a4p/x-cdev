@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-23 15:31 */
+/*! c4p.client 2014-06-23 21:58 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -2665,11 +2665,11 @@ function ctrlMeeting($scope, $q, $modal, $timeout, srvData, srvConfig, srvNav, s
             }
         }
     }, $scope.meetingCreateNewEmail = function() {
-        $scope.meetingItem && a4p.safeApply(function() {
+        $scope.meetingItem && a4p.safeApply($scope, function() {
             $scope.meetingLaunchEmail = !0, $scope.meetingLaunchEmailLoading = !0;
         });
     }, $scope.afterMeetingLaunchEmailDone = function() {
-        a4p.safeApply(function() {
+        a4p.safeApply($scope, function() {
             $scope.meetingLaunchEmail = !1, $scope.meetingLaunchEmailLoading = !0;
         });
     }, $scope.afterMeetingLaunchEmailShow = function() {
