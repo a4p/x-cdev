@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0"
     xmlns:gap="http://phonegap.com/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android"
-    id="com.apps4pro.c4pdev" version="14.0609.16">
+    id="com.apps4pro.c4pdev" version="14.0623.14">
 
     <name>C_d</name>
     <description>C_d</description>
@@ -67,10 +67,13 @@
     <!-- ??? to open external files -->
     <preference name="AndroidExtraFilesystems" value="files,files-external,documents,sdcard,cache,cache-external,root" />
     <preference name="AndroidPersistentFileLocation" value="Compatibility" />
+    <feature name="Keyboard">
+            <param name="ios-package" value="IonicKeyboard" onload="true" />
+    </feature>
 
     <!-- iOS allows registration of custom URL Schemes. <gap:url-scheme> -->
     <!-- C4P_BUILD_PLUGINS -->
-<gap:plugin name="com.wizardlogic.cordova.ios_keyboard" />
+<gap:plugin name="com.ionic.keyboard" />
 <gap:plugin name="com.badrit.contactpicker" />
 <gap:plugin name="com.phonegap.plugin.statusbar" />
 <gap:plugin name="com.adobe.plugins.gaplugin" />
@@ -94,11 +97,6 @@
 <gap:plugin name="org.apache.cordova.device" />
 
     <!-- only in DEV -->
-    <gap:plugin name="io.github.pwlin.cordova.plugins.fileopener2"/>
-    <gap:plugin name="net.tunts.webintent"/>
-    <gap:plugin name="uk.co.ibcomputing.phonegapbuild.plugins.receivesendintents">
-        <param name="LAUNCHMODE" value="singleTop" />
-    </gap:plugin>
     <gap:plugin name="com.kerosieben.cordova.plugins.ios7scrollfix"/>
     <preference name="IOS7PreventWebViewScrolling" value="true"/>
 
