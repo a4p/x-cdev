@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-24 12:07 */
+/*! c4p.client 2014-06-24 14:06 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
