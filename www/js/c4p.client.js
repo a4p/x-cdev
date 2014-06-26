@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-26 16:06 */
+/*! c4p.client 2014-06-26 17:11 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -1205,13 +1205,13 @@ function ctrlAsideSearch($scope, $timeout, srvFacet, srvLocale) {
 
 function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTime, srvConfig) {
     "use strict";
-    function computeCalendarMonthSize(scope) {
+    function _computeCalendarMonthSize(scope) {
         var h = scope.responsivePageHeight() - 200, hCell = (scope.responsivePageWidth() - 100, 
-        h / 6), minCell = hCell;
-        scope.calendarMonthHeight = 6 * minCell, scope.calendarMonthCellHeight = minCell, 
+        h / 7), minCell = hCell;
+        scope.calendarMonthHeight = 7 * minCell, scope.calendarMonthCellHeight = minCell, 
         scope.calendarMonthWidth = 7 * minCell, scope.calendarMonthCellWidth = minCell;
     }
-    function createGroup(date) {
+    function _createGroup(date) {
         return {
             date: new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0),
             day: date.getDate(),
@@ -1223,11 +1223,11 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
             eventsAllDayPosition: []
         };
     }
-    function buildEventGroupsByDay() {
-        var eventsSorted = $scope.srvData.currentItems.Event.slice(0);
+    function _buildEventGroupsByDay(self) {
+        var eventsSorted = self.srvData.currentItems.Event.slice(0);
         eventsSorted.sort(function(a, b) {
-            return a[$scope.filterCriteriaEvent] <= b[$scope.filterCriteriaEvent] ? -1 : 1;
-        }), $scope.calendarEventsGroupsByDay = [];
+            return a[self.filterCriteriaEvent] <= b[self.filterCriteriaEvent] ? -1 : 1;
+        }), self.calendarEventsGroupsByDay = [];
         var eventNb = eventsSorted.length;
         if (!(0 >= eventNb)) for (var initEvent = eventsSorted[0], initEventStartDate = a4pDateParse(initEvent.date_start), groupStartDate = new Date(initEventStartDate.getFullYear(), initEventStartDate.getMonth(), initEventStartDate.getDate(), 0, 0, 0, 0), groupEndDate = new Date(groupStartDate.getFullYear(), groupStartDate.getMonth(), groupStartDate.getDate(), 23, 59, 59, 0), firstEventIdx = 0; eventNb > firstEventIdx; ) {
             var firstEvent = eventsSorted[firstEventIdx], firstEventEndDate = a4pDateParse(firstEvent.date_end);
@@ -1235,7 +1235,7 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
                 var firstEventStartDate = a4pDateParse(firstEvent.date_start);
                 firstEventStartDate.getTime() >= groupEndDate.getTime() && (groupStartDate = new Date(firstEventStartDate.getFullYear(), firstEventStartDate.getMonth(), firstEventStartDate.getDate(), 0, 0, 0, 0), 
                 groupEndDate = new Date(groupStartDate.getFullYear(), groupStartDate.getMonth(), groupStartDate.getDate() + 1, 0, 0, 0, 0));
-                for (var group = createGroup(groupStartDate), nextEventIdx = firstEventIdx, nextEvent = firstEvent, nextEventStartDate = firstEventStartDate, nextEventEndDate = firstEventEndDate; eventNb > nextEventIdx && nextEventStartDate.getTime() < groupEndDate.getTime(); ) {
+                for (var group = _createGroup(groupStartDate), nextEventIdx = firstEventIdx, nextEvent = firstEvent, nextEventStartDate = firstEventStartDate, nextEventEndDate = firstEventEndDate; eventNb > nextEventIdx && nextEventStartDate.getTime() < groupEndDate.getTime(); ) {
                     if (groupStartDate.getTime() <= nextEventEndDate.getTime()) {
                         var posPercent = 0, lengthPercent = 100;
                         nextEventStartDate.getTime() <= groupStartDate.getTime() ? lengthPercent = a4pTranslateDatesToPxSize(groupStartDate, nextEventEndDate, 100) : (posPercent = a4pTranslateDateToPx(nextEventStartDate, 100), 
@@ -1256,49 +1256,69 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
                     nextEventIdx++, eventNb > nextEventIdx && (nextEvent = eventsSorted[nextEventIdx], 
                     nextEventStartDate = a4pDateParse(nextEvent.date_start), nextEventEndDate = a4pDateParse(nextEvent.date_end));
                 }
-                (group.events.length > 0 || group.eventsAllDay.length > 0) && $scope.calendarEventsGroupsByDay.push(group), 
+                (group.events.length > 0 || group.eventsAllDay.length > 0) && self.calendarEventsGroupsByDay.push(group), 
                 groupStartDate = new Date(groupStartDate.getFullYear(), groupStartDate.getMonth(), groupStartDate.getDate() + 1, 0, 0, 0, 0), 
                 groupEndDate = new Date(groupStartDate.getFullYear(), groupStartDate.getMonth(), groupStartDate.getDate() + 1, 0, 0, 0, 0);
             }
         }
     }
-    function buildEventsGroupsByDaySinceToday() {
-        $scope.calendarEventsGroupsByDaySinceToday = [];
-        for (var nb = $scope.calendarEventsGroupsByDay.length, i = 0; nb > i; i++) {
-            var group = $scope.calendarEventsGroupsByDay[i];
-            if (group.date.getTime() >= $scope.calendarNow.getTime()) {
-                $scope.calendarEventsGroupsByDaySinceToday = $scope.calendarEventsGroupsByDay.slice(i);
+    function _buildEventsGroupsByDaySinceToday(self) {
+        self.calendarEventsGroupsByDaySinceToday = [];
+        for (var nb = self.calendarEventsGroupsByDay.length, i = 0; nb > i; i++) {
+            var group = self.calendarEventsGroupsByDay[i];
+            if (group.date.getTime() >= self.calendarNow.getTime()) {
+                self.calendarEventsGroupsByDaySinceToday = self.calendarEventsGroupsByDay.slice(i);
                 break;
             }
         }
     }
-    function computeCasualDay() {
-        var day = $scope.calendarSelected.getDay() - 1;
+    function _buildNextEvent(self) {
+        _buildEventsGroupsByDaySinceToday(self);
+        var now = new Date();
+        if (self.calendarNextEvent = null, self.calendarEventsGroupsByDaySinceToday && self.calendarEventsGroupsByDaySinceToday.length) for (var nb = self.calendarEventsGroupsByDay.length, i = 0; nb > i && null === self.calendarNextEvent; i++) {
+            for (var group = self.calendarEventsGroupsByDay[i], nbe = group.events.length, j = 0; nbe > j && null === self.calendarNextEvent; j++) {
+                var ev = group.events[j], evtEndDate = a4pDateParse(ev.date_end);
+                if (evtEndDate > now) {
+                    self.calendarNextEvent = ev;
+                    break;
+                }
+            }
+            for (var nbea = group.eventsAllDay.length, k = 0; nbea > k && null === self.calendarNextEvent; k++) {
+                var eva = group.eventsAllDay[k], evtEndDate = a4pDateParse(ev.date_end);
+                if (evtEndDate > now) {
+                    self.calendarNextEvent = eva;
+                    break;
+                }
+            }
+        }
+    }
+    function _computeCasualDay(self) {
+        var day = self.calendarSelected.getDay() - 1;
         0 > day && (day = 6);
-        var dayQualif = "", checkToday = new Date($scope.calendarSelected.getFullYear(), $scope.calendarSelected.getMonth(), $scope.calendarSelected.getDate(), 0, 0, 0, 0), checkYesterday = new Date($scope.calendarSelected.getFullYear(), $scope.calendarSelected.getMonth(), $scope.calendarSelected.getDate() + 1, 0, 0, 0, 0), checkTomorrow = new Date($scope.calendarSelected.getFullYear(), $scope.calendarSelected.getMonth(), $scope.calendarSelected.getDate() - 1, 0, 0, 0, 0);
-        checkToday.getTime() == $scope.calendarNow.getTime() ? dayQualif = srvLocale.translations.htmlTextToday + ", " : checkYesterday.getTime() == $scope.calendarNow.getTime() ? dayQualif = srvLocale.translations.htmlTextYesterday + ", " : checkTomorrow.getTime() == $scope.calendarNow.getTime() && (dayQualif = srvLocale.translations.htmlTextTomorrow + ", "), 
-        $scope.calendarDayCasualName = dayQualif + $scope.calendarMonthWeeks[0].days[day].name;
+        var dayQualif = "", checkToday = new Date(self.calendarSelected.getFullYear(), self.calendarSelected.getMonth(), self.calendarSelected.getDate(), 0, 0, 0, 0), checkYesterday = new Date(self.calendarSelected.getFullYear(), self.calendarSelected.getMonth(), self.calendarSelected.getDate() + 1, 0, 0, 0, 0), checkTomorrow = new Date(self.calendarSelected.getFullYear(), self.calendarSelected.getMonth(), self.calendarSelected.getDate() - 1, 0, 0, 0, 0);
+        checkToday.getTime() == self.calendarNow.getTime() ? dayQualif = srvLocale.translations.htmlTextToday + ", " : checkYesterday.getTime() == self.calendarNow.getTime() ? dayQualif = srvLocale.translations.htmlTextYesterday + ", " : checkTomorrow.getTime() == self.calendarNow.getTime() && (dayQualif = srvLocale.translations.htmlTextTomorrow + ", "), 
+        self.calendarDayCasualName = dayQualif + self.calendarMonthWeeks[0].days[day].name;
     }
-    function onCalendarNowChange() {
-        buildEventsGroupsByDaySinceToday(), computeCasualDay();
+    function _onCalendarNowChange(self) {
+        _computeCasualDay(self);
     }
-    function getGroupForSelectedDay() {
-        for (var len = $scope.calendarEventsGroupsByDay.length, i = 0; len > i; i++) {
-            var currentDay = $scope.calendarEventsGroupsByDay[i];
-            if (!(currentDay.year < $scope.calendarSelected.getFullYear())) {
-                if (currentDay.year > $scope.calendarSelected.getFullYear()) break;
-                if (!(currentDay.month < $scope.calendarSelected.getMonth())) {
-                    if (currentDay.month > $scope.calendarSelected.getMonth()) break;
-                    if (!(currentDay.day < $scope.calendarSelected.getDate())) {
-                        if (currentDay.day > $scope.calendarSelected.getDate()) break;
+    function _getGroupForSelectedDay(self) {
+        for (var len = self.calendarEventsGroupsByDay.length, i = 0; len > i; i++) {
+            var currentDay = self.calendarEventsGroupsByDay[i];
+            if (!(currentDay.year < self.calendarSelected.getFullYear())) {
+                if (currentDay.year > self.calendarSelected.getFullYear()) break;
+                if (!(currentDay.month < self.calendarSelected.getMonth())) {
+                    if (currentDay.month > self.calendarSelected.getMonth()) break;
+                    if (!(currentDay.day < self.calendarSelected.getDate())) {
+                        if (currentDay.day > self.calendarSelected.getDate()) break;
                         return currentDay;
                     }
                 }
             }
         }
-        return createGroup($scope.calendarSelected);
+        return _createGroup(self.calendarSelected);
     }
-    function getMonthWeeks(month, year) {
+    function _getMonthWeeks(self, month, year) {
         for (var monthWeeks = [], localeWeekDays = [ {
             idx: 0,
             name: srvLocale.translations.htmlTextMonday,
@@ -1327,8 +1347,8 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
             idx: 6,
             name: srvLocale.translations.htmlTextSunday,
             shortName: srvLocale.translations.htmlTextShortSunday
-        } ], firstDayMonth = a4pFirstDayOfMonth(year, month + 1), firstDayMonthWeek = a4pDayOfSameWeek(firstDayMonth, 1), lastDayMonth = a4pLastDayOfMonth(year, month + 1), nbGroups = $scope.calendarEventsGroupsByDay.length, currentDay = new Date(firstDayMonthWeek.getFullYear(), firstDayMonthWeek.getMonth(), firstDayMonthWeek.getDate(), 0, 0, 0, 0), groupIdx = 0, currentGroup = null; nbGroups > groupIdx; groupIdx++) {
-            var initGroup = $scope.calendarEventsGroupsByDay[groupIdx];
+        } ], firstDayMonth = a4pFirstDayOfMonth(year, month + 1), firstDayMonthWeek = a4pDayOfSameWeek(firstDayMonth, 1), lastDayMonth = a4pLastDayOfMonth(year, month + 1), nbGroups = self.calendarEventsGroupsByDay.length, currentDay = new Date(firstDayMonthWeek.getFullYear(), firstDayMonthWeek.getMonth(), firstDayMonthWeek.getDate(), 0, 0, 0, 0), groupIdx = 0, currentGroup = null; nbGroups > groupIdx; groupIdx++) {
+            var initGroup = self.calendarEventsGroupsByDay[groupIdx];
             if (!(initGroup.year < currentDay.getFullYear())) {
                 if (initGroup.year > currentDay.getFullYear()) break;
                 if (!(initGroup.month < currentDay.getMonth())) {
@@ -1341,7 +1361,7 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
                 }
             }
         }
-        for (currentGroup || (currentGroup = createGroup(currentDay)); lastDayMonth >= currentDay; ) {
+        for (currentGroup || (currentGroup = _createGroup(currentDay)); lastDayMonth >= currentDay; ) {
             for (var week = {
                 id: a4pWeek(currentDay),
                 days: []
@@ -1351,11 +1371,11 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
                     date: new Date(currentDay.getFullYear(), currentDay.getMonth(), currentDay.getDate(), 0, 0, 0, 0),
                     name: localeWeekDays[dayId].name,
                     shortName: localeWeekDays[dayId].shortName,
-                    isWeekend: !!(dayId >= 5),
+                    isWeekend: dayId >= 5,
                     group: currentGroup
                 };
                 for (week.days.push(day), currentDay.setDate(currentDay.getDate() + 1), currentGroup = null; nbGroups > groupIdx; groupIdx++) {
-                    var testGroup = $scope.calendarEventsGroupsByDay[groupIdx];
+                    var testGroup = self.calendarEventsGroupsByDay[groupIdx];
                     if (!(testGroup.year < currentDay.getFullYear())) {
                         if (testGroup.year > currentDay.getFullYear()) break;
                         if (!(testGroup.month < currentDay.getMonth())) {
@@ -1368,39 +1388,38 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
                         }
                     }
                 }
-                currentGroup || (currentGroup = createGroup(currentDay));
+                currentGroup || (currentGroup = _createGroup(currentDay));
             }
             monthWeeks.push(week);
         }
         return monthWeeks;
     }
-    function onSelChange() {
-        ($scope.calendarYear != $scope.calendarSelected.getFullYear() || $scope.calendarMonth != $scope.calendarSelected.getMonth()) && ($scope.calendarYear = $scope.calendarSelected.getFullYear(), 
-        $scope.calendarMonth = $scope.calendarSelected.getMonth(), $scope.calendarMonthWeeks = getMonthWeeks($scope.calendarMonth, $scope.calendarYear), 
-        $scope.calendarMonthName = $scope.calendarMonths[$scope.calendarMonth].name, $scope.calendarMonthShortName = $scope.calendarMonths[$scope.calendarMonth].shortName, 
-        $scope.calendarMonthFullName = $scope.calendarMonthName + " " + $scope.calendarYear), 
-        $scope.calendarDayFullName = $scope.calendarSelected.getDate() + " " + $scope.calendarMonthName + " " + $scope.calendarYear, 
-        computeCasualDay();
-        var previous = new Date($scope.calendarSelected.getFullYear(), $scope.calendarSelected.getMonth() - 1, 1, 0, 0, 0, 0);
-        $scope.calendarPreviousMonthName = $scope.calendarMonths[previous.getMonth()].name, 
-        $scope.calendarPreviousYear = $scope.calendarSelected.getFullYear() - 1;
-        var next = new Date($scope.calendarSelected.getFullYear(), $scope.calendarSelected.getMonth() + 1, 1, 0, 0, 0, 0);
-        $scope.calendarNextMonthName = $scope.calendarMonths[next.getMonth()].name, $scope.calendarNextYear = $scope.calendarSelected.getFullYear() + 1, 
-        $scope.calendarSelectedDay = getGroupForSelectedDay(), $scope.stopSpinner(), srvAnalytics.add("Once", "Calendar");
+    function _onSelChange(self) {
+        (self.calendarYear != self.calendarSelected.getFullYear() || self.calendarMonth != self.calendarSelected.getMonth()) && (self.calendarYear = self.calendarSelected.getFullYear(), 
+        self.calendarMonth = self.calendarSelected.getMonth(), self.calendarMonthWeeks = _getMonthWeeks(self, self.calendarMonth, self.calendarYear), 
+        self.calendarMonthName = self.calendarMonths[self.calendarMonth].name, self.calendarMonthShortName = self.calendarMonths[self.calendarMonth].shortName, 
+        self.calendarMonthFullName = self.calendarMonthName + " " + self.calendarYear), 
+        self.calendarDayFullName = self.calendarSelected.getDate() + " " + self.calendarMonthName + " " + self.calendarYear, 
+        _computeCasualDay(self);
+        var previous = new Date(self.calendarSelected.getFullYear(), self.calendarSelected.getMonth() - 1, 1, 0, 0, 0, 0);
+        self.calendarPreviousMonthName = self.calendarMonths[previous.getMonth()].name, 
+        self.calendarPreviousYear = self.calendarSelected.getFullYear() - 1;
+        var next = new Date(self.calendarSelected.getFullYear(), self.calendarSelected.getMonth() + 1, 1, 0, 0, 0, 0);
+        self.calendarNextMonthName = self.calendarMonths[next.getMonth()].name, self.calendarNextYear = self.calendarSelected.getFullYear() + 1, 
+        self.calendarSelectedDay = _getGroupForSelectedDay(self), self.stopSpinner(), srvAnalytics.add("Once", "Calendar");
     }
-    function onEventChange() {
-        buildEventGroupsByDay(), buildEventsGroupsByDaySinceToday(), $scope.calendarYear = $scope.calendarSelected.getFullYear(), 
-        $scope.calendarMonth = $scope.calendarSelected.getMonth(), $scope.calendarMonthWeeks = getMonthWeeks($scope.calendarMonth, $scope.calendarYear), 
-        $scope.calendarMonthName = $scope.calendarMonths[$scope.calendarMonth].name, $scope.calendarMonthShortName = $scope.calendarMonths[$scope.calendarMonth].shortName, 
-        $scope.calendarMonthFullName = $scope.calendarMonthName + " " + $scope.calendarYear, 
-        $scope.calendarDayFullName = $scope.calendarSelected.getDate() + " " + $scope.calendarMonthName + " " + $scope.calendarYear, 
-        computeCasualDay();
-        var previous = new Date($scope.calendarSelected.getFullYear(), $scope.calendarSelected.getMonth() - 1, 1, 0, 0, 0, 0);
-        $scope.calendarPreviousMonthName = $scope.calendarMonths[previous.getMonth()].name, 
-        $scope.calendarPreviousYear = $scope.calendarSelected.getFullYear() - 1;
-        var next = new Date($scope.calendarSelected.getFullYear(), $scope.calendarSelected.getMonth() + 1, 1, 0, 0, 0, 0);
-        $scope.calendarNextMonthName = $scope.calendarMonths[next.getMonth()].name, $scope.calendarNextYear = $scope.calendarSelected.getFullYear() + 1, 
-        $scope.calendarSelectedDay = getGroupForSelectedDay();
+    function _onEventChange(self) {
+        _buildEventGroupsByDay(self), self.calendarYear = self.calendarSelected.getFullYear(), 
+        self.calendarMonth = self.calendarSelected.getMonth(), self.calendarMonthWeeks = _getMonthWeeks(self, self.calendarMonth, self.calendarYear), 
+        self.calendarMonthName = self.calendarMonths[self.calendarMonth].name, self.calendarMonthShortName = self.calendarMonths[self.calendarMonth].shortName, 
+        self.calendarMonthFullName = self.calendarMonthName + " " + self.calendarYear, self.calendarDayFullName = self.calendarSelected.getDate() + " " + self.calendarMonthName + " " + self.calendarYear, 
+        _computeCasualDay(self);
+        var previous = new Date(self.calendarSelected.getFullYear(), self.calendarSelected.getMonth() - 1, 1, 0, 0, 0, 0);
+        self.calendarPreviousMonthName = self.calendarMonths[previous.getMonth()].name, 
+        self.calendarPreviousYear = self.calendarSelected.getFullYear() - 1;
+        var next = new Date(self.calendarSelected.getFullYear(), self.calendarSelected.getMonth() + 1, 1, 0, 0, 0, 0);
+        self.calendarNextMonthName = self.calendarMonths[next.getMonth()].name, self.calendarNextYear = self.calendarSelected.getFullYear() + 1, 
+        self.calendarSelectedDay = _getGroupForSelectedDay(self);
     }
     $scope.calendarNow = new Date(srvTime.year, srvTime.month - 1, srvTime.day, 0, 0, 0, 0), 
     $scope.ctrlCalendarInitialized = !1, $scope.ctrlCalendarCanevasInitialized = !1, 
@@ -1411,7 +1430,7 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
     $scope.calendarNextYear = 0, $scope.calendarMonths = [], $scope.calendarMonthWeeks = [], 
     $scope.calendarHoursDay = [], $scope.calendarEventsGroupsByDay = [], $scope.calendarMonthWidth = 400, 
     $scope.calendarMonthHeight = 400, $scope.calendarMonthCellHWidth = 30, $scope.calendarMonthCellHeight = 30, 
-    $scope.initCalendarCtrl = function() {
+    $scope.calendarNextEvent = null, $scope.initCalendarCtrl = function() {
         if ($scope.ctrlCalendarCanevasInitialized = !1, !$scope.ctrlCalendarInitialized) {
             $scope.configStateEdit = !1, $scope.configStateAdd = !0, $scope.setNavTitle(srvLocale.translations.htmlTitleCalendar), 
             $scope.calendarViews = [ {
@@ -1433,11 +1452,11 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
             } else $scope.calendarSelected = new Date();
             srvTime.addListenerOnDay(function() {
                 $scope.calendarNow = new Date(srvTime.year, srvTime.month - 1, srvTime.day, 0, 0, 0, 0), 
-                onCalendarNowChange();
+                _onCalendarNowChange($scope);
             });
         }
-        computeCalendarMonthSize($scope), $scope.ctrlCalendarCanevasInitialized = !0, onEventChange(), 
-        $scope.ctrlCalendarInitialized = !0;
+        _computeCalendarMonthSize($scope), $scope.ctrlCalendarCanevasInitialized = !0, _onEventChange($scope), 
+        $scope.ctrlCalendarInitialized || _buildNextEvent($scope), $scope.ctrlCalendarInitialized = !0;
     }, $scope.checkViewActive = function(id) {
         return $scope.calendarView == id;
     }, $scope.checkViewNp1Active = function(id) {
@@ -1446,7 +1465,7 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
         $scope.setItemAndGoDetail(event, !0);
     }, $scope.setSelectedDate = function(date) {
         date && "undefined" != date && ($scope.calendarSelected.getFullYear() != date.getFullYear() || $scope.calendarSelected.getMonth() != date.getMonth() || $scope.calendarSelected.getDate() != date.getDate()) && ($scope.calendarSelected = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0), 
-        onSelChange());
+        _onSelChange($scope));
     }, $scope.onDayClick = function(date) {
         $scope.setSelectedDate(date), $scope.openDialog({
             backdrop: !0,
@@ -1495,12 +1514,6 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
         return val;
     }, $scope.translateDateToTimeString = function(date) {
         var val = srvLocale.formatDate(date, "shortTime");
-        return val;
-    }, $scope._formatStringDateToDay = function(string) {
-        var date = a4pDateParse(string), val = $scope.srvLocale.formatDate(date, "shortDate");
-        return val;
-    }, $scope._formatStringDateToTime = function(string) {
-        var date = a4pDateParse(string), val = $scope.srvLocale.formatDate(date, "shortTime");
         return val;
     }, $scope.getEventTime = function(dateStr) {
         var time = "";
@@ -1558,7 +1571,7 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
             });
         });
     }, $scope.addEvent = function(event) {
-        !a4p.isUndefined(event) && event && ($scope.srvData.addAndSaveObject(event), onEventChange(), 
+        !a4p.isUndefined(event) && event && ($scope.srvData.addAndSaveObject(event), _onEventChange($scope), 
         a4p.InternalLog.log("ctrlCalendar - openDialogEditEvent", "Created event.id.dbid:" + event.id.dbid), 
         $scope.onEventClick(event), srvAnalytics.add("Once", "Calendar - add Event"));
     }, $scope.removeEvent = function(event) {
@@ -1572,7 +1585,7 @@ function ctrlCalendar($scope, $timeout, version, srvAnalytics, srvLocale, srvTim
                 for (i = 0; i < attachees.length; i++) $scope.srvData.delAndSaveAttachment("Attachee", attachees[i], event);
                 var children = $scope.srvData.getRemoteLinks(event, "child");
                 for (i = 0; i < children.length; i++) $scope.srvData.removeAndSaveObject(children[i]);
-                $scope.srvData.removeAndSaveObject(event), onEventChange();
+                $scope.srvData.removeAndSaveObject(event), _onEventChange($scope);
             });
         });
     }, $scope.selectHour = function(event, hour) {
@@ -2469,7 +2482,7 @@ function ctrlMeeting($scope, $q, $modal, $timeout, srvData, srvConfig, srvNav, s
     $scope.$on("$destroy", function() {}), $scope.initMeetingElements = function() {
         var i, bok = !0;
         if (!$scope.meetingHasBeenInitialized) {
-            $scope.meetingItem = $scope.srvNav.item;
+            $scope.meetingItem = null, "Event" == $scope.srvNav.item.a4p_type && ($scope.meetingItem = $scope.srvNav.item);
             var attendees = srvData.getTypedDirectLinks($scope.meetingItem, "attendee", "Attendee");
             for ($scope.meetingContactsAsAttendee = [], i = 0; i < attendees.length; i++) {
                 var attendee = attendees[i], removed = srvData.srvSynchroStatus.hasToBeDeleted(attendee), contact = null;
@@ -2590,7 +2603,7 @@ function ctrlMeeting($scope, $q, $modal, $timeout, srvData, srvConfig, srvNav, s
             editor_type: "Table"
         });
         if (plan && (bok = !0, plan.pos = $scope.meetingPlans.length), !bok) return bok;
-        var targetDirPath = "a4p/c4p/doc", itemName = srvNav.item.name, now = new Date(), normalizedParentName = itemName.replace(/ /g, "_"), documentInsert = srvData.createObject("Document", {
+        var targetDirPath = "a4p/c4p/doc", itemName = $scope.meetingItem.name, now = new Date(), normalizedParentName = itemName.replace(/ /g, "_"), documentInsert = srvData.createObject("Document", {
             name: normalizedParentName + "." + srvLocale.formatDate(a4pDateParse(a4pDateFormat(now)), "c4pShortDate").replace(/\//g, "-") + ".png",
             body: "",
             length: "0",
@@ -4898,7 +4911,7 @@ function ctrlSingleTap($scope) {
     };
 }
 
-function ctrlSummarizedObject($scope, srvLocale, srvData, srvLink, srvConfig) {
+function ctrlSummarizedObject($scope, $sce, srvLocale, srvData, srvLink, srvConfig) {
     "use strict";
     $scope.srvLocale = srvLocale, $scope.linkedItems = {}, $scope.dataListener = srvData.addListenerOnUpdate(function(callbackId, action, type, id) {
         "clear" == action ? a4p.safeApply($scope, function() {
@@ -4920,6 +4933,7 @@ function ctrlSummarizedObject($scope, srvLocale, srvData, srvLink, srvConfig) {
         $scope.item = null, $scope.itemIcon = "", $scope.itemName = "", $scope.isFile = !1, 
         $scope.allDayEvent = !1, $scope.manyDayEvent = !1, $scope.groups = [], $scope.linkedItems = {};
     }, $scope.init = function(item, modelType) {
+        var valueIdx, valueNb, targetItem;
         if ($scope.item = item, $scope.itemIcon = c4p.Model.getItemIcon(item), $scope.itemName = srvConfig.getItemName(item), 
         $scope.isFile = !!c4p.Model.files[item.a4p_type], $scope.linkedItems = {}, $scope.allDayEvent = !1, 
         $scope.manyDayEvent = !1, $scope.item.date_start && $scope.item.date_end) {
@@ -4941,26 +4955,17 @@ function ctrlSummarizedObject($scope, srvLocale, srvData, srvLink, srvConfig) {
                 fields: []
             }, fieldIdx = 0, fieldNb = groupDesc.fields.length; fieldNb > fieldIdx; fieldIdx++) {
                 var fieldDesc = groupDesc.fields[fieldIdx], fieldKey = fieldDesc.key, fieldTitle = "", isLink = objDesc.linkDescs[fieldKey], isArray = a4p.isDefined(c4p.Model.objectArrays[$scope.item.a4p_type][fieldKey]), fieldType = "", fieldValue = $scope.item[fieldKey], value = "";
-                if (isLink) {
-                    fieldTitle = srvLocale.translations.htmlShortLinkName[objDesc.linkDescs[fieldKey].one], 
-                    fieldType = "";
-                    var targetItem;
-                    if (isArray) {
-                        value = [];
-                        for (var valueIdx = 0, valueNb = fieldValue.length; valueNb > valueIdx; valueIdx++) targetItem = srvData.getObject(fieldValue[valueIdx].dbid), 
-                        targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, value.push(srvConfig.getItemName(targetItem)));
-                    } else targetItem = srvData.getObject(fieldValue.dbid), targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, 
-                    value = srvConfig.getItemName(targetItem));
-                } else if (a4p.isDefined(editDesc[fieldKey])) a4p.isDefined(editDesc[fieldKey]) && editDesc[fieldKey].type && (fieldType = fieldDesc.type ? fieldDesc.type : editDesc[fieldKey].type), 
+                if (isLink) if (fieldTitle = srvLocale.translations.htmlShortLinkName[objDesc.linkDescs[fieldKey].one], 
+                fieldType = "", isArray) for (value = [], valueIdx = 0, valueNb = fieldValue.length; valueNb > valueIdx; valueIdx++) targetItem = srvData.getObject(fieldValue[valueIdx].dbid), 
+                targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, value.push(srvConfig.getItemName(targetItem))); else targetItem = srvData.getObject(fieldValue.dbid), 
+                targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, value = srvConfig.getItemName(targetItem)); else if (a4p.isDefined(editDesc[fieldKey])) a4p.isDefined(editDesc[fieldKey]) && editDesc[fieldKey].type && (fieldType = fieldDesc.type ? fieldDesc.type : editDesc[fieldKey].type), 
                 a4p.isDefined(editDesc[fieldKey]) && editDesc[fieldKey].title && (fieldTitle = srvLocale.translations[editDesc[fieldKey].title]), 
                 "duration" == fieldType ? $scope.allDayEvent ? (fieldType = "datetime", value = fieldValue) : (fieldType = "", 
                 value = $scope.item.duration_hours + ":" + a4pPadNumber($scope.item.duration_minutes, 2)) : "samedayTIME" == fieldType ? $scope.manyDayEvent ? (fieldType = "dateTIME", 
-                value = fieldValue) : (fieldType = "TIME", value = fieldValue) : value = fieldValue; else if (a4p.isDefined(fieldValue)) value = fieldValue; else {
-                    fieldTitle = srvLocale.translations.htmlShortLinkName[fieldKey], fieldType = "", 
-                    isArray = !0, value = [], fieldValue = srvData.getRemoteLinks($scope.item, fieldKey);
-                    for (var valueIdx = 0, valueNb = fieldValue.length; valueNb > valueIdx; valueIdx++) targetItem = fieldValue[valueIdx], 
-                    targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, value.push(srvConfig.getItemName(targetItem)));
-                }
+                value = fieldValue) : (fieldType = "TIME", value = fieldValue) : value = fieldValue; else if (a4p.isDefined(fieldValue)) value = fieldValue; else for (fieldTitle = srvLocale.translations.htmlShortLinkName[fieldKey], 
+                fieldType = "", isArray = !0, value = [], fieldValue = srvData.getRemoteLinks($scope.item, fieldKey), 
+                valueIdx = 0, valueNb = fieldValue.length; valueNb > valueIdx; valueIdx++) targetItem = fieldValue[valueIdx], 
+                targetItem && ($scope.linkedItems[targetItem.id.dbid] = targetItem, value.push(srvConfig.getItemName(targetItem)));
                 var field = {
                     key: fieldKey,
                     title: fieldDesc.title ? fieldTitle : "",
@@ -4975,6 +4980,9 @@ function ctrlSummarizedObject($scope, srvLocale, srvData, srvLink, srvConfig) {
             }
             groupShow && $scope.groups.push(group);
         }
+    }, $scope.renderHtmlText = function(text) {
+        var html = text.replace(new RegExp("\r?\n", "g"), "<br />");
+        return html = $sce.trustAsHtml(html);
     };
 }
 
@@ -34080,7 +34088,7 @@ ctrlNamedObject.$inject = [ "$scope", "srvConfig" ], ctrlNavObject.$inject = [ "
 navigationCtrl.$inject = [ "$scope", "$q", "$timeout", "$location", "$window", "$anchorScroll", "$http", "$modal", "$sce", "version", "srvLoad", "srvLocalStorage", "srvFileStorage", "srvAnalytics", "srvConfig", "srvLog", "srvLocale", "srvData", "srvRunning", "srvSecurity", "srvSynchro", "srvQueue", "cordovaReady", "srvLink", "srvNav", "srvGuider", "srvFacet", "srvOpenUrl" ], 
 networkTestRunnerCtrl.$inject = [ "$scope", "$q", "$location", "$http", "$modal", "version", "srvLoad", "srvLocalStorage", "srvFileStorage", "srvAnalytics", "srvConfig", "srvLog", "srvLocale", "srvData", "srvRunning", "srvSecurity", "srvSynchro", "cordovaReady", "srvLink", "srvNav", "srvGuider", "srvFacet" ], 
 ctrlResponsive.$inject = [ "$scope", "$window", "$timeout", "srvConfig" ], ctrlRightToolbar.$inject = [ "$scope", "$timeout", "srvFacet", "srvLocale", "srvData", "srvNav", "version" ], 
-ctrlSingleTap.$inject = [ "$scope" ], ctrlSummarizedObject.$inject = [ "$scope", "srvLocale", "srvData", "srvLink", "srvConfig" ], 
+ctrlSingleTap.$inject = [ "$scope" ], ctrlSummarizedObject.$inject = [ "$scope", "$sce", "srvLocale", "srvData", "srvLink", "srvConfig" ], 
 ctrlTimeline.$inject = [ "$scope", "srvData", "version" ], ctrlTrashObject.$inject = [ "$scope" ], 
 ctrlViewer.$inject = [ "$scope", "srvData", "srvNav", "srvLocale" ], ctrlGuiderDialog.$inject = [ "$scope", "$sce", "srvLocale" ], 
 angular.module("template/c4p-accordion/accordion-group.html", []).run([ "$templateCache", function($templateCache) {
@@ -35185,11 +35193,11 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/navigation/aside_search_list.html", '<!doctype html><div id="aside_{{listItem.object.id.dbid}}" ng-class="{\n        \'c4p-color-{{getFacetColor(srvFacet.getFirstFacet())}}\':srvNav.item && (listItem.object.id.dbid == srvNav.item.id.dbid),\n        \'active\':srvNav.item && (listItem.object.id.dbid == srvNav.item.id.dbid)}" ng-click="selectItem(listItem.object, respOnePageFormat)" ng-hide="srvData.srvSynchroStatus.hasToBeDeleted(listItem.object) || (listItem.object.a4p_type == \'Document\' && listItem.object.email)"><div class="row"><div class="btn col-xxs-12" ng-class="{active: singleTapFocusId == listItem.object.id.dbid}"><ul class="nav nav-pills"><li class="" style="width:100%"><div ng-init="cardItem = listItem.object" ng-include="\'partials/navigation/cards/draggable_inlined_card.html\'"></div></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/calendar.html", '<div class="c4p-container c4p-color-gradient0"><header class="row c4p-color-gradient0" ng-include="\'partials/navigation/calendar_header.html\'"></header><div class="c4p-waiting" ng-show="calendarLoadingSpinner" c4p-animateshow="calendarLoadingSpinner" after-hide="afterCalendarSpinnerHide()" after-show="afterCalendarSpinnerShow()"><div ng-include="\'partials/spinner.html\'"></div></div><div ng-show="!calendarLoadingSpinner" class="row c4p-color-a-gradient4"><article class="col-xxs-12" ng-switch="" on="calendarView"><div ng-switch-when="dayView"><div ng-include="\'partials/navigation/calendar_day.html\'"></div></div><div ng-switch-when="listView"><div ng-include="\'partials/navigation/calendar_events.html\'"></div></div><div ng-switch-default=""><div ng-include="\'partials/navigation/calendar_month.html\'"></div></div></article></div></div>'), 
     $templateCache.put("partials/navigation/calendar_day.html", "<div style=\"float: left\" ng-style=\"{width:(getMainWidth())+'px'}\"><div ng-style=\"{width:(getMainWidth())+'px'}\" sense-opts=\"{name:'calendar_day_events_wrapper', axeY:'scroll'}\" sense-scrollopts=\"{scrollbarClass:'c4p-scrollbar'}\" resize-opts=\"{name:'calendar_day_events_wrapper', watchRefresh:'navAside'}\" resizecss-height=\"getResizeHeight() -getResizePathValue('calendar_header', '', 'offsetHeight')\"><div resize-opts=\"{name:'calendar_day_event_scroller', watchRefresh:'navAside'}\"><div ng-include=\"'partials/navigation/calendar_day_events.html'\"></div></div></div></div><div style=\"float: left\" ng-style=\"{width:(getAsideWidth())+'px'}\"><div ng-style=\"{width:(getAsideWidth())+'px'}\" sense-opts=\"{name:'calendar_day_hours_wrapper', axeY:'scroll'}\" sense-scrollopts=\"{scrollbarClass:'c4p-scrollbar'}\" resize-opts=\"{name:'calendar_day_hours_wrapper', watchRefresh:'navAside'}\" resizecss-height=\"getResizeHeight() -getResizePathValue('calendar_header', '', 'offsetHeight')\"><div resize-opts=\"{name:'calendar_day_hours_scroller', watchRefresh:'navAside'}\"><div ng-include=\"'partials/navigation/calendar_day_hours.html'\" class=\"c4p-cal-day-hour\"></div></div></div></div>"), 
-    $templateCache.put("partials/navigation/calendar_day_events.html", '<div class="row c4p-details c4p-color-a-gradient1"><div class="col-xxs-12"><span class="glyphicon glyphicon-angle-left c4p-icon-std" ng-click="gotoPreviousDay()" style="padding-right: 2em"></span> <span class="c4p-cal-big c4p-gray">{{calendarDayCasualName}}</span> <span class="c4p-cal-big">{{calendarDayFullName}}</span> <span class="glyphicon glyphicon-angle-right c4p-icon-std" ng-click="gotoNextDay()" style="padding-left: 2em"></span></div></div><div class="row c4p-details" ng-show="(calendarSelectedDay.eventsAllDay.length == 0) && (calendarSelectedDay.events.length == 0) "><div class="c4p-infos-txt">{{translate(\'htmlCalendarDayTextNoEvent\')}}</div></div><ul class="nav nav-pills nav-stacked" ng-show="calendarSelectedDay.eventsAllDay.length"><li class="c4p-details c4p-color-a-gradient2"><span class="">{{translate(\'htmlCalendarDayTextAllDayEvent\')}}</span></li><li ng-repeat="item in calendarSelectedDay.eventsAllDay" class="c4p-details c4p-color-a-gradient3"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li></ul><ul class="nav nav-pills nav-stacked" ng-show="calendarSelectedDay.events.length"><li class="c4p-details c4p-color-a-gradient2"><span class="">{{translate(\'htmlCalendarDayTextEvents\')}}</span></li><li ng-repeat="item in calendarSelectedDay.events" class="c4p-details c4p-color-a-gradient3"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li></ul>'), 
+    $templateCache.put("partials/navigation/calendar_day_events.html", '<!doctype html><div class="row c4p-details c4p-color-a-gradient1"><div class="col-xxs-12"><span class="glyphicon glyphicon-angle-left c4p-icon-std" ng-click="gotoPreviousDay()" style="padding-right: 2em"></span> <span class="c4p-cal-big c4p-gray">{{calendarDayCasualName}}</span> <span class="c4p-cal-big">{{calendarDayFullName}}</span> <span class="glyphicon glyphicon-angle-right c4p-icon-std" ng-click="gotoNextDay()" style="padding-left: 2em"></span></div></div><div class="row c4p-details" ng-show="(calendarSelectedDay.eventsAllDay.length == 0) && (calendarSelectedDay.events.length == 0) "><div class="c4p-infos-txt">{{translate(\'htmlCalendarDayTextNoEvent\')}}</div></div><ul class="nav nav-pills nav-stacked" ng-show="calendarSelectedDay.eventsAllDay.length"><li class="c4p-details c4p-color-a-gradient2"><span class="">{{translate(\'htmlCalendarDayTextAllDayEvent\')}}</span></li><li ng-repeat="item in calendarSelectedDay.eventsAllDay" class="c4p-details c4p-color-a-gradient3"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li></ul><ul class="nav nav-pills nav-stacked" ng-show="calendarSelectedDay.events.length"><li class="c4p-details c4p-color-a-gradient2"><span class="">{{translate(\'htmlCalendarDayTextEvents\')}}</span></li><li ng-repeat="item in calendarSelectedDay.events" class="c4p-details c4p-color-a-gradient3"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li></ul>'), 
     $templateCache.put("partials/navigation/calendar_day_hours.html", '<div class="row hidden-sm hidden-md hidden-lg"><div class="col-xxs-12 well c4p-well2-a"><div class="row"><div class="col-xxs-12"><span>{{calendarDayCasualName}}</span></div></div><div class="row"><div class="col-xxs-12"><table class="table c4p-table-layout" style="width:100%;table-layout: fixed"><tr><td style="vertical-align:middle;text-align:center" class="c4p-link5" ng-click="gotoPreviousDay()"><a class="c4p-link5"><span class="glyphicon glyphicon-angle-left"></span></a></td><td colspan="6" style="vertical-align:middle;text-align:center"><h4 class="c4p-n-title a4p-dot">{{calendarDayFullName}}</h4></td><td style="vertical-align:middle;text-align:center" class="c4p-link5" ng-click="gotoNextDay()"><a class="c4p-link5"><span class="glyphicon glyphicon-angle-right"></span></a></td></tr></table></div></div></div></div><div class="row"><div ng-repeat="event in calendarSelectedDay.eventsAllDay" class="col-xxs-12 label c4p-label-calendar-all-day pull-left"><div class="pull-left c4p-link5 a4p-dot" style="width:75%;line-height: 15px;height:100%;padding: 2px 15px" ng-click="onEventClick(event)"><span ng-show="isMultiDayEventWithTimeToShow(event,calendarSelectedDay.date,true)">({{getEventTime(event.date_start)}})</span> <span>{{getItemNameById(event.id.dbid)}}</span> <span ng-show="isMultiDayEventWithTimeToShow(event,calendarSelectedDay.date,false)">({{getEventTime(event.date_end)}})</span></div><div ng-show="srvData.isObjectOwnedByUser(event)" ng-click="removeEvent(event)" class="c4p-link5 pull-right" style="width:15%;text-align:center"><span class="glyphicon glyphicon-times-circle"></span></div></div></div><div class="row"><div class="col-xxs-12" style="margin:0"><div style="height:{{(25*40)}}px;width:100%;position:relative"><div style="position:absolute;top:0;left:0;width:100%"><div style="height:40px" class="c4p-hour-disabled c4p-color-a-gradient1">&nbsp;</div><div ng-repeat="hour in calendarHoursDay" class="{{hour.cssClass}}-a-gradient1" style="height:40px; position:relative;width:100%" sense-opts="{bubble:true, callApply:true}" sense-holdstart="selectHour($event, hour)" sense-holdstop="cancelHour($event, hour)" sense-tap="newEventAtHour($event, hour)" ng-class="{scrollTop: (calendarSelectedDay.events.length == 0 && $index == 8)}"><span class="c4p-link5" style="font-size:18px;line-height:18px;top:-9px;position: absolute;left: 4px">{{hour.text}} -</span> <span style="font-size:12px;line-height:12px;top:14px;position: absolute;left: 10px">30 -</span><div ng-show="hour.selected" style="height: 80%; width: 85%; border: 3px solid red; margin: 0 2%" class="pull-right">&nbsp;</div></div></div><div class="c4p-click-through" style="position:absolute;top:40px;left:0;width:100%;height:{{(24*40)}}px;z-index:-1"><div style="position:relative;width:100%;height:100%"><div ng-repeat="event in calendarSelectedDay.events" class="label c4p-label-calendar-hour pull-left c4p-color-a-gradient9" style="position:absolute;width:100%;padding:0;margin:0;pointer-events: all;\n                                top:{{calendarSelectedDay.eventsPosition[$index].posPercent}}%;\n                                height:{{calendarSelectedDay.eventsPosition[$index].lengthPercent}}%"><div style="width: 3%;height: 100%;float: left"></div><div class="pull-left c4p-link5 scrollTop a4p-dot" style="width:87%;line-height: 1em;height:100%;padding: 0 0 0 7%;text-align: left" ng-click="onEventClick(event)">{{getItemNameById(event.id.dbid)}}<br></div><div ng-show="srvData.isObjectOwnedByUser(event)" ng-click="removeEvent(event)" class="c4p-link5 pull-right" style="width:10%;text-align:center"><span class="glyphicon glyphicon-remove"></span></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/navigation/calendar_events.html", '<div class="row col-xxs-12"><div ng-style="{width:(getMainWidth() + getAsideWidth())+\'px\'}" resize-opts="{name:\'calendar_events\', watchRefresh:\'navAside\'}" resizecss-height="getResizeHeight() -getResizePathValue(\'calendar_header\', \'\', \'offsetHeight\')" sense-opts="{name:\'calendar_events\', axeY:\'scroll\', watchRefresh:\'calendarEventsGroupsByDaySinceToday\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div id="calendar-cards"><div class="row c4p-color-a-gradient1"><div class="col-xxs-12 c4p-details hidden-xs hidden-sm"><h2>{{translate(\'htmlCalendarListPageTitle\')}}</h2></div><div class="col-xxs-12 c4p-details hidden-md hidden-lg"><h4>{{translate(\'htmlCalendarListPageTitle\')}}</h4></div></div><ul class="nav nav-pills nav-stacked c4p-details-title" ng-repeat="group in calendarEventsGroupsByDaySinceToday" ng-show="group.events.length || group.eventsAllDay.length"><li class="c4p-details c4p-color-a-gradient2"><span class="">{{translateDateDayToFullString(group.date)}}</span></li><li ng-repeat="item in group.eventsAllDay" class="c4p-details c4p-color-a-gradient3"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li><li ng-repeat="item in group.events" class="c4p-details c4p-color-a-gradient4"><span ng-include="\'partials/navigation/cards/draggable_summarized_item.html\'"></span></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/calendar_header.html", '<div class="c4p-header-std" resize-opts="{name:\'calendar_header\', watchRefresh:\'navAside\'}"><div class="row"><div class="col-xxs-12"><ul class="nav nav-pills"><li class=""><a class="btn disabled"><img class="c4p-img-icon" src="l4p/img/logo_meeting_.png"></a></li><li ng-include="\'partials/navigation/header_back.html\'"></li><li class="pull-right" ng-show="configStateAdd"><a class="btn" ng-click="addItemDialog()"><span class="c4p-icon-std glyphicon glyphicon-plus"></span></a></li></ul></div></div></div>'), 
-    $templateCache.put("partials/navigation/calendar_month.html", '<div class="ng-cloak"><table class="table c4p-table-calendar-month" style="width:100%;table-layout: fixed"><thead resize-opts="{name:\'calendar_month_header\'}"><tr style="color:whitesmoke"><th class="empty" style="width:20px"></th><th class="c4p-link5" ng-click="gotoPreviousYear()"><span class="glyphicon glyphicon-angle-double-left"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousYear}}</h5></th><th class="c4p-link5" ng-click="gotoPreviousMonth()"><span class="glyphicon glyphicon-angle-left"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousMonthName}}</h5></th><th class="disabled" colspan="3" style="text-align:center;vertical-align:middle"><h4 ng-hide="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</h4><span ng-show="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</span></th><th class="c4p-link5" ng-click="gotoNextMonth()"><span class="glyphicon glyphicon-angle-right"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextMonthName}}</h5></th><th class="c4p-link5" ng-click="gotoNextYear()"><span class="glyphicon glyphicon-angle-double-right"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextYear}}</h5></th></tr><tr style="height:20px;line-height:20px" resize-opts="{name:\'calendar_month_week_header\'}"><th style="height:20px;line-height:20px" class="disabled"><small>{{translate(\'htmlCalendarMonthTextWeekAbrev\')}}</small></th><th ng-repeat="day in calendarMonthWeeks[0].days" class="disabled" style="height:20px;line-height:20px; width:{{(width - 20) / calendarMonthWeeks[0].days.length}}px"><small>{{day.shortName}}</small></th></tr></thead><tbody><tr ng-repeat="week in calendarMonthWeeks"><td class="disabled" style="text-align: center;vertical-align: middle"><small>{{week.id}}</small></td><td ng-repeat="day in week.days" class="c4p-link5 c4p-table-cell" ng-click="onDayClick(day.date)" style="height:{{calendarMonthCellHeight}}px" ng-class="{	\'c4p-cell-initial\': translateDateDayToString(day.date) == translateDateDayToString(calendarNow),\r\n								\'c4p-cell-selected\': translateDateDayToString(day.date) == translateDateDayToString(calendarSelected),\r\n								\'c4p-cell-weekend\': day.isWeekend,\r\n								\'c4p-cell-disabled\': day.date.getMonth() != calendarMonth}"><div style="width:100%;height:100%"><div class="pull-left" style="position:relative; height:100%;width:8%"><div ng-repeat="position in day.group.eventsPosition" class="label c4p-label-calendar-notallday-inverse" style="position:absolute; width:90%; padding:2px 0; border:1px solid gray; top:{{position.posPercent}}%; height:{{position.lengthPercent}}%" ng-class="position.event.id">&nbsp;</div></div><div class="pull-right" style="position:relative; height:100%;width:90%"><div style="height:{{(calendarMonthHeight / calendarMonthWeeks.length) - 20}}px;overflow:hidden;text-overflow:ellipsis;display:block"><span ng-repeat="position in day.group.eventsAllDayPosition" style="width:{{position.lengthPercent}}%; margin-left:{{position.posPercent}}%; margin-top:1px; min-height:2px" class="label c4p-label-calendar-all-day a4p-dot"><span class="hidden-xs">{{position.event.name}}</span></span>  <span ng-repeat="event in day.group.events" style="width:100%; margin-top: 1px" class="label c4p-label-calendar-day a4p-dot hidden-xs">{{getEventTime(event.date_start)}} {{event.name}}</span></div><small class="pull-left label c4p-label-calendar-light hidden-xs" style="padding:0" ng-show="(20*(day.group.eventsAllDay.length + day.group.events.length)) > (((calendarMonthHeight -24)/ calendarMonthWeeks.length) - 20)">{{translate(\'htmlCalendarMonthTextMore\')}}</small>  <small class="pull-right label c4p-label-calendar" style="padding:0 3px">{{day.date.getDate()}}</small></div></div></td></tr></tbody></table></div>'), 
+    $templateCache.put("partials/navigation/calendar_month.html", '<!doctype html><div class="ng-cloak"><table class="table c4p-table-calendar-month" style="width:100%;table-layout: fixed"><thead resize-opts="{name:\'calendar_month_header\'}"><tr style="color:whitesmoke"><th class="empty" style="width:20px"></th><th class="c4p-link5" ng-click="gotoPreviousYear()"><span class="glyphicon glyphicon-angle-double-left"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousYear}}</h5></th><th class="c4p-link5" ng-click="gotoPreviousMonth()"><span class="glyphicon glyphicon-angle-left"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarPreviousMonthName}}</h5></th><th class="disabled" colspan="3" style="text-align:center;vertical-align:middle"><h4 ng-hide="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</h4><span ng-show="getResizeOneColumn()" class="a4p-dot">{{calendarMonthFullName}}</span></th><th class="c4p-link5" ng-click="gotoNextMonth()"><span class="glyphicon glyphicon-angle-right"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextMonthName}}</h5></th><th class="c4p-link5" ng-click="gotoNextYear()"><span class="glyphicon glyphicon-angle-double-right"></span><br><h5 class="a4p-dot" ng-hide="getResizeOneColumn()">{{calendarNextYear}}</h5></th></tr><tr style="height:20px;line-height:20px" resize-opts="{name:\'calendar_month_week_header\'}"><th style="height:20px;line-height:20px" class="disabled"><small>{{translate(\'htmlCalendarMonthTextWeekAbrev\')}}</small></th><th ng-repeat="day in calendarMonthWeeks[0].days" class="disabled" style="height:20px;line-height:20px; width:{{(width - 20) / calendarMonthWeeks[0].days.length}}px"><small>{{day.shortName}}</small></th></tr></thead><tbody><tr ng-repeat="week in calendarMonthWeeks"><td class="disabled" style="text-align: center;vertical-align: middle"><small>{{week.id}}</small></td><td ng-repeat="day in week.days" class="c4p-link5 c4p-table-cell" ng-click="onDayClick(day.date)" style="height:{{calendarMonthCellHeight}}px" ng-class="{ \'c4p-cell-initial\': translateDateDayToString(day.date) == translateDateDayToString(calendarNow),\r\n                            \'c4p-cell-selected\': translateDateDayToString(day.date) == translateDateDayToString(calendarSelected),\r\n                            \'c4p-cell-weekend\': day.isWeekend,\r\n                            \'c4p-cell-disabled\': day.date.getMonth() != calendarMonth}"><div style="width:100%;height:100%"><div class="pull-left" style="position:relative; height:100%;width:8%"><div ng-repeat="position in day.group.eventsPosition" class="label c4p-label-calendar-notallday-inverse" style="position:absolute; width:90%; padding:2px 0; border:1px solid gray; top:{{position.posPercent}}%; height:{{position.lengthPercent}}%" ng-class="position.event.id">&nbsp;</div></div><div class="pull-right" style="position:relative; height:100%;width:90%"><div style="height:{{(calendarMonthHeight / calendarMonthWeeks.length) - 20}}px;overflow:hidden;text-overflow:ellipsis;display:block"><span ng-repeat="position in day.group.eventsAllDayPosition" style="width:{{position.lengthPercent}}%; margin-left:{{position.posPercent}}%; margin-top:1px; min-height:2px" class="label c4p-label-calendar-all-day a4p-dot"><span class="hidden-xs">{{position.event.name}}</span></span>  <span ng-repeat="event in day.group.events" style="width:100%; margin-top: 1px" class="label c4p-label-calendar-day a4p-dot hidden-xs">{{getEventTime(event.date_start)}} {{event.name}}</span></div><small class="pull-left label c4p-label-calendar-light hidden-xs" style="padding:0" ng-show="(20*(day.group.eventsAllDay.length + day.group.events.length)) > (((calendarMonthHeight -24)/ calendarMonthWeeks.length) - 20)">{{translate(\'htmlCalendarMonthTextMore\')}}</small>  <small class="pull-right label c4p-label-calendar" style="padding:0 3px">{{day.date.getDate()}}</small></div></div></td></tr><tr><td class="btn-info" colspan="8"><h5>Next meeting :</h5></td></tr><tr><td class="disabled btn-info" style="text-align: center;vertical-align: middle"></td><td class="" colspan="7" style="height:{{calendarMonthCellHeight}}px" ng-init="item = calendarNextEvent" ng-if="calendarNextEvent"><div style="position: relative;  width: 100%;height: 100%" ng-include="\'partials/navigation/cards/summarized_card.html\'"></div></td></tr></tbody></table></div>'), 
     $templateCache.put("partials/navigation/config.html", '<!doctype html><header class="row c4p-color-gradient0" ng-include="\'partials/navigation/config_header.html\'"></header><div class="row c4p-config-panel"><div sense-opts="{name:\'config_main\', axeY:\'scroll\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}" class="col-xxs-12 col-sm-11 col-sm-offset-1" resize-opts="{name:\'config_main\'}" resizecss-height="responsivePageHeight() -getResizePathValue(\'config_header\', \'\', \'offsetHeight\') -getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetHeight\')"><div class="col-xxs-12"><div class="row hidden-xs hidden-sm"><div class="col-xxs-12 col-xs-8 col-xs-offset-2 navbar"><h2 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{configEmail}}</h2><h2 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h2></div></div><div class="row hidden-md hidden-lg"><div class="col-xxs-12 col-xs-8 col-xs-offset-2 navbar"><h5 class="c4p-n-title" ng-show="!isDemo">{{translate(\'htmlConfigPageTitle\')}} {{configEmail}}</h5><h5 class="c4p-n-title" ng-show="isDemo">{{translate(\'htmlConfigPageTitle\')}} {{translate(\'htmlConfigTextDemo\')}}</h5></div></div><div class="row" style="margin-bottom:40px"><button class="col-xxs-12 col-xs-8 col-xs-offset-2 btn btn-primary" ng-click="switchUser()">{{translate(\'htmlButtonChangeUser\')}}</button> </div><div class="row" style="margin-bottom:40px"><div class="col-xxs-12 col-xs-8 col-xs-offset-2"><button type="button" class="btn btn-info col-xxs-12 dropdown-toggle" data-toggle="dropdown"><span>{{srvLocale.lang.title}}</span></button><ul class="dropdown-menu col-xxs-12" role="menu"><li ng-repeat="lang in srvLocale.langs"><a class="" ng-click="srvLocale.setLang(lang)">{{lang.title}}</a></li></ul></div></div><div class="row"><div class="col-xxs-12 col-xs-8 col-xs-offset-2"><h5 ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'OtherConnector\',srvLocale.translations.htmlMsgFeedbackOtherConnector)"><i class="glyphicon glyphicon-coffee" style="padding-right: 30px"></i> {{srvLocale.translations.htmlConnectorUnderConstruction}}</h5></div></div><div class="row" ng-class="{\'c4p-disabled\':true}"><div class="col-xxs-12 col-xs-8 col-xs-offset-2"><ul class="nav nav-pills"><li><a class="btn btn-disabled" style="text-align:left">Salesforce.com</a></li><li class="pull-right"><div class="btn-group"><button type="button" class="btn btn-primary active">&gt;</button></div></li></ul><ul class="nav nav-pills"><li><a class="btn btn-disabled" style="text-align:left">Google Drive</a></li><li class="pull-right"><div class="btn-group"><button type="button" class="btn btn-disabled">&gt;</button></div></li></ul><ul class="nav nav-pills"><li><a class="btn btn-disabled" style="text-align:left">Dropbox</a></li><li class="pull-right"><div class="btn-group"><button type="button" class="btn btn-disabled">&gt;</button></div></li></ul></div></div><div class="row" style="margin-bottom:40px"><div class="col-xxs-12 col-xs-8 col-xs-offset-2"><button type="button" class="btn btn-link col-xxs-12" style="padding-top: 20px;padding-bottom: 40px" ng-click="openDialogSendFeedbackReport(\'Your Praise\',\'OtherConnector\',srvLocale.translations.htmlMsgFeedbackOtherConnector)"><span style="white-space:normal">{{srvLocale.translations.htmlMsgFeedbackOtherConnectorQuestion}}</span></button></div></div><div class="row" ng-show="isDemo"><div class="col-xxs-12 col-xs-8 col-xs-offset-2 well"><a class="btn btn-warning col-xxs-12" ng-click="addMoreDataInDemoMode()">{{srvLocale.translations.htmlTextDemoModeMoreData}}</a></div></div><div class="row"><div class="col-xxs-12"><div class="row"><label class="col-xxs-12 control-label">&nbsp;</label><div class="col-xxs-12 controls">&nbsp;</div></div></div></div><div class="row"><div class="col-xxs-12"><small>{{translate(\'htmlConfigTextAppVersion\')}} v<span id="a4pDeviceDetectorWidth" app-version=""></span> <span id="a4pDeviceDetectorHeight">{{srvConfig.c4pBuildDate}} {{srvConfig.c4pConfigEnv}}</span> <span ng-show="srvConfig.c4pConfig.exposeBetaFunctionalities">Beta</span></small></div></div></div></div></div>'), 
     $templateCache.put("partials/navigation/config_header.html", '<div class="c4p-header-std" resize-opts="{name:\'config_header\'}"><div class="row"><div class="col-xxs-12"><ul class="nav nav-pills"><li class=""><a class="btn disabled"><img class="c4p-img-icon" src="l4p/img/logo_meeting_.png"></a></li><li ng-include="\'partials/navigation/header_back.html\'"></li></ul></div></div></div>'), 
     $templateCache.put("partials/navigation/footer_detail.html", '<div class="c4p-footer-details c4p-color-gradient0" style="position:relative" resize-opts="{name:\'navigation_footer_detail\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}" resizecss-width="getPathValue(\'parentNode\', \'offsetWidth\')"><div class="btn c4p-color-action-transparent" ng-click="gotoBack()" resize-opts="{name:\'navigation_footer_detail_back\'}"><span class="c4p-icon-std glyphicon glyphicon-arrow-left"></span></div><div class="btn btn-xs" ng-controller="ctrlNavObject" resize-opts="{name:\'navigation_footer_detail_history\', watchRefresh:[\'srvNav.item\', \'srvNav.history\']}" resizecss-width="getResizePathValue(\'navigation_footer_detail\', \'\', \'offsetWidth\') -1 -getResizePathValue(\'navigation_footer_detail_back\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_detail_spacer\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_detail_lock\', \'\', \'offsetWidth\') -getResizePathValue(\'navigation_footer_detail_meeting\', \'\', \'offsetWidth\')"><ul style="overflow-x:hidden" class="c4p-list-footer-details"><li class="c4p-item-list-footer-details" ng-repeat="back in srvNav.history | limitTo:3" ng-class="{\'c4p-item-list-ftr-footer-details\':$last}" style="opacity: {{1-(0.33*$index)}}"><small><span class="glyphicon glyphicon-{{back.itemIcon}}"></span> <span ng-switch="!back.itemName"><span ng-switch-when="true">{{srvLocale.translations.htmlSlideName[back.slide]}}</span> <span ng-switch-default="">{{back.itemName}}</span></span></small></li></ul></div><div class="c4p-hf-spacer" resize-opts="{name:\'navigation_footer_detail_spacer\'}"><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div></div><div class="btn" ng-show="srvSecurity.isSecured()" ng-click="openDialogLocked()" resize-opts="{name:\'navigation_footer_detail_lock\'}"><a class="c4p-link2"><span class="glyphicon glyphicon-lock"></span></a></div><div class="btn btn-danger" ng-class="{\'active\' : dropOver}" ng-show="dndActive" ng-controller="ctrlTrashObject" sense-opts="{name:\'dropObjectTrash\'}" sense-dndstart="dndStart($event)" sense-dndend="dndEnd($event)" sense-dndcancel="dndCancel($event)" sense-dropoverenter="dropOverEnter($event)" sense-dropoverleave="dropOverLeave($event)" sense-dropend="dropEnd($event)" style="position:absolute;z-index:1041;top:0;left:0"><span class="c4p-icon-std glyphicon glyphicon-trash"></span></div></div>'), 
