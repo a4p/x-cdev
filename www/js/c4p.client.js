@@ -1,4 +1,4 @@
-/*! c4p.client 2014-06-27 11:03 */
+/*! c4p.client 2014-06-27 14:07 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -26131,16 +26131,6 @@ c4p || (c4p = {}), c4p.Model = function() {
             displayDescription: [ "description" ],
             displayResumedObjectGroups: [],
             displaySummarizedObjectGroups: [ {
-                key: "title",
-                synchro: !0,
-                icon: "",
-                name: !0,
-                title: "",
-                size: "",
-                type: "",
-                brSeparated: !1,
-                fields: []
-            }, {
                 key: "last_modified_date",
                 synchro: !0,
                 icon: "",
@@ -26153,8 +26143,8 @@ c4p || (c4p = {}), c4p.Model = function() {
                     key: "last_modified_date",
                     title: !1,
                     prefix: "",
-                    suffix: "smaller",
-                    size: ""
+                    suffix: "",
+                    size: "smaller"
                 } ]
             }, {
                 key: "description",
