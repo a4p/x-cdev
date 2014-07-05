@@ -1,4 +1,4 @@
-/*! c4p.client 2014-07-04 14:06 */
+/*! c4p.client 2014-07-06 00:18 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -5859,7 +5859,7 @@ function ctrlEditDialogFeedback($scope, srvLocale, title, message, onlyFeedback,
         $modalInstance.dismiss("cancel");
     }, $scope.initializationDone = !1, $scope.init = function() {
         $scope.initializationDone || ($scope.initializationDone = !0);
-    }, scope.init();
+    }, $scope.init();
 }
 
 function ctrlEditDialogNote($scope, srvLocale, srvConfig, srvData, srvFacet, attendees, attachments, noteParentObject, note, editable, modeEdit, spinner, openDialogFct, $modalInstance) {
@@ -28475,9 +28475,9 @@ c4p || (c4p = {}), c4p.Locale = {
         htmlMsgFeedbackMoreObjects: "Hi!\nPlease i need more objects, like :\n ... which one ?",
         htmlMsgFeedbackMoreObjectsQuestion: "... more?",
         htmlMsgFeedbackSFConnector: "Hi there!\nPlease connect to my Salesforce.com data.",
-        htmlMsgFeedbackOtherConnector: "Hi team!\nPlease connect to my CRM data :\n ... which one ? ",
+        htmlMsgFeedbackOtherConnector: "Hi team!\nPlease connect to my CRM data :\n\n ... which one ?\n ",
         htmlMsgFeedbackOtherConnectorQuestion: "Do you want to connect to your system ?",
-        htmlMsgFeedbackSuggestion: "Hi team!\nI need some helpfull topics like :\n ... which one ?",
+        htmlMsgFeedbackSuggestion: "Hi team!\nI need some helpfull topics like :\n\n ... which one ?\n",
         htmlMsgFeedbackSuggestionQuestion: "Need more suggestion ?",
         htmlMsgFeedbackUploadFile: "Hi team!\nI can't synchronize my document because of my app version.\nI'm interested by upgrading my account.",
         htmlMsgFeedbackUploadFileQuestion: "App can't synchronize this doc; File should be less than 2MB here",
@@ -29218,12 +29218,12 @@ c4p || (c4p = {}), c4p.Locale = {
         htmlMsgFeedbackContactEmpty: "Merci d'indiquer une mail valide",
         htmlMsgFeedbackEmail: "Merci pour votre retour !",
         htmlMsgFeedbackPhone: "Si vous pouvez être joint par téléphone",
-        htmlMsgFeedbackMoreObjects: "Bonjour\nJ'ai besoin de plus d'objets :\n ... comme ?",
+        htmlMsgFeedbackMoreObjects: "Bonjour\nJ'ai besoin de plus d'objets :\n\n ... comme ?\n",
         htmlMsgFeedbackMoreObjectsQuestion: "... besoin d'un autre objet ?",
         htmlMsgFeedbackSFConnector: "Bonjour\nJe veux me connecter a mes donnees Salesforce.com.",
-        htmlMsgFeedbackSuggestion: "Bonjour\nJ'adorerais avoir des infos sur :\n ... lesquelles ?",
+        htmlMsgFeedbackSuggestion: "Bonjour\nJ'adorerais avoir des infos sur :\n\n ... lesquelles ?\n",
         htmlMsgFeedbackSuggestionQuestion: "Plus de suggestion ?",
-        htmlMsgFeedbackOtherConnector: "Bonjour\nJe veux me connecter a mon CRM :\n ... lequel ? ",
+        htmlMsgFeedbackOtherConnector: "Bonjour\nJe veux me connecter a mon CRM :\n\n ... lequel ?\n ",
         htmlMsgFeedbackOtherConnectorQuestion: "Vous voulez vous connecter avec votre CRM ?",
         htmlMsgFeedbackUploadFile: "Bonjour,\nJe ne peux pas synchroniser mon document sur cette version.\nJe serais intéressé d'avoir des informations sur les comptes supérieurs.",
         htmlMsgFeedbackUploadFileQuestion: "Nous ne pouvons pas synchroniser ce fichier car votre compte est limité pour l'instant à 2MB",
