@@ -1,4 +1,4 @@
-/*! c4p.client 2014-07-16 16:06 */
+/*! c4p.client 2014-07-16 19:19 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -5809,6 +5809,7 @@ function ctrlEditDialogEmail($scope, srvLocale, srvData, srvConfig, srvFacet, ti
 }
 
 function ctrlEditDialogErrorReport($scope, srvLocale, $modalInstance) {
+    "use strict";
     $scope.srvLocale = srvLocale, $scope.feedbackLastUpdate = 0, $scope.feedback = {
         message: ""
     }, $scope.submit = function() {
