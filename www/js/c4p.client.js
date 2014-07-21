@@ -1,4 +1,4 @@
-/*! c4p.client 2014-07-18 16:04 */
+/*! c4p.client 2014-07-21 10:03 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -2529,8 +2529,10 @@ function ctrlMeeting($scope, $q, $modal, $timeout, srvData, srvConfig, srvNav, s
             plans[i].pos = i, srvData.setAndSaveObject(plans[i]);
             for (var plannees = srvData.getTypedDirectLinks(plans[i], "plannee", "Plannee"), j = 0; j < plannees.length; j++) {
                 $scope.srvData.setAndSaveObject(plannees[j]);
-                var planneeObj = srvData.getObject(plannees[j].object_id.dbid);
-                $scope.srvData.setAndSaveObject(planneeObj);
+                var plaDbid = null;
+                plannees[j].object_id && (plaDbid = plannees[j].object_id.dbid);
+                var planneeObj = null;
+                plaDbid && (planneeObj = srvData.getObject(plaDbid)), planneeObj ? $scope.srvData.setAndSaveObject(planneeObj) : a4p.InternalLog.log("ctrlMeeting", "savePlans PB pos:" + i + " nb:" + j);
             }
             var subPlans = srvData.getTypedDirectLinks(plans[i], "child", "Plan");
             subPlans = subPlans.sort(_sortPosAsc), $scope.savePlans(subPlans);
@@ -3203,7 +3205,9 @@ function navigationCtrl($scope, $q, $timeout, $location, $window, $anchorScroll,
         $scope.firstConfigDone = srvLocalStorage.get("FirstConfigDone", !1), $scope.rememberPassword = srvLocalStorage.get("RememberPassword", !0), 
         $scope.keepCrmLogin = $scope.rememberPassword;
     }, $scope.setFirstConfigDone = function(firstConfigDone) {
-        $scope.firstConfigDone = firstConfigDone, $scope.saveFirstConfigDone();
+        var old = $scope.firstConfigDone;
+        $scope.firstConfigDone = firstConfigDone, $scope.saveFirstConfigDone(), old != firstConfigDone && ($scope.srvData.receiveFirstData(), 
+        $scope.openDialogSendFeedbackReport("First login done"));
     }, $scope.saveFirstConfigDone = function() {
         srvLocalStorage.set("FirstConfigDone", $scope.firstConfigDone);
     }, $scope.setRememberPassword = function(rememberPassword) {
@@ -6623,6 +6627,7 @@ function ctrlGoToMeetingDialog($scope, item, version, srvData, srvNav, srvLink, 
 }
 
 function ctrlGuiderDialog($scope, $sce, srvLocale) {
+    "use strict";
     $scope.guider_interval = -1, $scope.guider_slides = [ {
         image: "img/guider/c4p-guider-01.png",
         text: srvLocale.translations.htmlTextGuiderSlide01
@@ -6634,6 +6639,15 @@ function ctrlGuiderDialog($scope, $sce, srvLocale) {
         text: srvLocale.translations.htmlTextGuiderSlide03
     } ], $scope.to_trusted = function(html_code) {
         return $sce.trustAsHtml(html_code);
+    }, $scope.getIdSlideActive = function() {
+        for (var slideId = 0; slideId < $scope.guider_slides.length && (!$scope.guider_slides[slideId] || !$scope.guider_slides[slideId].active); slideId++) ;
+        return slideId;
+    }, $scope.next = function() {
+        for (var slideId = 0, bFound = !1; slideId < $scope.guider_slides.length && !bFound; slideId++) if ($scope.guider_slides[slideId] && $scope.guider_slides[slideId].active) {
+            bFound = !0;
+            var nextId = slideId + 1;
+            $scope.guider_slides[slideId].active = !1, $scope.guider_slides[nextId] && ($scope.guider_slides[nextId].active = !0);
+        }
     };
 }
 
@@ -35187,7 +35201,7 @@ directiveModule.directive("c4pWaitingClick", function() {
     $templateCache.put("partials/dialog/dialogErrorReport.html", '<div class="row"><div class="c4p-dialog-header"><div class="btn c4p-padding-w-packed c4p-guider-action"><span>{{srvLocale.translations.htmlDialogErrRptPageTitle}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right"><div class="btn c4p-padding-w-packed c4p-guider-action" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div><div class="row"><div class="col-xxs-12" resizecss-height="getResizeHeight() -getPathValue(\'parentNode.parentNode.previousElementSibling\', \'offsetHeight\')" sense-opts="{name:\'dialogEmail\', axeY:\'scroll\', watchRefresh:\'mailLastUpdate\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="c4p-dialog-container"><div class="row"><div class="col-xxs-12"><c4p-input ng-model="feedback.message" placeholder="{{srvLocale.translations.htmlFormMessagePlaceHolder}}" type="textarea" rows="5" cols="40" style="width:100%"></c4p-input></div></div><div class="row"><a class="btn btn-primary col-xxs-4 col-sm-offset-8" data-dismiss="modal" ng-class="{disabled : (feedback.emailRequired && !feedback.email) }" ng-click="submit()">{{srvLocale.translations.htmlButtonSend}}</a></div><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogFacetSelected.html", '<div resize-opts="{}"><div class="row"><div class="c4p-dialog-search-header c4p-color-a-dark-i"><div class="btn c4p-padding-w-packed c4p-color-action-transparent c4p-stroke" ng-show="createPredefinedObjectEnabled" ng-click="createPredefinedObject()"><span class="c4p-icon-std glyphicon glyphicon-plus"></span></div><div class="btn c4p-padding-w-packed"><span>{{srvLocale.translations.htmlTitleSelection[type]}}</span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-hide="false"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="validateDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-ok"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="closeDialog()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div class="c4p-dialog-search-container c4p-color-a-dark-iii"><div class="row"><div class="col-xxs-12"><span>{{srvLocale.translations.htmlTitleSelection[type]}}</span></div></div><div class="row"><span class="col-xxs-1" ng-click="toggleOrder()"><span ng-show="ascendingOrder" class="glyphicon glyphicon-sort-by-alphabet"></span> <span ng-hide="ascendingOrder" class="glyphicon glyphicon-sort-by-alphabet-alt"></span></span><div class="col-xxs-11 btn-group dropdown" ng-show="definedFacetKeyes.length"><button class="btn dropdown-toggle" data-toggle="dropdown" style="text-align: left"><span class="c4p-n_1">{{srvLocale.translations.htmlFacetName[lastFacetKey]}}</span><span class="glyphicon glyphicon-caret-down"></span></button><ul class="dropdown-menu" style="width:100%"><li ng-repeat="facetKey in definedFacetKeyes"><a ng-click="setFacet(facetKey)"><span style="vertical-align:top">{{srvLocale.translations.htmlFacetName[facetKey]}}</span></a></li></ul></div></div><div class="row"><div class="controls controls-row col-xxs-12" style="position: relative"><input style="width:90%" placeholder="{{srvLocale.translations.htmlFormSearchPlaceHolder}}" ng-model="searchQuery" ng-change="setFilterQuery(searchQuery);"><span style="position: absolute; right: 10px" ng-click="searchQuery=\'\'; setFilterQuery(\'\')"><span class="glyphicon glyphicon-times-circle"></span></span></div></div></div></div><div class="row"><div class="controls controls-row col-xxs-12" style="position: relative" ng-repeat="filterFacet in filterFacets"><span>{{srvLocale.translations.htmlFacetName[filterFacet.key]}} : {{filterFacet.title}} - {{filterFacet.items.length}}</span> <span style="position: absolute; right: 10px" ng-click="removeFacet($index)"><span class="glyphicon glyphicon-times-circle"></span></span></div></div><div class="row c4p-dialog-bg c4p-dialog-search-container c4p-color-a" resizecss-height="getResizeHeight() -getPathValue(\'previousElementSibling\', \'offsetHeight\') -getPathValue(\'previousElementSibling.previousElementSibling\', \'offsetHeight\')" sense-opts="{axeY:\'scroll\', watchRefresh:[\'filterFacet.key\', \'items.keyes.length\', \'items.others.length\']}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="col-xxs-12"><ul class="nav nav-stacked" ng-repeat="groupKey in items.keyes"><li><ul class="list-group"><li class="list-group-item"><a ng-click="addFacet(lastFacetKey, groupKey.title, groupKey.value)">{{groupKey.title}} - {{items.lists[groupKey.value].length}} <span class="glyphicon glyphicon-chevron-right"></span></a></li></ul></li></ul><ul class="nav nav-stacked"><li ng-show="filterFacets.length > 0"><ul class="list-group"><li class="list-group-item"><a class="c4p-link5" ng-click="removeLastFacet()">{{getLastFacet().title}} - {{items.others.length}}<span class="glyphicon glyphicon-chevron-left"></span></a></li></ul></li><li ng-repeat="item in items.others"><div ng-click="item.selected = !item.selected" class="clearfix c4p-link5 c4p-select-objects-item"><span class="glyphicon glyphicon-ok icon-large pull-left" ng-class="{\'c4p-invisible\': !item.selected}"></span><div class="pull-left" ng-class="{scrollTop:element.scrollTo}"><span>{{getObjectName(item.object)}}</span></div></div></li></ul></div></div>'), 
     $templateCache.put("partials/dialog/dialogFeed.html", '<div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-color-action-transparent" ng-click="close()" ng-show="!modeEdit"><span class="glyphicon glyphicon-arrow-left"></span></div><div class="btn c4p-padding-w-packed c4p-color-action-transparent"><span>{{title}}</span></div><div ng-show="editable && !modeEdit" class="btn c4p-color-action-transparent" ng-click="setModeEdit(true)"><span class="glyphicon glyphicon-edit"></span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right" ng-show="modeEdit"><div class="btn c4p-padding-w-packed c4p-color-ok-transparent c4p-stroke" ng-click="createFeed()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-share"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent c4p-stroke" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div c4p-show="modeEdit" class="c4p-color-a-gradient3"><div class="row"><div class="col-xxs-12" resizecss-height="getResizeHeight() -getPathValue(\'parentNode.parentNode.previousElementSibling\', \'offsetHeight\')" sense-opts="{name:\'dialogEmail\', axeY:\'scroll\', watchRefresh:\'mailLastUpdate\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="row c4p-form-group c4p-color-a-gradient1"><c4p-input type-var="text" style="width:100%" ng-model="feed.title" title-var="srvLocale.translations.htmlFormTitle" placeholder="{{srvLocale.translations.htmlFormTitlePlaceHolder}}"></c4p-input></div><div class="row c4p-form-group c4p-color-a-gradient2"><label class="control-label a4p-dot">{{srvLocale.translations.htmlTypeName[\'Document\']}}</label><div class="col-xxs-12" style="border-bottom: 1px solid #eeeeee"><div ng-controller="ctrlNamedObject" ng-init="init(feedObject)"><span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> <span>{{itemName}}</span></div></div></div><div class="row c4p-form-group c4p-color-a-gradient3"><div class="col-xxs-12"><c4p-input ng-model="feed.body" placeholder="{{srvLocale.translations.htmlFormMessagePlaceHolder}}" type="textarea" rows="5" cols="40"></c4p-input></div></div><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div></div></div></div><div ng-show="!modeEdit" class="c4p-color-a-gradient3"><div class="row"><div class="col-xxs-12" resizecss-height="getResizeHeight() -getPathValue(\'parentNode.parentNode.previousElementSibling\', \'offsetHeight\')" sense-opts="{name:\'dialogEmail\', axeY:\'scroll\', watchRefresh:\'mailLastUpdate\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-color-a-gradient1"><div class="c4p-card"><span class="c4p-size-bigger">{{feed.title}}</span></div></div><div class="c4p-color-a-gradient2"><div class="c4p-card"><div class="c4p-size-big"><span>{{srvLocale.translations.htmlTypeName[\'Document\']}}</span></div><div ng-controller="ctrlNamedObject" ng-init="init(feedObject)"><span class="icon-large glyphicon glyphicon-{{itemIcon}}"></span> <span>{{itemName}}</span></div></div></div><div class="c4p-color-a-gradient3"><div class="c4p-card"><p>{{feed.body}}</p></div></div></div></div></div></div>'), 
-    $templateCache.put("partials/dialog/dialogFeedback.html", '<!doctype html><div ng-controller="ctrlEditFocus"><div class="modal-header row c4p-color-gradient0"><div class="col-xxs-12"><ul class="nav nav-pills"><li ng-class="{active:onlyFeedback}"><a class="btn" data-toggle="tab" ng-click="onlyFeedback = true;" ng-disabled="isEditFocused"><h5>{{srvLocale.translations.htmlGuiderNeedHelp}}</h5></a></li><li class="pull-right"><a ng-click="close()" class="btn" ng-disabled="isEditFocused"><span class="">&times;</span></a></li></ul></div></div><div class="modal-body row c4p-color-gradient0"><div class="c4p-container-scroll-y"><div class="c4p-container"><div class="tab-content"><div class="tab-pane fade in" id="home" ng-class="{active:!onlyFeedback}" ng-controller="ctrlGuiderDialog"><div class="row"><a4p-carousel class="col-xxs-12 c4p-full-height" interval="guider_interval"><a4p-slide ng-repeat="slide in guider_slides" active="slide.active"><div class="c4p-full-height center-block" style="position:relative;height:350px"><img class="center-block" ng-src="{{slide.image}}"><div class="center-block carousel-caption" ng-bind-html="to_trusted(slide.text)"></div></div></a4p-slide></a4p-carousel></div></div><div class="tab-pane fade in" id="question" ng-class="{active:onlyFeedback}"><div class="container"><div class="row"><h5 class="col-xxs-12 col-sm-6 col-sm-offset-3">{{srvLocale.translations.htmlMsgFeedbackEmail}}</h5><div class="col-xxs-12 col-sm-6 col-sm-offset-3" ng-show="feedback.emailRequired"><c4p-input title-var="srvLocale.translations.htmlMsgFeedbackContactEmpty" ng-model="feedback.email" placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}" type="mail" style="width:100%" warn-var="feedback.email" required ng-disabled="isEditFocused"></c4p-input></div></div><div class="row"><div class="col-xxs-12 col-sm-6 col-sm-offset-3" ng-show="feedback.emailRequired"><c4p-input title-var="srvLocale.translations.htmlMsgFeedbackPhone" ng-model="feedback.phone" placeholder="{{srvLocale.translations.htmlFormPhonePlaceHolder}}" type="tel" style="width:100%" ng-disabled="isEditFocused"></c4p-input></div></div><div class="row"><div class="col-xxs-12 col-sm-6 col-sm-offset-3"><c4p-input ng-model="feedback.message" placeholder="{{srvLocale.translations.htmlFormMessagePlaceHolder}}" type="textarea" rows="20" cols="20" style="width:100%" ng-disabled="isEditFocused"></c4p-input></div></div><div class="row"><a class="btn btn-success col-xxs-12 col-sm-3 col-sm-offset-6" data-dismiss="modal" ng-class="{disabled : (feedback.emailRequired && !feedback.email) }" ng-click="submit()" ng-disabled="isEditFocused">{{srvLocale.translations.htmlButtonSend}}</a></div></div></div></div></div></div></div></div>'), 
+    $templateCache.put("partials/dialog/dialogFeedback.html", '<!doctype html><div ng-controller="ctrlEditFocus"><div class="modal-header row c4p-color-gradient0"><div class="col-xxs-12"><ul class="nav nav-pills"><li ng-class="{active:onlyFeedback}"><a class="btn" data-toggle="tab" ng-click="onlyFeedback = true;" ng-disabled="isEditFocused"><h5>{{srvLocale.translations.htmlGuiderNeedHelp}}</h5></a></li><li class="pull-right"><a ng-click="close()" class="btn" ng-disabled="isEditFocused"><span class="">&times;</span></a></li></ul></div></div><div class="modal-body row c4p-color-gradient0"><div class="c4p-container-scroll-y"><div class="c4p-container"><div class="tab-content"><div class="tab-pane fade in" id="home" ng-class="{active:!onlyFeedback}" ng-controller="ctrlGuiderDialog"><div class="row"><a4p-carousel class="col-xxs-12 c4p-full-height" interval="guider_interval"><a4p-slide ng-repeat="slide in guider_slides" active="slide.active"><div class="c4p-full-height center-block" style="position:relative;height:350px"><img class="center-block" ng-src="{{slide.image}}"><div class="center-block carousel-caption" ng-bind-html="to_trusted(slide.text)"></div></div></a4p-slide></a4p-carousel><div class="col-xxs-12 col-sm-4 col-sm-offset-4" style="padding-top:10px"><button class="btn btn-link disabled col-xxs-6" disabled>{{getIdSlideActive() + 1}} / {{guider_slides.length}}</button> <button class="btn col-xxs-6" ng-click="next()" ng-show="(getIdSlideActive() + 1) < guider_slides.length">Next</button> <button class="btn btn-primary col-xxs-6" ng-click="close()" ng-hide="(getIdSlideActive() + 1) < guider_slides.length">Got it</button></div></div></div><div class="tab-pane fade in" id="question" ng-class="{active:onlyFeedback}"><div class="container"><div class="row"><h5 class="col-xxs-12 col-sm-6 col-sm-offset-3">{{srvLocale.translations.htmlMsgFeedbackEmail}}</h5><div class="col-xxs-12 col-sm-6 col-sm-offset-3" ng-show="feedback.emailRequired"><c4p-input title-var="srvLocale.translations.htmlMsgFeedbackContactEmpty" ng-model="feedback.email" placeholder="{{srvLocale.translations.htmlFormEmailPlaceHolder}}" type="mail" style="width:100%" warn-var="feedback.email" required ng-disabled="isEditFocused"></c4p-input></div></div><div class="row"><div class="col-xxs-12 col-sm-6 col-sm-offset-3" ng-show="feedback.emailRequired"><c4p-input title-var="srvLocale.translations.htmlMsgFeedbackPhone" ng-model="feedback.phone" placeholder="{{srvLocale.translations.htmlFormPhonePlaceHolder}}" type="tel" style="width:100%" ng-disabled="isEditFocused"></c4p-input></div></div><div class="row"><div class="col-xxs-12 col-sm-6 col-sm-offset-3"><c4p-input ng-model="feedback.message" placeholder="{{srvLocale.translations.htmlFormMessagePlaceHolder}}" type="textarea" rows="20" cols="20" style="width:100%" ng-disabled="isEditFocused"></c4p-input></div></div><div class="row"><a class="btn btn-success col-xxs-12 col-sm-3 col-sm-offset-6" data-dismiss="modal" ng-class="{disabled : (feedback.emailRequired && !feedback.email) }" ng-click="submit()" ng-disabled="isEditFocused">{{srvLocale.translations.htmlButtonSend}}</a></div></div></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogGoToMeeting.html", '<!doctype html><div class="modal-header col-xxs-12 c4p-color-gradient0"><ul class="nav nav-pills"><li class="hidden-xs"><a class="btn disabled"><h5>{{srvLocale.translations.htmlGotoMeeting}}</h5></a></li><li class="pull-right"><a class="btn" ng-click="close()" ng-disabled="isEditFocused"><span class="">&times;</span></a></li></ul></div><div class="modal-body col-xxs-12 c4p-color-gradient0"><div class="c4p-container-scroll-y"><div class="c4p-container"><div class="col-xxs-12"><div class="table-responsive"><table class="table table-bordered"><tr><td><ul class="nav nav-pills"><li><a class="btn disabled" style="text-align:left">{{srvLocale.translations.htmlCreateEmptyMeeting}}</a></li><li class="pull-right"><a class="btn" ng-click="createNewMeeting()"><i class="glyphicon glyphicon-chevron-right"></i></a></li></ul></td></tr><tr><td><ul class="nav nav-pills"><li><a class="btn disabled" style="text-align:left">{{srvLocale.translations.htmlGotoMeetingWith}}</a></li><li style="width:50%"><a class="btn disabled a4p-dot" style="text-align:left">{{itemName}}</a></li><li class="pull-right"><a class="btn" ng-click="createNewMeeting(item)"><i class="glyphicon glyphicon-chevron-right"></i></a></li></ul></td></tr><tr><td><ul class="nav nav-pills" ng-show="relatedEvents.length"><li><a class="btn disabled" style="text-align:left">{{srvLocale.translations.htmlUseExistingMeeting}}</a></li></ul><ul class="nav nav-pills" ng-show="relatedEvents.length"><li><a class="btn" style="text-align:left"><select class="form-control" ng-model="selectedEvent" ng-options="e.name for e in relatedEvents"></select></a></li><li class="pull-right"><a class="btn" ng-click="gotoMeeting()"><i class="glyphicon glyphicon-chevron-right"></i></a></li></ul></td></tr></table></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogICal.html", '<div class="row"><div class="c4p-dialog-header c4p-color-gradient0"><div class="btn c4p-padding-w-packed c4p-color-action-transparent"><span>{{srvLocale.translations.htmlActionName[\'sendICal\']}}</span></div><div class="btn c4p-color-action-transparent" ng-click="openDialogContacts()"><span class="glyphicon glyphicon-user"></span></div><div class="btn c4p-padding-w-packed"><div class="c4p-icon-std glyphicon">&nbsp;</div></div><div class="pull-right"><div class="btn c4p-padding-w-packed c4p-color-action-transparent" ng-click="sendICal()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-envelope"></span></div>&nbsp;<div class="btn c4p-padding-w-packed c4p-color-cancel-transparent-transparent c4p-stroke" ng-click="close()" style="display: inline-block"><span class="c4p-icon-std glyphicon glyphicon-times-circle"></span></div></div></div></div><div class="c4p-color-a-gradient3"><div class="row"><div class="col-xxs-12" resizecss-height="getResizeHeight() -getPathValue(\'parentNode.parentNode.previousElementSibling\', \'offsetHeight\')" sense-opts="{name:\'dialogICal\', axeY:\'scroll\', watchRefresh:\'mailLastUpdate\'}" sense-scrollopts="{scrollbarClass:\'c4p-scrollbar\'}"><div class="container"><div class="c4p-color-a-gradient1"><div class="c4p-card"><span class="c4p-size-bigger">{{ical.title}}</span><br><span>{{srvLocale.formatDate(ical.startDate, \'short\')}}</span> - <span>{{srvLocale.formatDate(ical.endDate, \'short\')}}</span><br><span>{{ical.location}}</span></div></div><div class="c4p-form-group c4p-color-a-gradient2"><div class="row"><div><c4p-input title-var="srvLocale.translations.htmlFormTo" ng-model="emailInput" ng-blur="addEmailToList(emailInput);emailInput=\'\';" placeholder="{{srvLocale.translations.htmlFormToPlaceHolder}}" style="width: 100%"></c4p-input></div></div><div class="row c4p-mail-attachment-list c4p-color-a-gradient2" ng-show="(emails.length > 0 || contacts.length > 0)"><div class="col-xxs-12"><div><div ng-repeat="item in contacts" class="row c4p-mail-attachment" ng-class="{\'c4p-edit\': modeEdit, \'c4p-noedit\': !modeEdit}"><span ng-controller="ctrlNamedObject" ng-init="init(item)" class="c4p-mail-attachment-name">{{itemName}}</span> <a ng-click="closeAlert($index,\'contact\')"><span class="glyphicon glyphicon-remove"></span></a></div><div ng-repeat="item in emails" class="c4p-mail-attachment" ng-class="{\'c4p-edit\': modeEdit, \'c4p-noedit\': !modeEdit}"><span class="c4p-mail-attachment-name">{{item.email}}</span> <a ng-click="closeAlert($index,\'email\')"><span class="glyphicon glyphicon-remove"></span></a></div></div></div></div><div ng-show="errorMap.email.length > 0"><div class="help-inline c4p-field-error-message" ng-repeat="error in errorMap.email">{{error}}</div></div></div><div class="c4p-color-a-gradient3"><div class="c4p-card"><p>{{ical.description}}</p></div></div><div class="row"><div class="col-xxs-12" ng-style="{minHeight:getResizeHeight()+\'px\'}"></div></div></div></div></div></div>'), 
     $templateCache.put("partials/dialog/dialogNote.html", '<div ng-controller="ctrlEditFocus"><div class="modal-header row c4p-color-gradient0"><div class="col-xxs-12"><ul class="nav nav-pills"><li class="hidden-xs" ng-hide="removeEnabled"><a class="btn disabled"><h5>{{srvLocale.translations.htmlTitleNewObject[note.a4p_type]}}</h5></a></li><li class="hidden-xs" ng-show="removeEnabled"><a class="btn disabled"><h5>{{srvLocale.translations.htmlTitleEditObject[note.a4p_type]}}</h5></a></li><li ng-show="removeEnabled && modeEdit"><a class="btn c4p-color-cancel-transparent" ng-click="remove()" ng-disabled="isEditFocused"><span class="glyphicon glyphicon-trash-o"></span></a></li><li ng-show="srvData.isMethodPossibleForObject(\'shareDocumentByEmail\', note)"><a class="btn" ng-click="submitAndShare()" ng-disabled="isEditFocused" ng-class="{\'disabled\': srvData.isMethodDisabledForObject(\'shareDocumentByEmail\', note)}"><span class="glyphicon glyphicon-envelope"></span></a></li><li ng-show="srvData.isMethodPossibleForObject(\'shareDocumentByEmail\', note)"><a class="btn" ng-click="submitAndShareByChatter()" ng-disabled="isEditFocused" ng-class="{\'disabled\': srvData.isMethodDisabledForObject(\'shareDocumentByChatter\', note)}"><span class="glyphicon glyphicon-share"></span></a></li><li ng-show="editable && !modeEdit"><a class="btn" ng-click="setModeEdit(true)" ng-disabled="isEditFocused"><span class="glyphicon glyphicon-edit"></span></a></li><li ng-show="modeEdit"><a class="btn" ng-disabled="isEditFocused" ng-repeat="footer in toolboxInEditMode" ng-click="startSpinner();footer.fn()"><span class="glyphicon glyphicon-{{footer.icon}}"></span></a></li><li class="pull-right"><a class="btn" ng-click="close()" ng-disabled="isEditFocused"><span class="">&times;</span></a></li><li class="pull-right" ng-hide="!modeEdit"><a class="btn" ng-click="submit()" ng-disabled="isEditFocused"><div ng-class="{\'c4p-color-ok-transparent\' : objectValidated, \'c4p-color-cancel-transparent\' : !objectValidated}"><span class="glyphicon glyphicon-check"></span></div></a></li></ul></div></div><div class="modal-body row c4p-color-gradient0"><div class="c4p-container-scroll-y"><div class="c4p-container" ng-switch="" on="note.a4p_type"><div ng-switch-when="Report"><div ng-include="\'partials/dialog/dialogNote_report.html\'"></div></div><div ng-switch-default=""><div ng-include="\'partials/dialog/dialogNote_note.html\'"></div></div></div></div></div></div>'), 
@@ -35874,7 +35888,7 @@ var SrvConfig = function() {
         }
         for (var oldCrmKeyId in self.userId) if ("dbid" != oldCrmKeyId && self.userId.hasOwnProperty(oldCrmKeyId)) {
             var crm = oldCrmKeyId.substr(0, oldCrmKeyId.length - 3);
-            a4p.isUndefinedOrNull(userId[oldCrmKeyId]) ? "ios" == crm || delete self.userId[oldCrmKeyId] : self.userId[oldCrmKeyId] == userId[oldCrmKeyId] || (self.userId[oldCrmKeyId] = userId[oldCrmKeyId]);
+            !userId || a4p.isUndefinedOrNull(userId[oldCrmKeyId]) ? "ios" == crm || delete self.userId[oldCrmKeyId] : userId && (self.userId[oldCrmKeyId] == userId[oldCrmKeyId] || (self.userId[oldCrmKeyId] = userId[oldCrmKeyId]));
         }
         for (var newCrmKeyId in userId) if ("dbid" != newCrmKeyId && userId.hasOwnProperty(newCrmKeyId)) {
             var crm = newCrmKeyId.substr(0, newCrmKeyId.length - 3);
@@ -36974,7 +36988,7 @@ var SrvConfig = function() {
         }
         if (a4p.isDefined(data.objects)) for (var j = 0; j < data.objects.length; j++) {
             var item = data.objects[j];
-            if (isValueInList(typesToAdjust, item.a4p_type)) for (var mergeIdx = 0; mergeIdx < item.crmObjects.length; mergeIdx++) for (var object = item.crmObjects[mergeIdx].data, k = 0; k < keysToAdjust.length; k++) {
+            if (isValueInList(typesToAdjust, item.a4p_type)) for (var mergeIdx = 0; item.crmObjects && mergeIdx < item.crmObjects.length; mergeIdx++) for (var object = item.crmObjects[mergeIdx].data, k = 0; k < keysToAdjust.length; k++) {
                 var key = keysToAdjust[k];
                 if (a4p.isDefined(object[key])) {
                     var date = a4pDateParse(object[key]), timestamp = date.getTime() + timestampDif;
@@ -37107,6 +37121,22 @@ var SrvConfig = function() {
         };
         return console.log("importFile getDir " + targetDirPath), this.srvFileStorage.getDir(targetDirPath, getDirSuccess, getDirFailure), 
         deferred.promise;
+    }, Service.prototype.receiveFirstData = function() {
+        var deferred = this.q.defer(), self = this, requestTimestamp = new Date().getTime(), fctOnHttpSuccess = function(response) {
+            var data = response.data, today_app4pro = a4pDateParse("2013-04-25 00:00:00"), today = new Date();
+            data = self.adjustDate(data, today_app4pro, today);
+            var dataInsert = data;
+            a4p.isDefinedAndNotNull(dataInsert) ? (addFullMap(self, data.userId, dataInsert, requestTimestamp), 
+            deferred.resolve(dataInsert)) : deferred.reject({
+                nop: !0
+            });
+        }, fctOnHttpError = function(response) {
+            self.srvSynchro.serverHs(), deferred.reject({
+                error: "htmlMsgSynchronizationClientPb",
+                log: response.data
+            });
+        };
+        this.dataTransfer.recvData("models/dataFirst.json").then(fctOnHttpSuccess, fctOnHttpError);
     }, Service.prototype.downloadFullMap = function(c4pToken) {
         var deferred = this.q.defer(), self = this, requestTimestamp = new Date().getTime(), askedCrms = this.srvConfig.getActiveCrms(), fctOnHttpSuccess = function(response) {
             var data = response.data, today_app4pro = a4pDateParse("2013-04-25 00:00:00"), today = new Date();
@@ -37709,6 +37739,7 @@ var SrvConfig = function() {
         }
         return toObjects;
     }, Service.prototype.getTypedRemoteLinks = function(fromObject, linkName, toType) {
+        if (!fromObject || !linkName || !toType) return {};
         var index = {}, toObjects = [], fromType = fromObject.a4p_type, objDesc = c4p.Model.a4p_types[fromType];
         toObjects = this.getTypedDirectLinks(fromObject, linkName, toType);
         for (var viaTypeIdx = 0; viaTypeIdx < c4p.Model.attachTypes.length; viaTypeIdx++) {
@@ -38961,16 +38992,22 @@ var SrvFacet = function() {
         "undefined" == typeof timeout && (timeout = null);
         var self = this, deferred = this.defer.defer(), promise = deferred.promise;
         a4p.InternalLog.log("srvFileTransfer", "recvFile " + filePath + " from " + url);
-        var onFileFailureFct = function(fileError) {
+        var treatReject = function(iDeferred, iData, iStatus) {
+            a4p.ErrorLog.log("srvFileTransfer", iStatus), iDeferred.reject({
+                data: iData,
+                status: iStatus
+            });
+        }, treatRejectButAlreadyExist = function(iDeferred, iData, iStatus) {
+            a4p.InternalLog.log("srvFileTransfer", iStatus), iDeferred.resolve({
+                data: "",
+                status: filePath
+            });
+        }, onFileFailureFct = function(fileError) {
             var msg = "File download and get failure for " + filePath + " : " + fileError.code;
             a4p.safeApply(self.rootScope, function() {
-                a4p.ErrorLog.log("srvFileTransfer", msg), deferred.reject({
-                    data: msg,
-                    status: "error"
-                });
+                treatReject(deferred, msg, "error");
             });
         }, onTransferSuccessFct = function(fileEntry) {
-            console.log("success");
             var feUrl = fileEntry.fullPath;
             a4p.isDefined(fileEntry.toNativeURL) && (feUrl = fileEntry.toNativeURL()), a4p.isDefined(fileEntry.toURL) && (feUrl = fileEntry.toURL()), 
             a4p.InternalLog.log("srvFileTransfer", "File downloading success " + feUrl), a4p.isDefined(fileEntry.file) ? fileEntry.file(function(fileObj) {
@@ -38993,10 +39030,7 @@ var SrvFacet = function() {
             var onTransferFailureFct = function(fileTransferError) {
                 var msg = "File download failure for " + filePath + " : " + transferErrorMessage(fileTransferError) + "(source=" + fileTransferError.source + ", target=" + fileTransferError.target + ")";
                 a4p.safeApply(self.rootScope, function() {
-                    a4p.ErrorLog.log("srvFileTransfer", msg), deferred.reject({
-                        data: msg,
-                        status: "error"
-                    });
+                    treatReject(deferred, msg, "error");
                 });
             }, onCreateDirSuccessFct = function(fileEntry) {
                 var ft = new FileTransfer(), trustAllHosts = !0, feUrl = fileEntry.fullPath;
@@ -39019,21 +39053,19 @@ var SrvFacet = function() {
             }, onCreateDirFailureFct = function(message) {
                 var msg = "File directory creation failure for " + filePath + " : " + message;
                 a4p.safeApply(self.rootScope, function() {
-                    a4p.ErrorLog.log("srvFileTransfer", msg), deferred.reject({
-                        data: msg,
-                        status: "error"
-                    });
+                    treatReject(deferred, msg, "error");
                 });
             };
-            this.srvFileStorage.getOrNewFile(filePath, onCreateDirSuccessFct, onCreateDirFailureFct);
+            this.checkFileExistLocally(filePath).then(function() {
+                treatReject = treatRejectButAlreadyExist, self.srvFileStorage.getOrNewFile(filePath, onCreateDirSuccessFct, onCreateDirFailureFct);
+            }, function() {
+                self.srvFileStorage.getOrNewFile(filePath, onCreateDirSuccessFct, onCreateDirFailureFct);
+            });
         } else {
             var fctOnWriteError = function(message) {
                 var msg = "File write failure for " + filePath + " : " + message;
                 a4p.safeApply(self.rootScope, function() {
-                    a4p.ErrorLog.log("srvFileTransfer", msg), deferred.reject({
-                        data: msg,
-                        status: "error"
-                    });
+                    treatReject(deferred, msg, "error");
                 });
             }, fctOnHttpSuccess = function(response) {
                 var msg = "File download success for " + filePath + " : length=" + (response.data ? response.data.byteLength : 0);
@@ -39048,10 +39080,7 @@ var SrvFacet = function() {
             }, fctOnHttpError = function(response) {
                 var msg = "File download failure for " + filePath + " : response=" + (response.data ? response.data : "") + " (status=" + response.status + ")";
                 a4p.safeApply(self.rootScope, function() {
-                    a4p.ErrorLog.log("srvFileTransfer", msg), deferred.reject({
-                        data: msg,
-                        status: "error"
-                    });
+                    treatReject(deferred, msg, "error");
                 });
             }, urlData = {
                 method: "GET",
@@ -39059,10 +39088,33 @@ var SrvFacet = function() {
                 transformResponse: angular.identity,
                 responseType: "arraybuffer"
             };
-            timeout || (urlData.timeout = timeout), a4p.InternalLog.log("srvFileTransfer", "File downloading from ... " + url + " to " + filePath), 
-            a4p.promiseWakeup(this.rootScope, this.http(urlData), fctOnHttpSuccess, fctOnHttpError);
+            timeout || (urlData.timeout = timeout), this.checkFileExistLocally(filePath).then(function() {
+                treatReject = treatRejectButAlreadyExist, a4p.InternalLog.log("srvFileTransfer", "File downloading from ... " + url + " to " + filePath), 
+                a4p.promiseWakeup(self.rootScope, self.http(urlData), fctOnHttpSuccess, fctOnHttpError);
+            }, function() {
+                a4p.InternalLog.log("srvFileTransfer", "File downloading from ... " + url + " to " + filePath), 
+                a4p.promiseWakeup(self.rootScope, self.http(urlData), fctOnHttpSuccess, fctOnHttpError);
+            });
         }
         return promise;
+    }, Service.prototype.checkFileExistLocally = function(filePath) {
+        if ("undefined" == typeof filePath || !filePath) throw new Error("send requires a filePath parameter");
+        var self = this, deferred = this.defer.defer(), promise = deferred.promise, successFct = function() {
+            a4p.safeApply(self.rootScope, function() {
+                deferred.resolve({
+                    data: "checkFileExistLocally ok",
+                    status: "exist"
+                });
+            });
+        }, errorFct = function() {
+            a4p.safeApply(self.rootScope, function() {
+                deferred.reject({
+                    data: "checkFileExistLocally fail",
+                    status: "not exist"
+                });
+            });
+        };
+        return this.srvFileStorage.getFileFromUrl(filePath, successFct, errorFct), promise;
     }, Service;
 }(), SrvGuider = function() {
     function Service(srvLocalStorage, srvLocale) {
