@@ -110,13 +110,13 @@
           "editable": true,
           "data": {
             "id": "df_iE1000000000000",
-            "name": "My First Meeting",
+            "name": "Demo - Building progress",
             "location": "at home",
             "date_start": "2013-04-26 15:50:00",
             "date_end": "2013-04-26 16:50:00",
             "duration_hours": 1,
             "duration_minutes": 0,
-            "description": "Welcome to your first demo meeting<br>Launch it via Meeting Pad button above."
+            "description": "Welcome to your first demo meeting<br><br>A builder progress meeting sample<br>Launch it via Meeting Pad button above."
           }
         }
       ]
@@ -133,7 +133,7 @@
           "data": {
             "id": "df_iPN100000000000",
             "parent_id": {"c4p_id":"df_iE1000000000000"},
-            "title": "Welcome in Meeting Pad",
+            "title": "Staff presentation",
             "pos": "0",
             "editor_type": "Table",
             "viewer_type": ""
@@ -153,7 +153,7 @@
           "data": {
             "id": "df_iPN200000000000",
             "parent_id": {"c4p_id":"df_iE1000000000000"},
-            "title": "Add multimedia",
+            "title": "Building progress video",
             "pos": "1",
             "editor_type": "",
             "viewer_type": ""
@@ -173,7 +173,7 @@
           "data": {
             "id": "df_iPN300000000000",
             "parent_id": {"c4p_id":"df_iE1000000000000"},
-            "title": "Send as email",
+            "title": "Provisional schedule",
             "pos": "2",
             "editor_type": "",
             "viewer_type": ""
@@ -227,7 +227,7 @@
           "data": {
             "id": "df_iNO100000000000",
             "title": "My First Meeting.1.Docs",
-            "description": "Share your docs by drag & drop\nAdd a plan page\nTake notes"
+            "description": "Share your docs by drag & drop\nAdd an agenda item\nTake notes"
           }
         }
       ]
