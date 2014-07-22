@@ -1,0 +1,393 @@
+{
+  "index": {},
+  "objects": [
+    {
+      "a4p_type": "Contact",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iC1000000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iC1000000000000",
+            "salutation": "Mr.",
+            "first_name": "Contact",
+            "last_name": "My First",
+            "title": "",
+            "account_id": {},
+            "phone_work": "",
+            "phone_mobile": "",
+            "phone_fax": "",
+            "phone_house": "",
+            "phone_other": "",
+            "email": "myfirst.contact@test.com",
+            "email_home": "",
+            "email_list": "",
+            "email_other": "",
+            "primary_address_street": "",
+            "primary_address_city": "",
+            "primary_address_zipcode": "",
+            "primary_address_state": "",
+            "primary_address_country": "",
+            "alt_address_street": "",
+            "alt_address_city": "",
+            "alt_address_zipcode": "",
+            "alt_address_state": "",
+            "alt_address_country": "",
+            "description": "",
+            "manager_id": {},
+            "contact_type": "Contact",
+            "assigned_contact_id": {},
+            "birthday": "",
+            "department": "",
+            "assistant_name": "",
+            "assistant_phone": "",
+            "lead_source": "Demo",
+            "thumb_url": "l4p/img/default_thumb_contact.png"
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Contact",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iC2000000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iC2000000000000",
+            "salutation": "Mr.",
+            "first_name": "Contact",
+            "last_name": "My Second",
+            "title": "",
+            "account_id": "",
+            "phone_work": "",
+            "phone_mobile": "",
+            "phone_fax": "",
+            "phone_house": "",
+            "phone_other": "",
+            "email": "mysecond.contact@test.com",
+            "email_home": "",
+            "email_list": "",
+            "email_other": "",
+            "primary_address_street": "",
+            "primary_address_city": "",
+            "primary_address_zipcode": "",
+            "primary_address_state": "",
+            "primary_address_country": "",
+            "alt_address_street": "",
+            "alt_address_city": "",
+            "alt_address_zipcode": "",
+            "alt_address_state": "",
+            "alt_address_country": "",
+            "description": "",
+            "manager_id": "",
+            "contact_type": "Contact",
+            "assigned_contact_id": "",
+            "birthday": "",
+            "department": "",
+            "assistant_name": "",
+            "assistant_phone": "",
+            "lead_source": "Demo",
+            "thumb_url": "l4p/img/default_thumb_contact.png"
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Event",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iE1000000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iE1000000000000",
+            "name": "Demo - Building progress",
+            "location": "at home",
+            "date_start": "2013-04-26 15:50:00",
+            "date_end": "2013-04-26 16:50:00",
+            "duration_hours": 1,
+            "duration_minutes": 0,
+            "description": "Welcome to your first demo meeting<br><br>A builder progress meeting sample<br>Launch it via Meeting Pad button above."
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Plan",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iPN100000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iPN100000000000",
+            "parent_id": {"c4p_id":"df_iE1000000000000"},
+            "title": "Staff presentation",
+            "pos": "0",
+            "editor_type": "Table",
+            "viewer_type": ""
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Plan",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iPN200000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iPN200000000000",
+            "parent_id": {"c4p_id":"df_iE1000000000000"},
+            "title": "Building progress video",
+            "pos": "1",
+            "editor_type": "",
+            "viewer_type": ""
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Plan",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iPN300000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iPN300000000000",
+            "parent_id": {"c4p_id":"df_iE1000000000000"},
+            "title": "Provisional schedule",
+            "pos": "2",
+            "editor_type": "",
+            "viewer_type": ""
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Attendee",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iAT100000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iAT100000000000",
+            "event_id": {"c4p_id":"df_iE1000000000000"},
+            "relation_id":  {"c4p_id":"df_iC1000000000000"}
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Attendee",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iAT200000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iAT200000000000",
+            "event_id":  {"c4p_id":"df_iE1000000000000"},
+            "relation_id":  {"c4p_id":"df_iC2000000000000"}
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Note",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iNO100000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iNO100000000000",
+            "title": "My First Meeting.1.Docs",
+            "description": "Share your docs by drag & drop\nAdd an agenda item\nTake notes"
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Note",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iNO200000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iNO200000000000",
+            "title": "My First Meeting.2.Email",
+            "description": "Send a final report by email with top right button\n\nCheers !"
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Document",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iDO100000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iDO100000000000",
+            "name": "DemoWelcome.mp4",
+            "description": "MP4 video.<br>Click and play.",
+            "length": "2421708",
+            "url": "img/samples/docs/demo_ceo_welcome.mp4",
+            "filePath": "img/samples/docs/demo_ceo_welcome.mp4",
+            "fileUrl": "img/samples/docs/demo_ceo_welcome.mp4"
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Document",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iDO200000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iDO200000000000",
+            "name": "demo_doc_cv1.pdf",
+            "description": "PDF demo sample",
+            "length": "627324",
+            "url": "img/samples/docs/demo_doc_cv1.pdf",
+            "filePath": "img/samples/docs/demo_doc_cv1.pdf",
+            "fileUrl": "img/samples/docs/demo_doc_cv1.pdf",
+            "c4pSynchroStatus": {
+              "creating": 0,
+              "sharing": 0,
+              "writing": 0,
+              "reading": 0,
+              "deleting": 0,
+              "cloud": {
+                "progress": 100,
+                "status": 3,
+                "hasBeenCanceled": false,
+                "log": "in!"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Plannee",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iPL100000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iPL100000000000",
+            "parent_id": {  "c4p_id": "df_iPN100000000000"  }
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Plannee",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iPL200000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iPL200000000000",
+            "object_id": { "c4p_id": "df_iNO100000000000" },
+            "parent_id": {  "c4p_id": "df_iPN200000000000"  }
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Plannee",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iPL300000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iPL300000000000",
+            "object_id": { "c4p_id": "df_iNO200000000000" },
+            "parent_id": {  "c4p_id": "df_iPN300000000000"  }
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Plannee",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iPL400000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iPL400000000000",
+            "object_id": { "c4p_id": "df_iDO100000000000" },
+            "parent_id": {  "c4p_id": "df_iPN200000000000"  }
+          }
+        }
+      ]
+    },
+    {
+      "a4p_type": "Plannee",
+      "crmObjects": [
+        {
+          "crmId": {
+            "id": "df_iPL500000000000",
+            "crm": "c4p"
+          },
+          "editable": true,
+          "data": {
+            "id": "df_iPL400000000000",
+            "object_id": { "c4p_id": "df_iDO200000000000" },
+            "parent_id": {  "c4p_id": "df_iPN300000000000"  }
+          }
+        }
+      ]
+    }
+
+  ]
+}
