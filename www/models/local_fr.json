@@ -5,7 +5,8 @@
     "htmlGuiderTextValidation":"Synchronisation en cours. Veuillez patientez ...",
     "htmlGuiderTextWaiting":"<blockquote style='background: none'><p>La patience, la persistance et la transpiration sont les cl\u00E9s du succ\u00E8s.</p><small>Napoleon Hill</small></blockquote>",
 
-    "htmlGuiderNeedHelp":"Question ?",
+    "htmlGuiderNeedHelp":"Cela ne me suffit pas...",
+    "htmlGuiderBegin":"Retour sur l'aide",
 
     "htmlErrorRequired":"Le champ '{0}' est obligatoire",
     "htmlErrorMaxLength":"Le champ '{0}' ne doit pas d\u00E9passer {1} caract\u00E8res",
@@ -35,7 +36,7 @@
     "htmlButtonSendEmail" : "Envoyer un courriel",
     "htmlButtonSend":"Envoyer",
     "htmlButtonNext":"Suivant",
-    "htmlButtonGotIt":"On y va",
+    "htmlButtonGotIt":"Ok, j'ai compris. On y va !",
 
 
 
@@ -376,7 +377,7 @@
     "htmlMsgLoadFileStoragePb":"Probl\u00E8me de chargement du File Storage. L'application ne peut pas d\u00E9marrer !",
     "htmlMsgFeedbackMessageEmpty":"Votre message est vide",
     "htmlMsgFeedbackContactEmpty":"Merci d'indiquer une mail valide",
-    "htmlMsgFeedbackEmail":"Merci pour votre retour !",
+    "htmlMsgFeedbackEmail":"Merci pour votre question ou retour !",
     "htmlMsgFeedbackPhone":"Si vous pouvez \u00EAtre joint par t\u00E9l\u00E9phone",
 
     "htmlMsgFeedbackMoreObjects":"Bonjour\nJ'ai besoin de plus d'objets :\n\n ... comme ?\n",
@@ -693,35 +694,35 @@
         "c4p-apps4pro": "App4pro Officiel"
     },
 
-    "htmlTextGuiderSlide01":"<h5>Organiser. Partager. Vendre.</h5><p>Vos donn&eacute;es CRM sur le terrain. Travaillez avec ou sans connexion. <br />Organisez votre agenda, pr&eacute;parez soigneusement vos rendez-vous.<br>Collectez des informations, prenez des notes, suivez vos prospects et vos clients &#8230; sur votre tablette ou sur votre smartphone.</p>",
-    "htmlTextGuiderSlide02":"<h5>Votre CRM interactif.</h5><p>Visualisation et manipulation intuitive de vos donn&eacute;es <br />Contacts, comptes, opportunit&eacute;s, etc. <br />Biblioth&egrave;que de documents, d&rsquo;images, de vid&eacute;os<br />Connexion s&eacute;curis&eacute;e et stockage local crypt&eacute;<br />Utilisation compl&egrave;te hors connexion.</p>",
-    "htmlTextGuiderSlide03":"<h5>Planifier vos r&eacute;unions.</h5><p><br />Associez y vos participants, vos documents, etc. <br />R&eacute;digez des notes, prenez des photos.<br /><br />Partagez et vendez !</p>",
-    "htmlTextGuiderSlide04":"<h5>Planifier vos r&eacute;unions.</h5><p><br />Associez y vos participants, vos documents, etc. <br />R&eacute;digez des notes, prenez des photos.<br /><br />Partagez et vendez !</p>",
+    "htmlTextGuiderSlide01":"<h4>Bienvenue sur CRM Meeting Pad ! <small>(1 / 4)</small></h4><p>Organiser. Partager. Vendre.</p>",
+    "htmlTextGuiderSlide02":"<h4>Bienvenue sur CRM Meeting Pad ! <small>(2 / 4)</small></h4><p>Organiser les donn&eacute;es. Cr&eacute;er des contacts, des opportunit&eacute;s ... et les relier.</p>",
+    "htmlTextGuiderSlide03":"<h4>Bienvenue sur CRM Meeting Pad ! <small>(3 / 4)</small></h4><p>Le CRM construit vos r&eacute;unions.</p>",
+    "htmlTextGuiderSlide04":"<h4>Bienvenue sur CRM Meeting Pad ! <small>(4 / 4)</small></h4><p>Partager des documents avec ses clients.</p>",
     "htmlTextGuiderCalendar":"<ol><li>L'agenda de ma journ\u00E9e en un coup d'oeil. Je peux rajouter un rendez-vous.</li><li>Je consulte mes informations commerciales.</li><li>Je peux commencer une pr\u00E9sentation.</li></ol>",
    	"htmlTextGuiderEvent":"<ol><li>J'ajoute des invit\u00E9s, des documents...</li><li>Je commence une pr\u00E9sentation.</li></ol>",
    	"htmlTextGuiderMeeting":"<ol><li>Pr\u00E9senter des documents.</li><li>Prendre des notes, des photos...</li><li>Partager avec mes clients.</li></ol>",
     "htmlFormGuiderTextSuccessCreateAccount":"Votre compte a \u00E9t\u00E9 cr\u00E9\u00E9 avec succ\u00E8s. Vos identifiants de connexion ont \u00E9t\u00E9 envoy\u00E9s \u00E0 votre adresse email",
     "htmlFormGuiderTextSuccessRequestPassword":"Un lien permettant de changer votre mot de passe vient d'\u00EAtre envoy\u00E9 \u00E0 votre adresse mail",
     "htmlFormGuiderSlide1Title":"CRM Mobile",
-	"htmlFormGuiderSlide1Text":"Suivez vos clients et vos opportunit\u00E9s. Consultez les informations importantes, m\u00EAme quand vous n'\u00EAtes pas au bureau, en mode connect\u00E9 ou d\u00E9connect\u00E9.",
+    "htmlFormGuiderSlide1Text":"Suivez vos clients et vos opportunit\u00E9s. Consultez les informations importantes, m\u00EAme quand vous n'\u00EAtes pas au bureau, en mode connect\u00E9 ou d\u00E9connect\u00E9.",
 
     "htmlFavorites":"Favoris",
 
-	"htmlDefaultEventName":"Nouvel \u00E9v\u00E9nement",
-	"htmlDefaultTaskName":"Nouvelle t\u00E2che",
-	"htmlDefaultNewLead":"Nouvelle piste",
-	"htmlDefaultNewContact":"Nouveau contact",
-	"htmlDefaultNewAccount":"Nouveau compte",
-	"htmlDefaultOpportunityName":"Nouvelle opportunit\u00E9",
-	"htmlDefaultStage":"En prospection",
+    "htmlDefaultEventName":"Nouvel \u00E9v\u00E9nement",
+    "htmlDefaultTaskName":"Nouvelle t\u00E2che",
+    "htmlDefaultNewLead":"Nouvelle piste",
+    "htmlDefaultNewContact":"Nouveau contact",
+    "htmlDefaultNewAccount":"Nouveau compte",
+    "htmlDefaultOpportunityName":"Nouvelle opportunit\u00E9",
+    "htmlDefaultStage":"En prospection",
 
-	"htmlOptionsSalutation":{
-		"mr":"Mr",
-		"ms":"Mme",
-		"mrs":"Mlle",
-		"dr":"Dr",
-		"prof":"Prof"
-	},
+    "htmlOptionsSalutation":{
+      "mr":"Mr",
+      "ms":"Mme",
+      "mrs":"Mlle",
+      "dr":"Dr",
+      "prof":"Prof"
+    },
 
 	"htmlOptionsLeadSource":{
         "none":"Contact direct",

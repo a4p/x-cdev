@@ -5,7 +5,8 @@
   "htmlGuiderTextValidation":"Synchronization is running. Please wait ...",
   "htmlGuiderTextWaiting":"<blockquote style='background: none'><p>Patience, persistence and perspiration make an unbeatable combination for success.</p><small>Napoleon Hill</small></blockquote>",
 
-  "htmlGuiderNeedHelp":"Question ?",
+  "htmlGuiderNeedHelp":"I need more...",
+  "htmlGuiderBegin":"Back to help",
 
   "htmlErrorRequired":"Field '{0}' is mandatory",
   "htmlErrorMaxLength":"Field '{0}' must not exceed {1} characters",
@@ -35,7 +36,7 @@
   "htmlButtonSendEmail":"Send email",
   "htmlButtonSend":"Send",
   "htmlButtonNext":"Next",
-  "htmlButtonGotIt":"Go",
+  "htmlButtonGotIt":"Ok, i got it !",
 
 
 
@@ -376,7 +377,7 @@
   "htmlMsgLoadFileStoragePb":"Creation of File Storage failed. The application can not start !",
   "htmlMsgFeedbackMessageEmpty":"Your message text is empty",
   "htmlMsgFeedbackContactEmpty":"Sorry, we need valid email",
-  "htmlMsgFeedbackEmail":"Thank you for your feedback !",
+  "htmlMsgFeedbackEmail":"Thank you for your question or feedback !",
   "htmlMsgFeedbackPhone":"If you could be join by phone",
 
   "htmlMsgFeedbackMoreObjects":"Hi!\nPlease i need more objects, like :\n ... which one ?",
@@ -693,10 +694,10 @@
       "c4p-apps4pro": "App4pro official"
   },
 
-  "htmlTextGuiderSlide01":"<h5>Welcome in CRM Meeting Pad.</h5><p>Import your contacts, documents you need on fly</p><p>Enjoy your free mobile CRM</p><p>You are now ready to go in meeting</p>",
-  "htmlTextGuiderSlide02":"<h5>Welcome in your meeting.</h5>",
-  "htmlTextGuiderSlide03":"<h5>After meeting, organize your data.</h5><p>Your contacts, opportunities items have right side relations</p><p>Organise data by drag and drop or with the left side menu</p>",
-  "htmlTextGuiderSlide04":"<h5>Need support ?</h5><p>Help window is always there : “?” button in left bottom corner</p><p>Click on “Question ?” tab above and fill the contact form</p><p>Or send us an email : team @ apps4pro.com</p>",
+  "htmlTextGuiderSlide01":"<h4>Welcome in CRM Meeting Pad. <small>(1 / 4)</small></h4><p>Organize. Share. Sale.</p>",
+  "htmlTextGuiderSlide02":"<h4>Welcome in CRM Meeting Pad. <small>(2 / 4)</small></h4><p>Organize data. Create contacts, opportunities... and link them.</p>",
+  "htmlTextGuiderSlide03":"<h4>Welcome in CRM Meeting Pad. <small>(3 / 4)</small></h4><p>CRM build your meetings.</p>",
+  "htmlTextGuiderSlide04":"<h4>Welcome in CRM Meeting Pad. <small>(4 / 4)</small></h4><p>Share documents with your customers.</p>",
   "htmlTextGuiderCalendar":"<ol><li>My sales information.</li><li>Seeing my calendar day at a glance. I can add a meeting.</li><li>Starting a meeting show.</li></ol>",
   "htmlTextGuiderEvent":"<ol><li>Adding attendees, documents...</li><li>I start my show.</li></ol>",
   "htmlTextGuiderMeeting":"<ol><li>Show documents.</li><li>Take notes, pictures...</li><li>Share with my customers.</li></ol>",
