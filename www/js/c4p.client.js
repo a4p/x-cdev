@@ -1,4 +1,4 @@
-/*! c4p.client 2014-07-24 20:30 */
+/*! c4p.client 2014-07-25 10:04 */
 function rhex(num) {
     for (str = "", j = 0; 3 >= j; j++) str += hex_chr.charAt(num >> 8 * j + 4 & 15) + hex_chr.charAt(num >> 8 * j & 15);
     return str;
@@ -22302,7 +22302,7 @@ a4p || (a4p = {}), a4p.MemoryStorage = function() {
         }), a4p.InternalLog.log("a4p.FileStorage", "bWillThrow ? " + h + " " + i);
     }
     function g(a, b, c, d, g) {
-        for (var h = b.split("/"), i = h.length - 1, j = h[i], k = [], l = 0; i > l; l++) "." != h[l] && "" != h[l] && k.push(h[l]);
+        for (var h = b.split("/"), i = h.length - 1, j = h[i], k = [], l = 0; i > l; l++) "." !== h[l] && "" !== h[l] && k.push(h[l]);
         a4p.InternalLog.log("a4p.FileStorage", "getFileEntry filePath :" + b + " fileOptions:" + c.create + " dirs:" + a4pDumpObject("  ", k, 1));
         var m;
         m = c.create ? {

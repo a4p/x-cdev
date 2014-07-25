@@ -23749,7 +23749,7 @@ body {
   position: fixed;
   top: 20%;
   left: 0;
-  width: 200px;
+  width: 210px;
   bottom: 10%;
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 41;
@@ -23763,7 +23763,7 @@ body {
 }
 .c4p-meeting-body > aside nav {
   position: fixed;
-  width: 200px;
+  width: 210px;
   border: 1px solid #000000;
   z-index: 42;
 }
@@ -23774,7 +23774,7 @@ body {
 .c4p-meeting-body > div > article {
   position: absolute;
   top: 70px;
-  left: 200px;
+  left: 210px;
   right: 0px;
   bottom: 0;
 }
